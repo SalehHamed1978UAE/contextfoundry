@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color: #0f172a; color-scheme: dark;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#0f172a">
+    <title>{% block title %}Context Foundry{% endblock %}</title>
+    <style>
+        :root { color-scheme: dark; }
+        html, body {
+            background-color: #0f172a !important;
+            color: #f1f5f9;
+            margin: 0;
+            padding: 0;
+        }
+        /* Hide content until styles are fully loaded */
+        body { opacity: 0; transition: opacity 0.15s ease-in; }
+        body.loaded { opacity: 1; }
+    </style>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script>
+        // Show body as soon as DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.classList.add('loaded');
+        });
+    </script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2306b6d4' stroke-width='2'><path d='M12 2L2 7l10 5 10-5-10-5z'/><path d='M2 17l10 5 10-5'/><path d='M2 12l10 5 10-5'/></svg>">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="scanline"></div>
+    
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="mobile-logo">
+            <div class="mobile-logo-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <span class="mobile-logo-text">CONTEXT FOUNDRY</span>
+        </div>
+        <div style="width: 36px;"></div>
+    </header>
+    
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    
+    <div class="app">
+        <aside class="sidebar" id="sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+            </button>
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <div class="logo-text">
+                        <span class="logo-title">CONTEXT</span>
+                        <span class="logo-subtitle">FOUNDRY</span>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a class="nav-item {% if active_page == 'dashboard' %}active{% endif %}" href="/">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a class="nav-item {% if active_page == 'memory_graph' %}active{% endif %}" href="/?page=memory">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10"/>
+                        <circle cx="12" cy="12" r="6"/>
+                        <circle cx="12" cy="12" r="2"/>
+                    </svg>
+                    <span class="nav-text">Memory Graph</span>
+                </a>
+                <a class="nav-item {% if active_page == 'command_center' %}active{% endif %}" href="/CommandCenter">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="2" y="3" width="20" height="14" rx="2"/>
+                        <path d="M8 21h8"/>
+                        <path d="M12 17v4"/>
+                        <circle cx="7" cy="10" r="1.5"/>
+                        <circle cx="12" cy="10" r="1.5"/>
+                        <circle cx="17" cy="10" r="1.5"/>
+                    </svg>
+                    <span class="nav-text">Command Center</span>
+                </a>
+                <a class="nav-item {% if active_page == 'evaluation' %}active{% endif %}" href="/evaluation">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+                        <rect x="9" y="3" width="6" height="4" rx="1"/>
+                        <path d="M9 12l2 2 4-4"/>
+                    </svg>
+                    <span class="nav-text">A/B Evaluation</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="system-status">
+                    <div class="status-row">
+                        <span class="status-label"><span class="status-dot"></span>SYSTEM</span>
+                        <span class="status-value">ONLINE</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">API</span>
+                        <span class="status-value" id="apiStatus">v1.0</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">Memory</span>
+                        <span class="status-value" id="memoryUsage">--</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">Latency</span>
+                        <span class="status-value" id="latencyValue">--</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="page-header">
+                <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+                <div class="header-actions">
+                    {% block header_actions %}{% endblock %}
+                </div>
+            </header>
+
+            <div class="page-content {% block content_class %}{% endblock %}">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // Initialize sidebar interactions (runs once, elements are permanent)
+        function initSidebar() {
+            const hamburgerBtn = document.getElementById('hamburgerBtn');
+            const sidebar = document.getElementById('sidebar');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            
+            if (hamburgerBtn && !hamburgerBtn._initialized) {
+                hamburgerBtn._initialized = true;
+                hamburgerBtn.addEventListener('click', () => {
+                    sidebar.classList.add('open');
+                    mobileOverlay.classList.add('active');
+                });
+            }
+            
+            if (mobileOverlay && !mobileOverlay._initialized) {
+                mobileOverlay._initialized = true;
+                mobileOverlay.addEventListener('click', () => {
+                    sidebar.classList.remove('open');
+                    mobileOverlay.classList.remove('active');
+                });
+            }
+            
+            if (sidebarToggle && !sidebarToggle._initialized) {
+                sidebarToggle._initialized = true;
+                sidebarToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('collapsed');
+                });
+            }
+        }
+        
+        // Update system status
+        async function updateSystemStatus() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                if (data.memory_usage) {
+                    document.getElementById('memoryUsage').textContent = data.memory_usage;
+                }
+                if (data.avg_latency) {
+                    document.getElementById('latencyValue').textContent = data.avg_latency + 'ms';
+                }
+            } catch (e) {
+                console.error('Failed to update system status:', e);
+            }
+        }
+        
+        // Initialize on first load
+        initSidebar();
+        updateSystemStatus();
+        setInterval(updateSystemStatus, 30000);
+        
+        // Re-initialize on Turbo navigation (for new content)
+        document.addEventListener('turbo:load', function() {
+            initSidebar();
+            updateSystemStatus();
+        });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

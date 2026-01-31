@@ -1,0 +1,230 @@
+{
+  "document_id": "047ee98e6e93",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:49:27.904636",
+  "entities": [
+    {
+      "name": "FY2027 Horizon Growth Agenda",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$1.9B",
+        "timeline": "three years",
+        "status": "ongoing"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+      "source_excerpt": "FY2027 Horizon Growth Agenda",
+      "aliases": []
+    },
+    {
+      "name": "GridWave",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "complementary sensing IP",
+        "category": "technology"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+      "source_excerpt": "Acquire complementary sensing IP for GridWave",
+      "aliases": []
+    },
+    {
+      "name": "TransitEdge",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "control tower partnerships",
+        "category": "logistics"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+      "source_excerpt": "Stand up TransitEdge control tower partnerships in LATAM",
+      "aliases": []
+    },
+    {
+      "name": "Meridian Aerospace",
+      "entity_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+      "source_excerpt": "Convert Meridian Aerospace and Atlas Manufacturing to Synapse One PulseForge",
+      "aliases": []
+    },
+    {
+      "name": "Atlas Manufacturing",
+      "entity_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+      "source_excerpt": "Convert Meridian Aerospace and Atlas Manufacturing to Synapse One PulseForge",
+      "aliases": []
+    },
+    {
+      "name": "Synapse One PulseForge",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "conversion platform",
+        "category": "technology"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+      "source_excerpt": "Convert Meridian Aerospace and Atlas Manufacturing to Synapse One PulseForge",
+      "aliases": []
+    },
+    {
+      "name": "SentinelShield",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "bundled with VaultSec for banking clients",
+        "category": "security"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+      "source_excerpt": "Bundle SentinelShield with VaultSec for regulated banking clients",
+      "aliases": []
+    },
+    {
+      "name": "VaultSec",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "bundled with SentinelShield for banking clients",
+        "category": "security"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+      "source_excerpt": "Bundle SentinelShield with VaultSec for regulated banking clients",
+      "aliases": []
+    },
+    {
+      "name": "LATAM",
+      "entity_type": "LOCATION",
+      "properties": {
+        "region": "Latin America"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+      "source_excerpt": "Stand up TransitEdge control tower partnerships in LATAM",
+      "aliases": []
+    },
+    {
+      "name": "Series F",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "covenant compliance",
+        "category": "funding model"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+      "source_excerpt": "Funding model assumes continued Series F covenant compliance",
+      "aliases": []
+    },
+    {
+      "name": "Board",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "governing body"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+      "source_excerpt": "Board sponsors reaffirmed appetite for disciplined growth",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "FY2027 Horizon Growth Agenda",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Series F",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+      "evidence": "Funding model assumes continued Series F covenant compliance"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "FY2027 Horizon Growth Agenda",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+      "evidence": "Acquire complementary sensing IP for GridWave"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "FY2027 Horizon Growth Agenda",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+      "evidence": "Stand up TransitEdge control tower partnerships in LATAM"
+    },
+    {
+      "source_entity": "Meridian Aerospace",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Synapse One PulseForge",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+      "evidence": "Convert Meridian Aerospace and Atlas Manufacturing to Synapse One PulseForge"
+    },
+    {
+      "source_entity": "Atlas Manufacturing",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Synapse One PulseForge",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+      "evidence": "Convert Meridian Aerospace and Atlas Manufacturing to Synapse One PulseForge"
+    },
+    {
+      "source_entity": "SentinelShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "FY2027 Horizon Growth Agenda",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+      "evidence": "Bundle SentinelShield with VaultSec for regulated banking clients"
+    },
+    {
+      "source_entity": "VaultSec",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "FY2027 Horizon Growth Agenda",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+      "evidence": "Bundle SentinelShield with VaultSec for regulated banking clients"
+    },
+    {
+      "source_entity": "Board",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "FY2027 Horizon Growth Agenda",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/fy2027_horizon_growth_agenda.md",
+      "evidence": "Board sponsors reaffirmed appetite for disciplined growth"
+    }
+  ],
+  "metadata": {
+    "filename": "fy2027_horizon_growth_agenda.md",
+    "raw_entity_count": 11,
+    "raw_relationship_count": 8,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

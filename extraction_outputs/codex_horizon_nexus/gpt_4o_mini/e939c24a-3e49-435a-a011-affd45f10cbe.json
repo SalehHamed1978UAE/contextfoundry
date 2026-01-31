@@ -1,0 +1,90 @@
+{
+  "document_id": "6be3a8a20afa",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:30:29.547425",
+  "entities": [
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "source_excerpt": "Attendees - Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "source_excerpt": "Attendees - Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "milestones reinforced"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "source_excerpt": "Reinforce Horizon Prime milestones.",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "platform for assigning owners"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "source_excerpt": "Owners assigned in PulseOps.",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Executive Steering Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "evidence": "Maya Serrano is an attendee of the Executive Steering Committee meeting."
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Executive Steering Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "evidence": "Dylan Kaur is an attendee of the Executive Steering Committee meeting."
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Executive Steering Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "evidence": "Horizon Prime milestones discussed in the Executive Steering Committee."
+    }
+  ],
+  "metadata": {
+    "filename": "executive_steering_committee_2026_01_12.md",
+    "raw_entity_count": 4,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "document_id": "136390d538e4",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/coo_memo_horizon_prime_update.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:35:34.518533",
+  "entities": [
+    {
+      "name": "Victor Liao",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "COO",
+        "role": "Chief Operating Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/coo_memo_horizon_prime_update.md",
+      "source_excerpt": "Author: Victor Liao",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Project related to tooling shutdowns and data lake timing"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/coo_memo_horizon_prime_update.md",
+      "source_excerpt": "Horizon Prime streams",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Victor Liao",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Unknown Organization",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/coo_memo_horizon_prime_update.md",
+      "evidence": "Victor Liao is the COO"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Unknown Business Unit",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/coo_memo_horizon_prime_update.md",
+      "evidence": "Covers tooling shutdowns, data lake timing"
+    }
+  ],
+  "metadata": {
+    "filename": "coo_memo_horizon_prime_update.md",
+    "raw_entity_count": 2,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

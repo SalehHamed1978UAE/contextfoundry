@@ -1,0 +1,891 @@
+[
+  {
+    "query_id": "IA-001",
+    "category_type": "impact_analysis",
+    "query_text": "What services are affected if the Payments Database goes down?",
+    "response": "GROUNDED:\n- Payment Service depends on Payments Database.\n- Fraud Detection Service depends on Payments Database.\n- Checkout Service depends on Payment Service.\n- API Gateway depends on Payment Service.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. Both Checkout Service and API Gateway have no documented dependents, which may indicate incomplete documentation for these services. Consider updating the service catalog.\n\nINFERRED:\nBased on the incident reports, these services MAY depend on Payments Database indirectly through Payment Service: Checkout Service (inferred via Payment Service, 90% confidence), API Gateway (inferred via Payment Service, 90% confidence). These are inferences, not documented facts. Confidence: Medium.",
+    "confidence": 0.765,
+    "response_category": "ACCURATE",
+    "entities_mentioned": [
+      "Payments Database",
+      "Payment Service"
+    ],
+    "entity_verifications": [
+      {
+        "entity": "Payments Database",
+        "verified": true,
+        "sql": "SELECT id, name, entity_type, lifecycle_state FROM entities WHERE name ILIKE '%Payments Database%' LIMIT 5",
+        "result": "5 rows found"
+      },
+      {
+        "entity": "Payment Service",
+        "verified": true,
+        "sql": "SELECT id, name, entity_type, lifecycle_state FROM entities WHERE name ILIKE '%Payment Service%' LIMIT 5",
+        "result": "5 rows found"
+      }
+    ],
+    "reasoning": "Confidence=0.765, Category=ACCURATE, 2 entities checked"
+  },
+  {
+    "query_id": "IA-002",
+    "category_type": "impact_analysis",
+    "query_text": "If the Auth Service fails, what downstream services are impacted?",
+    "response": "GROUNDED:\n- API Gateway depends on Auth Service\n- Checkout Service depends on Auth Service\n- Payment Service depends on Auth Service\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. API Gateway and Checkout Service have no documented dependents, which may indicate that other services relying on them are not fully captured. Consider updating the service catalog.\n\nINFERRED:\nBased on the incident reports indicating cascading failures from Auth Service, the following services MAY depend on Auth Service indirectly:\n- User Service (inferred via Checkout Service, 60% confidence)\n- Fraud Detection (inferred via Checkout Service, 60% confidence)\n- Search Service (inferred via Checkout Service, 60% confidence)\nThese are inferences, not documented facts. Confidence: Medium.",
+    "confidence": 0.765,
+    "response_category": "ACCURATE",
+    "entities_mentioned": [
+      "Auth Service"
+    ],
+    "entity_verifications": [
+      {
+        "entity": "Auth Service",
+        "verified": true,
+        "sql": "SELECT id, name, entity_type, lifecycle_state FROM entities WHERE name ILIKE '%Auth Service%' LIMIT 5",
+        "result": "5 rows found"
+      }
+    ],
+    "reasoning": "Confidence=0.765, Category=ACCURATE, 1 entities checked"
+  },
+  {
+    "query_id": "IA-003",
+    "category_type": "impact_analysis",
+    "query_text": "What is the blast radius if the API Gateway becomes unavailable?",
+    "response": "GROUNDED:\nNo services are documented as depending on API Gateway in the knowledge graph.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. API Gateway is critical for routing external traffic, so many services likely depend on it but this is not documented. Consider updating the service catalog.\n\nINFERRED:\nBased on incident reports mentioning API Gateway affecting external traffic, Core API and Auth Gateway may depend on API Gateway for routing and authentication. These are inferences, not documented facts. Confidence: Low.",
+    "confidence": 0.765,
+    "response_category": "ACCURATE",
+    "entities_mentioned": [],
+    "entity_verifications": [],
+    "reasoning": "Confidence=0.765, Category=ACCURATE, 0 entities checked"
+  },
+  {
+    "query_id": "IA-004",
+    "category_type": "impact_analysis",
+    "query_text": "Which teams would be affected by a Checkout Service outage?",
+    "response": "GROUNDED:\n- Payment Service depends on Checkout Service\n- Auth Service depends on Checkout Service\n- Notification Service depends on Checkout Service\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. While we have identified some dependencies, there may be additional services that depend on Checkout Service that are not documented. Consider updating the service catalog.\n\nINFERRED:\nBased on the Checkout Service Troubleshooting document, these services MAY depend on Checkout Service: Order Database (inferred via Checkout Service's role in order creation, 60% confidence), User Authentication Service (inferred via user session management during checkout, 55% confidence). These are inferences, not documented facts. Confidence: Medium.",
+    "confidence": 0.765,
+    "response_category": "ACCURATE",
+    "entities_mentioned": [
+      "Checkout Service"
+    ],
+    "entity_verifications": [
+      {
+        "entity": "Checkout Service",
+        "verified": true,
+        "sql": "SELECT id, name, entity_type, lifecycle_state FROM entities WHERE name ILIKE '%Checkout Service%' LIMIT 5",
+        "result": "5 rows found"
+      }
+    ],
+    "reasoning": "Confidence=0.765, Category=ACCURATE, 1 entities checked"
+  },
+  {
+    "query_id": "IA-005",
+    "category_type": "impact_analysis",
+    "query_text": "What happens to order processing if Redis Cache fails?",
+    "response": "GROUNDED:\nNo services are documented as depending on Redis Cache in the knowledge graph.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. Redis Cache is a critical component for caching strategies, and many services likely depend on it for performance and reliability, but this is not documented. Consider updating the service catalog.\n\nINFERRED:\nBased on the incident reports indicating that latency issues in the Analytics Service caused cascading failures affecting the Order Service, it is possible that the Order Processing Service may depend on Redis Cache for efficient order processing. These are inferences, not documented facts. Confidence: Low.",
+    "confidence": 0.765,
+    "response_category": "ACCURATE",
+    "entities_mentioned": [],
+    "entity_verifications": [],
+    "reasoning": "Confidence=0.765, Category=ACCURATE, 0 entities checked"
+  },
+  {
+    "query_id": "IA-006",
+    "category_type": "impact_analysis",
+    "query_text": "If the User Database is corrupted, which services lose functionality?",
+    "response": "GROUNDED:\n- Auth Gateway depends on User Database\n- Frontend App depends on Auth Gateway\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. The Frontend App has no documented dependents, which may indicate that other services relying on it are not captured. Consider updating the service catalog.\n\nINFERRED:\nBased on the relationship of Frontend App depending on Auth Gateway, it may be inferred that the Frontend App loses functionality if the User Database is corrupted, as it relies on the Auth Gateway for authentication services. Confidence: Medium.",
+    "confidence": 0.765,
+    "response_category": "ACCURATE",
+    "entities_mentioned": [
+      "Auth Gateway",
+      "User Database"
+    ],
+    "entity_verifications": [
+      {
+        "entity": "Auth Gateway",
+        "verified": true,
+        "sql": "SELECT id, name, entity_type, lifecycle_state FROM entities WHERE name ILIKE '%Auth Gateway%' LIMIT 5",
+        "result": "1 rows found"
+      },
+      {
+        "entity": "User Database",
+        "verified": true,
+        "sql": "SELECT id, name, entity_type, lifecycle_state FROM entities WHERE name ILIKE '%User Database%' LIMIT 5",
+        "result": "5 rows found"
+      }
+    ],
+    "reasoning": "Confidence=0.765, Category=ACCURATE, 2 entities checked"
+  },
+  {
+    "query_id": "IA-007",
+    "category_type": "impact_analysis",
+    "query_text": "What services depend on the Notification Service?",
+    "response": "GROUNDED:\nNo services are documented as depending on Notification Service in the knowledge graph.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. The Notification Service is critical for sending notifications across various channels, so many services likely depend on it but this is not documented. Consider updating the service catalog.\n\nINFERRED:\nBased on the design documents mentioning integration testing with Email Service and Search Service, these services MAY depend on Notification Service for their notification functionalities. These are inferences, not documented facts. Confidence: Low.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL",
+    "entities_mentioned": [],
+    "entity_verifications": [],
+    "reasoning": "Confidence=0.49500000000000005, Category=PARTIAL, 0 entities checked"
+  },
+  {
+    "query_id": "IA-008",
+    "category_type": "impact_analysis",
+    "query_text": "If the Message Queue goes down, what background jobs stop working?",
+    "response": "GROUNDED:\nNo services are documented as depending on Message Queue in the knowledge graph.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. The Message Queue is typically a critical component for background jobs, so many services likely depend on it but this is not documented. Consider updating the service catalog.\n\nINFERRED (not documented):\nBased on common architectural patterns, these services MAY depend on Message Queue: Background Processing Service (inferred via typical job queue usage, 60% confidence), Notification Service (inferred via message delivery requirements, 55% confidence). These are inferences, not documented facts. Confidence: Low.",
+    "confidence": 0.45499999999999996,
+    "response_category": "PARTIAL",
+    "entities_mentioned": [],
+    "entity_verifications": [],
+    "reasoning": "Confidence=0.45499999999999996, Category=PARTIAL, 0 entities checked"
+  },
+  {
+    "query_id": "IA-009",
+    "category_type": "impact_analysis",
+    "query_text": "Which customer-facing features break if the Search Service goes down?",
+    "response": "GROUNDED:\nNo services are documented as depending on Search Service in the knowledge graph.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. The Search Service is critical for customer-facing features, so many services likely depend on it but this is not documented. Consider updating the service catalog.\n\nINFERRED:\nBased on Incident Report 0706, it is possible that the Shipping Service may depend on Search Service due to cascading failures mentioned. This is an inference, not a documented fact. Confidence: Low.",
+    "confidence": 0.765,
+    "response_category": "ACCURATE",
+    "entities_mentioned": [],
+    "entity_verifications": [],
+    "reasoning": "Confidence=0.765, Category=ACCURATE, 0 entities checked"
+  },
+  {
+    "query_id": "IA-010",
+    "category_type": "impact_analysis",
+    "query_text": "What is the impact of losing connectivity to the Payment Gateway?",
+    "response": "GROUNDED:\n- Checkout Service depends on Payment Service.\n- API Gateway depends on Payment Service.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. Both Checkout Service and API Gateway have no documented dependents, indicating that there may be other services relying on them that are not captured. Consider updating the service catalog.\n\nINFERRED:\nBased on the relationships documented, these services MAY depend on Payment Service: \n- Checkout Service (inferred via direct dependency, 90% confidence)\n- API Gateway (inferred via direct dependency, 90% confidence)\nThese are inferences, not documented facts. Confidence: Medium.",
+    "confidence": 0.765,
+    "response_category": "ACCURATE",
+    "entities_mentioned": [
+      "Payment Service"
+    ],
+    "entity_verifications": [
+      {
+        "entity": "Payment Service",
+        "verified": true,
+        "sql": "SELECT id, name, entity_type, lifecycle_state FROM entities WHERE name ILIKE '%Payment Service%' LIMIT 5",
+        "result": "5 rows found"
+      }
+    ],
+    "reasoning": "Confidence=0.765, Category=ACCURATE, 1 entities checked"
+  },
+  {
+    "query_id": "IA-011",
+    "category_type": "impact_analysis",
+    "query_text": "If the Logging Service crashes, what monitoring capabilities are lost?",
+    "response": "Entity 'Logging Service' was not found in the knowledge graph. Cannot answer questions about non-existent entities. Did you mean: AI-Powered Customer Service Solutions, Analytics Service?",
+    "confidence": 0.0,
+    "response_category": "NOT_FOUND"
+  },
+  {
+    "query_id": "IA-012",
+    "category_type": "impact_analysis",
+    "query_text": "What services are impacted if the CDN becomes unavailable?",
+    "response": "Entity 'Cdn' was not found in the knowledge graph. Cannot answer questions about non-existent entities.",
+    "confidence": 0.0,
+    "response_category": "NOT_FOUND"
+  },
+  {
+    "query_id": "IA-013",
+    "category_type": "impact_analysis",
+    "query_text": "Which databases are affected if the primary data center fails?",
+    "response": "GROUNDED:\n- User Authentication Service depends on Primary Database Cluster\n- Order Processing Service depends on Primary Database Cluster\n- Notification Service v2 depends on Primary Database Cluster\n- Analytics Pipeline depends on Primary Database Cluster\n- API Gateway depends on Primary Database Cluster\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. The services listed above have no documented dependents, which may indicate incomplete documentation for these services. Consider updating the service catalog.\n\nINFERRED:\nBased on the relationships, these services MAY depend on the Primary Database Cluster for their operations, but no further downstream dependencies are documented. These are inferences, not documented facts. Confidence: Low.",
+    "confidence": 0.765,
+    "response_category": "ACCURATE"
+  },
+  {
+    "query_id": "IA-014",
+    "category_type": "impact_analysis",
+    "query_text": "What breaks if the Inventory Service times out?",
+    "response": "Entity 'Inventory Service' was not found in the knowledge graph. Cannot answer questions about non-existent entities. Did you mean: AI-Powered Customer Service Solutions, Analytics Service?",
+    "confidence": 0.0,
+    "response_category": "NOT_FOUND"
+  },
+  {
+    "query_id": "IA-015",
+    "category_type": "impact_analysis",
+    "query_text": "If the Config Server fails, which services cannot start?",
+    "response": "Entity 'Config Server' was not found in the knowledge graph. Cannot answer questions about non-existent entities.",
+    "confidence": 0.0,
+    "response_category": "NOT_FOUND"
+  },
+  {
+    "query_id": "IA-016",
+    "category_type": "impact_analysis",
+    "query_text": "What customer workflows are blocked if the Email Service is down?",
+    "response": "GROUNDED:\n- Order Processing Service depends on Email Service\n- Fraud Detection Service depends on Email Service\n- Recommendation Engine depends on Email Service\n- Notification Service depends on Email Service\n- Checkout Service depends on Email Service\n\nINFERRED IMPACT:\n- User Service (inferred via Notification Service, 70% confidence)\n- Mobile App (inferred via Notification Service, 65% confidence)\n- Web App (inferred via Notification Service, 65% confidence)\n\nKNOWLEDGE BOUNDARY:\n- We do not have documented relationships for all services that may depend on Email Service. Specifically, we lack clarity on the full extent of dependencies for services like User Service, Mobile App, and Web App. This indicates a potential gap in documentation regarding service dependencies.",
+    "confidence": 0.765,
+    "response_category": "ACCURATE"
+  },
+  {
+    "query_id": "IA-017",
+    "category_type": "impact_analysis",
+    "query_text": "Which services fail if the Session Store becomes unavailable?",
+    "response": "GROUNDED:\n- API Gateway depends on Session Cache\n- Auth Service depends on Session Cache\n- Checkout Service depends on Auth Service\n- Payment Service depends on Auth Service\n- Checkout Service depends on Payment Service\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. API Gateway and Checkout Service have no documented dependents, which may indicate that other services relying on them are not fully captured. Consider updating the service catalog.\n\nINFERRED:\nBased on the dependencies outlined, the following services MAY be affected if the Session Store becomes unavailable:\n- User Service (inferred via Auth Service, 70% confidence)\n- Order Service (inferred via Checkout Service, 65% confidence)\nThese are inferences, not documented facts. Confidence: Medium.",
+    "confidence": 0.765,
+    "response_category": "ACCURATE"
+  },
+  {
+    "query_id": "IA-018",
+    "category_type": "impact_analysis",
+    "query_text": "What happens to analytics if the Data Warehouse goes offline?",
+    "response": "GROUNDED:\n- Analytics Pipeline depends on Primary Database Cluster.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. The Data Warehouse is not explicitly mentioned in the context, and it is unclear if there are other services that depend on it. Consider updating the service catalog to include the Data Warehouse and its dependencies.\n\nINFERRED:\nBased on the incident reports indicating that data inconsistency in the Analytics Service caused cascading failures affecting the Analytics Service, it is possible that if the Data Warehouse goes offline, the Analytics Pipeline may also be affected due to its dependency on the Primary Database Cluster. These are inferences, not documented facts. Confidence: Medium.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "IA-019",
+    "category_type": "impact_analysis",
+    "query_text": "If the Load Balancer fails, which services become unreachable?",
+    "response": "Entity 'Load Balancer' was not found in the knowledge graph. Cannot answer questions about non-existent entities.",
+    "confidence": 0.0,
+    "response_category": "NOT_FOUND"
+  },
+  {
+    "query_id": "IA-020",
+    "category_type": "impact_analysis",
+    "query_text": "What is the customer impact if the Recommendation Engine stops?",
+    "response": "GROUNDED:\nNo services are documented as depending on the Recommendation Engine in the knowledge graph.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. The Recommendation Engine is likely integral to various services, but this is not documented. Consider updating the service catalog.\n\nINFERRED (not documented):\nBased on the design documents mentioning integration testing with various services, the following services MAY depend on the Recommendation Engine: Analytics Service (inferred via integration testing, 60% confidence), Order Service (inferred via integration testing, 60% confidence), Search Service (inferred via integration testing, 60% confidence). These are inferences, not documented facts. Confidence: Medium.",
+    "confidence": 0.765,
+    "response_category": "ACCURATE"
+  },
+  {
+    "query_id": "ES-001",
+    "category_type": "escalation",
+    "query_text": "Who should I escalate to for a SEV1 on the Auth Service?",
+    "response": "You should escalate to Mia White, the VP of Engineering, for a SEV1 incident on the Auth Service.",
+    "confidence": 0.95,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "ES-002",
+    "category_type": "escalation",
+    "query_text": "Who is the on-call engineer for the Payment Service?",
+    "response": "The on-call engineer for the Payment Service is Harper Taylor.",
+    "confidence": 0.95,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "ES-003",
+    "category_type": "escalation",
+    "query_text": "If a database incident occurs at 3 AM, who gets paged first?",
+    "response": "GROUNDED:\nNo services are documented as depending on the database in the knowledge graph.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. The database is critical for many services, but specific dependents are not documented. Consider updating the service catalog.\n\nINFERRED:\nBased on incident reports mentioning database connection pool exhaustion affecting various services, the following services MAY depend on the database: User Service (inferred via Auth Service, 60% confidence), Recommendation Engine (inferred via User Service, 55% confidence), Order Service (inferred via Recommendation Engine, 50% confidence). These are inferences, not documented facts. Confidence: Medium.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "ES-004",
+    "category_type": "escalation",
+    "query_text": "What is the escalation path for a critical checkout failure?",
+    "response": "GROUNDED:\nNo services are documented as depending on Checkout Service in the knowledge graph.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. The Checkout Service is critical and orchestrates payment and order creation, so many services likely depend on it but this is not documented. Consider updating the service catalog.\n\nINFERRED:\nBased on the Checkout Service's dependencies listed in the Checkout Service Troubleshooting document, the following services MAY depend on Checkout Service: Payment Service (inferred via Checkout Service's critical role, 70% confidence), Auth Service (inferred via Checkout Service's critical role, 70% confidence). These are inferences, not documented facts. Confidence: Medium.",
+    "confidence": 0.765,
+    "response_category": "ACCURATE"
+  },
+  {
+    "query_id": "ES-005",
+    "category_type": "escalation",
+    "query_text": "Who should be notified if we detect a security breach?",
+    "response": "In the event of a security breach, the following individuals should be notified:\n1. Mia White, VP of Engineering, as she is the escalation point for SEV1 incidents. \n\nAdditionally, the Platform Team should be notified if the incident affects any database services, as per the escalation policy.",
+    "confidence": 0.95,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "ES-006",
+    "category_type": "escalation",
+    "query_text": "Who is the manager of the Platform Team?",
+    "response": "No information is available regarding the manager of the Platform Team in the provided context.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "ES-007",
+    "category_type": "escalation",
+    "query_text": "If the SRE team is unresponsive, who is the backup contact?",
+    "response": "There is insufficient information in the provided context to identify a backup contact for the SRE team if they are unresponsive.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "ES-008",
+    "category_type": "escalation",
+    "query_text": "Who should approve a production deployment at night?",
+    "response": "The context does not provide specific information about who should approve a production deployment at night. It mentions project approval gates as a concept but does not detail the approval process or the individuals involved in nighttime deployments.",
+    "confidence": 0.45499999999999996,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "ES-009",
+    "category_type": "escalation",
+    "query_text": "What is the escalation chain for a customer data leak?",
+    "response": "GROUNDED:\n1. Acknowledge page in PagerDuty\n2. Open incident Slack channel #inc-YYYYMMDD-XXX\n3. Identify affected services\n4. Page relevant service owners\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. The specific escalation chain for a customer data leak is not detailed in the provided documents. Consider updating the incident response documentation to include specific escalation paths for data leaks.\n\nINFERRED:\nBased on the SEV1 Incident Commander Playbook, it is likely that Mia White, as the VP of Engineering, would be involved in the escalation for a SEV1 incident related to a customer data leak. These are inferences, not documented facts. Confidence: Medium.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "ES-010",
+    "category_type": "escalation",
+    "query_text": "Who do I contact for an issue with the CDN?",
+    "response": "Entity 'Cdn' was not found in the knowledge graph. Cannot answer questions about non-existent entities.",
+    "confidence": 0.0,
+    "response_category": "NOT_FOUND"
+  },
+  {
+    "query_id": "ES-011",
+    "category_type": "escalation",
+    "query_text": "Who is responsible for third-party API outages?",
+    "response": "Entity 'Third' was not found in the knowledge graph. Cannot answer questions about non-existent entities.",
+    "confidence": 0.0,
+    "response_category": "NOT_FOUND"
+  },
+  {
+    "query_id": "ES-012",
+    "category_type": "escalation",
+    "query_text": "If a SEV2 is not resolved in 2 hours, who should be notified?",
+    "response": "The context does not provide specific information about who should be notified for a SEV2 incident. However, it does mention Mia White as the escalation point for SEV1 incidents. There is no documented escalation policy for SEV2 incidents in the provided context.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "ES-013",
+    "category_type": "escalation",
+    "query_text": "Who owns the relationship with our cloud provider?",
+    "response": "Entity 'Relationship With Our Cloud Provider' was not found in the knowledge graph. Cannot answer questions about non-existent entities. Did you mean: Acme Cloud Platform?",
+    "confidence": 0.0,
+    "response_category": "NOT_FOUND"
+  },
+  {
+    "query_id": "ES-014",
+    "category_type": "escalation",
+    "query_text": "What is the communication protocol for major outages?",
+    "response": "There is insufficient context to determine the communication protocol for major outages. No relevant entities or relationships are documented in the knowledge graph, and the provided incident reports do not specify a communication protocol.",
+    "confidence": 0.41250000000000003,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "ES-015",
+    "category_type": "escalation",
+    "query_text": "Who approves emergency database changes?",
+    "response": "The context does not explicitly state who approves emergency database changes. However, the Platform Engineering Team owns the Primary Database Cluster, which may imply that they are responsible for approvals related to changes in that database. Additionally, the Database Owner Notification policy suggests that the Platform Team should be notified in case of incidents affecting databases, which could include emergency changes.",
+    "confidence": 0.45499999999999996,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "ES-016",
+    "category_type": "escalation",
+    "query_text": "If the CEO asks about an outage, who provides the update?",
+    "response": "The context does not specify who provides updates to the CEO regarding outages. There are mentions of individuals like Mia White and Alex Thompson discussing incidents related to the Notification Service, but no explicit mention of an escalation path to the CEO for updates on outages.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "ES-017",
+    "category_type": "escalation",
+    "query_text": "Who is the security team lead for incident response?",
+    "response": "The security team lead for incident response is not explicitly documented in the provided context. However, Mia White is the VP of Engineering and serves as an escalation point for SEV1 incidents, which may imply a leadership role in incident response activities.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "ES-018",
+    "category_type": "escalation",
+    "query_text": "What is the process for escalating vendor issues?",
+    "response": "GROUNDED:\n- Mia White (VP Engineering) is the escalation point for SEV1 incidents.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. The context does not provide a detailed process for escalating vendor issues, only mentioning an escalation point for SEV1 incidents. Consider updating the documentation to include a comprehensive escalation process for vendor issues.\n\nINFERRED:\nBased on the SEV1 Escalation Rule, it is likely that vendor issues classified as SEV1 would be escalated to Mia White. These are inferences, not documented facts. Confidence: Medium.",
+    "confidence": 0.765,
+    "response_category": "ACCURATE"
+  },
+  {
+    "query_id": "ES-019",
+    "category_type": "escalation",
+    "query_text": "Who should be involved in a post-mortem meeting?",
+    "response": "In a post-mortem meeting, the following individuals should be involved:\n1. Mia White, VP of Engineering - as the escalation point for SEV1 incidents and responsible for coordinating responses across teams.\n2. Service owners of affected services - to provide insights on the incident and its impact.\n3. Members of the SRE Team - for technical expertise and incident management.\n4. Any relevant stakeholders from departments impacted by the incident - to discuss broader implications and preventive measures.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "ES-020",
+    "category_type": "escalation",
+    "query_text": "If internal tools are down, who fixes them?",
+    "response": "GROUNDED:\nNo services are documented as depending on internal tools in the knowledge graph.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. Internal tools are critical for operations, and there should be documented roles or teams responsible for fixing them. Consider updating the service catalog to include this information.\n\nINFERRED (not documented):\nBased on incident reports and Slack communications, it seems that on-call engineers, such as Finley Moore and Morgan Chen, may be involved in resolving issues with internal tools. These are inferences, not documented facts. Confidence: Low.",
+    "confidence": 0.45499999999999996,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "OW-001",
+    "category_type": "ownership",
+    "query_text": "Who owns the Auth Service?",
+    "response": "The Auth Service is owned by the Authentication Team.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "OW-002",
+    "category_type": "ownership",
+    "query_text": "Which team is responsible for the Payments Database?",
+    "response": "The team responsible for the Payments Database is the Platform Team.",
+    "confidence": 0.95,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "OW-003",
+    "category_type": "ownership",
+    "query_text": "Who maintains the API Gateway?",
+    "response": "GROUNDED:\nThe API Gateway is owned by the API Team.\n\nGAP IDENTIFIED:\nNo additional details about the maintenance responsibilities of the API Gateway are documented. This is likely a documentation gap - specific roles or individuals responsible for ongoing maintenance and operational tasks are not specified. Consider updating the service catalog.\n\nINFERRED (not documented):\nBased on the ownership by the API Team, it is possible that team members are responsible for maintaining the API Gateway, but specific individuals or roles are not documented. These are inferences, not documented facts. Confidence: Low.",
+    "confidence": 0.95,
+    "response_category": "ACCURATE"
+  },
+  {
+    "query_id": "OW-004",
+    "category_type": "ownership",
+    "query_text": "What team owns the mobile app codebase?",
+    "response": "No entities are documented as owning the mobile app codebase.",
+    "confidence": 0.45499999999999996,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "OW-005",
+    "category_type": "ownership",
+    "query_text": "Who is responsible for the customer data pipeline?",
+    "response": "The context does not provide a specific ordered sequence or detailed responsibilities for the customer data pipeline. However, it mentions the Analytics Pipeline as a service that may be involved in data processing, and the Platform Engineering Team as a core infrastructure team that may oversee related services.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "OW-006",
+    "category_type": "ownership",
+    "query_text": "Which team owns the recommendation algorithms?",
+    "response": "Entity 'Recommendation Algorithms' was not found in the knowledge graph. Cannot answer questions about non-existent entities. Did you mean: 4.3 Execution Algorithms, AI algorithms, AI algorithms for real-time notifications?",
+    "confidence": 0.0,
+    "response_category": "NOT_FOUND"
+  },
+  {
+    "query_id": "OW-007",
+    "category_type": "ownership",
+    "query_text": "Who maintains the internal monitoring dashboards?",
+    "response": "No information is available regarding who maintains the internal monitoring dashboards.",
+    "confidence": 0.41250000000000003,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "OW-008",
+    "category_type": "ownership",
+    "query_text": "What team is responsible for the checkout flow?",
+    "response": "No entities are documented as responsible for the checkout flow in the knowledge graph.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "OW-009",
+    "category_type": "ownership",
+    "query_text": "Who owns the user authentication system?",
+    "response": "The user authentication system is owned by Sarah Chen, as indicated in the Cloud Migration Plan document.",
+    "confidence": 0.765,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "OW-010",
+    "category_type": "ownership",
+    "query_text": "Which team maintains the email notification templates?",
+    "response": "No entities are documented as maintaining the email notification templates in the provided context.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "OW-011",
+    "category_type": "ownership",
+    "query_text": "Who is responsible for the search indexing service?",
+    "response": "Entity 'Search Indexing Service' was not found in the knowledge graph. Cannot answer questions about non-existent entities. Did you mean: AI-Powered Customer Service Solutions, Analytics Service?",
+    "confidence": 0.0,
+    "response_category": "NOT_FOUND"
+  },
+  {
+    "query_id": "OW-012",
+    "category_type": "ownership",
+    "query_text": "What team owns the inventory management system?",
+    "response": "No entities are documented as owning the inventory management system.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "OW-013",
+    "category_type": "ownership",
+    "query_text": "Who maintains the order tracking functionality?",
+    "response": "No specific ordered sequence or procedure for maintaining the order tracking functionality is documented in the provided context.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "OW-014",
+    "category_type": "ownership",
+    "query_text": "Which team is responsible for fraud detection?",
+    "response": "The team responsible for fraud detection is the Payments Team, which owns the Fraud Detection Service.",
+    "confidence": 0.95,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "OW-015",
+    "category_type": "ownership",
+    "query_text": "Who owns the customer support ticketing system?",
+    "response": "Entity 'Customer Support Ticketing System' was not found in the knowledge graph. Cannot answer questions about non-existent entities. Did you mean: AI in Ground Support Equipment Management, AI-Powered Customer Service Solutions, ARTICLE VIII: SAFETY MANAGEMENT SYSTEM?",
+    "confidence": 0.0,
+    "response_category": "NOT_FOUND"
+  },
+  {
+    "query_id": "OW-016",
+    "category_type": "ownership",
+    "query_text": "What team maintains the product catalog?",
+    "response": "There is insufficient information to determine which team maintains the product catalog. No relevant entities or relationships are documented in the knowledge graph, and the provided documents do not specify a team responsible for the product catalog.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "OW-017",
+    "category_type": "ownership",
+    "query_text": "Who is responsible for the shipping integration?",
+    "response": "Entity 'Shipping Integration' was not found in the knowledge graph. Cannot answer questions about non-existent entities.",
+    "confidence": 0.0,
+    "response_category": "NOT_FOUND"
+  },
+  {
+    "query_id": "OW-018",
+    "category_type": "ownership",
+    "query_text": "Which team owns the refund processing system?",
+    "response": "No entities are documented as owning the refund processing system.",
+    "confidence": 0.45499999999999996,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "OW-019",
+    "category_type": "ownership",
+    "query_text": "Who maintains the A/B testing framework?",
+    "response": "No information is available regarding who maintains the A/B testing framework in the provided context.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "OW-020",
+    "category_type": "ownership",
+    "query_text": "What team is responsible for analytics dashboards?",
+    "response": "No entities are documented as responsible for analytics dashboards in the provided context.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "DEP-001",
+    "category_type": "dependencies",
+    "query_text": "What are the upstream dependencies of the Checkout Service?",
+    "response": "GROUNDED:\n- Checkout Service depends on Auth Service\n- Checkout Service depends on Order Database\n- Checkout Service depends on Payment Service\n\nGAP IDENTIFIED:\nNo gaps identified in the documentation regarding upstream dependencies of the Checkout Service.\n\nINFERRED:\nBased on the Checkout Service Troubleshooting document, it is likely that the Checkout Service also interacts with the Notification Service for sending notifications related to the checkout process. This is an inference, not a documented fact. Confidence: Medium.",
+    "confidence": 0.95,
+    "response_category": "ACCURATE"
+  },
+  {
+    "query_id": "DEP-002",
+    "category_type": "dependencies",
+    "query_text": "Which services does the Auth Service depend on?",
+    "response": "GROUNDED:\n- API Gateway depends on Auth Service.\n- Payment Service depends on Auth Service.\n- Checkout Service depends on Auth Service.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. API Gateway and Checkout Service have no documented dependents, which may indicate incomplete documentation for these services. Consider updating the service catalog.\n\nINFERRED:\nBased on the relationships documented, these services MAY depend on Auth Service indirectly:\n- Checkout Service (inferred via Payment Service, 70% confidence)\n- API Gateway (inferred via Checkout Service, 65% confidence)\nThese are inferences, not documented facts. Confidence: Medium.",
+    "confidence": 0.765,
+    "response_category": "ACCURATE"
+  },
+  {
+    "query_id": "DEP-003",
+    "category_type": "dependencies",
+    "query_text": "What databases does the Payment Service connect to?",
+    "response": "GROUNDED:\n- Payment Service depends on Payments Database.\n\nGAP IDENTIFIED:\nNo additional databases are documented as being connected to the Payment Service. This is likely a documentation gap - the Payment Service may connect to other databases for various functionalities, but this is not explicitly stated. Consider updating the service catalog.\n\nINFERRED (not documented):\nBased on the Payments Architecture Overview document, the Payment Service may also interact with other services like Fraud Detection and Auth Service, which could imply additional database connections for transaction validation and authentication. These are inferences, not documented facts. Confidence: Low.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "DEP-004",
+    "category_type": "dependencies",
+    "query_text": "Which external APIs does the Notification Service use?",
+    "response": "No external APIs are documented as being used by the Notification Service in the knowledge graph.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "DEP-005",
+    "category_type": "dependencies",
+    "query_text": "What message queues does the Order Service consume from?",
+    "response": "No specific message queues that the Order Service consumes from are documented in the provided context.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "DEP-006",
+    "category_type": "dependencies",
+    "query_text": "Which caches does the User Service rely on?",
+    "response": "GROUNDED:\n- User Authentication Service depends on Redis Cache Cluster.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. The User Service may rely on additional caching mechanisms that are not documented. Consider updating the service catalog.\n\nINFERRED:\nBased on the design discussions in the documents, it is possible that User Service may also utilize other caching strategies or components not explicitly mentioned. These are inferences, not documented facts. Confidence: Low.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "DEP-007",
+    "category_type": "dependencies",
+    "query_text": "What services depend on the Customer Database?",
+    "response": "Entity 'Customer Database' was not found in the knowledge graph. Cannot answer questions about non-existent entities. Did you mean: AI-Powered Customer Service Solutions?",
+    "confidence": 0.0,
+    "response_category": "NOT_FOUND"
+  },
+  {
+    "query_id": "DEP-008",
+    "category_type": "dependencies",
+    "query_text": "Which microservices connect to Redis?",
+    "response": "No services are documented as depending on Redis in the knowledge graph.",
+    "confidence": 0.45499999999999996,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "DEP-009",
+    "category_type": "dependencies",
+    "query_text": "What are the downstream consumers of the Event Bus?",
+    "response": "GROUNDED:\nNo services are documented as depending on Event Bus in the knowledge graph.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. The Event Bus typically serves as a communication layer for various services, so many services likely depend on it but this is not documented. Consider updating the service catalog.\n\nINFERRED (not documented):\nBased on the general understanding of microservices architecture, services such as Notification Service and Order Service may depend on Event Bus for event-driven communication. These are inferences, not documented facts. Confidence: Low.",
+    "confidence": 0.45499999999999996,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "DEP-010",
+    "category_type": "dependencies",
+    "query_text": "Which services use the Feature Flag service?",
+    "response": "Entity 'Feature Flag' was not found in the knowledge graph. Cannot answer questions about non-existent entities.",
+    "confidence": 0.0,
+    "response_category": "NOT_FOUND"
+  },
+  {
+    "query_id": "DEP-011",
+    "category_type": "dependencies",
+    "query_text": "What external payment providers are integrated?",
+    "response": "No external payment providers are documented as integrated in the provided context.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "DEP-012",
+    "category_type": "dependencies",
+    "query_text": "Which services connect to the Analytics Database?",
+    "response": "GROUNDED:\nNo services are documented as depending on Analytics Database in the knowledge graph.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. The Analytics Database is critical for data processing, so many services likely depend on it but this is not documented. Consider updating the service catalog.\n\nINFERRED (not documented):\nBased on incident reports mentioning cascading failures affecting services like Auth Service and Shipping Service, these services MAY depend on Analytics Database for data consistency and processing. These are inferences, not documented facts. Confidence: Low.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "DEP-013",
+    "category_type": "dependencies",
+    "query_text": "What CDN providers does the frontend use?",
+    "response": "No entities are documented as using CDN providers in the knowledge graph.",
+    "confidence": 0.45499999999999996,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "DEP-014",
+    "category_type": "dependencies",
+    "query_text": "Which services depend on the Config Service?",
+    "response": "Entity 'Config Service' was not found in the knowledge graph. Cannot answer questions about non-existent entities. Did you mean: AI-Powered Customer Service Solutions, Analytics Service?",
+    "confidence": 0.0,
+    "response_category": "NOT_FOUND"
+  },
+  {
+    "query_id": "DEP-015",
+    "category_type": "dependencies",
+    "query_text": "What logging services are used across the platform?",
+    "response": "No entities related to logging services are documented in the knowledge graph.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "DEP-016",
+    "category_type": "dependencies",
+    "query_text": "Which cloud services does the infrastructure rely on?",
+    "response": "The context does not provide specific information about which cloud services the infrastructure relies on. However, it mentions AWS Cloud Infrastructure as part of the cloud migration plan, indicating that the infrastructure is moving to AWS services such as Kubernetes (EKS) for container orchestration and RDS PostgreSQL for database management.",
+    "confidence": 0.6375,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "DEP-017",
+    "category_type": "dependencies",
+    "query_text": "What monitoring tools are integrated?",
+    "response": "There is insufficient information in the provided context to identify specific monitoring tools that are integrated.",
+    "confidence": 0.41250000000000003,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "DEP-018",
+    "category_type": "dependencies",
+    "query_text": "Which services use the central authentication?",
+    "response": "GROUNDED:\n- API Gateway depends on Auth Service.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. API Gateway is a critical component that likely has multiple services depending on it for authentication, but these dependents are not documented. Consider updating the service catalog.\n\nINFERRED:\nBased on the relationship between API Gateway and User Authentication Service, the following services MAY depend on central authentication:\n- User Authentication Service (inferred via API Gateway, 70% confidence)\n- Mobile App (inferred via API Gateway, 70% confidence)\n- Web App (inferred via API Gateway, 70% confidence)\nThese are inferences, not documented facts. Confidence: Medium.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "DEP-019",
+    "category_type": "dependencies",
+    "query_text": "What are the dependencies of the Mobile Backend?",
+    "response": "GROUNDED:\n- Mobile App depends on Core API.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. The Mobile Backend likely has more dependencies that are not documented. Consider updating the service catalog.\n\nINFERRED (not documented):\nBased on the Strategy documents mentioning dependencies on API Gateway and Notification Service, these services MAY depend on Mobile Backend... These are inferences, not documented facts. Confidence: Low.",
+    "confidence": 0.765,
+    "response_category": "ACCURATE"
+  },
+  {
+    "query_id": "DEP-020",
+    "category_type": "dependencies",
+    "query_text": "Which services connect to the primary database cluster?",
+    "response": "{\"CONFIRMED IMPACT\": [\"User Authentication Service depends on Primary Database Cluster\", \"Order Processing Service depends on Primary Database Cluster\", \"Notification Service v2 depends on Primary Database Cluster\", \"Analytics Pipeline depends on Primary Database Cluster\", \"API Gateway depends on User Authentication Service\"], \"INFERRED IMPACT\": [], \"KNOWLEDGE BOUNDARY\": [\"Order Processing Service has no documented dependents.\", \"Notification Service v2 has no documented dependents.\", \"Analytics Pipeline has no documented dependents.\", \"API Gateway has no documented dependents.\"]}",
+    "confidence": 0.765,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "HA-001",
+    "category_type": "hallucination_test",
+    "query_text": "What is the blast radius if FakeService123 goes down?",
+    "response": "GROUNDED:\nNo services are documented as depending on FakeService123 in the knowledge graph.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. Given that FakeService123 is a service, it is reasonable to assume that other services may depend on it, but this is not documented. Consider updating the service catalog.\n\nINFERRED (not documented):\nBased on incident reports mentioning cascading failures affecting services like Auth Service and SMS Gateway, it is possible that services related to user authentication and notifications may depend on FakeService123. These are inferences, not documented facts. Confidence: Low.",
+    "confidence": 0.45499999999999996,
+    "response_category": "ACCURATE"
+  },
+  {
+    "query_id": "HA-002",
+    "category_type": "hallucination_test",
+    "query_text": "Who owns the NonExistentDatabase?",
+    "response": "Entity 'Nonexistentdatabase' was not found in the knowledge graph. Cannot answer questions about non-existent entities.",
+    "confidence": 0.0,
+    "response_category": "NOT_FOUND"
+  },
+  {
+    "query_id": "HA-003",
+    "category_type": "hallucination_test",
+    "query_text": "What services depend on the MagicAPI?",
+    "response": "Entity 'Magicapi' was not found in the knowledge graph. Cannot answer questions about non-existent entities.",
+    "confidence": 0.0,
+    "response_category": "NOT_FOUND"
+  },
+  {
+    "query_id": "HA-004",
+    "category_type": "hallucination_test",
+    "query_text": "Who should I escalate to for issues with the QuantumService?",
+    "response": "For issues with the QuantumService, you should escalate to Mia White, who is the VP of Engineering and the escalation point for SEV1 incidents.",
+    "confidence": 0.95,
+    "response_category": "HALLUCINATED"
+  },
+  {
+    "query_id": "HA-005",
+    "category_type": "hallucination_test",
+    "query_text": "What is the capital of France?",
+    "response": "I don't have enough information to confidently answer this query. The retrieved context does not contain any information related to the capital of France, making it impossible to answer the query. The knowledge base was searched but relevant facts were not found. This could mean the topic hasn't been documented, or it may be referred to differently.",
+    "confidence": 0.1,
+    "response_category": "ACCURATE"
+  },
+  {
+    "query_id": "HA-006",
+    "category_type": "hallucination_test",
+    "query_text": "Who is the CEO of Apple?",
+    "response": "No entities are documented as the CEO of Apple in the knowledge graph.",
+    "confidence": 0.45499999999999996,
+    "response_category": "HALLUCINATED"
+  },
+  {
+    "query_id": "HA-007",
+    "category_type": "hallucination_test",
+    "query_text": "What is the best programming language?",
+    "response": "I don't have enough information to confidently answer this query. The retrieved context does not provide any information regarding programming languages or their effectiveness, which is necessary to answer the query about the best programming language. The knowledge base was searched but relevant facts were not found. This could mean the topic hasn't been documented, or it may be referred to differently.",
+    "confidence": 0.1,
+    "response_category": "ACCURATE"
+  },
+  {
+    "query_id": "HA-008",
+    "category_type": "hallucination_test",
+    "query_text": "Tell me about the WeatherService integration.",
+    "response": "Entity 'Weatherservice' was not found in the knowledge graph. Cannot answer questions about non-existent entities.",
+    "confidence": 0.0,
+    "response_category": "NOT_FOUND"
+  },
+  {
+    "query_id": "HA-009",
+    "category_type": "hallucination_test",
+    "query_text": "What are the dependencies of the XYZ123 Platform?",
+    "response": "No services are documented as depending on the XYZ123 Platform in the knowledge graph.",
+    "confidence": 0.49500000000000005,
+    "response_category": "HALLUCINATED"
+  },
+  {
+    "query_id": "HA-010",
+    "category_type": "hallucination_test",
+    "query_text": "Who maintains the SkynetService?",
+    "response": "Entity 'Skynetservice' was not found in the knowledge graph. Cannot answer questions about non-existent entities.",
+    "confidence": 0.0,
+    "response_category": "NOT_FOUND"
+  },
+  {
+    "query_id": "CF-001",
+    "category_type": "complex_flow",
+    "query_text": "If a customer can't complete checkout, what services should I check?",
+    "response": "GROUNDED:\n- Checkout Service depends on Payment Service.\n- Checkout Service depends on Auth Service.\n- Checkout Service depends on Order Database.\n- Checkout Service depends on Notification Service.\n\nINFERRED:\n- Payment Service (inferred via Checkout Service, 85% confidence)\n- Auth Service (inferred via Checkout Service, 85% confidence)\n- Order Database (inferred via Checkout Service, 85% confidence)\n- Notification Service (inferred via Checkout Service, 85% confidence)\n\nKNOWLEDGE BOUNDARY:\n- We do not know if there are additional services that depend on Checkout Service or if there are other indirect dependencies that are not documented. This could indicate a lack of comprehensive documentation regarding service dependencies.",
+    "confidence": 0.765,
+    "response_category": "ACCURATE"
+  },
+  {
+    "query_id": "CF-002",
+    "category_type": "complex_flow",
+    "query_text": "What is the end-to-end flow for processing a payment?",
+    "response": "GROUNDED:\n1. Checkout Service depends on Payment Service.\n2. Payment Service depends on Payments Database.\n3. Payment Service depends on Auth Service.\n4. Payment Service depends on Fraud Detection Service.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. While the Payment Processor and Fraud Detection Service are mentioned in the runbooks, the end-to-end flow for processing a payment is not fully detailed. Consider updating the service documentation to include a comprehensive payment processing flow.\n\nINFERRED:\nBased on the runbook content, the end-to-end flow for processing a payment likely involves the following steps: 1) The Checkout Service initiates a payment request to the Payment Service. 2) The Payment Service validates the request through the Auth Service. 3) The Payment Service then calls the Fraud Detection Service for risk assessment. 4) Upon successful validation and fraud check, the Payment Service processes the transaction and stores it in the Payments Database. These are inferences, not documented facts. Confidence: Medium.",
+    "confidence": 0.765,
+    "response_category": "ACCURATE"
+  },
+  {
+    "query_id": "CF-003",
+    "category_type": "complex_flow",
+    "query_text": "How does a user login request flow through the system?",
+    "response": "The user login request flows through the system as follows: \n1. The request is routed through the API Gateway, which directs it to the User Authentication Service. \n2. The User Authentication Service processes the login request, which involves validating the user's credentials against the User Database. \n3. If the credentials are valid, the User Authentication Service may utilize the Redis Cache Cluster for session management and caching. \n4. Upon successful authentication, the User Authentication Service generates a session token and returns it to the API Gateway, which then forwards it back to the user.",
+    "confidence": 0.45499999999999996,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "CF-004",
+    "category_type": "complex_flow",
+    "query_text": "What happens when a customer places an order?",
+    "response": "GROUNDED:\n1. Customer places an order.\n2. Order is processed by the Checkout Service.\n3. Checkout Service verifies payment through the Payment Service.\n4. Payment Service checks the Payments Database for transaction processing.\n5. Upon successful payment, the order is confirmed and stored in the Order Database.\n6. Notification Service sends confirmation to the customer.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. The specific steps detailing the order placement process are not fully documented in the provided context. Consider updating the service catalog to include a comprehensive runbook for the order placement process.\n\nINFERRED:\nBased on the dependencies listed in the Checkout Service Troubleshooting document, the Checkout Service may depend on the Auth Service for user authentication during the order placement process. These are inferences, not documented facts. Confidence: Medium.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "CF-005",
+    "category_type": "complex_flow",
+    "query_text": "Trace the path of a password reset request.",
+    "response": "I don't have enough information to confidently answer this query. The retrieved context does not provide any specific steps or procedures related to tracing a password reset request, which is essential to answer the query. The knowledge base was searched but relevant facts were not found. This could mean the topic hasn't been documented, or it may be referred to differently.",
+    "confidence": 0.1,
+    "response_category": "LOW_CONFIDENCE"
+  },
+  {
+    "query_id": "CF-006",
+    "category_type": "complex_flow",
+    "query_text": "What systems are involved in sending an email notification?",
+    "response": "The systems involved in sending an email notification include the Notification Service and the Email Service. The Notification Service handles email, SMS, and push notifications, while the Email Service is specifically mentioned in the implementation plans for integration testing.",
+    "confidence": 0.765,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "CF-007",
+    "category_type": "complex_flow",
+    "query_text": "How does product search work across services?",
+    "response": "The context does not provide specific details on how product search works across services. The documents mention a proposed approach for product search but do not elaborate on the integration or interaction between services involved in the search process.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "CF-008",
+    "category_type": "complex_flow",
+    "query_text": "What is the flow for processing a refund?",
+    "response": "No entities are documented as specifically related to the refund processing flow in the provided context.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "CF-009",
+    "category_type": "complex_flow",
+    "query_text": "How are user recommendations generated?",
+    "response": "User recommendations are generated through a proposed approach that involves the integration of a Recommendation Engine. The existing Recommendation Engine infrastructure was considered but rejected due to scalability issues. A third-party solution was also deemed cost prohibitive. The implementation plan includes setting up a development environment, core implementation, integration testing with the Recommendation Engine, and a staged rollout.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  },
+  {
+    "query_id": "CF-010",
+    "category_type": "complex_flow",
+    "query_text": "What happens when inventory runs low?",
+    "response": "GROUNDED:\nNo services are documented as depending on inventory in the knowledge graph.\n\nGAP IDENTIFIED:\nThis is likely a documentation gap. Inventory levels typically affect various services such as Order Processing and Checkout Services, but these dependencies are not explicitly documented. Consider updating the service catalog.\n\nINFERRED (not documented):\nBased on the context of services that handle transactions, the Checkout Service and Payment Service may be affected by low inventory levels, as they rely on product availability for processing orders. These are inferences, not documented facts. Confidence: Low.",
+    "confidence": 0.49500000000000005,
+    "response_category": "PARTIAL"
+  }
+]

@@ -1,0 +1,830 @@
+ONTOLOGY FOUNDRY — EXHAUSTIVE TEST SUITE
+
+Keep testing until we find no more issues.
+
+================================================================================
+TEST SUITE 3: EXHAUSTIVE EDGE CASES
+================================================================================
+```python
+# scripts/test_ontology_exhaustive.py
+
+"""
+Exhaustive edge case testing for Ontology Foundry.
+Goal: Find every possible failure mode.
+"""
+
+import json
+import time
+from uuid import UUID, uuid4
+from datetime import datetime, timedelta
+from src.context_foundry.models.schema import get_session
+from src.context_foundry.ontology.candidate_store import CandidateStore
+from src.context_foundry.ontology.normalizer import CandidateNormalizer
+from src.context_foundry.staging.staging_loader import StagingLoader
+from sqlalchemy import text
+
+def get_tenant():
+    session = get_session()
+    result = session.execute(text("SELECT id FROM platform.tenants LIMIT 1")).fetchone()
+    if not result:
+        result = session.execute(text("SELECT id FROM vaults LIMIT 1")).fetchone()
+    return UUID(str(result.id))
+
+TENANT_ID = None
+
+def setup():
+    global TENANT_ID
+    TENANT_ID = get_tenant()
+    print(f"Tenant: {TENANT_ID}")
+    print("=" * 70)
+
+# ============================================================================
+# TEST 15: Boundary Values
+# ============================================================================
+
+def test_15_boundary_values():
+    """Test boundary conditions for all fields."""
+    print("\n" + "=" * 70)
+    print("TEST 15: BOUNDARY VALUES")
+    print("=" * 70)
+    
+    session = get_session()
+    store = CandidateStore(session, TENANT_ID)
+    all_passed = True
+    
+    # 15a: Entity name lengths
+    print("\n  15a. Entity name lengths:")
+    lengths = [1, 10, 50, 100, 255, 500, 1000]
+    
+    for length in lengths:
+        test_type = f"LEN_{length}_{uuid4().hex[:4].upper()}"
+        name = "A" * length
+        
+        try:
+            store.add_relationship_candidate(
+                proposed_name=test_type,
+                normalized_name=test_type,
+                source_entity_type="ORGANIZATION",
+                target_entity_type="ORGANIZATION",
+                source_entity_name=name,
+                target_entity_name=name,
+                original_text=f"Test with {length} char names",
+                document_id=uuid4()
+            )
+            
+            # Verify retrieval
+            candidates = store.get_pending_candidates()
+            found = any(c['normalized_name'] == test_type for c in candidates)
+            
+            if found:
+                print(f"    ✓ {length} chars: OK")
+            else:
+                print(f"    ✗ {length} chars: Not found after insert")
+                all_passed = False
+                
+            # Cleanup
+            session.execute(text(f"DELETE FROM pending_extractions WHERE candidate_id IN (SELECT id FROM ontology_candidates WHERE normalized_name = '{test_type}')"))
+            session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name = '{test_type}'"))
+            session.commit()
+            
+        except Exception as e:
+            print(f"    ✗ {length} chars: {e}")
+            all_passed = False
+            session.rollback()
+    
+    # 15b: Properties size
+    print("\n  15b. Properties JSON size:")
+    sizes = [0, 10, 100, 1000, 10000]
+    
+    for size in sizes:
+        test_type = f"PROP_{size}_{uuid4().hex[:4].upper()}"
+        props = {"data": "x" * size} if size > 0 else {}
+        
+        try:
+            store.add_relationship_candidate(
+                proposed_name=test_type,
+                normalized_name=test_type,
+                source_entity_type="ORGANIZATION",
+                target_entity_type="ORGANIZATION",
+                source_entity_name="Test",
+                target_entity_name="Test2",
+                properties=props,
+                original_text="Test",
+                document_id=uuid4()
+            )
+            print(f"    ✓ {size} bytes properties: OK")
+            
+            # Cleanup
+            session.execute(text(f"DELETE FROM pending_extractions WHERE candidate_id IN (SELECT id FROM ontology_candidates WHERE normalized_name = '{test_type}')"))
+            session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name = '{test_type}'"))
+            session.commit()
+            
+        except Exception as e:
+            print(f"    ✗ {size} bytes properties: {e}")
+            all_passed = False
+            session.rollback()
+    
+    # 15c: Confidence score boundaries
+    print("\n  15c. Confidence score boundaries:")
+    test_type = f"CONF_{uuid4().hex[:4].upper()}"
+    
+    # Add many documents to push confidence to max
+    for i in range(20):
+        store.add_relationship_candidate(
+            proposed_name=test_type,
+            normalized_name=test_type,
+            source_entity_type="ORGANIZATION",
+            target_entity_type="ORGANIZATION",
+            source_entity_name=f"Org{i}",
+            target_entity_name=f"Target{i}",
+            original_text=f"Test {i}",
+            document_id=uuid4()
+        )
+    
+    candidates = store.get_pending_candidates()
+    candidate = next((c for c in candidates if c['normalized_name'] == test_type), None)
+    
+    if candidate:
+        conf = candidate['confidence_score']
+        if 0 <= conf <= 1:
+            print(f"    ✓ After 20 docs: confidence = {conf:.2f} (within bounds)")
+        else:
+            print(f"    ✗ Confidence out of bounds: {conf}")
+            all_passed = False
+    
+    # Cleanup
+    session.execute(text(f"DELETE FROM pending_extractions WHERE candidate_id IN (SELECT id FROM ontology_candidates WHERE normalized_name = '{test_type}')"))
+    session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name = '{test_type}'"))
+    session.commit()
+    
+    return all_passed
+
+# ============================================================================
+# TEST 16: Null and Empty Handling
+# ============================================================================
+
+def test_16_null_empty():
+    """Test null and empty value handling."""
+    print("\n" + "=" * 70)
+    print("TEST 16: NULL AND EMPTY HANDLING")
+    print("=" * 70)
+    
+    session = get_session()
+    store = CandidateStore(session, TENANT_ID)
+    all_passed = True
+    
+    test_cases = [
+        # (field_name, value, should_succeed)
+        ("proposed_name", "", True),
+        ("proposed_name", None, False),
+        ("normalized_name", "", False),  # Should fail - can't have empty normalized name
+        ("source_entity_name", "", True),
+        ("source_entity_name", None, False),
+        ("target_entity_name", "", True),
+        ("original_text", "", True),
+        ("original_text", None, True),
+        ("properties", {}, True),
+        ("properties", None, True),
+    ]
+    
+    for field_name, value, should_succeed in test_cases:
+        test_type = f"NULL_{field_name}_{uuid4().hex[:4].upper()}"
+        
+        kwargs = {
+            'proposed_name': test_type,
+            'normalized_name': test_type,
+            'source_entity_type': "ORGANIZATION",
+            'target_entity_type': "ORGANIZATION",
+            'source_entity_name': "Test",
+            'target_entity_name': "Test2",
+            'original_text': "Test text",
+            'properties': {},
+            'document_id': uuid4()
+        }
+        
+        # Override the test field
+        if field_name == 'normalized_name' and value == "":
+            kwargs['normalized_name'] = ""
+        else:
+            kwargs[field_name] = value
+        
+        try:
+            store.add_relationship_candidate(**kwargs)
+            
+            if should_succeed:
+                print(f"    ✓ {field_name}={repr(value)}: Accepted (expected)")
+            else:
+                print(f"    ✗ {field_name}={repr(value)}: Should have failed but succeeded")
+                all_passed = False
+            
+            # Cleanup
+            session.execute(text(f"DELETE FROM pending_extractions WHERE candidate_id IN (SELECT id FROM ontology_candidates WHERE normalized_name = '{test_type}')"))
+            session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name = '{test_type}')"))
+            session.commit()
+            
+        except Exception as e:
+            if not should_succeed:
+                print(f"    ✓ {field_name}={repr(value)}: Rejected (expected) - {type(e).__name__}")
+            else:
+                print(f"    ✗ {field_name}={repr(value)}: Should have succeeded but failed - {e}")
+                all_passed = False
+            session.rollback()
+    
+    return all_passed
+
+# ============================================================================
+# TEST 17: Type Consistency
+# ============================================================================
+
+def test_17_type_consistency():
+    """Test that entity types are handled consistently."""
+    print("\n" + "=" * 70)
+    print("TEST 17: TYPE CONSISTENCY")
+    print("=" * 70)
+    
+    session = get_session()
+    store = CandidateStore(session, TENANT_ID)
+    all_passed = True
+    
+    # 17a: Same relationship, different entity types
+    print("\n  17a. Same relationship type, different entity types:")
+    test_type = f"TYPE_CONSIST_{uuid4().hex[:4].upper()}"
+    
+    # PERSON -> ORGANIZATION
+    store.add_relationship_candidate(
+        proposed_name=test_type,
+        normalized_name=test_type,
+        source_entity_type="PERSON",
+        target_entity_type="ORGANIZATION",
+        source_entity_name="John",
+        target_entity_name="Acme",
+        original_text="John works at Acme",
+        document_id=uuid4()
+    )
+    
+    # ORGANIZATION -> ORGANIZATION
+    store.add_relationship_candidate(
+        proposed_name=test_type,
+        normalized_name=test_type,
+        source_entity_type="ORGANIZATION",
+        target_entity_type="ORGANIZATION",
+        source_entity_name="BigCo",
+        target_entity_name="SmallCo",
+        original_text="BigCo acquired SmallCo",
+        document_id=uuid4()
+    )
+    
+    candidates = store.get_pending_candidates()
+    candidate = next((c for c in candidates if c['normalized_name'] == test_type), None)
+    
+    if candidate:
+        # Should still be 1 candidate with 2 mentions
+        if candidate['mention_count'] == 2:
+            print(f"    ✓ Different entity types merged into same candidate")
+        else:
+            print(f"    ✗ Expected 2 mentions, got {candidate['mention_count']}")
+            all_passed = False
+        
+        # Check source_entity_type - should be from first mention
+        print(f"    Source type stored: {candidate.get('source_entity_type', 'N/A')}")
+        print(f"    Target type stored: {candidate.get('target_entity_type', 'N/A')}")
+    else:
+        print(f"    ✗ Candidate not found")
+        all_passed = False
+    
+    # Cleanup
+    session.execute(text(f"DELETE FROM pending_extractions WHERE candidate_id IN (SELECT id FROM ontology_candidates WHERE normalized_name = '{test_type}')"))
+    session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name = '{test_type}'"))
+    session.commit()
+    
+    # 17b: Case sensitivity in entity types
+    print("\n  17b. Entity type case sensitivity:")
+    test_type2 = f"CASE_{uuid4().hex[:4].upper()}"
+    
+    entity_types = ["PERSON", "person", "Person", "PERSON"]
+    for et in entity_types:
+        store.add_relationship_candidate(
+            proposed_name=test_type2,
+            normalized_name=test_type2,
+            source_entity_type=et,
+            target_entity_type="ORGANIZATION",
+            source_entity_name="Test",
+            target_entity_name="Test2",
+            original_text=f"Test with {et}",
+            document_id=uuid4()
+        )
+    
+    candidates = store.get_pending_candidates()
+    candidate = next((c for c in candidates if c['normalized_name'] == test_type2), None)
+    
+    if candidate:
+        print(f"    ✓ {len(entity_types)} mentions with different cases: {candidate['mention_count']} mentions stored")
+    
+    # Cleanup
+    session.execute(text(f"DELETE FROM pending_extractions WHERE candidate_id IN (SELECT id FROM ontology_candidates WHERE normalized_name = '{test_type2}')"))
+    session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name = '{test_type2}'"))
+    session.commit()
+    
+    return all_passed
+
+# ============================================================================
+# TEST 18: Known Types Boundary
+# ============================================================================
+
+def test_18_known_types_boundary():
+    """Test the boundary between known and unknown types."""
+    print("\n" + "=" * 70)
+    print("TEST 18: KNOWN TYPES BOUNDARY")
+    print("=" * 70)
+    
+    session = get_session()
+    loader = StagingLoader(session)
+    store = CandidateStore(session, TENANT_ID)
+    
+    known_types = loader._get_known_relationship_types()
+    print(f"  Known types count: {len(known_types)}")
+    
+    all_passed = True
+    
+    # 18a: Test a definitely known type
+    print("\n  18a. Known type (WORKS_AT):")
+    if 'WORKS_AT' in known_types:
+        print(f"    ✓ WORKS_AT is in known types")
+    else:
+        print(f"    ✗ WORKS_AT not in known types (unexpected)")
+        all_passed = False
+    
+    # 18b: Test types that normalize to known types
+    print("\n  18b. Types that normalize to known:")
+    normalizer = CandidateNormalizer()
+    
+    normalize_tests = [
+        ("EMPLOYED_BY", "WORKS_AT"),
+        ("INVESTS_IN", "INVESTED_IN"),
+        ("BOUGHT", "ACQUIRED"),
+    ]
+    
+    for input_type, expected_normalized in normalize_tests:
+        normalized = normalizer.normalize_relationship(input_type)
+        is_known = normalized in known_types
+        
+        if normalized == expected_normalized:
+            print(f"    ✓ {input_type} → {normalized} (known: {is_known})")
+        else:
+            print(f"    ✗ {input_type} → {normalized} (expected {expected_normalized})")
+            all_passed = False
+    
+    # 18c: Test routing through loader
+    print("\n  18c. Routing through StagingLoader:")
+    
+    test_cases = [
+        ("WORKS_AT", "kg"),  # Known
+        ("EMPLOYED_BY", "kg"),  # Normalizes to known
+        ("COMPLETELY_UNKNOWN_TYPE_XYZ", "candidate"),  # Unknown
+    ]
+    
+    for rel_type, expected_action in test_cases:
+        test_marker = f"ROUTE_{uuid4().hex[:4].upper()}"
+        
+        try:
+            result = loader.load_relation(
+                tenant_id=TENANT_ID,
+                relation_data={
+                    'source_entity': 'TestSource',
+                    'source_type': 'ORGANIZATION',
+                    'target_entity': 'TestTarget',
+                    'target_type': 'ORGANIZATION',
+                    'relationship_type': rel_type,
+                    'properties': {},
+                    'document_id': uuid4(),
+                    'chunk_id': uuid4(),
+                    'chunk_text': f'Test {rel_type}'
+                }
+            )
+            
+            action = result.get('action', 'unknown')
+            # Normalize action names
+            if action in ['written_to_kg', 'kg']:
+                actual = 'kg'
+            elif action in ['candidate', 'stored_as_candidate']:
+                actual = 'candidate'
+            else:
+                actual = action
+            
+            if actual == expected_action:
+                print(f"    ✓ {rel_type} → {actual}")
+            else:
+                print(f"    ✗ {rel_type} → {actual} (expected {expected_action})")
+                all_passed = False
+                
+        except Exception as e:
+            print(f"    ✗ {rel_type} → ERROR: {e}")
+            all_passed = False
+    
+    # Cleanup any candidates created
+    session.execute(text("DELETE FROM pending_extractions WHERE candidate_id IN (SELECT id FROM ontology_candidates WHERE normalized_name = 'COMPLETELY_UNKNOWN_TYPE_XYZ')"))
+    session.execute(text("DELETE FROM ontology_candidates WHERE normalized_name = 'COMPLETELY_UNKNOWN_TYPE_XYZ'"))
+    session.commit()
+    
+    return all_passed
+
+# ============================================================================
+# TEST 19: Extraction Provenance
+# ============================================================================
+
+def test_19_extraction_provenance():
+    """Test that extraction provenance is correctly stored."""
+    print("\n" + "=" * 70)
+    print("TEST 19: EXTRACTION PROVENANCE")
+    print("=" * 70)
+    
+    session = get_session()
+    store = CandidateStore(session, TENANT_ID)
+    all_passed = True
+    
+    test_type = f"PROV_{uuid4().hex[:4].upper()}"
+    doc_id = uuid4()
+    chunk_id = uuid4()
+    
+    store.add_relationship_candidate(
+        proposed_name=test_type,
+        normalized_name=test_type,
+        source_entity_type="ORGANIZATION",
+        target_entity_type="PERSON",
+        source_entity_name="Acme Corp",
+        target_entity_name="John Smith",
+        properties={"role": "CEO", "since": "2020"},
+        original_text="John Smith has been CEO of Acme Corp since 2020.",
+        document_id=doc_id,
+        chunk_id=chunk_id
+    )
+    
+    candidates = store.get_pending_candidates()
+    candidate = next((c for c in candidates if c['normalized_name'] == test_type), None)
+    
+    if not candidate:
+        print(f"    ✗ Candidate not found")
+        return False
+    
+    candidate_id = UUID(candidate['id'])
+    extractions = store.get_pending_extractions(candidate_id)
+    
+    if not extractions:
+        print(f"    ✗ No extractions found")
+        return False
+    
+    ext = extractions[0]
+    
+    # Check all provenance fields
+    checks = [
+        ('source_entity_name', 'Acme Corp'),
+        ('target_entity_name', 'John Smith'),
+        ('source_entity_type', 'ORGANIZATION'),
+        ('target_entity_type', 'PERSON'),
+        ('relationship_type', test_type),
+    ]
+    
+    for field, expected in checks:
+        actual = ext.get(field)
+        if actual == expected:
+            print(f"    ✓ {field}: {actual}")
+        else:
+            print(f"    ✗ {field}: {actual} (expected {expected})")
+            all_passed = False
+    
+    # Check document_id
+    if ext.get('document_id'):
+        print(f"    ✓ document_id: present")
+    else:
+        print(f"    ✗ document_id: missing")
+        all_passed = False
+    
+    # Check properties
+    props = ext.get('properties', {})
+    if isinstance(props, str):
+        props = json.loads(props)
+    
+    if props.get('role') == 'CEO':
+        print(f"    ✓ properties preserved: {props}")
+    else:
+        print(f"    ✗ properties not preserved: {props}")
+        all_passed = False
+    
+    # Check chunk_text
+    chunk_text = ext.get('chunk_text', '')
+    if 'CEO of Acme Corp' in chunk_text:
+        print(f"    ✓ chunk_text preserved")
+    else:
+        print(f"    ✗ chunk_text not preserved: {chunk_text[:50]}...")
+        all_passed = False
+    
+    # Cleanup
+    session.execute(text(f"DELETE FROM pending_extractions WHERE candidate_id IN (SELECT id FROM ontology_candidates WHERE normalized_name = '{test_type}')"))
+    session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name = '{test_type}'"))
+    session.commit()
+    
+    return all_passed
+
+# ============================================================================
+# TEST 20: Stats Accuracy
+# ============================================================================
+
+def test_20_stats_accuracy():
+    """Test that stats are accurate."""
+    print("\n" + "=" * 70)
+    print("TEST 20: STATS ACCURACY")
+    print("=" * 70)
+    
+    session = get_session()
+    store = CandidateStore(session, TENANT_ID)
+    
+    # Get baseline stats
+    before_stats = store.get_stats()
+    before_pending = before_stats.get('RELATIONSHIP', {}).get('PENDING', 0)
+    
+    # Create some candidates
+    prefix = f"STATS_{uuid4().hex[:4].upper()}"
+    num_to_create = 5
+    
+    for i in range(num_to_create):
+        store.add_relationship_candidate(
+            proposed_name=f"{prefix}_{i}",
+            normalized_name=f"{prefix}_{i}",
+            source_entity_type="ORGANIZATION",
+            target_entity_type="ORGANIZATION",
+            source_entity_name=f"Org{i}",
+            target_entity_name=f"Target{i}",
+            original_text=f"Test {i}",
+            document_id=uuid4()
+        )
+    
+    # Get new stats
+    after_stats = store.get_stats()
+    after_pending = after_stats.get('RELATIONSHIP', {}).get('PENDING', 0)
+    
+    diff = after_pending - before_pending
+    
+    if diff == num_to_create:
+        print(f"    ✓ Stats accurate: {before_pending} → {after_pending} (+{diff})")
+        success = True
+    else:
+        print(f"    ✗ Stats inaccurate: expected +{num_to_create}, got +{diff}")
+        success = False
+    
+    # Cleanup
+    session.execute(text(f"DELETE FROM pending_extractions WHERE candidate_id IN (SELECT id FROM ontology_candidates WHERE normalized_name LIKE '{prefix}%')"))
+    session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name LIKE '{prefix}%'"))
+    session.commit()
+    
+    return success
+
+# ============================================================================
+# TEST 21: Filter Operations
+# ============================================================================
+
+def test_21_filters():
+    """Test filtering candidates."""
+    print("\n" + "=" * 70)
+    print("TEST 21: FILTER OPERATIONS")
+    print("=" * 70)
+    
+    session = get_session()
+    store = CandidateStore(session, TENANT_ID)
+    all_passed = True
+    
+    prefix = f"FILTER_{uuid4().hex[:4].upper()}"
+    
+    # Create candidates with varying confidence
+    # More mentions = higher confidence
+    for i in range(5):
+        type_name = f"{prefix}_{i}"
+        # Add (i+1) mentions to get different confidence levels
+        for j in range(i + 1):
+            store.add_relationship_candidate(
+                proposed_name=type_name,
+                normalized_name=type_name,
+                source_entity_type="ORGANIZATION",
+                target_entity_type="ORGANIZATION",
+                source_entity_name=f"Org{j}",
+                target_entity_name=f"Target{j}",
+                original_text=f"Test {j}",
+                document_id=uuid4()
+            )
+    
+    # Test min_confidence filter
+    print("\n  21a. Filter by min_confidence:")
+    
+    all_candidates = store.get_pending_candidates()
+    test_candidates = [c for c in all_candidates if c['normalized_name'].startswith(prefix)]
+    print(f"    All test candidates: {len(test_candidates)}")
+    
+    for conf in test_candidates:
+        print(f"      {conf['normalized_name']}: {conf['confidence_score']:.2f}")
+    
+    high_conf = store.get_pending_candidates(min_confidence=0.7)
+    high_conf_test = [c for c in high_conf if c['normalized_name'].startswith(prefix)]
+    print(f"    Confidence >= 0.7: {len(high_conf_test)}")
+    
+    # Verify all returned have high confidence
+    for c in high_conf_test:
+        if c['confidence_score'] < 0.7:
+            print(f"    ✗ {c['normalized_name']} has confidence {c['confidence_score']} < 0.7")
+            all_passed = False
+    
+    if all_passed:
+        print(f"    ✓ Filter working correctly")
+    
+    # Test candidate_type filter
+    print("\n  21b. Filter by candidate_type:")
+    
+    rel_candidates = store.get_pending_candidates(candidate_type="RELATIONSHIP")
+    ent_candidates = store.get_pending_candidates(candidate_type="ENTITY")
+    
+    print(f"    RELATIONSHIP candidates: {len(rel_candidates)}")
+    print(f"    ENTITY candidates: {len(ent_candidates)}")
+    
+    # Cleanup
+    session.execute(text(f"DELETE FROM pending_extractions WHERE candidate_id IN (SELECT id FROM ontology_candidates WHERE normalized_name LIKE '{prefix}%')"))
+    session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name LIKE '{prefix}%'"))
+    session.commit()
+    
+    return all_passed
+
+# ============================================================================
+# TEST 22: Database Constraints
+# ============================================================================
+
+def test_22_db_constraints():
+    """Test database constraints are enforced."""
+    print("\n" + "=" * 70)
+    print("TEST 22: DATABASE CONSTRAINTS")
+    print("=" * 70)
+    
+    session = get_session()
+    all_passed = True
+    
+    # 22a: Check candidate_type constraint
+    print("\n  22a. candidate_type constraint (RELATIONSHIP|ENTITY|ATTRIBUTE):")
+    try:
+        session.execute(text("""
+            INSERT INTO ontology_candidates (
+                tenant_id, candidate_type, proposed_name, normalized_name
+            ) VALUES (
+                :tenant_id, 'INVALID_TYPE', 'test', 'test'
+            )
+        """), {'tenant_id': str(TENANT_ID)})
+        session.commit()
+        print(f"    ✗ Invalid candidate_type was accepted")
+        all_passed = False
+    except Exception as e:
+        print(f"    ✓ Invalid candidate_type rejected: {type(e).__name__}")
+        session.rollback()
+    
+    # 22b: Check status constraint
+    print("\n  22b. status constraint (PENDING|APPROVED|REJECTED|MERGED):")
+    try:
+        session.execute(text("""
+            INSERT INTO ontology_candidates (
+                tenant_id, candidate_type, proposed_name, normalized_name, status
+            ) VALUES (
+                :tenant_id, 'RELATIONSHIP', 'test', 'test', 'INVALID_STATUS'
+            )
+        """), {'tenant_id': str(TENANT_ID)})
+        session.commit()
+        print(f"    ✗ Invalid status was accepted")
+        all_passed = False
+    except Exception as e:
+        print(f"    ✓ Invalid status rejected: {type(e).__name__}")
+        session.rollback()
+    
+    # 22c: Check confidence_score bounds (should be enforced by application)
+    print("\n  22c. confidence_score bounds (application-level):")
+    store = CandidateStore(session, TENANT_ID)
+    
+    # The _calculate_confidence method should always return 0-1
+    test_cases = [(0, 0), (1, 1), (100, 100), (1000, 1000)]
+    for docs, mentions in test_cases:
+        conf = store._calculate_confidence(docs, mentions)
+        if 0 <= conf <= 1:
+            print(f"    ✓ ({docs} docs, {mentions} mentions) → {conf:.2f}")
+        else:
+            print(f"    ✗ ({docs} docs, {mentions} mentions) → {conf:.2f} (out of bounds)")
+            all_passed = False
+    
+    return all_passed
+
+# ============================================================================
+# TEST 23: Cleanup Verification
+# ============================================================================
+
+def test_23_cleanup():
+    """Verify all test data is cleaned up."""
+    print("\n" + "=" * 70)
+    print("TEST 23: CLEANUP VERIFICATION")
+    print("=" * 70)
+    
+    session = get_session()
+    
+    # Check for any test data patterns
+    patterns = ['VOLUME_%', 'EXTRACT_%', 'UNICODE_%', 'CONCURRENT_%', 
+                'PERF_%', 'INTEGRITY_%', 'RECOVERY_%', 'LEN_%', 'PROP_%',
+                'NULL_%', 'TYPE_%', 'CASE_%', 'ROUTE_%', 'PROV_%', 
+                'STATS_%', 'FILTER_%', 'TEST_%', 'CONF_%', 'CAP_%']
+    
+    total_found = 0
+    
+    for pattern in patterns:
+        result = session.execute(text(f"""
+            SELECT COUNT(*) as count FROM ontology_candidates 
+            WHERE normalized_name LIKE '{pattern}'
+        """)).fetchone()
+        
+        if result.count > 0:
+            print(f"    ⚠️  {pattern}: {result.count} candidates remaining")
+            total_found += result.count
+    
+    if total_found == 0:
+        print(f"    ✓ All test data cleaned up")
+        return True
+    else:
+        print(f"\n    ✗ {total_found} test candidates remain - cleaning up...")
+        
+        for pattern in patterns:
+            session.execute(text(f"""
+                DELETE FROM pending_extractions 
+                WHERE candidate_id IN (
+                    SELECT id FROM ontology_candidates WHERE normalized_name LIKE '{pattern}'
+                )
+            """))
+            session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name LIKE '{pattern}'"))
+        
+        session.commit()
+        print(f"    ✓ Cleaned up")
+        return True
+
+# ============================================================================
+# MAIN
+# ============================================================================
+
+def main():
+    print("\n" + "=" * 70)
+    print("ONTOLOGY FOUNDRY — EXHAUSTIVE TEST SUITE")
+    print(f"Started: {datetime.now().isoformat()}")
+    print("=" * 70)
+    
+    setup()
+    
+    results = {}
+    
+    tests = [
+        ("test_15_boundary_values", test_15_boundary_values),
+        ("test_16_null_empty", test_16_null_empty),
+        ("test_17_type_consistency", test_17_type_consistency),
+        ("test_18_known_types_boundary", test_18_known_types_boundary),
+        ("test_19_extraction_provenance", test_19_extraction_provenance),
+        ("test_20_stats_accuracy", test_20_stats_accuracy),
+        ("test_21_filters", test_21_filters),
+        ("test_22_db_constraints", test_22_db_constraints),
+        ("test_23_cleanup", test_23_cleanup),
+    ]
+    
+    for name, func in tests:
+        try:
+            results[name] = func()
+        except Exception as e:
+            print(f"  ✗ CRASHED: {e}")
+            import traceback
+            traceback.print_exc()
+            results[name] = False
+    
+    # Summary
+    print("\n" + "=" * 70)
+    print("EXHAUSTIVE TEST SUMMARY")
+    print("=" * 70)
+    
+    passed = sum(1 for v in results.values() if v)
+    total = len(results)
+    
+    for test_name, passed_test in results.items():
+        status = "✓ PASSED" if passed_test else "✗ FAILED"
+        print(f"  {status}: {test_name}")
+    
+    print(f"\n  Total: {passed}/{total} tests passed")
+    
+    if passed == total:
+        print("\n  ✅ ALL EXHAUSTIVE TESTS PASSED")
+    else:
+        print("\n  ⚠️  Some tests failed — Review before Phase 2")
+    
+    print("=" * 70)
+
+if __name__ == "__main__":
+    main()
+```
+
+Run:
+```bash
+python scripts/test_ontology_exhaustive.py
+```
+
+================================================================================

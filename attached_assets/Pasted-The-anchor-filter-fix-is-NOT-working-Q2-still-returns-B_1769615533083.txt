@@ -1,0 +1,22 @@
+The anchor filter fix is NOT working. Q2 still returns Boeing's CFO "Rahul Ghai" instead of Nexus's CFO
+   "Michael Chang".                                                                                      
+                                                                                                         
+  Please verify:                                                                                         
+                                                                                                         
+  1. Check the vault has anchor set:                                                                     
+  SELECT id, name, settings->>'anchor_organization' as anchor                                            
+  FROM platform.tenants                                                                                  
+  WHERE id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91';                                                     
+                                                                                                         
+  2. Check if filter is being called - Add logging in execute():                                         
+  logger.info(f"[AnchorFilter] anchor_organization = {self.anchor_organization}")                        
+  Then query "What is the name of the CFO?" and check the logs.                                          
+                                                                                                         
+  3. Verify _get_anchor_from_tenant() reads from settings (not metadata):                                
+  # Should be:                                                                                           
+  settings->>'anchor_organization'                                                                       
+  # NOT:                                                                                                 
+  metadata->>'anchor_organization'                                                                       
+                                                                                                         
+  The test shows Q2 returning "Rahul Ghai" (Boeing CFO) which means Boeing entities are NOT being        
+  filtered out. 

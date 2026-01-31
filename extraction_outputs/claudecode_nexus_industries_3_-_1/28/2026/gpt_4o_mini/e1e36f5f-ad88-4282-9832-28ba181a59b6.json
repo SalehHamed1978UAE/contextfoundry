@@ -1,0 +1,197 @@
+{
+  "document_id": "e1e36f5f-ad88-4282-9832-28ba181a59b6",
+  "document_path": "09_export_control.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-28T20:19:18.851792",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Nexus Industries' commitment and procedures for complying with U.S. export control laws",
+      "aliases": []
+    },
+    {
+      "name": "Col. (Ret.) James Foster",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Government Programs",
+        "role": "Empowered Official"
+      },
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Col. (Ret.) James Foster, VP Government Programs",
+      "aliases": []
+    },
+    {
+      "name": "Lisa Thompson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "General Counsel",
+        "role": "Legal Advisor"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Approved by: Lisa Thompson, General Counsel",
+      "aliases": []
+    },
+    {
+      "name": "Export Control and ITAR Compliance Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "POL-009",
+        "category": "Corporate Policy"
+      },
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Export Control and ITAR Compliance Policy",
+      "aliases": []
+    },
+    {
+      "name": "Trade Compliance Office",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Compliance, Licensing, Auditing"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Trade Compliance Office",
+      "aliases": []
+    },
+    {
+      "name": "Export Compliance Manager",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Day-to-day operations"
+      },
+      "confidence": 0.8,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Export Compliance Manager",
+      "aliases": []
+    },
+    {
+      "name": "Classification Specialists",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Commodity jurisdiction"
+      },
+      "confidence": 0.8,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Classification Specialists",
+      "aliases": []
+    },
+    {
+      "name": "Licensing Specialists",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "License applications"
+      },
+      "confidence": 0.8,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Licensing Specialists",
+      "aliases": []
+    },
+    {
+      "name": "Auditors",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Internal reviews"
+      },
+      "confidence": 0.8,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Auditors",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Col. (Ret.) James Foster",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "Col. (Ret.) James Foster, VP Government Programs"
+    },
+    {
+      "source_entity": "Lisa Thompson",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "Approved by: Lisa Thompson, General Counsel"
+    },
+    {
+      "source_entity": "Trade Compliance Office",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "Trade Compliance Office"
+    },
+    {
+      "source_entity": "Export Compliance Manager",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Trade Compliance Office",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "09_export_control.md",
+      "evidence": "Export Compliance Manager"
+    },
+    {
+      "source_entity": "Classification Specialists",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Trade Compliance Office",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "09_export_control.md",
+      "evidence": "Classification Specialists"
+    },
+    {
+      "source_entity": "Licensing Specialists",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Trade Compliance Office",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "09_export_control.md",
+      "evidence": "Licensing Specialists"
+    },
+    {
+      "source_entity": "Auditors",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Trade Compliance Office",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "09_export_control.md",
+      "evidence": "Auditors"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 7,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

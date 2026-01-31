@@ -1,0 +1,31 @@
+Stop. Before implementing any more fixes:                                                              
+                                                                                                         
+  You're adding band-aids, not fixing the pipeline. Let me be specific:                                  
+                                                                                                         
+  Q40 Problem:                                                                                           
+  - You added "Nexus Industries" to the prompt ✅                                                        
+  - But retrieval STILL returns Boeing documents ❌                                                      
+  - The LLM sees $11.5B from Boeing and uses it                                                          
+                                                                                                         
+  The systematic fix is NOT "add Nexus to prompt" - it's:                                                
+  1. Filter retrieved documents by anchor organization                                                   
+  2. Filter retrieved entities by anchor organization                                                    
+  3. The retrieval layer should never return Boeing data when the vault's anchor is Nexus                
+                                                                                                         
+  Where to fix:                                                                                          
+  - search_documents() - add organization filter                                                         
+  - EntityResolver - add anchor filter (like we did for RoleResolver)                                    
+  - ToolExecutor._get_knowledge_bundle() - filter results by anchor org                                  
+                                                                                                         
+  Q38 Problem:                                                                                           
+  - RoleResolver already has anchor filtering from earlier fix                                           
+  - Why isn't it working for CISO? Is it returning "John Doe" from a different org?                      
+  - Debug: Add logging to see what candidates RoleResolver finds and why Jennifer Walsh isn't selected   
+                                                                                                         
+  Q18 Problem:                                                                                           
+  - "Offtake agreement" is a relationship type, like SUPPLIER_OF                                         
+  - Add OFFTAKE_AGREEMENT to the relationship traversal (similar to supplier fix)                        
+                                                                                                         
+  Don't patch each question. Fix the pipeline so ALL similar queries work.                               
+                                                                                                         
+  Show me your plan before implementing. 

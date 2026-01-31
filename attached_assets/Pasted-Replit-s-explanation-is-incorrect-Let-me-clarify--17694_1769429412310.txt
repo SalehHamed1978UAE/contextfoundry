@@ -1,0 +1,27 @@
+Replit's explanation is incorrect. Let me clarify:                                                     
+                                                                                                         
+  Embeddings help RETRIEVAL, not extraction.                                                             
+                                                                                                         
+  The 3-stage entity resolution pipeline we discussed earlier:                                           
+  1. Exact match - finds "Nel Hydrogen" only if query contains exact text                                
+  2. Semantic search (embeddings) - finds "Nel Hydrogen" when query says "hydrogen supplier"             
+  3. Fuzzy match - finds "Nell Hydrogen" typos                                                           
+                                                                                                         
+  The embeddings were supposed to help Stage 2 during query time (retrieval), not during extraction. The 
+  fact that accuracy didn't change suggests either:                                                      
+                                                                                                         
+  1. The semantic search isn't being used during queries - embeddings exist but the query pipeline isn't 
+  calling it                                                                                             
+  2. The similarity threshold is too strict - 0.75 might be rejecting valid matches                      
+  3. The test is still using cached results                                                              
+                                                                                                         
+  Questions for Replit:                                                                                  
+                                                                                                         
+  1. Is the query pipeline actually calling semantic search when resolving entity references?            
+  2. Can you trace a specific query like "Who supplied the electrolyzers?" and show whether semantic     
+  search ran and what candidates it found?                                                               
+  3. Confirm the results file is NEW (different timestamp than 2026-01-26T04:33:50)                      
+                                                                                                         
+  The vault ID mismatch is also concerning: Replit shows b8b157e1-... but the Claude Code Nexus          
+  Industries vault should be claude-code-nexus-industries-5dffeef0. Are these the same vault or          
+  different? 

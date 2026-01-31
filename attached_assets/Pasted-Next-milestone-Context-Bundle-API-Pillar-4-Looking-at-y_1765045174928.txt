@@ -1,0 +1,67 @@
+Next milestone: Context Bundle API (Pillar 4)
+Looking at your vision document (page 11): "The Context Bundle: A Contract for Trustworthy Reasoning"
+This is what's missing. We have:
+
+✅ Perception (ingestion, extraction)
+✅ Memory (semantic, episodic, symbolic)
+✅ Agents (gardener, validators, governance)
+❌ Context (delivery to AI applications)
+
+The Context Bundle is how Premisia, board advisor tools, and any AI application consumes Context Foundry. Without it, we have infrastructure but no interface.
+
+Tell Replit:
+
+Next milestone: Context Bundle API
+This is Pillar 4 from the vision - "Deliver structured, trustworthy truth to AI."
+The Context Bundle contains:
+pythonclass ContextBundle:
+    # Focal entities (what the query is about)
+    focal_entities: List[Entity]
+    
+    # Dependency graph (N-hop neighborhood)
+    related_entities: List[Entity]
+    relationships: List[Relationship]
+    
+    # Provenance
+    source_documents: List[DocumentReference]
+    confidence_summary: ConfidenceSummary
+    
+    # Episodic context
+    similar_incidents: List[IncidentPattern]  # "This happened before"
+    recent_changes: List[ChangeEvent]         # "This changed recently"
+    
+    # Symbolic constraints
+    applicable_rules: List[Rule]              # "These rules apply"
+    
+    # Knowledge boundaries
+    uncertainty: List[str]                    # "We don't know X"
+```
+
+**API Endpoint:**
+```
+POST /api/v1/context
+{
+    "query": "What services are affected if Payment Database goes down?",
+    "focal_entity": "Payment Database",  // optional
+    "max_hops": 2,
+    "include_episodic": true,
+    "include_symbolic": true
+}
+
+Response:
+{
+    "bundle": { ... },
+    "confidence": 0.87,
+    "knowledge_boundaries": ["No visibility into..."],
+    "provenance": { ... }
+}
+This is what the RetrievalAgent already partially builds. We're making it a formal, documented API that external applications can consume.
+Deliverables:
+
+ContextBundle data class with full schema
+/api/v1/context endpoint
+Bundle builder that queries all 3 memory layers
+OpenAPI/Swagger documentation
+Example integration showing Premisia consuming the bundle
+
+Start with the data class and endpoint. Show me the schema before implementing.

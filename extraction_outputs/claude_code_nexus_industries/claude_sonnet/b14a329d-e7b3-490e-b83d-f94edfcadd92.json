@@ -1,0 +1,422 @@
+{
+  "document_id": "b14a329d-e7b3-490e-b83d-f94edfcadd92",
+  "document_path": "02_information_security.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-26T03:13:25.901889",
+  "entities": [
+    {
+      "name": "Information Security Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "POL-002",
+        "category": "Information Security",
+        "authority_level": "1"
+      },
+      "confidence": 1.0,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "Information Security Policy - Policy Number: POL-002",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Technology"
+      },
+      "confidence": 0.95,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "protecting Nexus Industries' information assets",
+      "aliases": []
+    },
+    {
+      "name": "Maria Santos",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CISO",
+        "role": "Chief Information Security Officer"
+      },
+      "confidence": 0.98,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "Approved by: Maria Santos, CISO",
+      "aliases": []
+    },
+    {
+      "name": "Chief Information Security Officer",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CISO",
+        "role": "Policy Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "Owner: Chief Information Security Officer",
+      "aliases": []
+    },
+    {
+      "name": "CTO",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CTO",
+        "role": "Chief Technology Officer"
+      },
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "Information Security Council: - CTO",
+      "aliases": []
+    },
+    {
+      "name": "General Counsel",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "General Counsel",
+        "role": "Legal Officer"
+      },
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "Information Security Council: - General Counsel",
+      "aliases": []
+    },
+    {
+      "name": "Division CISOs",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CISO",
+        "role": "Division Security Officers"
+      },
+      "confidence": 0.85,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "Information Security Council: - Division CISOs",
+      "aliases": []
+    },
+    {
+      "name": "VP IT",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP IT",
+        "role": "Vice President Information Technology"
+      },
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "Information Security Council: - VP IT",
+      "aliases": []
+    },
+    {
+      "name": "Information Security Council",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "Policy governance",
+          "Security oversight"
+        ]
+      },
+      "confidence": 0.95,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "Information Security Council: - CISO (Chair) - CTO - General Counsel",
+      "aliases": []
+    },
+    {
+      "name": "SOC",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "Security monitoring",
+          "24/7 coverage"
+        ]
+      },
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "24/7 SOC coverage",
+      "aliases": []
+    },
+    {
+      "name": "CrowdStrike",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Endpoint Detection and Response platform"
+      },
+      "confidence": 0.95,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "Antivirus/EDR: CrowdStrike (corporate)",
+      "aliases": []
+    },
+    {
+      "name": "NIST Cybersecurity Framework",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Security Framework",
+        "scope": "Enterprise"
+      },
+      "confidence": 0.95,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "NIST Cybersecurity Framework: Enterprise",
+      "aliases": []
+    },
+    {
+      "name": "ISO 27001",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Security Standard",
+        "scope": "Certified locations"
+      },
+      "confidence": 0.95,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "ISO 27001: Certified locations",
+      "aliases": []
+    },
+    {
+      "name": "CMMC Level 3",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Security Standard",
+        "scope": "Defense programs"
+      },
+      "confidence": 0.95,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "CMMC Level 3: Defense programs",
+      "aliases": []
+    },
+    {
+      "name": "SOC 2 Type II",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Audit Standard",
+        "scope": "SaaS products"
+      },
+      "confidence": 0.95,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "SOC 2 Type II: SaaS products",
+      "aliases": []
+    },
+    {
+      "name": "NERC CIP",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Security Standard",
+        "scope": "Energy systems"
+      },
+      "confidence": 0.95,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "NERC CIP: Energy systems",
+      "aliases": []
+    },
+    {
+      "name": "AES-256",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Encryption standard for data at rest"
+      },
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "At Rest: AES-256 or equivalent",
+      "aliases": []
+    },
+    {
+      "name": "TLS 1.2",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Encryption standard for data in transit"
+      },
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "In Transit: TLS 1.2+ or equivalent",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maria Santos",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.98,
+      "source_document": "02_information_security.md",
+      "evidence": "Approved by: Maria Santos, CISO"
+    },
+    {
+      "source_entity": "Maria Santos",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Information Security Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "02_information_security.md",
+      "evidence": "CISO (Chair)"
+    },
+    {
+      "source_entity": "CTO",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Information Security Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "evidence": "Information Security Council: - CTO"
+    },
+    {
+      "source_entity": "General Counsel",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Information Security Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "evidence": "Information Security Council: - General Counsel"
+    },
+    {
+      "source_entity": "Division CISOs",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Information Security Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "02_information_security.md",
+      "evidence": "Information Security Council: - Division CISOs"
+    },
+    {
+      "source_entity": "VP IT",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Information Security Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "evidence": "Information Security Council: - VP IT"
+    },
+    {
+      "source_entity": "Information Security Council",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "evidence": "Information Security Council governance structure"
+    },
+    {
+      "source_entity": "SOC",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "02_information_security.md",
+      "evidence": "24/7 SOC coverage requirement"
+    },
+    {
+      "source_entity": "Chief Information Security Officer",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Information Security Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "02_information_security.md",
+      "evidence": "Owner: Chief Information Security Officer"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "CrowdStrike",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "02_information_security.md",
+      "evidence": "Antivirus/EDR: CrowdStrike (corporate)"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "NIST Cybersecurity Framework",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "evidence": "NIST Cybersecurity Framework: Enterprise"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "ISO 27001",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "evidence": "ISO 27001: Certified locations"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "CMMC Level 3",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "evidence": "CMMC Level 3: Defense programs"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "SOC 2 Type II",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "evidence": "SOC 2 Type II: SaaS products"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "NERC CIP",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "evidence": "NERC CIP: Energy systems"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "AES-256",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "02_information_security.md",
+      "evidence": "At Rest: AES-256 or equivalent"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "TLS 1.2",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "02_information_security.md",
+      "evidence": "In Transit: TLS 1.2+ or equivalent"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 18,
+    "raw_relationship_count": 17,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

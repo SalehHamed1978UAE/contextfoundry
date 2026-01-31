@@ -1,0 +1,62 @@
+Test the Impact Query
+In the CF UI, ask:
+"If Auth Gateway goes down, what's affected?"
+Expected result:
+
+Confirmed impact: Frontend App
+Frontier nodes identified
+Gaps reported (e.g., "Frontend App has no documented dependents")
+High confidence (since graph traversal found real dependencies)
+
+
+Test the Full Pipeline (Entity Resolution)
+Step 1: Delete the duplicate Context Foundry entities first
+sql-- Check current duplicates
+SELECT id, name, entity_type, state FROM entities 
+WHERE name ILIKE '%context foundry%';
+
+-- Keep one, delete others (or have Replit do this)
+Step 2: Re-extract the CF PDF
+This should now:
+
+Run EntityResolver during extraction
+Find existing "Context Foundry" entity
+Skip creating duplicate
+Link new mentions to existing entity
+
+Step 3: Verify no duplicates
+sqlSELECT name, entity_type, COUNT(*) 
+FROM entities 
+WHERE name ILIKE '%context foundry%'
+GROUP BY name, entity_type;
+Should return 1 row, not 3.
+
+Test Queries to Validate Everything
+QueryWhat It TestsExpected"What is Context Foundry?"Hybrid retrieval + confidence90%+ confidence, graph + chunks"What are the three types of memory?"Entity extraction qualitySemantic, Episodic, Symbolic Memory listed"If Auth Gateway goes down, what's affected?"Impact traversalFrontend App in blast radius"Who owns the Order Service?"Relationship retrievalCommerce Team"What happened in December 2015?"Episodic memoryBoth incidents summarized
+
+Automated Test Script (Ask Replit to Create)
+pythonTEST_QUERIES = [
+    {
+        "query": "What is Context Foundry?",
+        "expected_confidence": 0.80,
+        "expected_entities": ["Context Foundry"],
+        "expected_source": "Context_Foundry_A_Cognitive_Operating_System.pdf"
+    },
+    {
+        "query": "What are the three types of memory in Context Foundry?",
+        "expected_confidence": 0.70,
+        "expected_entities": ["Semantic Memory", "Episodic Memory", "Symbolic Memory"]
+    },
+    {
+        "query": "If Auth Gateway goes down, what's affected?",
+        "expected_blast_radius": ["Frontend App"],
+        "expected_gaps": True  # Should identify frontier
+    }
+]
+
+def run_regression_tests():
+    for test in TEST_QUERIES:
+        result = query_api(test["query"])
+        assert result.confidence >= test.get("expected_confidence", 0.5)
+        # ... more assertions
+This becomes your regression suite to catch future breakages.

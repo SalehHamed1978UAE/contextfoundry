@@ -1,0 +1,313 @@
+{
+  "document_id": "5c791d58-ff20-4613-9f7f-9d4c542d9256",
+  "document_path": "07_safety_alert_bulletin.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T10:34:30.696717",
+  "entities": [
+    {
+      "name": "Dr. Patricia Martinez",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Environmental, Health & Safety",
+        "role": "Vice President"
+      },
+      "confidence": 0.98,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Dr. Patricia Martinez, VP Environmental, Health & Safety",
+      "aliases": []
+    },
+    {
+      "name": "Materials Division",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "composite materials manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "All Employees - Materials Division",
+      "aliases": []
+    },
+    {
+      "name": "Albuquerque Manufacturing Facility",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "manufacturing facility",
+        "location": "Albuquerque"
+      },
+      "confidence": 0.98,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "chemical exposure incident that occurred on December 2, 2025, at the Albuquerque Manufacturing Facility",
+      "aliases": []
+    },
+    {
+      "name": "Albuquerque",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Albuquerque"
+      },
+      "confidence": 0.95,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Albuquerque Manufacturing Facility",
+      "aliases": []
+    },
+    {
+      "name": "Building 3, Curing Oven Area",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "production area",
+        "building": "Building 3"
+      },
+      "confidence": 0.98,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Location | Building 3, Curing Oven Area",
+      "aliases": []
+    },
+    {
+      "name": "Curing Oven #7",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "industrial curing oven with exhaust system"
+      },
+      "confidence": 0.95,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Equipment | Curing Oven #7",
+      "aliases": []
+    },
+    {
+      "name": "Safety Alert Bulletin SAB-2025-042",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "SAB-2025-042",
+        "category": "safety communication"
+      },
+      "confidence": 0.98,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Bulletin Number:** SAB-2025-042",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "manufacturing company",
+        "industry": "materials/composites"
+      },
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "ehs@nexus-industries.com",
+      "aliases": []
+    },
+    {
+      "name": "sarah.chen@nexus-industries.com",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "contact for incident details"
+      },
+      "confidence": 0.85,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Incident Details | sarah.chen@nexus-industries.com",
+      "aliases": []
+    },
+    {
+      "name": "5 days restricted work",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "days restricted",
+        "value": "5",
+        "type": "COUNT"
+      },
+      "confidence": 0.95,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Days Restricted | 5",
+      "aliases": []
+    },
+    {
+      "name": "Division President",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Division President",
+        "role": "executive"
+      },
+      "confidence": 0.85,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Copy:** Division President, Site Managers, EHS Directors",
+      "aliases": []
+    },
+    {
+      "name": "Site Managers",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Site Managers",
+        "role": "management"
+      },
+      "confidence": 0.85,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Copy:** Division President, Site Managers, EHS Directors",
+      "aliases": []
+    },
+    {
+      "name": "EHS Directors",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "EHS Directors",
+        "role": "environmental health safety"
+      },
+      "confidence": 0.85,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Copy:** Division President, Site Managers, EHS Directors",
+      "aliases": []
+    },
+    {
+      "name": "Safety Committee",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "safety oversight and review"
+      },
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "reviewed and discussed at the next Safety Committee meeting",
+      "aliases": []
+    },
+    {
+      "name": "EHS Learning Management System",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "employee training and acknowledgment tracking system"
+      },
+      "confidence": 0.95,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Acknowledgment is tracked in the EHS Learning Management System",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Patricia Martinez",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "Dr. Patricia Martinez, VP Environmental, Health & Safety"
+    },
+    {
+      "source_entity": "Materials Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "All Employees - Materials Division"
+    },
+    {
+      "source_entity": "Albuquerque Manufacturing Facility",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Albuquerque",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "Albuquerque Manufacturing Facility"
+    },
+    {
+      "source_entity": "Albuquerque Manufacturing Facility",
+      "source_type": "FACILITY",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "chemical exposure incident that occurred at the Albuquerque Manufacturing Facility"
+    },
+    {
+      "source_entity": "Building 3, Curing Oven Area",
+      "source_type": "FACILITY",
+      "relationship_type": "PART_OF",
+      "target_entity": "Albuquerque Manufacturing Facility",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "Location | Building 3, Curing Oven Area"
+    },
+    {
+      "source_entity": "Curing Oven #7",
+      "source_type": "TECHNOLOGY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Building 3, Curing Oven Area",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "Equipment | Curing Oven #7"
+    },
+    {
+      "source_entity": "Materials Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "USES",
+      "target_entity": "Curing Oven #7",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "All employees working with composite materials"
+    },
+    {
+      "source_entity": "Dr. Patricia Martinez",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Safety Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "Dr. Patricia Martinez VP Environmental, Health & Safety"
+    },
+    {
+      "source_entity": "Safety Committee",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "next Safety Committee meeting"
+    },
+    {
+      "source_entity": "Materials Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "USES",
+      "target_entity": "EHS Learning Management System",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "All employees in the Materials Division must acknowledge receipt"
+    },
+    {
+      "source_entity": "Division President",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Materials Division",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "Copy:** Division President"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 15,
+    "raw_relationship_count": 11,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

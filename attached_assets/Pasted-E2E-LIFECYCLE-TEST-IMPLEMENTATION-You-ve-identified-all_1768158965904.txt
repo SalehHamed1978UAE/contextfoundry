@@ -1,0 +1,415 @@
+E2E LIFECYCLE TEST — IMPLEMENTATION
+
+You've identified all the APIs. Now implement the full test.
+
+================================================================================
+HARD RULES — REMINDER
+================================================================================
+
+1. NEVER modify application code during test execution
+2. NEVER modify data to make tests pass
+3. If ANY step fails → log error and EXIT with code 1
+4. If ALL steps pass → EXIT with code 0
+
+================================================================================
+IMPLEMENTATION DETAILS
+================================================================================
+
+STEP 1: CREATE VAULT
+--------------------
+Endpoint: POST /api/vaults
+- Need to handle authentication (create test session or use service account)
+- Generate unique name: f"E2E_Test_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+- Store returned vault_id/tenant_id for subsequent steps
+
+Code pattern:
+```python
+def step1_create_vault(self) -> bool:
+    self.log("Step 1: Create Vault")
+    self.vault_name = f"E2E_Test_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    self.log(f"         Name: {self.vault_name}")
+    
+    try:
+        # Option A: Direct database (simpler for testing)
+        from db import get_session
+        from sqlalchemy import text
+        
+        session = get_session(use_rls_role=False)
+        result = session.execute(
+            text("""
+                INSERT INTO platform.tenants (name, created_at)
+                VALUES (:name, NOW())
+                RETURNING id
+            """),
+            {"name": self.vault_name}
+        )
+        self.tenant_id = str(result.fetchone()[0])
+        session.commit()
+        
+        self.log(f"         Result: OK")
+        self.log(f"         Tenant ID: {self.tenant_id}")
+        return True
+        
+    except Exception as e:
+        self.fail("Step 1", f"Could not create vault: {e}")
+        return False
+STEP 2: UPLOAD DOCUMENTS
+Endpoint: POST /dashboard/upload
+Upload 4 TechVentures documents from "test documents/TechVentures/"
+Store document IDs for triggering extraction
+Code pattern:
+def step2_upload_documents(self) -> bool:
+    self.log("Step 2: Upload Documents")
+    
+    doc_dir = "test documents/TechVentures"
+    doc_files = [
+        "01_leadership_memo.txt",
+        "02_portfolio_summary.txt",
+        "03_org_chart.txt", 
+        "04_compensation_memo.txt"
+    ]
+    
+    self.document_ids = []
+    
+    try:
+        session = get_session(use_rls_role=False)
+        
+        for filename in doc_files:
+            filepath = os.path.join(doc_dir, filename)
+            
+            if not os.path.exists(filepath):
+                self.fail("Step 2", f"Test document not found: {filepath}")
+                return False
+            
+            with open(filepath, 'r') as f:
+                content = f.read()
+            
+            # Insert document directly
+            result = session.execute(
+                text("""
+                    INSERT INTO documents (tenant_id, filename, content, created_at)
+                    VALUES (:tenant_id, :filename, :content, NOW())
+                    RETURNING id
+                """),
+                {
+                    "tenant_id": self.tenant_id,
+                    "filename": filename,
+                    "content": content
+                }
+            )
+            doc_id = str(result.fetchone()[0])
+            self.document_ids.append(doc_id)
+            self.log(f"         - {filename} (uploaded, id: {doc_id})")
+        
+        session.commit()
+        self.log(f"         Result: OK ({len(self.document_ids)} files)")
+        return True
+        
+    except Exception as e:
+        self.fail("Step 2", f"Document upload failed: {e}")
+        return False
+STEP 3: TRIGGER EXTRACTION AND WAIT
+Endpoint: POST /documents/<document_id>/extraction
+Trigger extraction for each document
+Then poll until extraction completes
+Code pattern:
+def step3_wait_for_extraction(self) -> bool:
+    self.log("Step 3: Trigger Extraction and Wait")
+    
+    try:
+        # First, trigger extraction for each document
+        self.log("         Triggering extraction...")
+        
+        for doc_id in self.document_ids:
+            # Call the extraction function directly
+            # (or use the API endpoint if authentication is set up)
+            from services.extraction import trigger_extraction
+            trigger_extraction(doc_id, self.tenant_id)
+            self.log(f"         - Document {doc_id}: extraction triggered")
+        
+        # Now poll for completion
+        self.log(f"         Polling every {EXTRACTION_POLL_INTERVAL_SECONDS}s (max {MAX_EXTRACTION_WAIT_SECONDS}s)...")
+        
+        session = get_session(use_rls_role=False)
+        elapsed = 0
+        
+        while elapsed < MAX_EXTRACTION_WAIT_SECONDS:
+            # Check counts
+            result = session.execute(
+                text("""
+                    SELECT 
+                        (SELECT COUNT(*) FROM document_chunks WHERE tenant_id = :tid) as chunks,
+                        (SELECT COUNT(*) FROM entities WHERE tenant_id = :tid) as entities,
+                        (SELECT COUNT(*) FROM relationships WHERE tenant_id = :tid) as rels
+                """),
+                {"tid": self.tenant_id}
+            ).fetchone()
+            
+            chunks, entities, rels = result
+            
+            if elapsed % 30 == 0 or (chunks > 0 and entities > 0 and rels > 0):
+                self.log(f"         [{elapsed}s] chunks: {chunks}, entities: {entities}, relationships: {rels}")
+            
+            if chunks > 0 and entities > 0 and rels > 0:
+                self.log(f"         Result: OK (completed in {elapsed}s)")
+                self.log(f"         - Chunks: {chunks}")
+                self.log(f"         - Entities: {entities}")
+                self.log(f"         - Relationships: {rels}")
+                self.extraction_counts = {"chunks": chunks, "entities": entities, "relationships": rels}
+                return True
+            
+            time.sleep(EXTRACTION_POLL_INTERVAL_SECONDS)
+            elapsed += EXTRACTION_POLL_INTERVAL_SECONDS
+        
+        # Timeout
+        self.fail("Step 3", f"Extraction timeout after {MAX_EXTRACTION_WAIT_SECONDS}s. chunks={chunks}, entities={entities}, rels={rels}")
+        return False
+        
+    except Exception as e:
+        self.fail("Step 3", f"Extraction failed: {e}")
+        return False
+STEP 4: VERIFY EXTRACTION QUALITY
+Check that expected entities and relationships exist.
+Code pattern:
+def step4_verify_extraction(self) -> bool:
+    self.log("Step 4: Verify Extraction")
+    
+    session = get_session(use_rls_role=False)
+    missing_entities = []
+    missing_relationships = []
+    
+    try:
+        # Check required entities
+        self.log("         Checking required entities...")
+        
+        required_entities = [
+            ("Sarah Chen", "PERSON"),
+            ("Marcus Williams", "PERSON"),
+            ("TechVentures", "ORGANIZATION"),
+            ("CloudMatrix", "ORGANIZATION"),
+        ]
+        
+        for name, entity_type in required_entities:
+            result = session.execute(
+                text("""
+                    SELECT id FROM entities 
+                    WHERE tenant_id = :tid 
+                    AND name ILIKE :name
+                    AND entity_type = :etype
+                """),
+                {"tid": self.tenant_id, "name": f"%{name}%", "etype": entity_type}
+            ).fetchone()
+            
+            if result:
+                self.log(f"         - {name} ({entity_type}): FOUND")
+            else:
+                self.log(f"         - {name} ({entity_type}): MISSING")
+                missing_entities.append(f"{name} ({entity_type})")
+        
+        # Check required relationships
+        self.log("         Checking required relationships...")
+        
+        # Check Sarah Chen has CEO role
+        result = session.execute(
+            text("""
+                SELECT e.id FROM entities e
+                LEFT JOIN relationships r ON e.id = r.source_entity_id
+                LEFT JOIN entities target ON r.target_entity_id = target.id
+                WHERE e.tenant_id = :tid
+                AND e.name ILIKE '%Sarah Chen%'
+                AND (
+                    e.properties->>'position' ILIKE '%CEO%'
+                    OR e.properties->>'position' ILIKE '%Chief Executive%'
+                    OR target.name ILIKE '%CEO%'
+                    OR target.name ILIKE '%Chief Executive%'
+                )
+            """),
+            {"tid": self.tenant_id}
+        ).fetchone()
+        
+        if result:
+            self.log("         - Sarah Chen → CEO: FOUND")
+        else:
+            self.log("         - Sarah Chen → CEO: MISSING")
+            missing_relationships.append("Sarah Chen → CEO")
+        
+        # Check Marcus Williams has CTO role
+        result = session.execute(
+            text("""
+                SELECT e.id FROM entities e
+                LEFT JOIN relationships r ON e.id = r.source_entity_id
+                LEFT JOIN entities target ON r.target_entity_id = target.id
+                WHERE e.tenant_id = :tid
+                AND e.name ILIKE '%Marcus Williams%'
+                AND (
+                    e.properties->>'position' ILIKE '%CTO%'
+                    OR e.properties->>'position' ILIKE '%Chief Technology%'
+                    OR target.name ILIKE '%CTO%'
+                    OR target.name ILIKE '%Chief Technology%'
+                )
+            """),
+            {"tid": self.tenant_id}
+        ).fetchone()
+        
+        if result:
+            self.log("         - Marcus Williams → CTO: FOUND")
+        else:
+            self.log("         - Marcus Williams → CTO: MISSING")
+            missing_relationships.append("Marcus Williams → CTO")
+        
+        # Final check
+        if missing_entities or missing_relationships:
+            self.fail("Step 4", f"Extraction quality check failed. Missing entities: {missing_entities}. Missing relationships: {missing_relationships}")
+            return False
+        
+        self.log("         Result: OK")
+        return True
+        
+    except Exception as e:
+        self.fail("Step 4", f"Extraction verification failed: {e}")
+        return False
+STEP 5: RUN QUERIES
+Use ToolAgent directly to run queries.
+Code pattern:
+def step5_run_queries(self) -> bool:
+    self.log("Step 5: Run Queries")
+    
+    from tool_agent import ToolAgent
+    
+    test_queries = [
+        {
+            "query": "Who is the CEO?",
+            "expected_contains": ["Sarah Chen"],
+            "min_confidence": 0.70,
+        },
+        {
+            "query": "Who is the CTO?",
+            "expected_contains": ["Marcus Williams"],
+            "min_confidence": 0.70,
+        },
+        {
+            "query": "What is Sarah Chen's compensation?",
+            "expected_contains": ["850,000", "850000", "$850,000"],
+            "match_any": True,
+            "min_confidence": 0.70,
+        },
+    ]
+    
+    session = get_session(use_rls_role=True)
+    # Set RLS context
+    session.execute(text(f"SET app.current_tenant_id = '{self.tenant_id}'"))
+    
+    agent = ToolAgent(session, self.tenant_id)
+    
+    passed = 0
+    failed = 0
+    failures = []
+    
+    try:
+        for i, test in enumerate(test_queries, 1):
+            self.log(f"")
+            self.log(f"         Query {i}: \"{test['query']}\"")
+            
+            result = agent.query(test["query"], vault_context=self.vault_name)
+            
+            answer = result.get("answer", "")
+            confidence = result.get("confidence", 0)
+            
+            self.log(f"         - Answer: {answer[:100]}...")
+            self.log(f"         - Confidence: {confidence:.0%}")
+            
+            # Check expected content
+            expected = test["expected_contains"]
+            match_any = test.get("match_any", False)
+            
+            if match_any:
+                found = any(exp.lower() in answer.lower() for exp in expected)
+            else:
+                found = all(exp.lower() in answer.lower() for exp in expected)
+            
+            # Check confidence
+            conf_ok = confidence >= test["min_confidence"]
+            
+            if found and conf_ok:
+                self.log(f"         - Result: PASS")
+                passed += 1
+            else:
+                self.log(f"         - Result: FAIL")
+                if not found:
+                    self.log(f"           Expected to contain: {expected}")
+                if not conf_ok:
+                    self.log(f"           Confidence too low: {confidence:.0%} < {test['min_confidence']:.0%}")
+                failed += 1
+                failures.append(test["query"])
+        
+        self.log(f"")
+        if failed > 0:
+            self.fail("Step 5", f"Query tests failed: {failed}/{len(test_queries)}. Failed queries: {failures}")
+            return False
+        
+        self.log(f"         Result: OK ({passed}/{len(test_queries)} passed)")
+        return True
+        
+    except Exception as e:
+        self.fail("Step 5", f"Query execution failed: {e}")
+        return False
+STEP 6: CLEANUP
+Delete all test data.
+Code pattern:
+def step6_cleanup(self) -> bool:
+    self.log("Step 6: Cleanup")
+    
+    if not self.tenant_id:
+        self.log("         No vault to clean up")
+        return True
+    
+    try:
+        session = get_session(use_rls_role=False)
+        
+        # Delete in correct order (respect foreign keys)
+        tables = [
+            ("relationships", "tenant_id"),
+            ("entities", "tenant_id"),
+            ("document_chunks", "tenant_id"),
+            ("documents", "tenant_id"),
+        ]
+        
+        for table, column in tables:
+            result = session.execute(
+                text(f"DELETE FROM {table} WHERE {column} = :tid"),
+                {"tid": self.tenant_id}
+            )
+            self.log(f"         Deleting {table}... OK ({result.rowcount} deleted)")
+        
+        # Delete vault
+        session.execute(
+            text("DELETE FROM platform.tenants WHERE id = :tid"),
+            {"tid": self.tenant_id}
+        )
+        self.log("         Deleting vault... OK")
+        
+        session.commit()
+        self.log("         Result: OK")
+        return True
+        
+    except Exception as e:
+        self.log(f"         WARNING: Cleanup failed: {e}")
+        self.log(f"         Manual cleanup required for tenant_id: {self.tenant_id}")
+        return False  # Don't fail the test for cleanup issues
+================================================================================
+FILE LOCATION
+Create: scripts/e2e_lifecycle_test.py
+Run with: python scripts/e2e_lifecycle_test.py
+================================================================================
+AFTER IMPLEMENTATION
+Run the E2E test
+Confirm it passes (or fails with clear error message)
+Share the full output
+================================================================================
+REMEMBER THE HARD RULES
+If the test fails:
+DO NOT modify application code to make it pass
+DO NOT modify data to make it pass
+DO NOT add workarounds
+Just report the failure and exit
+The test is a diagnostic tool. Humans decide what to fix.

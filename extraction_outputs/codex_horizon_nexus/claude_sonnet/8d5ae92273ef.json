@@ -1,0 +1,145 @@
+{
+  "document_id": "8d5ae92273ef",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_skypath_integrations.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T09:08:53.186609",
+  "entities": [
+    {
+      "name": "Simone Ocampo",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Executive Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_skypath_integrations.md",
+      "source_excerpt": "Executive Sponsor: Simone Ocampo",
+      "aliases": []
+    },
+    {
+      "name": "SkyPath Integrations",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Systems integrator"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_skypath_integrations.md",
+      "source_excerpt": "SkyPath Integrations Account Brief",
+      "aliases": []
+    },
+    {
+      "name": "$44M ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "ARR",
+        "value": "44M",
+        "type": "CURRENCY",
+        "period": "annual"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_skypath_integrations.md",
+      "source_excerpt": "ARR: $44M ARR",
+      "aliases": []
+    },
+    {
+      "name": "Implementation services",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Primary service offering"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_skypath_integrations.md",
+      "source_excerpt": "Primary Products: Implementation services",
+      "aliases": []
+    },
+    {
+      "name": "Corporate",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "name": "Corporate"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_skypath_integrations.md",
+      "source_excerpt": "Owning BU: Corporate",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Product with roadmap updates"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_skypath_integrations.md",
+      "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
+      "aliases": []
+    },
+    {
+      "name": "78%",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Deployment maturity",
+        "value": "78",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_skypath_integrations.md",
+      "source_excerpt": "Deployment maturity: 78%",
+      "aliases": []
+    },
+    {
+      "name": "3",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Expansion opportunities",
+        "value": "3",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_skypath_integrations.md",
+      "source_excerpt": "Expansion opportunities: 3",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "SkyPath Integrations",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Corporate",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_skypath_integrations.md",
+      "evidence": "SkyPath Integrations is owned by Corporate BU"
+    },
+    {
+      "source_entity": "Simone Ocampo",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "SkyPath Integrations",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_skypath_integrations.md",
+      "evidence": "Simone Ocampo is the Executive Sponsor for SkyPath Integrations"
+    },
+    {
+      "source_entity": "Corporate",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "SkyPath Integrations",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_skypath_integrations.md",
+      "evidence": "Owning BU: Corporate"
+    }
+  ],
+  "metadata": {
+    "filename": "customer_dossier_skypath_integrations.md",
+    "raw_entity_count": 8,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

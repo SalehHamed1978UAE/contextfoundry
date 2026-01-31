@@ -1,0 +1,49 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: detect-private-key
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.9
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: contract-tests
+        name: Run Contract Tests
+        entry: python -m pytest tests/contracts/ -q --tb=no
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [commit]
+
+      - id: query-parser-tests
+        name: Run Query Parser Tests
+        entry: python -m pytest tests/contracts/test_query_parser_contract.py -q --tb=no
+        language: system
+        pass_filenames: false
+        files: ^src/context_foundry/contracts/query_parser\.py$
+
+      - id: memory-parity-tests
+        name: Run Memory Parity Tests
+        entry: python -m pytest tests/contracts/test_memory_parity.py -q --tb=no
+        language: system
+        pass_filenames: false
+        files: ^src/context_foundry/(rlm/memory_apis/|memory/)
+
+      - id: ontology-fallback-tests
+        name: Run Ontology Fallback Tests
+        entry: python -m pytest tests/contracts/test_ontology_fallback.py -q --tb=no
+        language: system
+        pass_filenames: false
+        files: ^src/context_foundry/(ontology_foundry/|config/domain_schema)

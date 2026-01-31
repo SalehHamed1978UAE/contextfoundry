@@ -1,0 +1,28 @@
+Run the 100-question test to verify no regressions                                             
+                                                                                                         
+  # Clear old results                                                                                    
+  rm -rf test_results/*progress*.jsonl test_results/traces/*.jsonl                                       
+                                                                                                         
+  # Run fresh test                                                                                       
+  python -m src.test_runner.runner \                                                                     
+    --vault-id "1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91" \                                                  
+    --questions "src/test_questions/nexus_100q.json" \                                                   
+    --force                                                                                              
+                                                                                                         
+  After completion, report:                                                                              
+                                                                                                         
+  echo "=== ACCEPTANCE CRITERIA ==="                                                                     
+  for q in 2 15 17 18 38 40 78 95; do                                                                    
+    grep "\"q\": $q," test_results/*progress*.jsonl | head -1 | \                                        
+    python3 -c "import sys,json; d=json.loads(sys.stdin.read()); print(f'Q{d[\"q\"]}: {\"PASS\" if       
+  d[\"passed\"] else \"FAIL\"}')"                                                                        
+  done                                                                                                   
+                                                                                                         
+  echo ""                                                                                                
+  echo "=== OVERALL ==="                                                                                 
+  passed=$(grep -c '"passed": true' test_results/*progress*.jsonl)                                       
+  echo "$passed / 100"                                                                                   
+                                                                                                         
+  Expected:                                                                                              
+  - All 8 acceptance criteria: PASS                                                                      
+  - Overall: 82+ (should maintain or improve)   

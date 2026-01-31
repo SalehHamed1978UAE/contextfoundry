@@ -1,0 +1,87 @@
+TUNING FIXES - GET ALL TESTS TO PASS
+
+═══════════════════════════════════════════════════════════════
+FIX 1: ENTITY NAME MATCHING (Priority - causes most failures)
+═══════════════════════════════════════════════════════════════
+
+Problem: Direct queries for "Federated Data Catalog" or "Corporate 
+Holding Company" don't find the entities even though they exist.
+
+In the Retrieval Agent's semantic memory search:
+
+1. Add EXACT MATCH search BEFORE fuzzy search:
+   - First: WHERE LOWER(name) = LOWER(query_entity_name)
+   - Then: WHERE name ILIKE '%' || query || '%'
+
+2. Check how entity names are being extracted from the query.
+   If user asks "What does the Federated Data Catalog enable?",
+   are we extracting "Federated Data Catalog" as the entity name?
+
+3. Consider adding normalized_name column for matching:
+   - "Federated Data Catalog" → "federated_data_catalog"
+   - Match against normalized version
+
+═══════════════════════════════════════════════════════════════
+FIX 2: HALLUCINATION THRESHOLD (The Quantum Database problem)
+═══════════════════════════════════════════════════════════════
+
+Problem: Query about "Quantum Database" (doesn't exist) returned 
+0.765 confidence because related disaster recovery docs existed.
+
+In the Reasoning Agent or confidence calculation:
+
+1. Add entity existence check:
+```python
+   # If query mentions specific entity but entity not found in graph
+   if query_mentions_entity and not entity_found:
+       confidence = min(confidence, 0.40)  # Cap at low
+       context_issues.append("Referenced entity not found in knowledge graph")
+```
+
+2. The system correctly found NO entity, but episodic memory found 
+   related docs and boosted confidence. Add flag:
+   - entity_grounded = True/False
+   - If entity_grounded=False, cap confidence regardless of doc matches
+
+═══════════════════════════════════════════════════════════════
+FIX 3: STAGING QUERY BEHAVIOR (Optional - governance decision)
+═══════════════════════════════════════════════════════════════
+
+Current: Entities stay in STAGING for 1 hour minimum before promotion.
+This is intentional governance, but hurts testing.
+
+Options (pick one):
+A. Reduce min_staging_hours to 0.1 (6 minutes) for faster testing
+B. Add parameter: include_staging=True for specific queries
+C. Leave as-is, just manually promote for testing
+
+Recommendation: Option A for now, can increase for production.
+
+═══════════════════════════════════════════════════════════════
+AFTER FIXES - RE-RUN VALIDATION SUITE
+═══════════════════════════════════════════════════════════════
+
+Run all 7 tests again:
+
+1. "What is the disaster recovery procedure for the Quantum Database?"
+   → Should be LOW confidence (< 0.5), entity doesn't exist
+
+2. "What does the Federated Data Catalog enable?"
+   → Should find entity + ENABLES relationships, HIGH confidence
+
+3. "What concepts are part of the Hub-and-Spoke model?"
+   → Should return PART_OF relationships (already passing)
+
+4A. "Who owns the Corporate Holding Company?"
+   → Should find OWNS relationships
+
+4B. "Who is the CEO of Acme Corporation?"
+   → Should stay LOW confidence (already passing)
+
+5. "Tell me about the Hybrid Governance Model"
+   → Should return entity + provenance (already passing)
+
+BONUS. "What is the relationship between Microsoft and Google?"
+   → Should stay LOW confidence (already passing)
+
+Report: PASS/FAIL for each with confidence scores.

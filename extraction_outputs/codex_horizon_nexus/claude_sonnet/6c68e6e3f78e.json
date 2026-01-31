@@ -1,0 +1,198 @@
+{
+  "document_id": "6c68e6e3f78e",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_latam_corridors_brief.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:47:34.102454",
+  "entities": [
+    {
+      "name": "TransitEdge",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "freight automation"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_latam_corridors_brief.md",
+      "source_excerpt": "Business Unit: TransitEdge",
+      "aliases": []
+    },
+    {
+      "name": "Jorge Rivas",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Sponsor"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_latam_corridors_brief.md",
+      "source_excerpt": "Sponsor: Jorge Rivas",
+      "aliases": []
+    },
+    {
+      "name": "TransitEdge LATAM Corridors",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$142M",
+        "timeline": "2025-2027",
+        "status": "active",
+        "objective": "Freight automation pilots"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_latam_corridors_brief.md",
+      "source_excerpt": "TransitEdge LATAM Corridors Delivery Brief",
+      "aliases": []
+    },
+    {
+      "name": "Budget",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Project Budget",
+        "value": "$142M",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_latam_corridors_brief.md",
+      "source_excerpt": "Budget: $142M",
+      "aliases": []
+    },
+    {
+      "name": "MetroLink",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "transportation"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_latam_corridors_brief.md",
+      "source_excerpt": "Primary Customer: MetroLink",
+      "aliases": []
+    },
+    {
+      "name": "AutoRail LATAM",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "technical stack for freight automation"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_latam_corridors_brief.md",
+      "source_excerpt": "Technical Stack: AutoRail LATAM",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "data lake platform"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_latam_corridors_brief.md",
+      "source_excerpt": "Horizon Prime data lake readiness",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "supply services"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_latam_corridors_brief.md",
+      "source_excerpt": "CoreMatrix supply",
+      "aliases": []
+    },
+    {
+      "name": "SkyPath",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "integration platform"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_latam_corridors_brief.md",
+      "source_excerpt": "SkyPath integrations",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "TransitEdge LATAM Corridors",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_latam_corridors_brief.md",
+      "evidence": "Business Unit: TransitEdge owns the project"
+    },
+    {
+      "source_entity": "Jorge Rivas",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "TransitEdge LATAM Corridors",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_latam_corridors_brief.md",
+      "evidence": "Jorge Rivas is the project sponsor"
+    },
+    {
+      "source_entity": "MetroLink",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "TransitEdge",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_latam_corridors_brief.md",
+      "evidence": "MetroLink is the primary customer for TransitEdge project"
+    },
+    {
+      "source_entity": "TransitEdge LATAM Corridors",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "AutoRail LATAM",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_latam_corridors_brief.md",
+      "evidence": "Technical Stack: AutoRail LATAM"
+    },
+    {
+      "source_entity": "TransitEdge LATAM Corridors",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_latam_corridors_brief.md",
+      "evidence": "Project depends on Horizon Prime data lake readiness"
+    },
+    {
+      "source_entity": "CoreMatrix",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "TransitEdge",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_latam_corridors_brief.md",
+      "evidence": "CoreMatrix supply is listed as a dependency"
+    },
+    {
+      "source_entity": "TransitEdge LATAM Corridors",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "SkyPath",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_latam_corridors_brief.md",
+      "evidence": "Project depends on SkyPath integrations"
+    }
+  ],
+  "metadata": {
+    "filename": "transitedge_latam_corridors_brief.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 7,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

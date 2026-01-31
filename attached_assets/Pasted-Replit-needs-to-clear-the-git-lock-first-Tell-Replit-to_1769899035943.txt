@@ -1,0 +1,24 @@
+Replit needs to clear the git lock first. Tell Replit to run:                                          
+                                                                                                         
+  rm .git/index.lock                                                                                     
+                                                                                                         
+  Then since Replit has 493 commits ahead, the cleanest approach is:                                     
+                                                                                                         
+  On Replit side:                                                                                        
+  rm .git/index.lock                                                                                     
+  git push origin replit-agent --force                                                                   
+                                                                                                         
+  This pushes Replit's current state to GitHub.                                                          
+                                                                                                         
+  Then I'll pull the latest:                                                                             
+  git fetch origin                                                                                       
+  git checkout origin/replit-agent                                                                       
+  git checkout -b claude-scoped-fix-v2                                                                   
+                                                                                                         
+  This way:                                                                                              
+  1. Replit's 493 commits become the source of truth on GitHub                                           
+  2. I pull that and apply my scoped resolution fix on top                                               
+  3. No messy merge conflicts                                                                            
+                                                                                                         
+  Should Replit go ahead and force push their replit-agent branch?                                       
+                                                                     

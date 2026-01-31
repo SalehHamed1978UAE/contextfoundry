@@ -1,0 +1,129 @@
+{
+  "document_id": "03b1684caa2b",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/gridwave_leadership_sync_2026_01_18.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:32:48.725440",
+  "entities": [
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/gridwave_leadership_sync_2026_01_18.md",
+      "source_excerpt": "Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/gridwave_leadership_sync_2026_01_18.md",
+      "source_excerpt": "Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "GridWave",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Technology"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/gridwave_leadership_sync_2026_01_18.md",
+      "source_excerpt": "GridWave Leadership Sync Meeting Notes",
+      "aliases": []
+    },
+    {
+      "name": "Project Aurora",
+      "entity_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/gridwave_leadership_sync_2026_01_18.md",
+      "source_excerpt": "Project Aurora",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/gridwave_leadership_sync_2026_01_18.md",
+      "source_excerpt": "Reinforce Horizon Prime milestones",
+      "aliases": []
+    },
+    {
+      "name": "Enceladus pilots",
+      "entity_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/gridwave_leadership_sync_2026_01_18.md",
+      "source_excerpt": "Enceladus pilots",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "GridWave",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/gridwave_leadership_sync_2026_01_18.md",
+      "evidence": "Attendees include Maya Serrano"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "GridWave",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/gridwave_leadership_sync_2026_01_18.md",
+      "evidence": "Attendees include Dylan Kaur"
+    },
+    {
+      "source_entity": "Project Aurora",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "GridWave",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/gridwave_leadership_sync_2026_01_18.md",
+      "evidence": "Project Aurora mentioned in GridWave Leadership Sync Meeting"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "GridWave",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/gridwave_leadership_sync_2026_01_18.md",
+      "evidence": "Reinforce Horizon Prime milestones"
+    },
+    {
+      "source_entity": "Enceladus pilots",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "GridWave",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/gridwave_leadership_sync_2026_01_18.md",
+      "evidence": "Enceladus pilots mentioned in meeting notes"
+    }
+  ],
+  "metadata": {
+    "filename": "gridwave_leadership_sync_2026_01_18.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

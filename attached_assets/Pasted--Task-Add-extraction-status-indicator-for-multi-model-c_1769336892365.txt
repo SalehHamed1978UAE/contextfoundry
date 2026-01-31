@@ -1,0 +1,25 @@
+ Task: Add extraction status indicator for multi-model completion                                       
+                                                                                                         
+  Current state:                                                                                         
+  - Documents show green when single-model extraction completes                                          
+  - Multi-model extraction runs separately with no UI indication                                         
+                                                                                                         
+  Required change:                                                                                       
+                                                                                                         
+  1. Add a new status field to documents (or use existing field):                                        
+    - extraction_level: 'single' | 'multi' | null                                                        
+  2. Update status after each extraction completes:                                                      
+    - After single-model: set extraction_level = 'single'                                                
+    - After multi-model: set extraction_level = 'multi'                                                  
+  3. Update UI colors:                                                                                   
+    - No color / gray = not started                                                                      
+    - Yellow = in progress                                                                               
+    - Red = error                                                                                        
+    - Green = single-model done (queryable, not final)                                                   
+    - Blue = multi-model done (fully extracted)                                                          
+  4. Where to change:                                                                                    
+    - Backend: Update extraction worker to set extraction_level on completion                            
+    - Frontend: Update document status indicator to check extraction_level and render blue for 'multi'   
+                                                                                                         
+  Alternative (simpler): If you don't want to track levels, just change green → blue when multi-model    
+  completes, overwriting the single-model status. 

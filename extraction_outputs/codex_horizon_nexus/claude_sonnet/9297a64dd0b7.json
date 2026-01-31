@@ -1,0 +1,159 @@
+{
+  "document_id": "9297a64dd0b7",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:43:25.640886",
+  "entities": [
+    {
+      "name": "Aether Shield Risk Forum",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "risk management",
+          "meeting coordination"
+        ]
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "source_excerpt": "Aether Shield Risk Forum Meeting Notes",
+      "aliases": []
+    },
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "source_excerpt": "Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "source_excerpt": "Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "Citadel wave",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "discussed in risk forum"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "source_excerpt": "Topics: Citadel wave, SentinelShield SLAs",
+      "aliases": []
+    },
+    {
+      "name": "SentinelShield",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Service with SLA requirements"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "source_excerpt": "Topics: Citadel wave, SentinelShield SLAs",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "has milestones to be reinforced"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "source_excerpt": "Reinforce Horizon Prime milestones",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "System for assigning owners to action items"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "source_excerpt": "Owners assigned in PulseOps",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Aether Shield Risk Forum",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "evidence": "Maya Serrano listed as attendee of Aether Shield Risk Forum meeting"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Aether Shield Risk Forum",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "evidence": "Dylan Kaur listed as attendee of Aether Shield Risk Forum meeting"
+    },
+    {
+      "source_entity": "Aether Shield Risk Forum",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "Citadel wave",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "evidence": "Citadel wave is a topic discussed in the risk forum"
+    },
+    {
+      "source_entity": "Aether Shield Risk Forum",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "SentinelShield",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "evidence": "SentinelShield SLAs are a topic discussed in the risk forum"
+    },
+    {
+      "source_entity": "Aether Shield Risk Forum",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.75,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "evidence": "Decision made to reinforce Horizon Prime milestones suggests ownership or responsibility"
+    },
+    {
+      "source_entity": "Aether Shield Risk Forum",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "USES",
+      "target_entity": "PulseOps",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "evidence": "Owners assigned in PulseOps indicates the forum uses this system for action item management"
+    }
+  ],
+  "metadata": {
+    "filename": "aether_shield_risk_forum_2026_01_24.md",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 6,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

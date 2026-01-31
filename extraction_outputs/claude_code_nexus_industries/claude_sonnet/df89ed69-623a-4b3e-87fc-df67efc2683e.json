@@ -1,0 +1,575 @@
+{
+  "document_id": "df89ed69-623a-4b3e-87fc-df67efc2683e",
+  "document_path": "10_first_solar_supplier.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-26T03:30:01.312448",
+  "entities": [
+    {
+      "name": "First Solar, Inc.",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "supplier_id": "SUPP-002",
+        "supplier_type": "Strategic Component",
+        "relationship_since": "2020",
+        "capability": "Solar Manufacturing",
+        "risk_level": "Low-Medium"
+      },
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Supplier Name: First Solar, Inc.",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Energy Systems",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Energy Systems"
+      },
+      "confidence": 0.95,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Primary Division: Nexus Energy Systems",
+      "aliases": []
+    },
+    {
+      "name": "Timothy Reynolds",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Procurement Lead",
+        "role": "Commodity Manager"
+      },
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Commodity Manager: Timothy Reynolds",
+      "aliases": []
+    },
+    {
+      "name": "Andrew Foster",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "PM",
+        "role": "Executive Sponsor"
+      },
+      "confidence": 0.9,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Executive Sponsor: Andrew Foster (PM, Desert Sun)",
+      "aliases": []
+    },
+    {
+      "name": "Desert Sun Solar",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$145M",
+        "timeline": "2024-2026",
+        "status": "Active"
+      },
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Desert Sun Solar Panels | $145M | 2024-2026 | Active",
+      "aliases": []
+    },
+    {
+      "name": "Tempe, AZ",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Tempe",
+        "country": "United States"
+      },
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Headquarters: Tempe, AZ",
+      "aliases": []
+    },
+    {
+      "name": "Annual Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Annual Revenue",
+        "value": "$3.8B",
+        "period": "2024",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Annual Revenue: $3.8B (2024)",
+      "aliases": []
+    },
+    {
+      "name": "FY2025 Spend",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Spend",
+        "value": "$148M",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Total: $148M",
+      "aliases": []
+    },
+    {
+      "name": "Series 7 CuRe",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "name": "Series 7 CuRe",
+        "description": "Solar panels with CdTe technology",
+        "category": "Solar Panels"
+      },
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Model: Series 7 CuRe",
+      "aliases": []
+    },
+    {
+      "name": "Mark Widmar",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Mark Widmar | CEO",
+      "aliases": []
+    },
+    {
+      "name": "Alex Bradley",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO",
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Alex Bradley | CFO",
+      "aliases": []
+    },
+    {
+      "name": "Georges Antoun",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Commercial",
+        "role": "Chief Commercial Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Georges Antoun | Chief Commercial",
+      "aliases": []
+    },
+    {
+      "name": "Mike Koralewski",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "COO",
+        "role": "Chief Operating Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Mike Koralewski | COO",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Elena Rodriguez",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Dr.",
+        "role": "Executive"
+      },
+      "confidence": 0.9,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Mark Widmar | CEO | Dr. Elena Rodriguez | Executive",
+      "aliases": []
+    },
+    {
+      "name": "Timothy Chang",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Finance"
+      },
+      "confidence": 0.9,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Alex Bradley | CFO | Timothy Chang | Finance",
+      "aliases": []
+    },
+    {
+      "name": "Margaret Sullivan",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Commercial"
+      },
+      "confidence": 0.9,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Georges Antoun | Chief Commercial | Margaret Sullivan | Commercial",
+      "aliases": []
+    },
+    {
+      "name": "Derek Washington",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Operations"
+      },
+      "confidence": 0.9,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Mike Koralewski | COO | Derek Washington | Operations",
+      "aliases": []
+    },
+    {
+      "name": "Jason Dymbort",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Sales",
+        "role": "Vice President of Sales"
+      },
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Jason Dymbort | VP Sales",
+      "aliases": []
+    },
+    {
+      "name": "Sarah Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Project Manager",
+        "role": "Project Manager"
+      },
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Sarah Chen | Project Manager",
+      "aliases": []
+    },
+    {
+      "name": "Robert Lee",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Quality Director",
+        "role": "Quality Director"
+      },
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Robert Lee | Quality Director",
+      "aliases": []
+    },
+    {
+      "name": "Amanda Foster",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Logistics",
+        "role": "Logistics"
+      },
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Amanda Foster | Logistics",
+      "aliases": []
+    },
+    {
+      "name": "Maria Gonzalez",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Contact"
+      },
+      "confidence": 0.9,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Sarah Chen | Project Manager | Maria Gonzalez",
+      "aliases": []
+    },
+    {
+      "name": "Susan Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Contact"
+      },
+      "confidence": 0.9,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Robert Lee | Quality Director | Susan Chen",
+      "aliases": []
+    },
+    {
+      "name": "Cadmium Telluride Technology",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "name": "CdTe",
+        "description": "Cadmium Telluride solar technology"
+      },
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Technology: Cadmium Telluride (CdTe)",
+      "aliases": []
+    },
+    {
+      "name": "Frame Agreement 2024-2028",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$500M ceiling",
+        "timeline": "2024-2028",
+        "status": "Active"
+      },
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Frame Agreement 2024-2028 | $500M ceiling | 2024-2028 | Active",
+      "aliases": []
+    },
+    {
+      "name": "Engineering Services",
+      "entity_type": "SERVICE",
+      "properties": {
+        "name": "Engineering Services",
+        "description": "Engineering support services"
+      },
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Engineering Services | $5M | Annual | Active",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "First Solar, Inc.",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Primary Division: Nexus Energy Systems"
+    },
+    {
+      "source_entity": "Timothy Reynolds",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "First Solar, Inc.",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Commodity Manager: Timothy Reynolds"
+    },
+    {
+      "source_entity": "Andrew Foster",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Desert Sun Solar",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Executive Sponsor: Andrew Foster (PM, Desert Sun)"
+    },
+    {
+      "source_entity": "First Solar, Inc.",
+      "source_type": "SUPPLIER",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Tempe, AZ",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Headquarters: Tempe, AZ"
+    },
+    {
+      "source_entity": "Desert Sun Solar",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Primary Division: Nexus Energy Systems managing Desert Sun project"
+    },
+    {
+      "source_entity": "First Solar, Inc.",
+      "source_type": "SUPPLIER",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Series 7 CuRe",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Model: Series 7 CuRe from First Solar"
+    },
+    {
+      "source_entity": "Mark Widmar",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "First Solar, Inc.",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Mark Widmar | CEO"
+    },
+    {
+      "source_entity": "Alex Bradley",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "First Solar, Inc.",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Alex Bradley | CFO"
+    },
+    {
+      "source_entity": "Georges Antoun",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "First Solar, Inc.",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Georges Antoun | Chief Commercial"
+    },
+    {
+      "source_entity": "Mike Koralewski",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "First Solar, Inc.",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Mike Koralewski | COO"
+    },
+    {
+      "source_entity": "Jason Dymbort",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "First Solar, Inc.",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Jason Dymbort | VP Sales"
+    },
+    {
+      "source_entity": "Sarah Chen",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "First Solar, Inc.",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Sarah Chen | Project Manager"
+    },
+    {
+      "source_entity": "Robert Lee",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "First Solar, Inc.",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Robert Lee | Quality Director"
+    },
+    {
+      "source_entity": "Amanda Foster",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "First Solar, Inc.",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Amanda Foster | Logistics"
+    },
+    {
+      "source_entity": "Series 7 CuRe",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Cadmium Telluride Technology",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Technology: Cadmium Telluride (CdTe)"
+    },
+    {
+      "source_entity": "Timothy Reynolds",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Commodity Owner: Timothy Reynolds, Procurement Lead"
+    },
+    {
+      "source_entity": "Dr. Elena Rodriguez",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Listed as Nexus Contact for Mark Widmar"
+    },
+    {
+      "source_entity": "Timothy Chang",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Listed as Nexus Contact for Alex Bradley"
+    },
+    {
+      "source_entity": "Margaret Sullivan",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Listed as Nexus Contact for Georges Antoun"
+    },
+    {
+      "source_entity": "Derek Washington",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Listed as Nexus Contact for Mike Koralewski"
+    },
+    {
+      "source_entity": "Maria Gonzalez",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Listed as Nexus Contact for Sarah Chen"
+    },
+    {
+      "source_entity": "Susan Chen",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Listed as Nexus Contact for Robert Lee"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 26,
+    "raw_relationship_count": 22,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

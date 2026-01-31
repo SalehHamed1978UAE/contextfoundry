@@ -1,0 +1,231 @@
+Phase 1: Deterministic Fallback (Corrected)
+PHASE 1: DETERMINISTIC DOCUMENT FALLBACK
+
+Timeline: 1-2 days
+Goal: When KG returns insufficient data, automatically search documents before answering.
+
+---
+
+## What to Build
+
+Modify ToolAgent.query() to:
+1. Track what data was retrieved from KG
+2. Detect when KG data is insufficient for the query
+3. Automatically call search_documents as fallback
+4. Combine KG + document results before answer synthesis
+5. Ensure synthesis LLM sees the fallback chunks
+
+---
+
+## Implementation
+
+File: src/context_foundry/agents/tool_agent.py
+
+### Step 1: Add tracking after KG tool calls
+
+After the agent executes KG tools (resolve_entities, discover_relationships, get_knowledge_bundle), track what we got:
+```python
+def _analyze_retrieval_results(self, tool_calls: list) -> dict:
+    """Analyze what data was retrieved from tool calls."""
+    
+    analysis = {
+        "entities_found": 0,
+        "relationships_found": 0,
+        "attributes_found": 0,
+        "chunks_found": 0,
+        "kg_tools_called": [],
+        "doc_tools_called": [],
+    }
+    
+    for tc in tool_calls:
+        tool_name = tc.get('tool') or tc.get('name', '')
+        result = tc.get('result', {})
+        
+        if isinstance(result, str):
+            try:
+                result = json.loads(result)
+            except:
+                result = {}
+        
+        # Track KG tools
+        if tool_name in ('resolve_entities', 'get_knowledge_bundle', 'discover_relationships'):
+            analysis["kg_tools_called"].append(tool_name)
+            analysis["entities_found"] += len(result.get('entities', []))
+            analysis["relationships_found"] += len(result.get('relationships', []))
+            analysis["relationships_found"] += len(result.get('incoming', []))
+            analysis["relationships_found"] += len(result.get('outgoing', []))
+        
+        # Track document tools
+        if tool_name in ('search_documents', 'search_chunks'):
+            analysis["doc_tools_called"].append(tool_name)
+            analysis["chunks_found"] += len(result.get('chunks', []))
+    
+    return analysis
+```
+
+### Step 2: Add fallback decision logic
+```python
+def _needs_document_fallback(self, query: str, analysis: dict) -> bool:
+    """
+    Determine if we should fallback to document search.
+    
+    Fallback triggers when:
+    - KG was queried but returned minimal data
+    - AND documents weren't already searched
+    """
+    
+    # Already searched documents - no fallback needed
+    if analysis["doc_tools_called"]:
+        return False
+    
+    # KG wasn't even tried - let agent continue normally
+    if not analysis["kg_tools_called"]:
+        return False
+    
+    # KG returned substantial data - no fallback needed
+    if analysis["relationships_found"] >= 3 or analysis["entities_found"] >= 2:
+        return False
+    
+    # KG returned minimal data - trigger fallback
+    logger.info(f"[RETRIEVAL] KG returned minimal data. Entities: {analysis['entities_found']}, Relationships: {analysis['relationships_found']}. Triggering document fallback.")
+    return True
+```
+
+### Step 3: Execute fallback using ToolExecutor
+```python
+from src.context_foundry.agents.tools.wrappers import ToolExecutor
+
+def _execute_document_fallback(self, query: str) -> dict:
+    """Execute document search as fallback using ToolExecutor."""
+    try:
+        executor = ToolExecutor(self.session, self.tenant_id)
+        result = executor.execute('search_documents', {'query': query, 'limit': 5})
+        return result
+    except Exception as e:
+        logger.error(f"[RETRIEVAL] Document fallback failed: {e}")
+        return {"chunks": []}
+```
+
+### Step 4: Integrate fallback in query()
+
+In the main query() method, after the agent's tool loop completes:
+```python
+def query(self, query_text: str, conversation_history: list = None, debug: bool = False) -> dict:
+    # ... existing agent loop that calls tools ...
+    
+    # After agent completes its tool calls:
+    analysis = self._analyze_retrieval_results(tool_calls)
+    
+    # Check if fallback needed
+    fallback_triggered = False
+    if self._needs_document_fallback(query_text, analysis):
+        fallback_triggered = True
+        logger.info(f"[RETRIEVAL] Executing document fallback for query: {query_text[:50]}...")
+        
+        # Execute document search
+        fallback_result = self._execute_document_fallback(query_text)
+        
+        # Add fallback results to tool_calls so they're available for synthesis
+        if fallback_result:
+            tool_calls.append({
+                "tool": "search_documents",
+                "arguments": {"query": query_text, "limit": 5},
+                "result": fallback_result,
+                "fallback": True  # Mark as fallback for logging
+            })
+            
+            # Update analysis
+            analysis["chunks_found"] += len(fallback_result.get('chunks', []))
+            analysis["doc_tools_called"].append("search_documents (fallback)")
+    
+    # Log retrieval summary
+    logger.info(f"[RETRIEVAL] Final: {analysis['entities_found']} entities, {analysis['relationships_found']} relationships, {analysis['chunks_found']} chunks. Fallback: {fallback_triggered}")
+    
+    # Continue with answer synthesis using ALL available data
+    # ... existing synthesis code ...
+    
+    return {
+        "answer": answer,
+        "tool_calls": tool_calls,
+        "retrieval_analysis": analysis,
+        "fallback_triggered": fallback_triggered,
+        # ... other fields ...
+    }
+```
+
+### Step 5: Ensure chunks reach synthesis
+
+The agent's final LLM call that generates the answer needs the chunk context. The fallback tool_call result must be included in the messages sent to the LLM, just like any other tool result.
+
+Verify that wherever the answer is synthesized:
+```python
+# When building messages for synthesis LLM:
+for tc in tool_calls:
+    # Include ALL tool results, including fallback
+    messages.append({
+        "role": "tool",
+        "tool_call_id": tc.get("id", "fallback"),
+        "content": json.dumps(tc.get("result", {}))
+    })
+
+# OR if using a context-building approach:
+all_chunks = []
+for tc in tool_calls:
+    result = tc.get('result', {})
+    if isinstance(result, str):
+        result = json.loads(result)
+    all_chunks.extend(result.get('chunks', []))
+
+# Pass all_chunks to synthesis
+context_for_synthesis = {
+    "entities": entities,
+    "relationships": relationships,
+    "document_chunks": all_chunks,  # Includes fallback chunks
+}
+```
+
+The key point: the synthesis step must see the document chunks from the fallback, or it won't be able to use them in the answer.
+
+---
+
+## Configuration
+
+Add a flag to enable/disable fallback:
+```python
+# In config or environment
+DOCUMENT_FALLBACK_ENABLED = True
+DOCUMENT_FALLBACK_MIN_KG_RESULTS = 3  # Trigger fallback if fewer than this many relationships
+```
+
+---
+
+## Logging
+
+Every query should log:
+[RETRIEVAL] KG tools called: ['resolve_entities', 'get_knowledge_bundle']
+[RETRIEVAL] KG returned minimal data. Entities: 1, Relationships: 0. Triggering document fallback.
+[RETRIEVAL] Executing document fallback for query: "What is the annual revenue?"
+[RETRIEVAL] Final: 1 entities, 0 relationships, 5 chunks. Fallback: True
+
+---
+
+## Testing
+
+After implementation, re-run Green Future test:
+
+| Query | Before | After |
+|-------|--------|-------|
+| "Who founded Green Future?" | ✅ 85% | ✅ 85% (no change - KG has FOUNDED_BY) |
+| "What is the annual revenue?" | ❌ 15% blocked | ✅ Should pass (fallback finds $2.1M in doc) |
+| "How many staff members?" | ❌ 15% blocked | ✅ Should pass (fallback finds 12 in doc) |
+| "What is Emily Carter's salary?" | ✅ 15% unknown | ✅ 15% unknown (no change - not in docs) |
+
+---
+
+## Success Criteria
+
+1. Queries 2 and 3 now return correct answers with high confidence
+2. Logs show fallback triggered for those queries
+3. Query 1 does NOT trigger fallback (KG sufficient)
+4. Query 4 triggers fallback but still returns "unknown" (data not in docs)
+5. No regression on existing functionality

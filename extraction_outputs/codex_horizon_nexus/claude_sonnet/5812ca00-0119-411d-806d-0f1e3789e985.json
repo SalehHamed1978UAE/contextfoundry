@@ -1,0 +1,208 @@
+{
+  "document_id": "6d6ae0a44ff7",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:48:59.227117",
+  "entities": [
+    {
+      "name": "TransitEdge",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "mobility analytics"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
+      "source_excerpt": "Business Unit: TransitEdge",
+      "aliases": []
+    },
+    {
+      "name": "Marcus Nguyen",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
+      "source_excerpt": "Sponsor: Marcus Nguyen",
+      "aliases": []
+    },
+    {
+      "name": "TransitEdge Control Tower",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$88M",
+        "timeline": "2025-2026",
+        "status": "in progress"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
+      "source_excerpt": "Budget: $88M, Timeline: 2025-2026",
+      "aliases": []
+    },
+    {
+      "name": "MetroLink",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "transportation"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
+      "source_excerpt": "Primary Customer: MetroLink",
+      "aliases": []
+    },
+    {
+      "name": "Control Tower",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "technical stack for mobility analytics"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
+      "source_excerpt": "Technical Stack: Control Tower",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "data lake platform"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
+      "source_excerpt": "Horizon Prime data lake readiness",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "supply services"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
+      "source_excerpt": "CoreMatrix supply",
+      "aliases": []
+    },
+    {
+      "name": "SkyPath",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "integration platform"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
+      "source_excerpt": "SkyPath integrations",
+      "aliases": []
+    },
+    {
+      "name": "$88M",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "project budget",
+        "value": "88000000",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
+      "source_excerpt": "Budget: $88M",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Marcus Nguyen",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "TransitEdge Control Tower",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
+      "evidence": "Marcus Nguyen is listed as the sponsor of the project"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "TransitEdge Control Tower",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
+      "evidence": "TransitEdge is the business unit for the Control Tower project"
+    },
+    {
+      "source_entity": "MetroLink",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "TransitEdge",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
+      "evidence": "MetroLink is listed as the primary customer"
+    },
+    {
+      "source_entity": "TransitEdge Control Tower",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Control Tower",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
+      "evidence": "Control Tower is listed as the technical stack for the project"
+    },
+    {
+      "source_entity": "TransitEdge Control Tower",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
+      "evidence": "Horizon Prime data lake readiness is listed as a dependency"
+    },
+    {
+      "source_entity": "CoreMatrix",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "TransitEdge",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
+      "evidence": "CoreMatrix supply is listed as a dependency for the project"
+    },
+    {
+      "source_entity": "TransitEdge Control Tower",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "SkyPath",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
+      "evidence": "SkyPath integrations is listed as a dependency"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "mobility analytics",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
+      "evidence": "Objective is listed as mobility analytics"
+    }
+  ],
+  "metadata": {
+    "filename": "transitedge_control_tower_brief.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 8,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

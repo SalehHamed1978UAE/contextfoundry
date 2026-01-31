@@ -1,0 +1,150 @@
+{
+  "document_id": "591dae11b783",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/policies/training_certification_policy.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:52:32.946382",
+  "entities": [
+    {
+      "name": "Training & Certification Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Training",
+        "scope": "All employees"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/training_certification_policy.md",
+      "source_excerpt": "Training & Certification Policy",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Nexus Systems",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/training_certification_policy.md",
+      "source_excerpt": "Applies to all Horizon Nexus Systems employees",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Record keeping system"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/training_certification_policy.md",
+      "source_excerpt": "Maintain auditable records in Horizon Prime",
+      "aliases": []
+    },
+    {
+      "name": "People Operations",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "HR, Training, Certification"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/training_certification_policy.md",
+      "source_excerpt": "Owner: People Operations",
+      "aliases": []
+    },
+    {
+      "name": "HR",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Human Resources"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/training_certification_policy.md",
+      "source_excerpt": "Escalate exceptions through HR or Security",
+      "aliases": []
+    },
+    {
+      "name": "Security",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Security operations"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/training_certification_policy.md",
+      "source_excerpt": "Escalate exceptions through HR or Security",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Training & Certification Policy",
+      "source_type": "POLICY",
+      "relationship_type": "OWNS",
+      "target_entity": "Horizon Nexus Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/training_certification_policy.md",
+      "evidence": "Applies to all Horizon Nexus Systems employees"
+    },
+    {
+      "source_entity": "People Operations",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Training & Certification Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/training_certification_policy.md",
+      "evidence": "Owner: People Operations"
+    },
+    {
+      "source_entity": "People Operations",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Horizon Nexus Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/training_certification_policy.md",
+      "evidence": "People Operations is a business unit within the organization"
+    },
+    {
+      "source_entity": "HR",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Horizon Nexus Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/training_certification_policy.md",
+      "evidence": "HR handles escalations within the organization"
+    },
+    {
+      "source_entity": "Security",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Horizon Nexus Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/training_certification_policy.md",
+      "evidence": "Security handles escalations within the organization"
+    },
+    {
+      "source_entity": "Horizon Nexus Systems",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/training_certification_policy.md",
+      "evidence": "Maintain auditable records in Horizon Prime"
+    }
+  ],
+  "metadata": {
+    "filename": "training_certification_policy.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 6,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

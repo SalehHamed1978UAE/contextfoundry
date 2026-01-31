@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vault - Context Foundry</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ cache_bust }}">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+    <style>
+        .vault-layout {
+            display: flex;
+            height: 100vh;
+            background: var(--bg-primary);
+        }
+        
+        .vault-sidebar {
+            width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+        }
+        
+        .vault-layout.expanded .vault-sidebar {
+            width: 480px;
+        }
+        
+        .vault-layout.expanded .main-content {
+            flex: 1;
+        }
+        
+        .expand-btn {
+            padding: 4px 8px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .expand-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        .doc-search {
+            width: 100%;
+            padding: 8px 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .doc-search:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+        
+        .doc-search::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .sort-controls {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .sort-select {
+            flex: 1;
+            padding: 6px 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 11px;
+            cursor: pointer;
+        }
+        
+        .sort-select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+        
+        .sort-order-btn {
+            padding: 6px 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .sort-order-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        .vault-layout.expanded .file-name {
+            white-space: normal;
+            word-break: break-word;
+        }
+        
+        .btn-replace {
+            color: var(--accent-primary);
+        }
+        
+        .drop-zone-replace {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .drop-zone-replace.drag-over {
+            border-color: var(--accent-primary);
+            background: rgba(6, 182, 212, 0.05);
+        }
+        
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .vault-name-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .vault-icon-sm {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg-primary);
+        }
+        
+        .vault-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .sidebar-nav {
+            padding: 12px 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        
+        .nav-item:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .nav-item.active {
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--accent-primary);
+        }
+        
+        .file-tree-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        
+        .file-tree-section.drag-over {
+            background: rgba(6, 182, 212, 0.1);
+            border: 2px dashed var(--accent-primary);
+            border-radius: var(--radius-md);
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 4px;
+            margin: -12px -12px 8px -12px;
+            padding-left: 12px;
+            padding-right: 12px;
+            position: sticky;
+            top: -12px;
+            background: var(--bg-secondary);
+            z-index: 10;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .section-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+        
+        .upload-btn {
+            padding: 6px 10px;
+            background: transparent;
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .upload-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        .file-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .file-item:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .file-icon {
+            width: 16px;
+            height: 16px;
+            color: var(--text-muted);
+        }
+        
+        .file-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .file-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .file-status.completed { background: var(--accent-success); }
+        .file-status.extracted { background: var(--accent-success); }
+        .file-status.COMPLETE { background: var(--accent-success); }
+        .file-status.processing { background: var(--accent-warning); }
+        .file-status.queued { background: var(--accent-warning); }
+        .file-status.RUNNING { background: var(--accent-warning); }
+        .file-status.PENDING { background: var(--accent-warning); }
+        .file-status.failed { background: var(--accent-error); }
+        .file-status.FAILED { background: var(--accent-error); }
+        .file-status.TIMEOUT { background: var(--accent-error); }
+        .file-status.pending { background: var(--text-muted); }
+        
+        .file-item:hover .file-actions {
+            opacity: 1;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        
+        .file-action-btn {
+            width: 22px;
+            height: 22px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 12px;
+            transition: all 0.15s;
+            padding: 0;
+        }
+        
+        .file-action-btn:hover {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border-color: var(--text-muted);
+        }
+        
+        .file-action-btn.btn-delete:hover {
+            color: var(--accent-error);
+            border-color: var(--accent-error);
+        }
+        
+        .file-action-btn.btn-refresh:hover {
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+        
+        .folder-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 8px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        
+        .folder-item:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .folder-item.expanded > .folder-arrow {
+            transform: rotate(90deg);
+        }
+        
+        .folder-arrow {
+            width: 12px;
+            height: 12px;
+            transition: transform 0.15s;
+            color: var(--text-muted);
+        }
+        
+        .folder-icon {
+            width: 16px;
+            height: 16px;
+            color: #f59e0b;
+        }
+        
+        .folder-name {
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .folder-children {
+            margin-left: 16px;
+            display: none;
+        }
+        
+        .folder-children.expanded {
+            display: block;
+        }
+        
+        .file-item.nested {
+            margin-left: 22px;
+        }
+        
+        .drop-target {
+            background: rgba(6, 182, 212, 0.15) !important;
+            border: 1px dashed var(--accent-primary);
+        }
+        
+        .file-item[draggable="true"] {
+            cursor: grab;
+        }
+        
+        .file-item.dragging {
+            opacity: 0.5;
+        }
+        
+        .new-folder-btn {
+            padding: 4px 8px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+        }
+        
+        .new-folder-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .folder-dialog {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            z-index: 1000;
+            min-width: 300px;
+        }
+        
+        .folder-dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        
+        .folder-dialog h3 {
+            margin: 0 0 16px 0;
+            color: var(--text-primary);
+        }
+        
+        .folder-dialog input {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+        
+        .folder-dialog-btns {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        
+        .folder-dialog-btns button {
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 13px;
+        }
+        
+        .folder-dialog-btns .cancel-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+        
+        .folder-dialog-btns .create-btn {
+            background: var(--accent-primary);
+            border: none;
+            color: var(--bg-primary);
+        }
+        
+        .sidebar-footer {
+            padding: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-header {
+            height: 56px;
+            padding: 0 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .main-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-name {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .settings-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .settings-btn:hover {
+            border-color: var(--text-muted);
+            color: var(--text-secondary);
+        }
+        
+        .admin-btn {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            border-radius: var(--radius-sm);
+            color: var(--bg-primary);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .admin-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            overflow: hidden;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding-bottom: 16px;
+        }
+        
+        .chat-message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: var(--bg-primary);
+        }
+        
+        .assistant-message {
+            align-self: flex-start;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .message-content {
+            word-break: break-word;
+        }
+        
+        .message-content.error {
+            color: var(--accent-error);
+        }
+        
+        /* Markdown rendering styles */
+        .message-content p {
+            margin: 0 0 0.75em 0;
+        }
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+        .message-content h1, .message-content h2, .message-content h3 {
+            margin: 1em 0 0.5em 0;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .message-content h1:first-child, .message-content h2:first-child, .message-content h3:first-child {
+            margin-top: 0;
+        }
+        .message-content h1 { font-size: 1.3em; }
+        .message-content h2 { font-size: 1.15em; }
+        .message-content h3 { font-size: 1.05em; }
+        .message-content ul, .message-content ol {
+            margin: 0.5em 0;
+            padding-left: 1.5em;
+        }
+        .message-content li {
+            margin: 0.25em 0;
+        }
+        .message-content code {
+            background: var(--bg-tertiary);
+            padding: 0.15em 0.4em;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9em;
+        }
+        .message-content pre {
+            background: var(--bg-tertiary);
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 0.75em 0;
+        }
+        .message-content pre code {
+            background: none;
+            padding: 0;
+        }
+        .message-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 0.75em 0;
+            font-size: 0.9em;
+        }
+        .message-content th, .message-content td {
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            text-align: left;
+        }
+        .message-content th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+        }
+        .message-content blockquote {
+            border-left: 3px solid var(--accent-primary);
+            margin: 0.75em 0;
+            padding-left: 1em;
+            color: var(--text-secondary);
+        }
+        .message-content strong {
+            font-weight: 600;
+        }
+        .message-content hr {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 1em 0;
+        }
+        
+        .message-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 8px;
+            font-size: 11px;
+        }
+        
+        .message-meta-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .confidence-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        
+        .confidence-badge.high {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-success);
+        }
+        
+        .confidence-badge.medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-warning);
+        }
+        
+        .confidence-badge.low {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-error);
+        }
+        
+        .evidence-count {
+            color: var(--text-muted);
+        }
+        
+        .source-attribution {
+            color: var(--text-secondary);
+            font-size: 11px;
+            margin-top: 4px;
+            padding: 6px 10px;
+            background: rgba(6, 182, 212, 0.1);
+            border-radius: 6px;
+            border-left: 2px solid var(--accent-primary);
+        }
+        
+        .source-doc {
+            color: var(--accent-primary);
+            font-weight: 500;
+        }
+        
+        .more-sources {
+            color: var(--text-muted);
+            font-style: italic;
+            cursor: help;
+        }
+        
+        .thinking-dots {
+            color: var(--text-muted);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        .empty-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            text-align: center;
+        }
+        
+        .empty-chat-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--bg-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        
+        .empty-chat-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .chat-input-container {
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .chat-input-wrapper {
+            display: flex;
+            gap: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 12px 16px;
+        }
+        
+        .chat-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+        }
+        
+        .chat-input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .send-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            border-radius: var(--radius-sm);
+            color: var(--bg-primary);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .send-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+        
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .drop-zone {
+            border: 2px dashed transparent;
+            border-radius: var(--radius-lg);
+            transition: all 0.2s;
+        }
+        
+        .drop-zone.drag-over {
+            border-color: var(--accent-primary);
+            background: rgba(6, 182, 212, 0.05);
+        }
+        
+        .empty-files {
+            padding: 24px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+        
+        .drop-hint {
+            margin-top: 8px;
+            font-size: 11px;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="vault-layout">
+        <div class="vault-sidebar">
+            <div class="sidebar-header">
+                <div class="vault-name-header">
+                    <div class="vault-icon-sm">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <span class="vault-title" id="vaultName">Loading...</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-nav">
+                <a href="/app/{{ vault_id }}" class="nav-item active">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    Chat
+                </a>
+            </div>
+            
+            <div class="file-tree-section" id="sidebarDropZone">
+                <div class="section-header">
+                    <span class="section-title">Documents <span id="docCounter" style="font-weight: 400; color: var(--text-muted);"></span></span>
+                    <div style="display: flex; gap: 4px;">
+                        <button class="expand-btn" onclick="toggleExpand()" title="Expand/Collapse">⤢</button>
+                        <button class="new-folder-btn" onclick="showNewFolderDialog()" title="New Folder">+</button>
+                        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                            Upload
+                        </button>
+                    </div>
+                </div>
+                <input type="text" class="doc-search" id="docSearch" placeholder="Search documents..." oninput="filterDocuments()">
+                <div class="sort-controls">
+                    <select id="sortBy" class="sort-select" onchange="sortDocuments()">
+                        <option value="name">Name</option>
+                        <option value="type">Type</option>
+                        <option value="status">Status</option>
+                        <option value="date" selected>Date</option>
+                    </select>
+                    <button class="sort-order-btn" id="sortOrderBtn" onclick="toggleSortOrder()" title="Toggle sort order">↓</button>
+                </div>
+                <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.txt,.md,.xlsx,.xls,.csv,.json,.jsonl,.html">
+                <div id="fileTree" class="file-list">
+                    <div class="empty-files">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 8px;">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                        <div>No documents yet</div>
+                        <div class="drop-hint">Drag & drop files here</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <a href="/app" class="back-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    All Vaults
+                </a>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="main-header">
+                <span class="main-title">Chat with your knowledge</span>
+                <div class="user-actions">
+                    <span class="user-name">{{ user_name }}</span>
+                    <a href="/app/{{ vault_id }}/dashboard" class="admin-btn">Admin</a>
+                    <a href="/app/{{ vault_id }}/settings" class="settings-btn">Settings</a>
+                </div>
+            </div>
+            
+            <div class="chat-container drop-zone" id="dropZone">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="empty-chat">
+                        <div class="empty-chat-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                <path d="M12 17h.01"/>
+                            </svg>
+                        </div>
+                        <h3 class="empty-chat-title">Ask anything about your documents</h3>
+                        <p>Upload documents and ask questions to explore your knowledge graph</p>
+                    </div>
+                </div>
+                
+                <div class="chat-input-container">
+                    <div class="chat-input-wrapper">
+                        <textarea 
+                            class="chat-input" 
+                            id="chatInput"
+                            placeholder="Ask a question about your documents..."
+                            rows="1"
+                        ></textarea>
+                        <button class="send-btn" id="sendBtn" disabled>Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const vaultId = "{{ vault_id }}";
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const fileInput = document.getElementById('fileInput');
+        const dropZone = document.getElementById('dropZone');
+        const chatMessages = document.getElementById('chatMessages');
+        
+        marked.setOptions({
+            breaks: true,
+            gfm: true
+        });
+        
+        let chatHistory = [];
+        
+        async function loadVaultInfo() {
+            try {
+                const response = await fetch(`/api/vaults/${vaultId}`);
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('vaultName').textContent = data.vault.name;
+                    document.title = `${data.vault.name} - Context Foundry`;
+                }
+            } catch (error) {
+                console.error('Failed to load vault info:', error);
+            }
+        }
+        
+        let currentFolderPath = '/';
+        let expandedFolders = new Set(['/']);
+        
+        async function loadDocuments() {
+            try {
+                const response = await fetch(`/api/documents/tree`);
+                const data = await response.json();
+                
+                const fileTree = document.getElementById('fileTree');
+                
+                if ((!data.folders || data.folders.length === 0) && 
+                    (!data.documents || data.documents.length === 0)) {
+                    return;
+                }
+                
+                allDocuments = data.documents || [];
+                const sortedDocs = sortDocumentsList(allDocuments);
+                const tree = buildFolderTree(data.folders || [], sortedDocs);
+                fileTree.innerHTML = renderFolderTree(tree, '/');
+                
+                const total = allDocuments.length;
+                const failed = allDocuments.filter(d => ['FAILED', 'TIMEOUT', 'failed'].includes(d.status)).length;
+                const pending = allDocuments.filter(d => ['RUNNING', 'PENDING', 'processing', 'queued'].includes(d.status)).length;
+                let counterText = `(${total})`;
+                if (failed > 0) counterText = `(${total}, ${failed} failed)`;
+                else if (pending > 0) counterText = `(${total}, ${pending} processing)`;
+                document.getElementById('docCounter').textContent = counterText;
+                
+                setupDragDrop();
+                
+            } catch (error) {
+                console.error('Failed to load documents:', error);
+            }
+        }
+        
+        function buildFolderTree(folders, documents) {
+            const tree = { folders: {}, documents: [] };
+            
+            folders.forEach(folder => {
+                const parts = folder.path.split('/').filter(p => p);
+                let current = tree;
+                parts.forEach((part, i) => {
+                    if (!current.folders[part]) {
+                        current.folders[part] = { 
+                            id: folder.id,
+                            name: part, 
+                            path: '/' + parts.slice(0, i + 1).join('/') + '/',
+                            folders: {}, 
+                            documents: [] 
+                        };
+                    }
+                    current = current.folders[part];
+                });
+            });
+            
+            documents.forEach(doc => {
+                const folderPath = doc.folder_path || '/';
+                if (folderPath === '/') {
+                    tree.documents.push(doc);
+                } else {
+                    const parts = folderPath.split('/').filter(p => p);
+                    let current = tree;
+                    parts.forEach(part => {
+                        if (current.folders[part]) {
+                            current = current.folders[part];
+                        }
+                    });
+                    current.documents.push(doc);
+                }
+            });
+            
+            return tree;
+        }
+        
+        function renderFolderTree(node, path) {
+            let html = '';
+            
+            Object.values(node.folders).forEach(folder => {
+                const isExpanded = expandedFolders.has(folder.path);
+                html += `
+                    <div class="folder-container" data-path="${escapeHtml(folder.path)}">
+                        <div class="folder-item ${isExpanded ? 'expanded' : ''}" 
+                             onclick="toggleFolder('${escapeHtml(folder.path)}')"
+                             ondragover="handleDragOver(event)"
+                             ondrop="handleDrop(event, '${escapeHtml(folder.path)}')">
+                            <svg class="folder-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="9 18 15 12 9 6"/>
+                            </svg>
+                            <svg class="folder-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                            </svg>
+                            <span class="folder-name">${escapeHtml(folder.name)}</span>
+                        </div>
+                        <div class="folder-children ${isExpanded ? 'expanded' : ''}">
+                            ${renderFolderTree(folder, folder.path)}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            node.documents.forEach(doc => {
+                const isActive = ['RUNNING', 'PENDING', 'processing', 'queued'].includes(doc.status);
+                const isFailed = ['FAILED', 'TIMEOUT', 'failed'].includes(doc.status);
+                html += `
+                    <div class="file-item" data-id="${doc.id}" data-status="${doc.status}" draggable="true"
+                         ondragstart="handleDragStart(event, '${doc.id}')"
+                         ondragend="handleDragEnd(event)">
+                        <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                        <span class="file-name" title="${escapeHtml(doc.name || 'Unknown')}">${escapeHtml(doc.name || 'Unknown')}</span>
+                        <div class="file-actions">
+                            ${isActive ? `
+                                <button class="file-action-btn btn-cancel" onclick="event.stopPropagation(); cancelExtraction('${doc.id}')" title="Cancel extraction">✕</button>
+                            ` : `
+                                <button class="file-action-btn btn-replace" onclick="event.stopPropagation(); showReplaceDialog('${doc.id}', '${escapeHtml(doc.name || 'Unknown')}')" title="Replace file">⇄</button>
+                                <button class="file-action-btn btn-refresh" onclick="event.stopPropagation(); refreshDocument('${doc.id}', ${isFailed})" title="${isFailed ? 'Retry extraction' : 'Re-extract'}">↻</button>
+                                <button class="file-action-btn btn-delete" onclick="event.stopPropagation(); deleteDocument('${doc.id}')" title="Delete document">🗑</button>
+                            `}
+                        </div>
+                        <span class="file-status ${doc.status}"></span>
+                    </div>
+                `;
+            });
+            
+            return html;
+        }
+        
+        function toggleFolder(path) {
+            if (expandedFolders.has(path)) {
+                expandedFolders.delete(path);
+            } else {
+                expandedFolders.add(path);
+            }
+            loadDocuments();
+        }
+        
+        function toggleExpand() {
+            const layout = document.querySelector('.vault-layout');
+            layout.classList.toggle('expanded');
+            const btn = document.querySelector('.expand-btn');
+            btn.textContent = layout.classList.contains('expanded') ? '⤡' : '⤢';
+        }
+        
+        let allDocuments = [];
+        let searchTimeout = null;
+        let sortAscending = false;  // Default descending for date
+        
+        function getFileExtension(filename) {
+            if (!filename) return '';
+            const parts = filename.split('.');
+            return parts.length > 1 ? parts.pop().toLowerCase() : '';
+        }
+        
+        function sortDocumentsList(documents) {
+            const sortBy = document.getElementById('sortBy').value;
+            const sorted = [...documents];
+            
+            sorted.sort((a, b) => {
+                let comparison = 0;
+                
+                switch (sortBy) {
+                    case 'name':
+                        comparison = (a.name || '').localeCompare(b.name || '');
+                        break;
+                    case 'type':
+                        const extA = getFileExtension(a.name);
+                        const extB = getFileExtension(b.name);
+                        comparison = extA.localeCompare(extB);
+                        if (comparison === 0) {
+                            comparison = (a.name || '').localeCompare(b.name || '');
+                        }
+                        break;
+                    case 'status':
+                        const statusOrder = ['extracted', 'completed', 'COMPLETE', 'processing', 'queued', 'RUNNING', 'PENDING', 'failed', 'FAILED', 'TIMEOUT'];
+                        const orderA = statusOrder.indexOf(a.status) === -1 ? 99 : statusOrder.indexOf(a.status);
+                        const orderB = statusOrder.indexOf(b.status) === -1 ? 99 : statusOrder.indexOf(b.status);
+                        comparison = orderA - orderB;
+                        break;
+                    case 'date':
+                        const dateA = new Date(a.created_at || 0);
+                        const dateB = new Date(b.created_at || 0);
+                        comparison = dateB - dateA;  // Newest first by default
+                        break;
+                }
+                
+                return sortAscending ? comparison : -comparison;
+            });
+            
+            return sorted;
+        }
+        
+        function sortDocuments() {
+            const query = document.getElementById('docSearch').value.toLowerCase().trim();
+            let docsToShow = query ? 
+                allDocuments.filter(doc => 
+                    (doc.name || '').toLowerCase().includes(query) ||
+                    (doc.folder_path || '').toLowerCase().includes(query)
+                ) : allDocuments;
+            
+            const sorted = sortDocumentsList(docsToShow);
+            renderFilteredDocuments(sorted);
+        }
+        
+        function toggleSortOrder() {
+            sortAscending = !sortAscending;
+            document.getElementById('sortOrderBtn').textContent = sortAscending ? '↑' : '↓';
+            sortDocuments();
+        }
+        
+        function filterDocuments() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const query = document.getElementById('docSearch').value.toLowerCase().trim();
+                let filtered = allDocuments;
+                if (query) {
+                    filtered = allDocuments.filter(doc => 
+                        (doc.name || '').toLowerCase().includes(query) ||
+                        (doc.folder_path || '').toLowerCase().includes(query)
+                    );
+                }
+                const sorted = sortDocumentsList(filtered);
+                renderFilteredDocuments(sorted);
+            }, 150);
+        }
+        
+        function renderFilteredDocuments(documents) {
+            const tree = buildFolderTree([], documents);
+            const fileTree = document.getElementById('fileTree');
+            const rendered = renderFolderTree(tree, '/');
+            fileTree.innerHTML = rendered || '<div class="empty-files">No matching documents</div>';
+        }
+        
+        function showNewFolderDialog() {
+            const overlay = document.createElement('div');
+            overlay.className = 'folder-dialog-overlay';
+            overlay.onclick = () => overlay.remove();
+            
+            const dialog = document.createElement('div');
+            dialog.className = 'folder-dialog';
+            dialog.innerHTML = `
+                <h3>New Folder</h3>
+                <input type="text" id="newFolderName" placeholder="Folder name" autofocus>
+                <div class="folder-dialog-btns">
+                    <button class="cancel-btn" onclick="this.closest('.folder-dialog-overlay').remove()">Cancel</button>
+                    <button class="create-btn" onclick="createFolder()">Create</button>
+                </div>
+            `;
+            dialog.onclick = e => e.stopPropagation();
+            
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+            
+            setTimeout(() => document.getElementById('newFolderName').focus(), 100);
+        }
+        
+        async function createFolder() {
+            const nameInput = document.getElementById('newFolderName');
+            const name = nameInput.value.trim();
+            if (!name) return;
+            
+            try {
+                const response = await fetch('/api/folders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, parent_path: currentFolderPath })
+                });
+                
+                if (response.ok) {
+                    document.querySelector('.folder-dialog-overlay').remove();
+                    expandedFolders.add(currentFolderPath + name + '/');
+                    loadDocuments();
+                }
+            } catch (error) {
+                console.error('Failed to create folder:', error);
+            }
+        }
+        
+        let draggedDocId = null;
+        
+        function handleDragStart(e, docId) {
+            draggedDocId = docId;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drop-target');
+        }
+        
+        async function handleDrop(e, folderPath) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drop-target');
+            
+            if (!draggedDocId) return;
+            
+            try {
+                const response = await fetch(`/api/documents/${draggedDocId}/move`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ folder_path: folderPath })
+                });
+                
+                if (response.ok) {
+                    expandedFolders.add(folderPath);
+                    loadDocuments();
+                }
+            } catch (error) {
+                console.error('Failed to move document:', error);
+            }
+            
+            draggedDocId = null;
+        }
+        
+        function setupDragDrop() {
+            const rootDropZone = document.getElementById('fileTree');
+            rootDropZone.ondragover = (e) => {
+                e.preventDefault();
+                if (!e.target.closest('.folder-item')) {
+                    rootDropZone.classList.add('drop-target');
+                }
+            };
+            rootDropZone.ondragleave = () => rootDropZone.classList.remove('drop-target');
+            rootDropZone.ondrop = (e) => {
+                if (!e.target.closest('.folder-item')) {
+                    handleDrop(e, '/');
+                }
+                rootDropZone.classList.remove('drop-target');
+            };
+        }
+        
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            sendBtn.disabled = !this.value.trim();
+        });
+        
+        chatInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (this.value.trim()) {
+                    sendMessage();
+                }
+            }
+        });
+        
+        sendBtn.addEventListener('click', sendMessage);
+        
+        // Generate unique session ID for conversation continuity
+        const chatSessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        console.log('[Chat] Session ID:', chatSessionId);
+        
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+            
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+            sendBtn.disabled = true;
+            
+            const emptyChat = document.querySelector('.empty-chat');
+            if (emptyChat) {
+                emptyChat.remove();
+            }
+            
+            const userMsgDiv = document.createElement('div');
+            userMsgDiv.className = 'chat-message user-message';
+            userMsgDiv.innerHTML = `<div class="message-content">${escapeHtml(message)}</div>`;
+            chatMessages.appendChild(userMsgDiv);
+            
+            const thinkingDiv = document.createElement('div');
+            thinkingDiv.className = 'chat-message assistant-message thinking';
+            thinkingDiv.innerHTML = `<div class="message-content"><span class="thinking-dots">Thinking...</span></div>`;
+            chatMessages.appendChild(thinkingDiv);
+            
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            try {
+                const response = await fetch('/api/vault/chat?agent=true', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        query: message,
+                        history: chatHistory,
+                        session_id: chatSessionId,
+                        vault_id: vaultId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                thinkingDiv.remove();
+                
+                const assistantDiv = document.createElement('div');
+                assistantDiv.className = 'chat-message assistant-message';
+                
+                if (data.success) {
+                    const confidence = data.confidence || 0;
+                    const confidenceClass = confidence >= 0.7 ? 'high' : confidence >= 0.4 ? 'medium' : 'low';
+                    
+                    // Build source attribution from chunk_sources or evidence_chain
+                    let sourcesHtml = '';
+                    const sources = data.chunk_sources || [];
+                    if (sources.length > 0) {
+                        // Handle both dict and string sources
+                        const sourceNames = sources.map(s => {
+                            if (typeof s === 'string') return s;
+                            if (typeof s === 'object' && s !== null) {
+                                return s.document || s.doc_name || s.name || null;
+                            }
+                            return null;
+                        }).filter(Boolean);
+                        if (sourceNames.length > 0) {
+                            const displayNames = sourceNames.slice(0, 3);
+                            const remaining = sourceNames.length - 3;
+                            let sourceList = displayNames.map(n => {
+                                const shortName = n.length > 40 ? n.substring(0, 37) + '...' : n;
+                                return `<span class="source-doc" title="${escapeHtml(n)}">${escapeHtml(shortName)}</span>`;
+                            }).join(', ');
+                            if (remaining > 0) {
+                                sourceList += ` <span class="more-sources" title="${escapeHtml(sourceNames.slice(3).join(', '))}">+${remaining} more</span>`;
+                            }
+                            sourcesHtml = `<div class="source-attribution">Based on: ${sourceList}</div>`;
+                        }
+                    } else if (data.evidence_chain && data.evidence_chain.length > 0) {
+                        // Extract document names from evidence chain if available
+                        const evidenceDocs = [];
+                        data.evidence_chain.forEach(ev => {
+                            if (ev.document && !evidenceDocs.includes(ev.document)) evidenceDocs.push(ev.document);
+                            if (ev.source_document && !evidenceDocs.includes(ev.source_document)) evidenceDocs.push(ev.source_document);
+                        });
+                        if (evidenceDocs.length > 0) {
+                            sourcesHtml = `<div class="source-attribution">Based on: ${evidenceDocs.slice(0, 3).map(n => `<span class="source-doc">${escapeHtml(n)}</span>`).join(', ')}</div>`;
+                        } else {
+                            sourcesHtml = `<span class="evidence-count">${data.evidence_chain.length} knowledge graph relationships</span>`;
+                        }
+                    }
+                    
+                    const rawHtml = marked.parse(data.answer || 'No answer found.');
+                    const renderedAnswer = DOMPurify.sanitize(rawHtml);
+                    assistantDiv.innerHTML = `
+                        <div class="message-content">${renderedAnswer}</div>
+                        <div class="message-meta">
+                            <span class="confidence-badge ${confidenceClass}">${Math.round(confidence * 100)}% confidence</span>
+                            ${sourcesHtml}
+                        </div>
+                    `;
+                    
+                    chatHistory.push({ role: 'user', content: message });
+                    chatHistory.push({ 
+                        role: 'assistant', 
+                        content: data.answer || '',
+                        entities: data.mentioned_entities || data.counted_entities || []
+                    });
+                    
+                    if (chatHistory.length > 20) {
+                        chatHistory = chatHistory.slice(-20);
+                    }
+                } else {
+                    assistantDiv.innerHTML = `<div class="message-content error">Error: ${escapeHtml(data.error || 'Query failed')}</div>`;
+                }
+                
+                chatMessages.appendChild(assistantDiv);
+            } catch (error) {
+                thinkingDiv.remove();
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'chat-message assistant-message';
+                errorDiv.innerHTML = `<div class="message-content error">Error: Failed to connect to server</div>`;
+                chatMessages.appendChild(errorDiv);
+            }
+            
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        fileInput.addEventListener('change', handleFileUpload);
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            if (e.dataTransfer.files.length) {
+                uploadFiles(e.dataTransfer.files);
+            }
+        });
+        
+        // Sidebar documents pane drag and drop
+        const sidebarDropZone = document.getElementById('sidebarDropZone');
+        
+        sidebarDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            sidebarDropZone.classList.add('drag-over');
+        });
+        
+        sidebarDropZone.addEventListener('dragleave', (e) => {
+            // Only remove class if leaving the sidebar entirely
+            if (!sidebarDropZone.contains(e.relatedTarget)) {
+                sidebarDropZone.classList.remove('drag-over');
+            }
+        });
+        
+        sidebarDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            sidebarDropZone.classList.remove('drag-over');
+            if (e.dataTransfer.files.length) {
+                uploadFiles(e.dataTransfer.files);
+            }
+        });
+        
+        function handleFileUpload(e) {
+            if (e.target.files.length) {
+                uploadFiles(e.target.files);
+            }
+        }
+        
+        async function uploadFiles(files) {
+            const formData = new FormData();
+            for (const file of files) {
+                formData.append('files', file);
+            }
+            
+            try {
+                const response = await fetch('/api/documents/upload/multi', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    const summary = data.summary || {};
+                    console.log(`Uploaded: ${summary.queued || 0} files, ${summary.duplicates || 0} duplicates, ${summary.skipped || 0} skipped`);
+                    loadDocuments();
+                } else if (data.error) {
+                    console.error('Upload error:', data.error);
+                }
+            } catch (error) {
+                console.error('Upload failed:', error);
+                loadDocuments();
+            }
+        }
+        
+        async function cancelExtraction(docId) {
+            try {
+                const response = await fetch(`/api/document/${docId}/cancel`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if (data.cancelled) {
+                    console.log('Extraction cancelled for document:', docId);
+                } else {
+                    console.log('No active extraction to cancel:', data.reason);
+                }
+                loadDocuments();
+            } catch (error) {
+                console.error('Failed to cancel extraction:', error);
+            }
+        }
+        
+        async function refreshDocument(docId, force = false) {
+            try {
+                const response = await fetch(`/api/documents/${docId}/re-extract`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ force: force })
+                });
+                const data = await response.json();
+                if (data.success || data.queued) {
+                    console.log('Extraction queued for document:', docId);
+                } else {
+                    console.log('Failed to queue extraction:', data.error || data.reason);
+                }
+                loadDocuments();
+            } catch (error) {
+                console.error('Failed to refresh document:', error);
+            }
+        }
+        
+        let replaceDocId = null;
+        
+        function showReplaceDialog(docId, docName) {
+            replaceDocId = docId;
+            const overlay = document.createElement('div');
+            overlay.className = 'folder-dialog-overlay';
+            overlay.id = 'replaceOverlay';
+            overlay.onclick = () => overlay.remove();
+            
+            const dialog = document.createElement('div');
+            dialog.className = 'folder-dialog';
+            dialog.style.maxWidth = '400px';
+            dialog.innerHTML = `
+                <h3>Replace Document</h3>
+                <p style="color: var(--text-secondary); font-size: 12px; margin-bottom: 12px;">
+                    Current file: <strong>${docName}</strong>
+                </p>
+                <div class="drop-zone-replace" id="replaceDropZone" 
+                     ondragover="event.preventDefault(); this.classList.add('drag-over');"
+                     ondragleave="this.classList.remove('drag-over');"
+                     ondrop="handleReplaceDrop(event)">
+                    <p style="color: var(--text-muted); font-size: 12px;">Drag & drop replacement file here</p>
+                    <p style="color: var(--text-muted); font-size: 11px; margin-top: 8px;">or</p>
+                    <button class="upload-btn" style="margin-top: 8px;" onclick="document.getElementById('replaceFileInput').click()">
+                        Choose File
+                    </button>
+                    <input type="file" id="replaceFileInput" style="display: none;" onchange="handleReplaceFile(this.files[0])">
+                </div>
+                <div class="folder-dialog-btns" style="margin-top: 16px;">
+                    <button class="cancel-btn" onclick="document.getElementById('replaceOverlay').remove()">Cancel</button>
+                </div>
+            `;
+            dialog.onclick = e => e.stopPropagation();
+            
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+        }
+        
+        function handleReplaceDrop(event) {
+            event.preventDefault();
+            event.target.classList.remove('drag-over');
+            const file = event.dataTransfer.files[0];
+            if (file) handleReplaceFile(file);
+        }
+        
+        async function handleReplaceFile(file) {
+            if (!file || !replaceDocId) return;
+            
+            const overlay = document.getElementById('replaceOverlay');
+            if (overlay) overlay.remove();
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch(`/api/documents/${replaceDocId}/replace`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.success) {
+                    console.log('Document replaced successfully');
+                } else {
+                    console.error('Replace failed:', data.error);
+                    alert('Failed to replace document: ' + (data.error || 'Unknown error'));
+                }
+                loadDocuments();
+            } catch (error) {
+                console.error('Replace failed:', error);
+                alert('Failed to replace document');
+            }
+            replaceDocId = null;
+        }
+        
+        async function deleteDocument(docId) {
+            if (!confirm('Delete this document? This cannot be undone.')) return;
+            
+            try {
+                const response = await fetch(`/api/documents/${docId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if (data.success || response.ok) {
+                    console.log('Document deleted:', docId);
+                } else {
+                    console.error('Failed to delete document:', data.error);
+                }
+                loadDocuments();
+            } catch (error) {
+                console.error('Failed to delete document:', error);
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        loadVaultInfo();
+        loadDocuments();
+        
+        // Auto-refresh document list every 5 seconds to show status updates
+        setInterval(() => {
+            loadDocuments();
+        }, 5000);
+    </script>
+</body>
+</html>

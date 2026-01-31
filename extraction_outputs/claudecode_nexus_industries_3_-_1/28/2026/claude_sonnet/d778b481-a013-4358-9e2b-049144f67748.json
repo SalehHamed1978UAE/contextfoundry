@@ -1,0 +1,713 @@
+{
+  "document_id": "d778b481-a013-4358-9e2b-049144f67748",
+  "document_path": "02_organizational_announcement.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-28T21:27:16.702458",
+  "entities": [
+    {
+      "name": "Dr. Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "From: Dr. Victoria Chen, CEO",
+      "aliases": []
+    },
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "President",
+        "role": "President of Nexus Digital Solutions",
+        "previous_role": "Chief Information Security Officer",
+        "background": "Ph.D. in Computer Science from Stanford and an MBA from Wharton"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Robert Kim has been appointed President of Nexus Digital Solutions",
+      "aliases": []
+    },
+    {
+      "name": "Thomas Anderson",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Former President",
+        "tenure": "15 years"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Robert succeeds Thomas Anderson, who is stepping down for personal health reasons after 15 years of distinguished service",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Alan Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Engineering",
+        "previous_role": "VP Platform Engineering"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "VP Engineering | Dr. Alan Chen | VP Platform Engineering",
+      "aliases": []
+    },
+    {
+      "name": "Michelle Torres",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Product",
+        "previous_role": "Sr. Director Product",
+        "acting_role": "IoT & Edge Computing lead"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "VP Product | Michelle Torres | Sr. Director Product",
+      "aliases": []
+    },
+    {
+      "name": "Steven Park",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Sales"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "VP Sales | Steven Park | No change",
+      "aliases": []
+    },
+    {
+      "name": "David Lee",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Customer Success"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "VP Customer Success | David Lee | No change",
+      "aliases": []
+    },
+    {
+      "name": "Jennifer Walsh",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CISO",
+        "previous_role": "Director Security Operations",
+        "acting_role": "Cybersecurity lead"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "CISO (New) | Jennifer Walsh | Director Security Operations",
+      "aliases": []
+    },
+    {
+      "name": "Jennifer Adams",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Finance",
+        "previous_role": "Controller, Digital"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "VP Finance | Jennifer Adams | Controller, Digital",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Michael Foster",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Quantum Computing lead"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Quantum Computing (Dr. Michael Foster)",
+      "aliases": []
+    },
+    {
+      "name": "Sarah Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "HR Business Partner",
+        "email": "sarah.kim@nexus-industries.com"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "contact HR Business Partner Sarah Kim (sarah.kim@nexus-industries.com)",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "corporation"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "CEO, Nexus Industries",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Digital Solutions",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "type": "division",
+        "parent": "Nexus Industries"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "President of Nexus Digital Solutions",
+      "aliases": []
+    },
+    {
+      "name": "Digital Solutions",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "type": "division"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Digital Solutions Division",
+      "aliases": []
+    },
+    {
+      "name": "IoT & Edge Computing",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "NexusConnect IoT Platform",
+          "Edge AI Solutions",
+          "Industrial Automation"
+        ]
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "IoT & Edge Computing (Michelle Torres, acting)",
+      "aliases": []
+    },
+    {
+      "name": "Cybersecurity",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "CyberShield Security Suite",
+          "Security Operations Center",
+          "Threat Intelligence"
+        ]
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Cybersecurity (Jennifer Walsh, acting)",
+      "aliases": []
+    },
+    {
+      "name": "Quantum Computing",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "QuantumLeap Computing Services",
+          "Quantum Algorithm Development",
+          "Research Partnerships"
+        ]
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Quantum Computing (Dr. Michael Foster)",
+      "aliases": []
+    },
+    {
+      "name": "CyberShield",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Security product",
+        "category": "cybersecurity"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "launched CyberShield",
+      "aliases": []
+    },
+    {
+      "name": "CyberShield Security Suite",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Security suite",
+        "category": "cybersecurity"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "CyberShield Security Suite",
+      "aliases": []
+    },
+    {
+      "name": "NexusConnect IoT Platform",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "IoT platform",
+        "category": "IoT"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "NexusConnect IoT Platform",
+      "aliases": []
+    },
+    {
+      "name": "QuantumLeap Computing Services",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Quantum computing services",
+        "category": "quantum computing"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "QuantumLeap Computing Services",
+      "aliases": []
+    },
+    {
+      "name": "Edge AI Solutions",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "AI solutions for edge computing",
+        "category": "AI"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Edge AI Solutions",
+      "aliases": []
+    },
+    {
+      "name": "Industrial Automation",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Industrial automation solutions",
+        "category": "automation"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Industrial Automation",
+      "aliases": []
+    },
+    {
+      "name": "Security Operations Center",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Security operations services",
+        "category": "cybersecurity"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Security Operations Center",
+      "aliases": []
+    },
+    {
+      "name": "Threat Intelligence",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Threat intelligence services",
+        "category": "cybersecurity"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Threat Intelligence",
+      "aliases": []
+    },
+    {
+      "name": "Quantum Algorithm Development",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Quantum algorithm development services",
+        "category": "quantum computing"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Quantum Algorithm Development",
+      "aliases": []
+    },
+    {
+      "name": "Research Partnerships",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Research partnership services",
+        "category": "research"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Research Partnerships",
+      "aliases": []
+    },
+    {
+      "name": "450 new positions",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "hiring target",
+        "value": "450",
+        "period": "FY2026",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Digital Solutions will add 450 new positions in FY2026",
+      "aliases": []
+    },
+    {
+      "name": "200 software engineering positions",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "software engineering hiring",
+        "value": "200",
+        "period": "FY2026",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Software Engineering: 200",
+      "aliases": []
+    },
+    {
+      "name": "85 security operations positions",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "security operations hiring",
+        "value": "85",
+        "period": "FY2026",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Security Operations: 85",
+      "aliases": []
+    },
+    {
+      "name": "80 sales and marketing positions",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "sales and marketing hiring",
+        "value": "80",
+        "period": "FY2026",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Sales & Marketing: 80",
+      "aliases": []
+    },
+    {
+      "name": "Stanford",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "university"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Ph.D. in Computer Science from Stanford",
+      "aliases": []
+    },
+    {
+      "name": "Wharton",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "business school"
+      },
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "MBA from Wharton",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "Dr. Victoria Chen, CEO, Nexus Industries"
+    },
+    {
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "Robert Kim has been appointed President of Nexus Digital Solutions"
+    },
+    {
+      "source_entity": "Nexus Digital Solutions",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "Digital Solutions Division within Nexus Industries"
+    },
+    {
+      "source_entity": "Digital Solutions",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "Digital Solutions Division"
+    },
+    {
+      "source_entity": "Dr. Alan Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "VP Engineering | Dr. Alan Chen"
+    },
+    {
+      "source_entity": "Michelle Torres",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "VP Product | Michelle Torres"
+    },
+    {
+      "source_entity": "Michelle Torres",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "IoT & Edge Computing",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "IoT & Edge Computing (Michelle Torres, acting)"
+    },
+    {
+      "source_entity": "Jennifer Walsh",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "CISO (New) | Jennifer Walsh"
+    },
+    {
+      "source_entity": "Jennifer Walsh",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Cybersecurity",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "Cybersecurity (Jennifer Walsh, acting)"
+    },
+    {
+      "source_entity": "Dr. Michael Foster",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Quantum Computing",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "Quantum Computing (Dr. Michael Foster)"
+    },
+    {
+      "source_entity": "Steven Park",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "VP Sales | Steven Park"
+    },
+    {
+      "source_entity": "David Lee",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "VP Customer Success | David Lee"
+    },
+    {
+      "source_entity": "Jennifer Adams",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "VP Finance | Jennifer Adams"
+    },
+    {
+      "source_entity": "IoT & Edge Computing",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "Digital Solutions is reorganizing into three business units: IoT & Edge Computing"
+    },
+    {
+      "source_entity": "Cybersecurity",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "Digital Solutions is reorganizing into three business units: Cybersecurity"
+    },
+    {
+      "source_entity": "Quantum Computing",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "Digital Solutions is reorganizing into three business units: Quantum Computing"
+    },
+    {
+      "source_entity": "IoT & Edge Computing",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "NexusConnect IoT Platform",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "IoT & Edge Computing - NexusConnect IoT Platform"
+    },
+    {
+      "source_entity": "IoT & Edge Computing",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Edge AI Solutions",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "IoT & Edge Computing - Edge AI Solutions"
+    },
+    {
+      "source_entity": "IoT & Edge Computing",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Industrial Automation",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "IoT & Edge Computing - Industrial Automation"
+    },
+    {
+      "source_entity": "Cybersecurity",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "CyberShield Security Suite",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "Cybersecurity - CyberShield Security Suite"
+    },
+    {
+      "source_entity": "Cybersecurity",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Security Operations Center",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "Cybersecurity - Security Operations Center"
+    },
+    {
+      "source_entity": "Cybersecurity",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Threat Intelligence",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "Cybersecurity - Threat Intelligence"
+    },
+    {
+      "source_entity": "Quantum Computing",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "QuantumLeap Computing Services",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "Quantum Computing - QuantumLeap Computing Services"
+    },
+    {
+      "source_entity": "Quantum Computing",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Quantum Algorithm Development",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "Quantum Computing - Quantum Algorithm Development"
+    },
+    {
+      "source_entity": "Quantum Computing",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Research Partnerships",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "Quantum Computing - Research Partnerships"
+    },
+    {
+      "source_entity": "Sarah Kim",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "HR Business Partner Sarah Kim (sarah.kim@nexus-industries.com)"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 33,
+    "raw_relationship_count": 26,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

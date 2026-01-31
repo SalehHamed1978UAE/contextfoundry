@@ -1,0 +1,127 @@
+FIX: ENTITY EXTRACTOR MISSING NEWLINE VALIDATION
+
+Root cause: entity_extractor.py has its own _is_valid_entity_name() method 
+that does NOT check for newlines. Corrupted entities slip through during 
+LLM extraction parsing before entity_hygiene.py ever sees them.
+
+================================================================================
+THE FIX (Option A — Quick)
+================================================================================
+
+Add newline check to entity_extractor._is_valid_entity_name():
+
+In `src/context_foundry/extraction/entity_extractor.py`, find `_is_valid_entity_name()` 
+(around line 395) and add at the TOP of the function:
+```python
+def _is_valid_entity_name(self, name: str) -> bool:
+    """Validate entity name from LLM extraction"""
+    
+    if not name:
+        return False
+    
+    # CHECK FOR NEWLINES FIRST (before any other processing)
+    if '\n' in name or '\r' in name:
+        logger.warning(f"Rejecting entity with embedded newline: {repr(name[:50])}")
+        return False
+    
+    # Check for double spaces (concatenation artifact)
+    if '  ' in name:
+        logger.warning(f"Rejecting entity with double space: {repr(name[:50])}")
+        return False
+    
+    # ... rest of existing validation ...
+```
+
+================================================================================
+THE FIX (Option B — Cleaner, DRY)
+================================================================================
+
+Have entity_extractor use the centralized validation:
+```python
+# At top of entity_extractor.py
+from context_foundry.extraction.entity_hygiene import is_valid_entity_name
+
+# Replace the _is_valid_entity_name method calls with:
+if not is_valid_entity_name(entity_name):
+    continue  # Skip invalid entity
+```
+
+This ensures ONE validation function is used everywhere.
+
+================================================================================
+AFTER CODE FIX
+================================================================================
+
+1. Clean up corrupted entities:
+```sql
+DELETE FROM entities 
+WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'Morrison & Sterling')
+  AND (
+    name LIKE '%'||chr(10)||'%'
+    OR name LIKE '%  %'
+    OR name LIKE 'PARTNER COMPENSATION%'
+    OR name LIKE 'LEADERSHIP COMPENSATION%'
+  );
+
+-- Clean orphaned relationships
+DELETE FROM relationships 
+WHERE source_entity_id NOT IN (SELECT id FROM entities)
+   OR target_entity_id NOT IN (SELECT id FROM entities);
+```
+
+2. Re-extract Morrison & Sterling:
+```bash
+# Delete vault
+psql -c "DELETE FROM vaults WHERE name = 'Morrison & Sterling';"
+
+# Re-run extraction
+python scripts/e2e_lifecycle_test.py --vault "Morrison & Sterling"
+```
+
+3. Verify:
+```sql
+-- No corrupted entities
+SELECT name FROM entities 
+WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'Morrison & Sterling')
+  AND (name LIKE '%  %' OR LENGTH(name) - LENGTH(REPLACE(name, ' ', '')) > 3);
+
+-- Thomas Bradley -> HOLDS_POSITION -> CFO exists
+SELECT e1.name, r.relationship_type, e2.name
+FROM relationships r
+JOIN entities e1 ON r.source_entity_id = e1.id
+JOIN entities e2 ON r.target_entity_id = e2.id
+WHERE e1.name = 'Thomas Bradley'
+  AND r.relationship_type = 'HOLDS_POSITION';
+```
+
+4. Test query:
+```bash
+curl -X POST http://localhost:8000/api/query \
+  -d '{"vault": "Morrison & Sterling", "query": "Who is the CFO?"}'
+```
+Expected: Thomas Bradley
+
+5. Full E2E:
+```bash
+python scripts/e2e_lifecycle_test.py
+```
+Target: 49/49 (100%)
+
+================================================================================
+RECOMMENDATION
+================================================================================
+
+Use Option B (centralized validation). Having two different validation 
+functions is how this bug happened. One function, used everywhere.
+
+================================================================================
+REPORT BACK
+================================================================================
+
+1. Which option implemented?
+2. Corrupted entities deleted (count)?
+3. Re-extraction completed?
+4. CFO query result?
+5. Final E2E count?
+
+================================================================================

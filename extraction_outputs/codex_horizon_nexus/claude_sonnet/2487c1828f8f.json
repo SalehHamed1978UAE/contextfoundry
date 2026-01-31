@@ -1,0 +1,111 @@
+{
+  "document_id": "2487c1828f8f",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:32:36.119445",
+  "entities": [
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
+      "source_excerpt": "Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
+      "source_excerpt": "Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "Customer Success Roundtable",
+      "entity_type": "PROJECT",
+      "properties": {
+        "meeting_date": "2026-01-27",
+        "topics": "Net retention, Titan Freight QBR"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
+      "source_excerpt": "Customer Success Roundtable Meeting Notes",
+      "aliases": []
+    },
+    {
+      "name": "Titan Freight",
+      "entity_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
+      "source_excerpt": "Titan Freight QBR",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "has_milestones": true
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
+      "source_excerpt": "Reinforce Horizon Prime milestones",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Task assignment system"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
+      "source_excerpt": "Owners assigned in PulseOps",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Customer Success Roundtable",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
+      "evidence": "Maya Serrano listed as attendee in Customer Success Roundtable meeting"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Customer Success Roundtable",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
+      "evidence": "Dylan Kaur listed as attendee in Customer Success Roundtable meeting"
+    },
+    {
+      "source_entity": "Customer Success Roundtable",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "PulseOps",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
+      "evidence": "Owners assigned in PulseOps"
+    }
+  ],
+  "metadata": {
+    "filename": "customer_success_roundtable_2026_01_27.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

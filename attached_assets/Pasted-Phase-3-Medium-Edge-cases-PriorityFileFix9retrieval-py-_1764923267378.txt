@@ -1,0 +1,49 @@
+Phase 3: Medium (Edge cases)
+PriorityFileFix9retrieval.py Group E patternsQuery classification keywords should be schema-driven or disabled for unknown domains10validation.py lines 94-97Context building should use schema types11semantic.py line 186Default relationship type should come from schema12episodic.py line 258Document type boosting should be configurable
+Phase 4: Expected / Leave for now
+FileWhysynthetic_generator.pyDomain-specific by design — for IT Ops testingscaled_synthetic_generator.pySame — testing datagraphrag_baseline.pyEvaluation baseline — can update laterorg_chart_loader.pySpecialized loader — needs schema mapping config
+
+Recommended Approach
+Tell Replit:
+
+Fix hardcoded IT Operations references in phases. Start with Phase 1 (Critical).
+
+Fix 1: Remove EntityType and RelationshipType enums from models/schema.py
+These enums should not exist. All type validation should use the loaded YAML schema.
+
+Delete the EntityType enum class
+Delete the RelationshipType enum class
+Find everywhere they're imported and replace with schema lookup
+Type validation: check if type string exists in schema.get_entity_type_names() instead of EntityType.has_value()
+
+
+Fix 2: Make entity extraction prompt dynamic in extraction/entity_extractor.py
+Replace:
+python"extracting IT operations entities"
+"SERVICE: Software services..."
+With:
+pythonfrom config.domain_schema import get_schema_loader
+schema = get_schema_loader().schema
+
+entity_type_descriptions = "\n".join([
+    f"- {et.name}: {et.description}" 
+    for et in schema.entity_types
+])
+
+prompt = f"""Extract entities from the following text for the {schema.domain} domain.
+
+Entity types to extract:
+{entity_type_descriptions}
+..."""
+
+Fix 3: Make relation extraction prompt dynamic in extraction/relation_extractor.py
+Same pattern — build prompt from schema.relationship_types
+
+Fix 4: Make /api/examples dynamic in web_app.py
+Either:
+
+Store example queries in each schema YAML file
+Or generate generic examples based on entity/relationship types
+
+
+Start with Fix 1 (removing enums) since everything else depends on it. Show me the plan for that change before implementing — it will have ripple effects.Claude can make mistakes. Please double-check responses. Opus 4.5

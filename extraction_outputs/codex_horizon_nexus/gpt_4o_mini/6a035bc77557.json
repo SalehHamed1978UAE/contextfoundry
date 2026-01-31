@@ -1,0 +1,126 @@
+{
+  "document_id": "6a035bc77557",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:58:20.628513",
+  "entities": [
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "source_excerpt": "Attendees - Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "source_excerpt": "Attendees - Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "Titan Logistics",
+        "status": "milestones"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "source_excerpt": "Titan Logistics milestones",
+      "aliases": []
+    },
+    {
+      "name": "MetroLink",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "MetroLink",
+        "status": "rollout"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "source_excerpt": "MetroLink rollout",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "Horizon Prime",
+        "status": "milestones"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "source_excerpt": "Reinforce Horizon Prime milestones",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "platform for assigning owners"
+      },
+      "confidence": 0.6,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "source_excerpt": "Owners assigned in PulseOps",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "TransitEdge Program",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.6,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "evidence": "Attendees - Maya Serrano"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "TransitEdge Program",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.6,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "evidence": "Attendees - Dylan Kaur"
+    },
+    {
+      "source_entity": "Titan Logistics",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "evidence": "Reinforce Horizon Prime milestones"
+    },
+    {
+      "source_entity": "Titan Logistics",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "MetroLink",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "evidence": "MetroLink rollout"
+    }
+  ],
+  "metadata": {
+    "filename": "transitedge_program_review_2026_01_19.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

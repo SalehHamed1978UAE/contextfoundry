@@ -1,0 +1,135 @@
+{
+  "document_id": "c6aa0c9a7e6c",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/product_council_2026_02_01.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T09:14:17.056042",
+  "entities": [
+    {
+      "name": "Product Council Meeting",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "2026-02-01",
+        "status": "active"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/product_council_2026_02_01.md",
+      "source_excerpt": "Product Council Meeting Notes - Date: 2026-02-01",
+      "aliases": []
+    },
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/product_council_2026_02_01.md",
+      "source_excerpt": "Attendees - Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/product_council_2026_02_01.md",
+      "source_excerpt": "Attendees - Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "BU leaders",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Business Unit Leaders"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/product_council_2026_02_01.md",
+      "source_excerpt": "Attendees - BU leaders",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "active with milestones"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/product_council_2026_02_01.md",
+      "source_excerpt": "Reinforce Horizon Prime milestones",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Task management system"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/product_council_2026_02_01.md",
+      "source_excerpt": "Owners assigned in PulseOps",
+      "aliases": []
+    },
+    {
+      "name": "partner marketplace",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "under discussion"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/product_council_2026_02_01.md",
+      "source_excerpt": "Topics: Roadmap alignment, partner marketplace",
+      "aliases": []
+    },
+    {
+      "name": "roadmap alignment",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "under discussion"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/product_council_2026_02_01.md",
+      "source_excerpt": "Topics: Roadmap alignment, partner marketplace",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Product Council Meeting",
+      "source_type": "PROJECT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "roadmap alignment",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/product_council_2026_02_01.md",
+      "evidence": "Topics: Roadmap alignment, partner marketplace"
+    },
+    {
+      "source_entity": "Product Council Meeting",
+      "source_type": "PROJECT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "partner marketplace",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/product_council_2026_02_01.md",
+      "evidence": "Topics: Roadmap alignment, partner marketplace"
+    },
+    {
+      "source_entity": "Product Council Meeting",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "PulseOps",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/product_council_2026_02_01.md",
+      "evidence": "Owners assigned in PulseOps"
+    }
+  ],
+  "metadata": {
+    "filename": "product_council_2026_02_01.md",
+    "raw_entity_count": 8,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

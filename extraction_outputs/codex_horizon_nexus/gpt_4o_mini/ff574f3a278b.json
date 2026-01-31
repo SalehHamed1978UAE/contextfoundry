@@ -1,0 +1,171 @@
+{
+  "document_id": "ff574f3a278b",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:44:04.201805",
+  "entities": [
+    {
+      "name": "Jorge Rivas",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "GM/VP",
+        "role": "General Manager/Vice President"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
+      "source_excerpt": "GM/VP: Jorge Rivas",
+      "aliases": []
+    },
+    {
+      "name": "TransitEdge",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Transportation"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
+      "source_excerpt": "TransitEdge LATAM FY26 Roadmap",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "data lake"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
+      "source_excerpt": "Deepen integration with Horizon Prime data lake",
+      "aliases": []
+    },
+    {
+      "name": "Freight automation pilots",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "Freight automation pilots"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
+      "source_excerpt": "Focus Areas - Freight automation pilots",
+      "aliases": []
+    },
+    {
+      "name": "MetroLink expansion",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "MetroLink expansion"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
+      "source_excerpt": "Focus Areas - MetroLink expansion",
+      "aliases": []
+    },
+    {
+      "name": "Telematics compliance",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "Telematics compliance"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
+      "source_excerpt": "Focus Areas - Telematics compliance",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "ARR",
+        "value": 134000000,
+        "period": "FY26",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
+      "source_excerpt": "Operating Metrics - ARR: $134M",
+      "aliases": []
+    },
+    {
+      "name": "Active Pilots",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Active Pilots",
+        "value": 14,
+        "period": "FY26",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
+      "source_excerpt": "Operating Metrics - Active Pilots: 14",
+      "aliases": []
+    },
+    {
+      "name": "Fleet Contracts",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Fleet Contracts",
+        "value": 22,
+        "period": "FY26",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
+      "source_excerpt": "Operating Metrics - Fleet Contracts: 22",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Jorge Rivas",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "TransitEdge",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
+      "evidence": "GM/VP: Jorge Rivas"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Freight automation pilots",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
+      "evidence": "Focus Areas - Freight automation pilots"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "MetroLink expansion",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
+      "evidence": "Focus Areas - MetroLink expansion"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Telematics compliance",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
+      "evidence": "Focus Areas - Telematics compliance"
+    }
+  ],
+  "metadata": {
+    "filename": "transitedge_latam_roadmap.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

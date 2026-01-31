@@ -1,0 +1,130 @@
+GENERALIZE THE FIXES
+
+The proposed fixes are too specific. They solve these exact queries but will break on variations.
+
+GENERALIZED APPROACH:
+
+================================================================================
+1. QUERY INTENT CLASSIFICATION (Config-Driven)
+================================================================================
+
+Create config for query intent detection:
+
+```yaml
+query_intents:
+  relationship_queries:
+    REPORTS_TO:
+      indicators: ["reports to", "managed by", "works for", "supervisor of", "boss"]
+      inverse_indicators: ["manages", "supervises", "has reports"]
+    HOLDS_POSITION:
+      indicators: ["role", "position", "title", "job", "what does X do"]
+    LEADS:
+      indicators: ["leads", "heads", "runs", "in charge of", "chairs"]
+    INVESTED_IN:
+      indicators: ["invested in", "stake in", "owns", "ownership"]
+  
+  attribute_queries:
+    COMPENSATION:
+      indicators: ["compensation", "salary", "pay", "bonus", "earnings", "makes", "paid"]
+      search_terms: ["compensation", "salary", "bonus", "base salary", "total compensation"]
+    LOCATION:
+      indicators: ["where", "located", "based", "office", "headquarters"]
+      search_terms: ["location", "office", "based in", "headquarters"]
+    TENURE:
+      indicators: ["when", "how long", "joined", "started", "appointed"]
+      search_terms: ["joined", "appointed", "since", "started"]
+================================================================================
+2. INTENT DETECTOR (Generalized)
+class QueryIntentDetector:
+    """Detect query intent from indicators — config-driven."""
+    
+    def __init__(self, config_path: str = None):
+        self.config = self._load_config(config_path)
+    
+    def detect_relationship_intent(self, query: str) -> Optional[str]:
+        """Detect if query is asking about a specific relationship type."""
+        query_lower = query.lower()
+        
+        for rel_type, rel_config in self.config['relationship_queries'].items():
+            for indicator in rel_config['indicators']:
+                if indicator in query_lower:
+                    return rel_type
+        
+        return None
+    
+    def detect_attribute_intent(self, query: str) -> Optional[str]:
+        """Detect if query is asking about a specific attribute."""
+        query_lower = query.lower()
+        
+        for attr_type, attr_config in self.config['attribute_queries'].items():
+            for indicator in attr_config['indicators']:
+                if indicator in query_lower:
+                    return attr_type
+        
+        return None
+================================================================================
+3. RELATIONSHIP HANDLER (Generalized)
+def handle_relationship_query(self, entity_name: str, relationship_type: str, inverse: bool = False):
+    """
+    Handle any relationship query — generalized.
+    
+    "Who reports to X?" → REPORTS_TO where target = X
+    "Who does X report to?" → REPORTS_TO where source = X
+    "Who does X manage?" → REPORTS_TO (inverse) where source = X
+    """
+    if inverse:
+        # X is the source (X manages Y)
+        relationships = self._get_relationships(source=entity_name, rel_type=relationship_type)
+        return [r.target for r in relationships]
+    else:
+        # X is the target (Y reports to X)
+        relationships = self._get_relationships(target=entity_name, rel_type=relationship_type)
+        return [r.source for r in relationships]
+================================================================================
+4. ATTRIBUTE HANDLER (Generalized)
+def handle_attribute_query(self, entity_name: str, attribute_type: str):
+    """
+    Handle any attribute query — generalized.
+    
+    Uses config-defined search terms for the attribute type.
+    """
+    search_terms = self.config['attribute_queries'][attribute_type]['search_terms']
+    
+    for term in search_terms:
+        # Search with just entity name + attribute term
+        results = self.document_searcher.search(f"{entity_name} {term}")
+        if results:
+            return results
+    
+    return None
+================================================================================
+5. INTEGRATE INTO QUERY PIPELINE
+def process_query(self, query: str, entity_name: str = None):
+    # Detect intent
+    rel_intent = self.intent_detector.detect_relationship_intent(query)
+    attr_intent = self.intent_detector.detect_attribute_intent(query)
+    
+    if rel_intent:
+        # This is a relationship query
+        return self.handle_relationship_query(entity_name, rel_intent)
+    
+    if attr_intent:
+        # This is an attribute query
+        return self.handle_attribute_query(entity_name, attr_intent)
+    
+    # Fall back to general search
+    return self.general_search(query)
+================================================================================
+SUCCESS CRITERIA
+The system should handle ALL of these without code changes:
+Relationship queries:
+"Who reports to Amanda Foster?"
+"Who does Thomas Bradley report to?"
+"Who manages the engineering team?"
+"Who works for Sandra Williams?"
+Attribute queries:
+"What is the CIO's compensation?"
+"What is Robert Thompson's salary?"
+"How much does the CEO make?"
+"What is Sarah Chen's bonus?"
+Add new indicators to config, not code.

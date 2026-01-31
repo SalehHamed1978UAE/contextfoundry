@@ -1,0 +1,122 @@
+{
+  "document_id": "b8a8b747-b62b-40da-9c0b-d429db3e73d7",
+  "document_path": "06_employee_benefits_update.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T10:49:00.395538",
+  "entities": [
+    {
+      "name": "Maria Santos",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Human Resources Officer",
+        "role": "Chief Human Resources Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "06_employee_benefits_update.md",
+      "source_excerpt": "Maria Santos, Chief Human Resources Officer",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Various"
+      },
+      "confidence": 0.95,
+      "source_document": "06_employee_benefits_update.md",
+      "source_excerpt": "taking care of our people is the foundation of our success.",
+      "aliases": []
+    },
+    {
+      "name": "Gradifi",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Platform for student loan administration"
+      },
+      "confidence": 0.9,
+      "source_document": "06_employee_benefits_update.md",
+      "source_excerpt": "Administration | Through Gradifi platform",
+      "aliases": []
+    },
+    {
+      "name": "Benefits Town Hall",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": null,
+        "timeline": "January 22, 2026",
+        "status": "Upcoming"
+      },
+      "confidence": 0.85,
+      "source_document": "06_employee_benefits_update.md",
+      "source_excerpt": "Join our Benefits Town Hall on January 22 at 11:00 AM PT",
+      "aliases": []
+    },
+    {
+      "name": "Employee Benefits Program",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$6.0 million",
+        "timeline": "FY2026",
+        "status": "Enhanced"
+      },
+      "confidence": 0.9,
+      "source_document": "06_employee_benefits_update.md",
+      "source_excerpt": "Our total investment in benefits enhancements for FY2026 is **$6.0 million**",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maria Santos",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_employee_benefits_update.md",
+      "evidence": "Maria Santos, Chief Human Resources Officer"
+    },
+    {
+      "source_entity": "Maria Santos",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_employee_benefits_update.md",
+      "evidence": "Maria Santos, Chief Human Resources Officer"
+    },
+    {
+      "source_entity": "Employee Benefits Program",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_employee_benefits_update.md",
+      "evidence": "Our total investment in benefits enhancements for FY2026 is **$6.0 million**"
+    },
+    {
+      "source_entity": "Benefits Town Hall",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Employee Benefits Program",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "06_employee_benefits_update.md",
+      "evidence": "Join our Benefits Town Hall on January 22 at 11:00 AM PT"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

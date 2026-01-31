@@ -1,0 +1,81 @@
+Tell Replit:
+Add the apply_precedence call after reasoning, BEFORE validation.
+Location
+After line 268 (response = self.reasoning.reason(bundle, query_logger=query_logger)), BEFORE validation.
+Code to Add
+pythonresponse = self.reasoning.reason(bundle, query_logger=query_logger)
+
+# ============================================
+# TRI-MEMORY PRECEDENCE: Symbolic > Semantic > Episodic
+# Check symbolic rules and data gates before returning
+# ============================================
+try:
+    from .pipeline.precedence_pipeline import apply_precedence
+    
+    precedence_answer, precedence_source, precedence_confidence = apply_precedence(
+        session=self.session,
+        tenant_id=self.tenant_id,
+        query=query_text,
+        current_answer=response.get("answer", ""),
+        bundle=bundle,
+        context={
+            "target_entity": bundle.target_entity_found if hasattr(bundle, 'target_entity_found') else None,
+            "target_entity_name": bundle.target_entity_name if hasattr(bundle, 'target_entity_name') else None,
+            "entity_types": [
+                e.get("entity_type", "") 
+                for e in bundle.semantic_entities 
+                if isinstance(e, dict)
+            ] if hasattr(bundle, 'semantic_entities') else [],
+        }
+    )
+
+    # Update response with precedence results
+    response["answer"] = precedence_answer
+    response["answer_source"] = precedence_source
+    response["precedence_confidence"] = precedence_confidence
+
+    # Log if answer was overridden or refused
+    if precedence_source in ("symbolic", "refused"):
+        query_logger.log_event("PRECEDENCE_APPLIED", {
+            "source": precedence_source,
+            "confidence": precedence_confidence,
+            "overridden": precedence_source == "symbolic",
+            "refused": precedence_source == "refused"
+        })
+        logger.info(f"[PRECEDENCE] Answer source: {precedence_source}")
+
+except Exception as e:
+    logger.warning(f"Precedence pipeline error (using original answer): {e}")
+    response["answer_source"] = "semantic"
+    response["precedence_error"] = str(e)
+
+# ============================================
+# END TRI-MEMORY PRECEDENCE
+# ============================================
+
+response = self.validation.validate_response(
+    response, bundle, query_logger=query_logger
+)
+Also Add Import at Top of File
+Make sure this import exists at the top of core.py:
+pythonfrom .pipeline.precedence_pipeline import apply_precedence
+(Or keep it inline in the try block as shown above — either works)
+
+After Adding
+Quick Test
+pythonfrom src.context_foundry.core import ContextFoundry
+
+cf = ContextFoundry(tenant_id="19aade8a-8f7c-4a7e-9541-fce4af13f5b1")
+result = cf.query("What is the CEO's salary?")
+
+print(f"Answer: {result.get('answer')[:200]}")
+print(f"Source: {result.get('answer_source')}")  # Should be "refused" or "symbolic"
+Expected:
+
+answer_source = "refused" (Data Gates caught hedging)
+OR answer_source = "symbolic" (Salary Confidentiality rule triggered)
+answer = "I cannot provide..." or "I don't have information..."
+
+Then Run Full 235Q
+bashpython -m src.test_runner.runner --corpus manus_healthtec
+Go ahead and add the block.

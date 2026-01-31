@@ -1,0 +1,2291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Runner Dashboard - Context Foundry</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ cache_bust }}">
+    <style>
+        .runner-page {
+            min-height: 100vh;
+            background: var(--bg-primary);
+            padding: 32px;
+        }
+        
+        .runner-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .back-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .back-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        .runner-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .runner-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        
+        .runner-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .runner-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+        }
+        
+        .card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card-title svg {
+            color: var(--accent-primary);
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-select, .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .form-select:focus, .form-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        
+        .form-select option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .radio-option input {
+            accent-color: var(--accent-primary);
+        }
+        
+        .radio-option span {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            border-color: var(--accent-primary);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            color: var(--bg-primary);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--accent-glow);
+        }
+        
+        .btn-danger {
+            background: var(--accent-error);
+            border-color: var(--accent-error);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border-color);
+        }
+        
+        .status-panel {
+            grid-column: 1 / -1;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .status-item {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: 16px;
+        }
+        
+        .status-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        
+        .status-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+        
+        .status-value.idle { color: var(--text-muted); }
+        .status-value.running { color: var(--accent-primary); }
+        .status-value.finished, .status-value.complete { color: var(--accent-success); }
+        .status-value.failed { color: var(--accent-error); }
+        .status-value.stopped { color: var(--accent-warning); }
+        
+        .pipeline-stages {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .pipeline-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        
+        .pipeline-stage {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .pipeline-stage:last-child {
+            border-bottom: none;
+        }
+        
+        .stage-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        
+        .stage-name {
+            flex: 1;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .stage-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+        
+        .stage-status.complete { color: var(--accent-success); }
+        .stage-status.running { color: var(--accent-primary); }
+        .stage-status.pending { color: var(--text-muted); }
+        .stage-status.skipped { color: var(--text-muted); opacity: 0.6; }
+        .stage-status.failed { color: var(--accent-error); }
+        
+        .stage-detail {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-left: 4px;
+        }
+        
+        .progress-container {
+            margin-bottom: 16px;
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .progress-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .progress-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--accent-primary);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-stats {
+            display: flex;
+            gap: 24px;
+            margin-top: 12px;
+        }
+        
+        .progress-stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+        
+        .progress-stat.passed { color: var(--accent-success); }
+        .progress-stat.failed { color: var(--accent-error); }
+        .progress-stat.accuracy { color: var(--accent-primary); }
+        
+        .current-question {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .current-question-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .current-question-text {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-style: italic;
+        }
+        
+        .log-viewer {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        
+        .log-entry {
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        
+        .log-entry.info { color: var(--accent-primary); }
+        .log-entry.success { color: var(--accent-success); }
+        .log-entry.warning { color: var(--accent-warning); }
+        .log-entry.error { color: var(--accent-error); }
+        
+        .spinner-small {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 4px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        #historyContainer {
+            overflow-x: auto;
+        }
+        
+        .history-table, .qs-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        
+        .history-table th, .history-table td,
+        .qs-table th, .qs-table td {
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .history-table th:nth-child(1), .history-table td:nth-child(1) { width: 12%; }
+        .history-table th:nth-child(2), .history-table td:nth-child(2) { width: 14%; }
+        .history-table th:nth-child(3), .history-table td:nth-child(3) { width: 10%; }
+        .history-table th:nth-child(4), .history-table td:nth-child(4) { width: 16%; white-space: normal; }
+        .history-table th:nth-child(5), .history-table td:nth-child(5) { width: 8%; }
+        .history-table th:nth-child(6), .history-table td:nth-child(6) { width: 12%; }
+        .history-table th:nth-child(7), .history-table td:nth-child(7) { width: 12%; }
+        .history-table th:nth-child(8), .history-table td:nth-child(8) { width: 16%; }
+        
+        .history-table td.output-file-cell a {
+            color: var(--accent-success);
+            text-decoration: none;
+        }
+        
+        .history-table td.output-file-cell a:hover {
+            text-decoration: underline;
+        }
+        
+        .accuracy-cell {
+            font-weight: 600;
+            color: var(--accent-success);
+        }
+        
+        .history-table th, .qs-table th {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+        
+        .history-table td, .qs-table td {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .history-table tr:hover td, .qs-table tr:hover td {
+            background: var(--bg-secondary);
+        }
+        
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .status-badge.completed, .status-badge.complete {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-success);
+        }
+        
+        .status-badge.running {
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--accent-primary);
+        }
+        
+        .status-badge.failed {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-error);
+        }
+        
+        .status-badge.stopped, .status-badge.interrupted {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent-warning);
+        }
+        
+        .results-panel, .questions-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 600px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-color);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .results-panel.open, .questions-modal.open {
+            display: block;
+        }
+        
+        .results-header, .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background: var(--bg-secondary);
+        }
+        
+        .results-title, .modal-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 8px;
+        }
+        
+        .close-btn:hover {
+            color: var(--text-primary);
+        }
+        
+        .results-content, .modal-content {
+            padding: 24px;
+        }
+        
+        .results-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .summary-stat {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .summary-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .summary-value.passed { color: var(--accent-success); }
+        .summary-value.failed { color: var(--accent-error); }
+        .summary-value.total { color: var(--accent-primary); }
+        
+        .summary-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+        
+        .result-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .result-item.passed {
+            border-left: 3px solid var(--accent-success);
+        }
+        
+        .result-item.failed {
+            border-left: 3px solid var(--accent-error);
+        }
+        
+        .result-question {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .result-answer {
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+        }
+        
+        .result-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        
+        /* Failure Breakdown Styles */
+        .failure-breakdown {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .breakdown-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        
+        .breakdown-chart {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 16px;
+        }
+        
+        .pie-chart {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .breakdown-legend {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            transition: background 0.2s;
+        }
+        
+        .legend-item:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .legend-item.active {
+            background: var(--bg-secondary);
+            border: 1px solid var(--accent-primary);
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        
+        .legend-count {
+            margin-left: auto;
+            font-weight: 600;
+        }
+        
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 13px;
+            min-width: 150px;
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+        
+        .export-btn {
+            padding: 8px 16px;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .export-btn:hover {
+            background: var(--accent-hover);
+        }
+        
+        .results-count {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+        
+        .question-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            margin-bottom: 8px;
+        }
+        
+        .question-item-text {
+            font-size: 13px;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+        
+        .question-item-answer {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-muted);
+        }
+        
+        .user-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .logout-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .logout-btn:hover {
+            border-color: var(--accent-error);
+            color: var(--accent-error);
+        }
+        
+        .content-wrapper {
+            margin-top: 56px;
+        }
+        
+        .upload-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .file-input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .file-input-wrapper input[type="file"] {
+            display: none;
+        }
+        
+        .file-label {
+            padding: 10px 16px;
+            background: var(--bg-secondary);
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .file-label:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        .file-label.has-file {
+            border-style: solid;
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        .conditional-group {
+            display: none;
+        }
+        
+        .conditional-group.visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="user-bar">
+        <a href="/app" class="logo">
+            <div class="logo-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <span class="logo-text">Context Foundry</span>
+        </a>
+        <div class="user-info">
+            <span class="user-name">{{ user_name }}</span>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+    </div>
+    
+    <div class="content-wrapper">
+        <div class="runner-page">
+            <div class="runner-header">
+                <div class="header-left">
+                    <a href="/app" class="back-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                    </a>
+                    <div>
+                        <h1 class="runner-title">Test Runner Dashboard</h1>
+                        <p class="runner-subtitle">Run and monitor automated Q&A tests against your vaults</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <a href="/corpus-maker" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                            <line x1="12" y1="11" x2="12" y2="17"/>
+                            <line x1="9" y1="14" x2="15" y2="14"/>
+                        </svg>
+                        Corpus Maker
+                    </a>
+                    <a href="/extraction" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                        Extraction
+                    </a>
+                </div>
+            </div>
+            
+            <div class="runner-grid">
+                <div class="runner-card" style="grid-column: 1 / -1;">
+                    <h2 class="card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        Start New Test
+                    </h2>
+                    <div class="form-group">
+                        <label class="form-label">Vault</label>
+                        <select id="vaultSelect" class="form-select">
+                            <option value="">Select a vault...</option>
+                        </select>
+                        <div class="vault-actions" style="margin-top: 8px; font-size: 13px;">
+                            <span style="color: var(--text-muted);">or</span>
+                            <a href="/corpus-maker" class="btn-link" style="color: var(--accent-primary); text-decoration: none; margin-left: 4px;">
+                                + Create new vault from corpus
+                            </a>
+                        </div>
+                    </div>
+                    <div class="form-group" id="questionSetGroup" style="display: none;">
+                        <label class="form-label">Question Set</label>
+                        <select id="questionSetSelect" class="form-select">
+                            <option value="">Select a question set...</option>
+                        </select>
+                        <div class="inline-upload" style="margin-top: 8px;">
+                            <input type="file" id="questionFile" accept=".json,.jsonl,.md" style="display: none;">
+                            <button type="button" class="btn btn-sm" id="uploadTriggerBtn">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                                Upload Question Set
+                            </button>
+                            <span id="uploadStatus" style="margin-left: 8px; font-size: 13px; color: var(--text-muted);"></span>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label class="form-label">Mode</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="mode" value="auto" checked>
+                                <span>Auto (use existing vault)</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="mode" value="fresh">
+                                <span>Fresh (delete vault, re-upload, re-extract)</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group conditional-group" id="corpusFolderGroup">
+                        <label class="form-label">Corpus Folder (for Fresh mode)</label>
+                        <select id="corpusSelect" class="form-select">
+                            <option value="">Select a corpus folder...</option>
+                        </select>
+                    </div>
+                    <div class="btn-row">
+                        <button type="button" class="btn btn-primary" id="startBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                            Start Test
+                        </button>
+                        <button type="button" class="btn btn-danger" id="stopBtn" disabled>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="6" y="6" width="12" height="12"/>
+                            </svg>
+                            Stop Test
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="runner-card status-panel" id="currentTestPanel">
+                    <h2 class="card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                        </svg>
+                        Current Test
+                    </h2>
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <div class="status-label">Status</div>
+                            <div class="status-value idle" id="statusValue">Idle</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">Vault</div>
+                            <div class="status-value" id="vaultNameValue" style="font-size: 16px;">-</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">Question Set</div>
+                            <div class="status-value" id="qsNameValue" style="font-size: 16px;">-</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">Started</div>
+                            <div class="status-value" id="startedValue" style="font-size: 16px;">-</div>
+                        </div>
+                    </div>
+                    
+                    <div class="pipeline-stages" id="pipelineStages">
+                        <div class="pipeline-title">Pipeline Progress</div>
+                        <div class="pipeline-stage" data-stage="delete">
+                            <span class="stage-number">1</span>
+                            <span class="stage-name">Delete vault</span>
+                            <span class="stage-status pending" id="stage-delete">⏳ Pending</span>
+                        </div>
+                        <div class="pipeline-stage" data-stage="create">
+                            <span class="stage-number">2</span>
+                            <span class="stage-name">Create vault</span>
+                            <span class="stage-status pending" id="stage-create">⏳ Pending</span>
+                        </div>
+                        <div class="pipeline-stage" data-stage="upload">
+                            <span class="stage-number">3</span>
+                            <span class="stage-name">Upload docs</span>
+                            <span class="stage-status pending" id="stage-upload">⏳ Pending</span>
+                        </div>
+                        <div class="pipeline-stage" data-stage="extract">
+                            <span class="stage-number">4</span>
+                            <span class="stage-name">Extraction</span>
+                            <span class="stage-status pending" id="stage-extract">⏳ Pending</span>
+                        </div>
+                        <div class="pipeline-stage" data-stage="qa">
+                            <span class="stage-number">5</span>
+                            <span class="stage-name">Q&A</span>
+                            <span class="stage-status pending" id="stage-qa">⏳ Pending</span>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-header">
+                            <span class="progress-label">Q&A Progress</span>
+                            <span class="progress-value" id="progressText">0 / 0</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-stats">
+                            <span class="progress-stat passed">✅ Passed: <strong id="passedValue">0</strong></span>
+                            <span class="progress-stat failed">❌ Failed: <strong id="failedValue">0</strong></span>
+                            <span class="progress-stat accuracy">📊 Accuracy: <strong id="accuracyValue">0%</strong></span>
+                        </div>
+                    </div>
+                    
+                    <div class="current-question" id="currentQuestionBox" style="display: none;">
+                        <div class="current-question-label">Current Question</div>
+                        <div class="current-question-text" id="currentQuestionText"></div>
+                    </div>
+                    
+                    <div class="log-viewer" id="logViewer">
+                        <div class="log-entry info">Waiting for test to start...</div>
+                    </div>
+                </div>
+                
+                <div class="runner-card" style="grid-column: 1 / -1;">
+                    <h2 class="card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        Test History
+                    </h2>
+                    <div class="history-filters" style="display: flex; gap: 12px; margin-bottom: 12px; align-items: center;">
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 11px; color: var(--muted); text-transform: uppercase;">Filter by Vault</label>
+                            <select id="historyVaultFilter" class="form-select" style="min-width: 180px; padding: 6px 10px; font-size: 13px;">
+                                <option value="">All Vaults</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 11px; color: var(--muted); text-transform: uppercase;">Filter by Question Set</label>
+                            <select id="historyQsFilter" class="form-select" style="min-width: 180px; padding: 6px 10px; font-size: 13px;">
+                                <option value="">All Question Sets</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-sm btn-ghost" onclick="clearHistoryFilters()" style="margin-top: 18px;">Clear Filters</button>
+                    </div>
+                    <div id="historyContainer">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Vault</th>
+                                    <th>Question Set</th>
+                                    <th>Status</th>
+                                    <th>Progress</th>
+                                    <th>Accuracy</th>
+                                    <th>Started</th>
+                                    <th>Output File</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyBody">
+                                <tr><td colspan="8" class="empty-state">Loading history...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="results-panel" id="resultsPanel">
+        <div class="results-header">
+            <h2 class="results-title">Test Results</h2>
+            <button class="close-btn" id="closeResults">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="results-content" id="resultsContent">
+        </div>
+    </div>
+    
+    <div class="questions-modal" id="questionsModal">
+        <div class="modal-header">
+            <h2 class="modal-title" id="questionsModalTitle">Questions</h2>
+            <button class="close-btn" id="closeQuestionsModal">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-content" id="questionsModalContent">
+        </div>
+    </div>
+    
+    <script>
+        let pollInterval = null;
+        let currentStatus = null;
+        let vaultsCache = [];
+        let questionSetsCache = [];
+        
+        async function fetchVaults() {
+            try {
+                const response = await fetch('/api/test-runner/vaults');
+                const data = await response.json();
+                vaultsCache = data.vaults || [];
+                const select = document.getElementById('vaultSelect');
+                select.innerHTML = '<option value="">Select a vault...</option>';
+                vaultsCache.forEach(vault => {
+                    const option = document.createElement('option');
+                    option.value = vault.id;
+                    option.textContent = `${vault.name} (${vault.entity_count} entities)`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Failed to fetch vaults:', error);
+            }
+        }
+        
+        async function fetchCorpusFolders() {
+            try {
+                const response = await fetch('/api/test-runner/corpus-folders');
+                const data = await response.json();
+                const select = document.getElementById('corpusSelect');
+                select.innerHTML = '<option value="">Select a corpus folder...</option>';
+                (data.corpus_folders || []).forEach(folder => {
+                    const option = document.createElement('option');
+                    option.value = folder.name;
+                    // Show docs and questions count
+                    let label = `${folder.name} (${folder.document_count} docs`;
+                    if (folder.question_count > 0) {
+                        label += `, ${folder.question_count} questions`;
+                    } else {
+                        label += `, no questions`;
+                    }
+                    label += ')';
+                    option.textContent = label;
+                    // Disable if no documents
+                    if (folder.document_count === 0) {
+                        option.disabled = true;
+                    }
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Failed to fetch corpus folders:', error);
+            }
+        }
+        
+        async function fetchQuestionSets(vaultId) {
+            const select = document.getElementById('questionSetSelect');
+            const group = document.getElementById('questionSetGroup');
+            
+            if (!vaultId) {
+                group.style.display = 'none';
+                select.innerHTML = '<option value="">Select a question set...</option>';
+                questionSetsCache = [];
+                return;
+            }
+            
+            group.style.display = 'block';
+            select.innerHTML = '<option value="">Loading...</option>';
+            
+            try {
+                const response = await fetch(`/api/test-runner/question-sets?vault_id=${vaultId}`);
+                const data = await response.json();
+                questionSetsCache = data.question_sets || [];
+                
+                select.innerHTML = '<option value="">Select a question set...</option>';
+                if (questionSetsCache.length === 0) {
+                    select.innerHTML = '<option value="">No question sets - upload one below</option>';
+                } else {
+                    questionSetsCache.forEach(qs => {
+                        const option = document.createElement('option');
+                        option.value = qs.id;
+                        option.textContent = `${qs.name} (${qs.question_count} questions)`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to fetch question sets:', error);
+                select.innerHTML = '<option value="">Error loading question sets</option>';
+            }
+        }
+        
+        function onVaultChange() {
+            const vaultId = document.getElementById('vaultSelect').value;
+            fetchQuestionSets(vaultId);
+        }
+        
+        async function viewQuestionSet(id) {
+            const vaultId = document.getElementById('vaultSelect').value;
+            if (!vaultId) {
+                addLog('No vault selected', 'error');
+                return;
+            }
+            try {
+                const response = await fetch(`/api/test-runner/question-sets/${id}?vault_id=${vaultId}`);
+                const data = await response.json();
+                
+                const modal = document.getElementById('questionsModal');
+                const title = document.getElementById('questionsModalTitle');
+                const content = document.getElementById('questionsModalContent');
+                
+                title.textContent = `${data.name} (${data.question_count} questions)`;
+                
+                const questions = data.questions || [];
+                content.innerHTML = questions.map((q, i) => `
+                    <div class="question-item">
+                        <div class="question-item-text"><strong>Q${i + 1}:</strong> ${escapeHtml(q.question || q.text || q.q || JSON.stringify(q))}</div>
+                        ${q.answer || q.expected || q.a ? `<div class="question-item-answer">Expected: ${escapeHtml(q.answer || q.expected || q.a)}</div>` : ''}
+                    </div>
+                `).join('');
+                
+                modal.classList.add('open');
+            } catch (error) {
+                console.error('Failed to view question set:', error);
+                addLog(`Failed to load question set: ${error.message}`, 'error');
+            }
+        }
+        
+        async function deleteQuestionSet(id, name) {
+            const vaultId = document.getElementById('vaultSelect').value;
+            if (!vaultId) {
+                addLog('No vault selected', 'error');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to delete "${name}"?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/test-runner/question-sets/${id}?vault_id=${vaultId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    addLog(`Deleted question set: ${name}`, 'success');
+                    const vaultId = document.getElementById('vaultSelect').value;
+                    fetchQuestionSets(vaultId);
+                } else {
+                    const data = await response.json();
+                    addLog(`Failed to delete: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Delete error: ${error.message}`, 'error');
+            }
+        }
+        
+        let historyCache = [];
+        
+        function populateHistoryFilters() {
+            const vaultFilter = document.getElementById('historyVaultFilter');
+            const qsFilter = document.getElementById('historyQsFilter');
+            
+            const vaults = [...new Set(historyCache.map(r => r.vault_name).filter(Boolean))];
+            const questionSets = [...new Set(historyCache.map(r => r.question_set_name).filter(Boolean))];
+            
+            const currentVault = vaultFilter.value;
+            const currentQs = qsFilter.value;
+            
+            vaultFilter.innerHTML = '<option value="">All Vaults</option>' + 
+                vaults.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+            qsFilter.innerHTML = '<option value="">All Question Sets</option>' + 
+                questionSets.map(q => `<option value="${escapeHtml(q)}">${escapeHtml(q)}</option>`).join('');
+            
+            vaultFilter.value = currentVault;
+            qsFilter.value = currentQs;
+        }
+        
+        function applyHistoryFilters() {
+            const vaultFilter = document.getElementById('historyVaultFilter').value;
+            const qsFilter = document.getElementById('historyQsFilter').value;
+            
+            let filtered = historyCache;
+            if (vaultFilter) {
+                filtered = filtered.filter(r => r.vault_name === vaultFilter);
+            }
+            if (qsFilter) {
+                filtered = filtered.filter(r => r.question_set_name === qsFilter);
+            }
+            
+            renderHistory(filtered);
+        }
+        
+        function clearHistoryFilters() {
+            document.getElementById('historyVaultFilter').value = '';
+            document.getElementById('historyQsFilter').value = '';
+            renderHistory(historyCache);
+        }
+        
+        function renderHistory(runs) {
+            const tbody = document.getElementById('historyBody');
+            
+            if (!runs || runs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No test runs match filters</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = runs.map(run => {
+                const progress = `${run.questions_answered || 0} / ${run.questions_total || 0}`;
+                const accuracy = run.questions_answered > 0 
+                    ? ((run.questions_passed / run.questions_answered) * 100).toFixed(1) + '%'
+                    : '-';
+                
+                let actionButtons = '';
+                const status = (run.status || '').toLowerCase();
+                const resultsFile = run.results_file || '';
+                
+                if (status === 'running') {
+                    actionButtons = `<button class="btn btn-sm btn-ghost" onclick="scrollToCurrentTest()">View Progress</button>`;
+                } else if (status === 'completed' || status === 'complete' || status === 'finished') {
+                    actionButtons = `
+                        <button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View Results</button>
+                        <button class="btn btn-sm btn-ghost" onclick="downloadResultsFile('${run.vault_id}', '${escapeHtml(run.vault_name || '')}')">Download</button>
+                    `;
+                } else if (status === 'interrupted' || status === 'stopped') {
+                    actionButtons = `
+                        <button class="btn btn-sm btn-primary" onclick="resumeTest('${run.vault_id}', '${run.question_set_id}', '${run.id}')">Resume</button>
+                        <button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View Results</button>
+                        <button class="btn btn-sm btn-ghost" onclick="downloadResultsFile('${run.vault_id}', '${escapeHtml(run.vault_name || '')}')">Download</button>
+                    `;
+                } else if (status === 'failed') {
+                    actionButtons = `
+                        <button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View Logs</button>
+                        <button class="btn btn-sm btn-primary" onclick="retryTest('${run.vault_id}', '${run.question_set_id}', '${run.corpus_folder || ''}')">Retry</button>
+                    `;
+                } else {
+                    actionButtons = `<button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View</button>`;
+                }
+                
+                const startedAt = run.started_at || '-';
+                const outputFile = resultsFile ? resultsFile.split('/').pop() : '-';
+                const progressHtml = run.questions_answered > 0 
+                    ? `${progress} <span style="color: var(--success);">&check;${run.questions_passed || 0}</span> <span style="color: var(--error);">&times;${(run.questions_answered || 0) - (run.questions_passed || 0)}</span>`
+                    : progress;
+                
+                return `
+                    <tr>
+                        <td>${escapeHtml(run.vault_name || '-')}</td>
+                        <td>${escapeHtml(run.question_set_name || '-')}</td>
+                        <td><span class="status-badge status-${status}">${status.toUpperCase()}</span></td>
+                        <td>${progressHtml}</td>
+                        <td>${accuracy}</td>
+                        <td>${startedAt}</td>
+                        <td class="output-file-cell">${outputFile !== '-' ? `<a href="#" onclick="downloadResultsFile('${run.vault_id}', '${escapeHtml(run.vault_name || '')}'); return false;">${outputFile.substring(0, 15)}...</a>` : '-'}</td>
+                        <td>${actionButtons}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        async function fetchHistory() {
+            try {
+                const response = await fetch('/api/test-runner/history?limit=50');
+                const data = await response.json();
+                
+                historyCache = data.runs || [];
+                populateHistoryFilters();
+                applyHistoryFilters();
+            } catch (error) {
+                console.error('Failed to fetch history:', error);
+            }
+        }
+        
+        function scrollToCurrentTest() {
+            document.getElementById('currentTestPanel').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        async function resumeTest(vaultId, questionSetId, resumeRunId, buttonEl) {
+            if (!vaultId || !questionSetId) {
+                addLog('Cannot resume: missing vault or question set ID', 'error');
+                return;
+            }
+            
+            // Show immediate feedback
+            addLog('Starting resume... Please wait.', 'info');
+            
+            // Disable all resume buttons and show loading state
+            const resumeButtons = document.querySelectorAll('button[onclick*="resumeTest"]');
+            resumeButtons.forEach(btn => {
+                btn.disabled = true;
+                btn.dataset.originalText = btn.textContent;
+                btn.innerHTML = '<span class="spinner-small"></span> Resuming...';
+            });
+            
+            try {
+                const body = {
+                    vault_id: vaultId,
+                    question_set_id: questionSetId,
+                    mode: 'auto'
+                };
+                if (resumeRunId) {
+                    body.resume_run_id = resumeRunId;
+                }
+                
+                const response = await fetch('/api/test-runner/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addLog('Resuming test from checkpoint...', 'success');
+                    fetchStatus();
+                    fetchHistory();
+                    scrollToCurrentTest();
+                } else {
+                    addLog(`Failed to resume: ${data.error}`, 'error');
+                    // Re-enable buttons on failure
+                    resumeButtons.forEach(btn => {
+                        btn.disabled = false;
+                        btn.textContent = btn.dataset.originalText || 'Resume';
+                    });
+                }
+            } catch (error) {
+                addLog(`Resume error: ${error.message}`, 'error');
+                // Re-enable buttons on error
+                const resumeButtons = document.querySelectorAll('button[onclick*="resumeTest"]');
+                resumeButtons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.textContent = btn.dataset.originalText || 'Resume';
+                });
+            }
+        }
+        
+        async function restartInterruptedTest(vaultId, questionSetId) {
+            if (!vaultId || !questionSetId) {
+                addLog('Cannot restart: missing vault or question set ID', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/test-runner/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        vault_id: vaultId,
+                        question_set_id: questionSetId,
+                        mode: 'auto'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addLog('Restarting test...', 'success');
+                    fetchStatus();
+                    fetchHistory();
+                    scrollToCurrentTest();
+                } else {
+                    addLog(`Failed to restart: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Restart error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function retryTest(vaultId, questionSetId, corpusFolder) {
+            if (!vaultId || !questionSetId) {
+                addLog('Cannot retry: missing vault or question set ID', 'error');
+                return;
+            }
+            
+            const body = {
+                vault_id: vaultId,
+                question_set_id: questionSetId,
+                mode: corpusFolder ? 'fresh' : 'auto'
+            };
+            
+            if (corpusFolder) {
+                body.corpus_folder = corpusFolder;
+            }
+            
+            try {
+                const response = await fetch('/api/test-runner/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addLog('Retrying test...', 'success');
+                    fetchStatus();
+                    scrollToCurrentTest();
+                } else {
+                    addLog(`Failed to retry: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Retry error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function downloadResultsFile(vaultId, vaultName) {
+            try {
+                const response = await fetch('/api/test-runner/results-files');
+                const data = await response.json();
+                
+                if (!data.results_files || data.results_files.length === 0) {
+                    addLog('No results files found', 'error');
+                    return;
+                }
+                
+                const safeName = vaultName.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+                const vaultPrefix = vaultId ? vaultId.substring(0, 8) : '';
+                
+                const matchingFile = data.results_files.find(f => 
+                    f.name.includes(vaultPrefix) || f.name.includes(safeName)
+                );
+                
+                if (matchingFile) {
+                    window.open(`/api/test-runner/results-files/${matchingFile.name}?download=true`, '_blank');
+                } else {
+                    showResultsFilePicker(data.results_files);
+                }
+            } catch (error) {
+                addLog(`Failed to download results: ${error.message}`, 'error');
+            }
+        }
+        
+        function showResultsFilePicker(files) {
+            const modal = document.getElementById('questionsModal');
+            const title = document.getElementById('questionsModalTitle');
+            const content = document.getElementById('questionsModalContent');
+            
+            title.textContent = 'Select Results File';
+            content.innerHTML = `
+                <div style="max-height: 400px; overflow-y: auto;">
+                    ${files.map(f => `
+                        <div style="padding: 12px; border-bottom: 1px solid var(--bg-tertiary); cursor: pointer;" 
+                             onclick="window.open('/api/test-runner/results-files/${f.name}?download=true', '_blank'); document.getElementById('questionsModal').classList.remove('open');">
+                            <div style="font-weight: 500;">${escapeHtml(f.name)}</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">
+                                ${(f.size / 1024).toFixed(1)} KB | Modified: ${new Date(f.modified).toLocaleString()}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            modal.classList.add('open');
+        }
+        
+        // Store current results for filtering/export
+        let currentResults = [];
+        let currentBreakdown = {};
+        let currentFilter = 'all';
+        
+        // Color mapping for failure reasons
+        const failureColors = {
+            'no_data': '#f59e0b',      // Amber - missing data
+            'no_match_numeric': '#ef4444', // Red - wrong number
+            'name_variant': '#8b5cf6',  // Purple - entity mismatch
+            'timeout': '#6b7280',       // Gray - timeout
+            'no_match': '#dc2626',      // Dark red - general mismatch
+            'unknown': '#94a3b8',       // Slate - unknown/uncategorized
+            'passed': '#22c55e'         // Green - passed
+        };
+        
+        const failureLabels = {
+            'no_data': 'No Data',
+            'no_match_numeric': 'Numeric Mismatch',
+            'name_variant': 'Name Variant',
+            'timeout': 'Timeout',
+            'no_match': 'No Match',
+            'unknown': 'Unknown'
+        };
+        
+        // Fixed ordering for consistent pie chart display
+        const failureOrder = ['no_data', 'no_match_numeric', 'name_variant', 'timeout', 'no_match', 'unknown'];
+        
+        function buildPieChart(breakdown, passed) {
+            const total = Object.values(breakdown).reduce((a, b) => a + b, 0) + passed;
+            if (total === 0) return '';
+            
+            let gradientParts = [];
+            let currentAngle = 0;
+            
+            // Add passed first
+            if (passed > 0) {
+                const passedDegrees = (passed / total) * 360;
+                gradientParts.push(`${failureColors['passed']} ${currentAngle}deg ${currentAngle + passedDegrees}deg`);
+                currentAngle += passedDegrees;
+            }
+            
+            // Add failure categories in fixed order for consistency
+            for (const reason of failureOrder) {
+                const count = breakdown[reason];
+                if (count && count > 0) {
+                    const degrees = (count / total) * 360;
+                    const color = failureColors[reason] || '#888';
+                    gradientParts.push(`${color} ${currentAngle}deg ${currentAngle + degrees}deg`);
+                    currentAngle += degrees;
+                }
+            }
+            
+            // Handle any reasons not in failureOrder
+            for (const [reason, count] of Object.entries(breakdown)) {
+                if (!failureOrder.includes(reason) && count > 0) {
+                    const degrees = (count / total) * 360;
+                    const color = failureColors[reason] || '#888';
+                    gradientParts.push(`${color} ${currentAngle}deg ${currentAngle + degrees}deg`);
+                    currentAngle += degrees;
+                }
+            }
+            
+            return `conic-gradient(${gradientParts.join(', ')})`;
+        }
+        
+        function setFilter(filter) {
+            currentFilter = filter;
+            // Sync dropdown
+            const dropdown = document.getElementById('resultFilter');
+            if (dropdown) dropdown.value = filter;
+            // Update legend active states
+            document.querySelectorAll('.legend-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.filter === filter) {
+                    item.classList.add('active');
+                }
+            });
+            renderResultsList(filter);
+        }
+        
+        function renderResultsList(filter) {
+            currentFilter = filter;
+            const listContainer = document.getElementById('resultsListContainer');
+            const countSpan = document.getElementById('resultsCount');
+            
+            let filtered = currentResults;
+            if (filter === 'passed') {
+                filtered = currentResults.filter(r => r.passed);
+            } else if (filter === 'failed') {
+                filtered = currentResults.filter(r => !r.passed);
+            } else if (filter !== 'all') {
+                filtered = currentResults.filter(r => !r.passed && r.failure_reason === filter);
+            }
+            
+            countSpan.textContent = `Showing ${filtered.length} of ${currentResults.length}`;
+            
+            listContainer.innerHTML = filtered.length === 0 
+                ? '<div class="empty-state">No results match filter</div>'
+                : filtered.map(r => `
+                    <div class="result-item ${r.passed ? 'passed' : 'failed'}" data-reason="${r.failure_reason || ''}">
+                        <div class="result-question">${escapeHtml(r.question_text || '')}</div>
+                        <div class="result-answer">
+                            <strong>Expected:</strong> ${escapeHtml(r.expected_answer || '-')}<br>
+                            <strong>Actual:</strong> ${escapeHtml(r.actual_answer || '-')}
+                            ${r.failure_reason ? `<br><strong>Reason:</strong> <span style="color: ${failureColors[r.failure_reason] || '#888'}">${escapeHtml(failureLabels[r.failure_reason] || r.failure_reason)}</span>` : ''}
+                        </div>
+                        <div class="result-meta">
+                            <span>${r.category || 'General'}</span>
+                            <span>${r.duration_ms ? r.duration_ms + 'ms' : '-'}</span>
+                        </div>
+                    </div>
+                `).join('');
+        }
+        
+        function exportFilteredResults() {
+            let filtered = currentResults;
+            if (currentFilter === 'passed') {
+                filtered = currentResults.filter(r => r.passed);
+            } else if (currentFilter === 'failed') {
+                filtered = currentResults.filter(r => !r.passed);
+            } else if (currentFilter !== 'all') {
+                filtered = currentResults.filter(r => !r.passed && r.failure_reason === currentFilter);
+            }
+            
+            const exportData = {
+                filter: currentFilter,
+                count: filtered.length,
+                breakdown: currentBreakdown,
+                results: filtered.map(r => ({
+                    question: r.question_text,
+                    expected: r.expected_answer,
+                    actual: r.actual_answer,
+                    passed: r.passed,
+                    failure_reason: r.failure_reason,
+                    category: r.category
+                }))
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `test_failures_${currentFilter}_${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        async function showResults(testId) {
+            try {
+                const response = await fetch(`/api/test-runner/results/${testId}`);
+                const data = await response.json();
+                
+                const panel = document.getElementById('resultsPanel');
+                const content = document.getElementById('resultsContent');
+                
+                const run = data.run;
+                currentResults = data.results || [];
+                currentBreakdown = data.failure_breakdown || {};
+                currentFilter = 'all';
+                
+                const passed = run.questions_passed || 0;
+                const failed = run.questions_failed || 0;
+                const hasBreakdown = Object.keys(currentBreakdown).length > 0;
+                
+                const pieGradient = buildPieChart(currentBreakdown, passed);
+                
+                content.innerHTML = `
+                    <div class="results-summary">
+                        <div class="summary-stat">
+                            <div class="summary-value total">${run.questions_answered || 0}</div>
+                            <div class="summary-label">Answered</div>
+                        </div>
+                        <div class="summary-stat">
+                            <div class="summary-value passed">${passed}</div>
+                            <div class="summary-label">Passed</div>
+                        </div>
+                        <div class="summary-stat">
+                            <div class="summary-value failed">${failed}</div>
+                            <div class="summary-label">Failed</div>
+                        </div>
+                    </div>
+                    
+                    ${hasBreakdown ? `
+                    <div class="failure-breakdown">
+                        <div class="breakdown-title">Failure Analysis</div>
+                        <div class="breakdown-chart">
+                            <div class="pie-chart" style="background: ${pieGradient}"></div>
+                            <div class="breakdown-legend">
+                                <div class="legend-item" data-filter="passed" onclick="setFilter('passed')">
+                                    <div class="legend-color" style="background: ${failureColors['passed']}"></div>
+                                    <span>Passed</span>
+                                    <span class="legend-count">${passed}</span>
+                                </div>
+                                <div class="legend-item" data-filter="failed" onclick="setFilter('failed')">
+                                    <div class="legend-color" style="background: #ef4444"></div>
+                                    <span>All Failed</span>
+                                    <span class="legend-count">${failed}</span>
+                                </div>
+                                ${failureOrder.filter(r => currentBreakdown[r]).map(reason => `
+                                    <div class="legend-item" data-filter="${reason}" onclick="setFilter('${reason}')" style="padding-left: 16px;">
+                                        <div class="legend-color" style="background: ${failureColors[reason] || '#888'}"></div>
+                                        <span>${failureLabels[reason] || reason}</span>
+                                        <span class="legend-count">${currentBreakdown[reason]}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="filter-bar">
+                        <select class="filter-select" id="resultFilter" onchange="setFilter(this.value)">
+                            <option value="all">All Results</option>
+                            <option value="passed">Passed Only</option>
+                            <option value="failed">Failed Only</option>
+                            ${failureOrder.filter(r => currentBreakdown[r]).map(reason => `
+                                <option value="${reason}">${failureLabels[reason] || reason} (${currentBreakdown[reason]})</option>
+                            `).join('')}
+                        </select>
+                        <button class="export-btn" onclick="exportFilteredResults()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Export
+                        </button>
+                        <span class="results-count" id="resultsCount">Showing ${currentResults.length} of ${currentResults.length}</span>
+                    </div>
+                    
+                    ${run.error_message ? `<div class="result-item failed"><div class="result-question">Error: ${escapeHtml(run.error_message)}</div></div>` : ''}
+                    <div class="results-list" id="resultsListContainer">
+                        ${currentResults.length === 0 ? '<div class="empty-state">No results available</div>' : ''}
+                        ${currentResults.map(r => `
+                            <div class="result-item ${r.passed ? 'passed' : 'failed'}" data-reason="${r.failure_reason || ''}">
+                                <div class="result-question">${escapeHtml(r.question_text || '')}</div>
+                                <div class="result-answer">
+                                    <strong>Expected:</strong> ${escapeHtml(r.expected_answer || '-')}<br>
+                                    <strong>Actual:</strong> ${escapeHtml(r.actual_answer || '-')}
+                                    ${r.failure_reason ? `<br><strong>Reason:</strong> <span style="color: ${failureColors[r.failure_reason] || '#888'}">${escapeHtml(failureLabels[r.failure_reason] || r.failure_reason)}</span>` : ''}
+                                </div>
+                                <div class="result-meta">
+                                    <span>${r.category || 'General'}</span>
+                                    <span>${r.duration_ms ? r.duration_ms + 'ms' : '-'}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                panel.classList.add('open');
+            } catch (error) {
+                console.error('Failed to fetch results:', error);
+                addLog(`Failed to load results: ${error.message}`, 'error');
+            }
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function formatDate(isoString) {
+            const date = new Date(isoString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
+        }
+        
+        async function fetchStatus() {
+            try {
+                const response = await fetch('/api/test-runner/status');
+                if (!response.ok) {
+                    console.error('Status API error:', response.status);
+                    updateStatusUI({status: 'idle'});
+                    return null;
+                }
+                const data = await response.json();
+                updateStatusUI(data);
+                return data;
+            } catch (error) {
+                console.error('Failed to fetch status:', error);
+                updateStatusUI({status: 'idle'});
+                return null;
+            }
+        }
+        
+        function updateStatusUI(status) {
+            const statusValue = document.getElementById('statusValue');
+            const vaultNameValue = document.getElementById('vaultNameValue');
+            const qsNameValue = document.getElementById('qsNameValue');
+            const startedValue = document.getElementById('startedValue');
+            const passedValue = document.getElementById('passedValue');
+            const failedValue = document.getElementById('failedValue');
+            const accuracyValue = document.getElementById('accuracyValue');
+            const progressText = document.getElementById('progressText');
+            const progressFill = document.getElementById('progressFill');
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const currentQuestionBox = document.getElementById('currentQuestionBox');
+            const currentQuestionText = document.getElementById('currentQuestionText');
+            
+            const rawStatus = status.status || 'idle';
+            // Map DB statuses to UI-friendly values
+            const ACTIVE_STATUSES = ['creating_vault', 'uploading', 'extracting', 'running_qa'];
+            const isRunning = ACTIVE_STATUSES.includes(rawStatus);
+            const displayStatus = isRunning ? 'running' : rawStatus;
+            
+            // Show user-friendly status text
+            const statusTextMap = {
+                'creating_vault': 'Creating Vault',
+                'uploading': 'Uploading',
+                'extracting': 'Extracting',
+                'running_qa': 'Running Q&A',
+                'complete': 'Complete',
+                'failed': 'Failed',
+                'interrupted': 'Interrupted',
+                'idle': 'Idle'
+            };
+            statusValue.textContent = statusTextMap[rawStatus] || rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1);
+            statusValue.className = 'status-value ' + displayStatus;
+            
+            const vault = vaultsCache.find(v => v.id === status.vault_id);
+            vaultNameValue.textContent = vault ? vault.name : (status.vault_id ? status.vault_id.substring(0, 8) + '...' : '-');
+            
+            const qs = questionSetsCache.find(q => q.id === status.question_set_id);
+            qsNameValue.textContent = qs ? qs.name : (status.question_set_id ? 'Selected' : '-');
+            
+            // started_at is already formatted as DD/MM/YYYY HH:MM by the API
+            startedValue.textContent = status.started_at || '-';
+            
+            updatePipelineStages(status.stages || {});
+            
+            const qaProgress = status.qa_progress || status.progress || {};
+            const answered = qaProgress.answered || qaProgress.completed || 0;
+            const total = qaProgress.total || 0;
+            const passed = qaProgress.passed || 0;
+            const failed = qaProgress.failed || 0;
+            
+            passedValue.textContent = passed;
+            failedValue.textContent = failed;
+            
+            const accuracy = answered > 0 ? ((passed / answered) * 100).toFixed(1) : 0;
+            accuracyValue.textContent = accuracy + '%';
+            
+            progressText.textContent = `${answered} / ${total}`;
+            const percentage = total > 0 ? (answered / total) * 100 : 0;
+            progressFill.style.width = percentage + '%';
+            
+            if (status.current_question) {
+                currentQuestionBox.style.display = 'block';
+                const q = status.current_question;
+                currentQuestionText.textContent = typeof q === 'string' ? q : (q.text || q.question || JSON.stringify(q));
+            } else {
+                currentQuestionBox.style.display = 'none';
+            }
+            
+            if (displayStatus === 'running') {
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                startPolling();
+            } else if (displayStatus === 'interrupted') {
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                stopPolling();
+                
+                if (status.message) {
+                    currentQuestionBox.style.display = 'block';
+                    if (status.test_run_id) {
+                        currentQuestionText.innerHTML = `
+                            <span style="color: var(--accent-warning);">${status.message}</span>
+                            <button class="btn btn-sm btn-primary" style="margin-left: 12px;" 
+                                    onclick="resumeTest('${status.vault_id}', '${status.question_set_id}', '${status.test_run_id}')">
+                                Resume Test
+                            </button>
+                        `;
+                    } else {
+                        currentQuestionText.innerHTML = `
+                            <span style="color: var(--accent-warning);">${status.message}</span>
+                            <button class="btn btn-sm btn-primary" style="margin-left: 12px;" 
+                                    onclick="restartInterruptedTest('${status.vault_id}', '${status.question_set_id}')">
+                                Restart Test
+                            </button>
+                        `;
+                    }
+                }
+                fetchHistory();
+            } else {
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                stopPolling();
+                
+                if (currentStatus && currentStatus.status === 'running' && displayStatus !== 'running') {
+                    fetchHistory();
+                }
+            }
+            
+            if (status !== currentStatus && status.status !== currentStatus?.status) {
+                addLog(`Status: ${displayStatus}`, displayStatus === 'running' ? 'info' : 
+                       (displayStatus === 'finished' || displayStatus === 'complete') ? 'success' : 
+                       displayStatus === 'failed' || displayStatus === 'interrupted' ? 'error' : '');
+            }
+            
+            currentStatus = status;
+        }
+        
+        function updatePipelineStages(stages) {
+            const stageMap = {
+                'delete': 'stage-delete',
+                'create': 'stage-create',
+                'upload': 'stage-upload',
+                'extract': 'stage-extract',
+                'extraction': 'stage-extract',
+                'qa': 'stage-qa'
+            };
+            
+            for (const [stageName, elementId] of Object.entries(stageMap)) {
+                const element = document.getElementById(elementId);
+                if (!element) continue;
+                
+                const stageData = stages[stageName] || {};
+                const stageStatus = stageData.status || 'pending';
+                
+                element.className = 'stage-status ' + stageStatus;
+                
+                let statusText = '';
+                let detail = '';
+                
+                switch (stageStatus) {
+                    case 'complete':
+                    case 'completed':
+                        statusText = '✅ Complete';
+                        if (stageData.vault_id) detail = `(${stageData.vault_id.substring(0, 8)}...)`;
+                        if (stageData.file_count) detail = `(${stageData.file_count} files)`;
+                        if (stageData.entity_count) detail = `(${stageData.entity_count} entities)`;
+                        if (stageData.duration) detail += ` ${stageData.duration}`;
+                        break;
+                    case 'running':
+                        statusText = '🔄 Running';
+                        if (stageData.progress) detail = `(${stageData.progress})`;
+                        break;
+                    case 'pending':
+                        statusText = '⏳ Pending';
+                        break;
+                    case 'skipped':
+                        statusText = '⏭️ Skipped';
+                        break;
+                    case 'failed':
+                        statusText = '❌ Failed';
+                        if (stageData.error) detail = `(${stageData.error})`;
+                        break;
+                    default:
+                        statusText = stageStatus;
+                }
+                
+                element.innerHTML = statusText + (detail ? `<span class="stage-detail">${detail}</span>` : '');
+            }
+        }
+        
+        function addLog(message, type = '') {
+            const logViewer = document.getElementById('logViewer');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry ' + type;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logViewer.appendChild(entry);
+            logViewer.scrollTop = logViewer.scrollHeight;
+            
+            while (logViewer.children.length > 100) {
+                logViewer.removeChild(logViewer.firstChild);
+            }
+        }
+        
+        function startPolling() {
+            if (pollInterval) return;
+            pollInterval = setInterval(fetchStatus, 2000);
+        }
+        
+        function stopPolling() {
+            if (pollInterval) {
+                clearInterval(pollInterval);
+                pollInterval = null;
+            }
+        }
+        
+        async function startTest() {
+            const vaultId = document.getElementById('vaultSelect').value;
+            const questionSetId = document.getElementById('questionSetSelect').value;
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+            const corpusFolder = document.getElementById('corpusSelect').value;
+            
+            if (!vaultId) {
+                alert('Please select a vault');
+                return;
+            }
+            
+            if (!questionSetId) {
+                alert('Please select a question set');
+                return;
+            }
+            
+            if (mode === 'fresh' && !corpusFolder) {
+                alert('Please select a corpus folder for fresh mode');
+                return;
+            }
+            
+            const body = {
+                vault_id: vaultId,
+                question_set_id: questionSetId,
+                mode: mode
+            };
+            
+            if (mode === 'fresh' && corpusFolder) {
+                body.corpus_folder = corpusFolder;
+            }
+            
+            try {
+                const response = await fetch('/api/test-runner/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const vault = vaultsCache.find(v => v.id === vaultId);
+                    addLog(`Test started for vault: ${vault ? vault.name : vaultId}`, 'success');
+                    fetchStatus();
+                    scrollToCurrentTest();
+                } else {
+                    addLog(`Failed to start: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function stopTest() {
+            try {
+                const response = await fetch('/api/test-runner/stop', {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addLog('Test stopped', 'warning');
+                    fetchStatus();
+                    fetchHistory();
+                } else {
+                    addLog(`Failed to stop: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function uploadQuestionSet() {
+            const fileInput = document.getElementById('questionFile');
+            const file = fileInput.files[0];
+            const vaultId = document.getElementById('vaultSelect').value;
+            const statusSpan = document.getElementById('uploadStatus');
+            
+            if (!file) return;
+            if (!vaultId) {
+                addLog('Please select a vault first', 'error');
+                return;
+            }
+            
+            statusSpan.textContent = 'Uploading...';
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('vault_id', vaultId);
+            
+            try {
+                const response = await fetch('/api/test-runner/question-sets/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addLog(`Uploaded: ${data.name} (${data.question_count} questions)`, 'success');
+                    statusSpan.textContent = `Uploaded ${data.name}`;
+                    fetchQuestionSets(vaultId);
+                    fileInput.value = '';
+                } else {
+                    addLog(`Upload failed: ${data.error}`, 'error');
+                    statusSpan.textContent = 'Upload failed';
+                }
+            } catch (error) {
+                addLog(`Upload error: ${error.message}`, 'error');
+                statusSpan.textContent = 'Upload error';
+            }
+        }
+        
+        function toggleCorpusFolderVisibility() {
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+            const corpusGroup = document.getElementById('corpusFolderGroup');
+            
+            if (mode === 'fresh') {
+                corpusGroup.classList.add('visible');
+            } else {
+                corpusGroup.classList.remove('visible');
+            }
+        }
+        
+        document.getElementById('startBtn').addEventListener('click', startTest);
+        document.getElementById('stopBtn').addEventListener('click', stopTest);
+        document.getElementById('vaultSelect').addEventListener('change', onVaultChange);
+        
+        document.getElementById('historyVaultFilter').addEventListener('change', applyHistoryFilters);
+        document.getElementById('historyQsFilter').addEventListener('change', applyHistoryFilters);
+        
+        document.getElementById('uploadTriggerBtn').addEventListener('click', function() {
+            document.getElementById('questionFile').click();
+        });
+        
+        document.getElementById('questionFile').addEventListener('change', function(e) {
+            if (e.target.files[0]) {
+                uploadQuestionSet();
+            }
+        });
+        
+        document.querySelectorAll('input[name="mode"]').forEach(radio => {
+            radio.addEventListener('change', toggleCorpusFolderVisibility);
+        });
+        
+        document.getElementById('closeResults').addEventListener('click', function() {
+            document.getElementById('resultsPanel').classList.remove('open');
+        });
+        
+        document.getElementById('closeQuestionsModal').addEventListener('click', function() {
+            document.getElementById('questionsModal').classList.remove('open');
+        });
+        
+        fetchVaults();
+        fetchCorpusFolders();
+        fetchHistory();
+        fetchStatus();
+        toggleCorpusFolderVisibility();
+    </script>
+</body>
+</html>

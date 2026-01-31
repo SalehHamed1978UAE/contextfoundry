@@ -1,0 +1,171 @@
+POST-PROCESSOR INTEGRATION — USE THIS IMPLEMENTATION
+
+Claude Code has already implemented and tested this. Use his code directly.
+
+================================================================================
+FILE 1: NEW FILE
+================================================================================
+
+Create: `src/context_foundry/extraction/post_processor.py`
+
+This is a new ~790 line file. I'll provide it separately (too large for this message).
+
+Key sections:
+- Lines 225-280: INVESTED_IN patterns
+- Lines 288-365: ExtractionPostProcessor.process() method
+- Line 782: get_post_processor() factory function
+
+================================================================================
+FILE 2: MODIFY ontology_centric_pipeline.py
+================================================================================
+
+Change A - Add import (around line 27):
+```python
+from .post_processor import get_post_processor, PostProcessorResult
+```
+
+Change B - Add post-processor call (after LLM extraction, before canonicalization):
+```python
+# =========================================================================
+# POST-PROCESSOR: Catch relationships the LLM missed using patterns
+# =========================================================================
+post_processor_entities, post_processor_relations = self._run_post_processor(
+    text, all_entities, all_relations, document_id
+)
+all_entities.extend(post_processor_entities)
+all_relations.extend(post_processor_relations)
+
+if post_processor_entities or post_processor_relations:
+    logger.info(f"[OntologyCentricPipeline] Post-processor added: {len(post_processor_entities)} entities, "
+               f"{len(post_processor_relations)} relations")
+```
+
+Change C - Add new method (after _extract_relations_with_ontology):
+```python
+def _run_post_processor(
+    self,
+    text: str,
+    entities: List[ExtractedEntity],
+    relations: List[ExtractedRelation],
+    document_id: str,
+) -> Tuple[List[ExtractedEntity], List[ExtractedRelation]]:
+    """
+    Run post-processor to catch relationships the LLM missed.
+    """
+    try:
+        post_processor = get_post_processor()
+
+        # Convert entities to dict format for post-processor
+        existing_entities = [e.to_dict() for e in entities]
+
+        # Convert relations to dict format for post-processor
+        existing_relationships = []
+        for r in relations:
+            existing_relationships.append({
+                "source_name": r.source_name,
+                "target_name": r.target_name,
+                "relationship_type": r.relation_type,
+                "relation_type": r.relation_type,
+            })
+
+        # Run post-processor
+        result = post_processor.process(
+            document_text=text,
+            existing_entities=existing_entities,
+            existing_relationships=existing_relationships
+        )
+
+        if not result.new_relationships and not result.new_entities:
+            return [], []
+
+        # Convert post-processor entities to ExtractedEntity objects
+        new_entities = []
+        for entity_dict in result.new_entities:
+            entity = ExtractedEntity(
+                raw_text=entity_dict.get("name", ""),
+                canonical_name=entity_dict.get("name", ""),
+                entity_type=entity_dict.get("entity_type", "UNKNOWN"),
+                confidence=entity_dict.get("confidence", 0.85),
+                document_id=document_id,
+                source_chunk_id=f"{document_id}:post_processor",
+                sentence_idx=0,
+            )
+            new_entities.append(entity)
+
+        # Convert post-processor relationships to ExtractedRelation objects
+        new_relations = []
+        for rel in result.new_relationships:
+            relation = ExtractedRelation(
+                source_name=rel.source_name,
+                target_name=rel.target_name,
+                relation_type=rel.relationship_type,
+                confidence=rel.confidence,
+                document_id=document_id,
+                source_chunk_id=f"{document_id}:post_processor",
+                evidence=rel.source_text,
+            )
+            new_relations.append(relation)
+
+        logger.info(f"[PostProcessor] Found {len(new_entities)} new entities, "
+                   f"{len(new_relations)} new relationships via pattern matching")
+
+        return new_entities, new_relations
+
+    except Exception as e:
+        logger.warning(f"[PostProcessor] Failed to run post-processor: {e}")
+        return [], []
+```
+
+================================================================================
+FILE 3: MODIFY __init__.py
+================================================================================
+
+Add imports:
+```python
+from .post_processor import (
+    ExtractionPostProcessor,
+    PostProcessorResult,
+    RoleNormalizer,
+    get_post_processor,
+    get_role_normalizer,
+)
+```
+
+Add to `__all__` list:
+```python
+"ExtractionPostProcessor",
+"PostProcessorResult",
+"RoleNormalizer",
+"get_post_processor",
+"get_role_normalizer",
+```
+
+================================================================================
+VERIFICATION (AFTER APPLYING CHANGES)
+================================================================================
+
+1. Delete TechVentures vault:
+```sql
+   DELETE FROM vaults WHERE name = 'TechVentures';
+```
+
+2. Re-run E2E for TechVentures:
+```bash
+   python scripts/e2e_lifecycle_test.py --vault TechVentures
+```
+
+3. Check logs for:
+   `[PostProcessor] Found X new entities, Y new relationships`
+
+4. Verify INVESTED_IN count:
+```sql
+   SELECT COUNT(*) FROM relationships 
+   WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures')
+     AND relationship_type = 'INVESTED_IN';
+```
+   Expected: 3 (was 1)
+
+5. Test query: "What portfolio companies does TechVentures have?"
+   Expected: CloudMatrix, HealthSync, SecureNode (all 3)
+
+================================================================================

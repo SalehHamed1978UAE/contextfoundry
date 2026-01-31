@@ -1,0 +1,48 @@
+Verify Corpus Evidence for Each Question                                                       
+                                                                                                         
+  Run these queries to check if the data exists in the source documents:                                 
+                                                                                                         
+  -- Q32: Martinez + CEO + JV                                                                            
+  SELECT id, LEFT(text, 300) as excerpt FROM document_chunks                                             
+  WHERE tenant_id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'                                               
+  AND text ILIKE '%martinez%'                                                                            
+  AND text ILIKE '%ceo%'                                                                                 
+  LIMIT 5;                                                                                               
+                                                                                                         
+  -- Q37: Walsh + Director + GreenHydrogen                                                               
+  SELECT id, LEFT(text, 300) as excerpt FROM document_chunks                                             
+  WHERE tenant_id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'                                               
+  AND text ILIKE '%walsh%'                                                                               
+  AND text ILIKE '%director%'                                                                            
+  LIMIT 5;                                                                                               
+                                                                                                         
+  -- Q68: Foster + Chair + Export Control                                                                
+  SELECT id, LEFT(text, 300) as excerpt FROM document_chunks                                             
+  WHERE tenant_id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'                                               
+  AND text ILIKE '%foster%'                                                                              
+  AND text ILIKE '%chair%'                                                                               
+  LIMIT 5;                                                                                               
+                                                                                                         
+  -- Q83: Pacific Power + SmartGrid                                                                      
+  SELECT id, LEFT(text, 300) as excerpt FROM document_chunks                                             
+  WHERE tenant_id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'                                               
+  AND text ILIKE '%pacific power%'                                                                       
+  AND text ILIKE '%smartgrid%'                                                                           
+  LIMIT 5;                                                                                               
+                                                                                                         
+  Report the results in a table:                                                                         
+  ┌─────┬─────────────────┬────────────────────┐                                                         
+  │ Q#  │ Evidence Found? │ Exact Text Excerpt │                                                         
+  ├─────┼─────────────────┼────────────────────┤                                                         
+  │ Q32 │ Yes/No          │ "..."              │                                                         
+  ├─────┼─────────────────┼────────────────────┤                                                         
+  │ Q37 │ Yes/No          │ "..."              │                                                         
+  ├─────┼─────────────────┼────────────────────┤                                                         
+  │ Q68 │ Yes/No          │ "..."              │                                                         
+  ├─────┼─────────────────┼────────────────────┤                                                         
+  │ Q83 │ Yes/No          │ "..."              │                                                         
+  └─────┴─────────────────┴────────────────────┘                                                         
+  If evidence exists: The extraction pipeline failed to capture it. We fix the extraction prompt and     
+  re-extract.                                                                                            
+                                                                                                         
+  If evidence doesn't exist: It's a corpus gap. Flag it and move on. 

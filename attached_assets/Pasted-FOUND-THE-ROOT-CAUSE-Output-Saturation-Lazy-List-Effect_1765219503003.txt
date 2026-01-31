@@ -1,0 +1,79 @@
+FOUND THE ROOT CAUSE: "Output Saturation" (Lazy List Effect)
+
+The LLM stops extracting after 10-15 entities because RLHF training 
+penalizes long repetitive lists. It's not context limits — it's the 
+model getting "bored."
+
+SOLUTION: Chunk + Glean (Microsoft GraphRAG standard)
+
+═══════════════════════════════════════════════════════════════
+FIX 1: CHUNKING
+═══════════════════════════════════════════════════════════════
+
+Current: Processing 6,400-char document as single chunk
+Problem: Model hits output saturation at ~12 entities
+
+Change to:
+- Chunk size: 2,000-2,500 characters (~600 tokens)
+- Overlap: 100 tokens (~400 chars)
+- Your test doc: Split into 3 chunks
+
+Expected: Each chunk yields 7-10 entities → Total 20-30 entities
+
+═══════════════════════════════════════════════════════════════
+FIX 2: GLEANING PASS (The Secret Weapon)
+═══════════════════════════════════════════════════════════════
+
+After extraction, run a second pass per chunk:
+
+GLEANING_PROMPT = """
+You extracted these entities from the text:
+{already_extracted}
+
+Review the original text again and extract any entities you MISSED.
+Return ONLY new entities not in the list above.
+
+Text:
+{chunk_text}
+"""
+
+This typically recovers 15-20% more entities.
+
+═══════════════════════════════════════════════════════════════
+FIX 3: ADD "EXHAUSTIVE" DIRECTIVE
+═══════════════════════════════════════════════════════════════
+
+Update prompt to override the conciseness bias:
+
+"Extract ALL entities. Be EXHAUSTIVE. Do not stop until every 
+single mention is captured. A short list is a FAILED extraction."
+
+═══════════════════════════════════════════════════════════════
+NEW PIPELINE
+═══════════════════════════════════════════════════════════════
+
+Document (6,400 chars)
+    ↓
+Split into 3 chunks (~2,000 chars each)
+    ↓
+For each chunk:
+    → Pass 1: Extract entities
+    → Pass 2: Glean ("what did you miss?")
+    ↓
+Merge all entities
+    ↓
+Deduplicate
+    ↓
+Final result: 30-50 entities (up from 12)
+
+═══════════════════════════════════════════════════════════════
+TEST IMMEDIATELY
+═══════════════════════════════════════════════════════════════
+
+1. Split the Federated Data Catalog doc into 3 chunks
+2. Run extraction on each chunk separately
+3. Count total entities across all chunks
+4. Compare: Whole doc (~12) vs Chunked (expecting 25-35)
+
+If chunking alone gets 25+ entities, implement it in production.
+Then add gleaning for another 15-20% boost.

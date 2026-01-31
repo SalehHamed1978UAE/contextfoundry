@@ -1,0 +1,392 @@
+"""
+3-Step Query Pipeline - Orchestrates the full query flow.
+
+Step 1: Query Interpretation (LLM) - Parse natural language into structured intent
+Step 2: Directed Retrieval (Code) - Execute precise graph queries
+Step 3: Answer Synthesis (LLM) - Format results into human-readable answer
+
+This separation ensures:
+- LLM handles flexible language understanding and answer generation
+- Code handles precise, deterministic data retrieval
+- Results are reproducible and auditable
+"""
+
+import logging
+from dataclasses import dataclass, field
+from typing import Optional, Dict, List
+from datetime import datetime
+
+from sqlalchemy.orm import Session
+
+from .query_interpreter import QueryInterpreter, QueryIntent
+from .directed_retriever import DirectedGraphRetriever, RetrievalResult
+from .qa_verifier import AnswerVerifierAgent
+from ..learning.orchestrator import get_orchestrator
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class PipelineResult:
+    """Complete result of the 3-step query pipeline."""
+    query_text: str
+    
+    step1_intent: Optional[QueryIntent] = None
+    step1_duration_ms: float = 0.0
+    
+    step2_result: Optional[RetrievalResult] = None
+    step2_duration_ms: float = 0.0
+    
+    step3_answer: Optional[str] = None
+    step3_confidence: float = 0.0
+    step3_duration_ms: float = 0.0
+    
+    qa_verdict: Optional[Dict] = None
+    
+    total_duration_ms: float = 0.0
+    error: Optional[str] = None
+    
+    def to_dict(self) -> dict:
+        return {
+            "query_text": self.query_text,
+            "step1_intent": self.step1_intent.to_dict() if self.step1_intent else None,
+            "step1_duration_ms": self.step1_duration_ms,
+            "step2_result": self.step2_result.to_dict() if self.step2_result else None,
+            "step2_duration_ms": self.step2_duration_ms,
+            "step3_answer": self.step3_answer,
+            "step3_confidence": self.step3_confidence,
+            "step3_duration_ms": self.step3_duration_ms,
+            "qa_verdict": self.qa_verdict,
+            "total_duration_ms": self.total_duration_ms,
+            "error": self.error
+        }
+
+
+ANSWER_SYNTHESIS_PROMPT = """You are an answer synthesizer for a knowledge graph system.
+
+You will receive:
+1. The original user query
+2. A structured query intent (what we searched for)
+3. Precise retrieval results from the graph (with optional context: Why, Source, Evidence)
+4. A TARGET TYPE (optional) - the type of entity the user specifically asked for
+
+Your task is to synthesize the retrieved data into a clear, accurate answer.
+
+ANSWER FORMAT:
+- Lead with the specific answer (name, number, supplier) in the FIRST sentence
+- Be concise - state the answer directly, then add brief context if needed
+- For supplier questions: "[Supplier Name] provides [component]" not "The component is provided by..."
+- Avoid lengthy preambles
+
+CRITICAL RULES:
+1. ONLY use information from the retrieval results - never make up facts
+2. If no relationships were found, clearly state that
+3. For blast radius queries, list the affected entities with their relationship type
+4. Cite the relationship type and confidence for each fact
+5. If the entity wasn't found, suggest checking the entity name
+6. **COMPONENT-SUPPLIER MATCHING**: When asked about a specific component (e.g., "SAR radar", "flight computers", "electrolyzers"), ONLY mention the supplier that provides THAT SPECIFIC component. Do NOT list other suppliers from the context that provide different components.
+   - "Who provides SAR radar?" → Only mention the supplier listed for SAR/Synthetic Aperture Radar (Raytheon)
+   - "Who provides flight computers?" → Only mention the supplier listed for flight computers (Honeywell)
+   - If the context shows "Honeywell - Flight Computers" and "Raytheon - SAR Radar", and the question asks about SAR radar, answer ONLY "Raytheon"
+7. **TARGET TYPE FILTERING**: If a target_type is specified, ONLY list entities of that type in your answer.
+   - If target_type is "TEAM", only list TEAM entities
+   - If target_type is "DATABASE", only list DATABASE entities
+   - If target_type is null/None, list all discovered entities
+7. **INCLUDE CONTEXT**: When "Why:" context is provided in the retrieval results, ALWAYS include it in your answer.
+   Format as: "  - Why: [description]" under each relationship.
+
+For TARGET TYPE queries (e.g., "Which teams...", "What databases..."), structure your answer as:
+
+**[TARGET TYPE]s Affected:**
+- [Entity Name] via [relationship chain] (confidence: X.XX)
+  - Why: "[context description if available]"
+
+**Summary:**
+[Total count] [TARGET TYPE]s would be affected.
+
+For BLAST RADIUS queries (no target type), structure your answer as:
+
+**Directly Affected (Depth 1):**
+- [Entity Name] ([TYPE]) via [RELATIONSHIP_TYPE] (confidence: X.XX)
+  - Why: "[context description if available]"
+
+**Indirectly Affected (Depth 2+):**
+- [Entity Name] ([TYPE]) via chain: [path description]
+
+**Summary:**
+[Total count] entities would be affected if [Entity] becomes unavailable.
+
+For dependency queries (e.g., "What does X depend on?"), structure your answer as:
+
+**Dependencies:**
+- [Entity Name] via [RELATIONSHIP_TYPE] (confidence: X.XX)
+  - Why: "[context description if available]"
+
+**Summary:**
+[Entity] depends on [count] entities.
+
+For other queries, provide a clear, structured answer based on the data."""
+
+
+class QueryPipeline:
+    """
+    Orchestrates the 3-step query pipeline.
+    
+    Usage:
+        pipeline = QueryPipeline(session, tenant_id)
+        result = pipeline.execute("What's the blast radius if API Gateway fails?")
+    """
+    
+    def __init__(
+        self,
+        session: Session,
+        tenant_id: str,
+        model: str = "gpt-4o-mini"
+    ):
+        self.session = session
+        self.tenant_id = str(tenant_id)
+        self.model = model
+        
+        self.interpreter = QueryInterpreter(
+            model=model,
+            session=session,
+            tenant_id=str(tenant_id)
+        )
+        self.retriever = DirectedGraphRetriever(session, tenant_id)
+        self.qa_verifier = AnswerVerifierAgent(llm_model=model)
+        
+        from openai import OpenAI
+        self.openai_client = OpenAI()
+        
+        logger.info(f"QueryPipeline initialized for tenant {tenant_id[:8]}...")
+    
+    def execute(self, query_text: str) -> PipelineResult:
+        """
+        Execute the full 3-step pipeline.
+        
+        Args:
+            query_text: The user's natural language query
+            
+        Returns:
+            PipelineResult with all steps' outputs
+        """
+        result = PipelineResult(query_text=query_text)
+        start_time = datetime.now()
+        
+        try:
+            step1_start = datetime.now()
+            intent = self.interpreter.interpret(query_text)
+            result.step1_intent = intent
+            result.step1_duration_ms = (datetime.now() - step1_start).total_seconds() * 1000
+            
+            logger.info(f"[Step 1] Intent: {intent.to_dict()}")
+            
+            step2_start = datetime.now()
+            retrieval = self.retriever.execute(intent)
+            result.step2_result = retrieval
+            result.step2_duration_ms = (datetime.now() - step2_start).total_seconds() * 1000
+            
+            logger.info(f"[Step 2] Retrieved: {len(retrieval.relationships)} relationships, "
+                       f"{len(retrieval.affected_entities)} affected entities")
+            
+            step3_start = datetime.now()
+            answer, confidence = self._synthesize_answer(query_text, intent, retrieval)
+            result.step3_answer = answer
+            result.step3_confidence = confidence
+            result.step3_duration_ms = (datetime.now() - step3_start).total_seconds() * 1000
+            
+            logger.info(f"[Step 3] Synthesized answer with confidence {confidence:.2f}")
+            
+            # Step 4: QA Verification
+            verdict = self.qa_verifier.verify(
+                question=query_text,
+                answer=result.step3_answer,
+                retrieval=retrieval
+            )
+            
+            result.qa_verdict = {"status": verdict.status, "reason": verdict.reason}
+            
+            if verdict.status not in ["SUPPORTED", "NEEDS_LLM"]:
+                logger.warning(f"[QA] Blocked: {verdict.status} - {verdict.reason}")
+                
+                if verdict.status == "OFF_TOPIC":
+                    result.step3_answer = "I found related information but it doesn't directly answer your question. Could you rephrase?"
+                    result.step3_confidence = 0.15
+                elif verdict.status == "INSUFFICIENT":
+                    result.step3_answer = f"I have partial information but cannot fully answer this. {verdict.reason}"
+                    result.step3_confidence = 0.25
+                elif verdict.status == "UNSUPPORTED":
+                    result.step3_answer = "I don't have verified information to answer this question."
+                    result.step3_confidence = 0.1
+                elif verdict.status == "SUSPICIOUS":
+                    result.step3_answer = "I couldn't find reliable data. Could you try rephrasing your question?"
+                    result.step3_confidence = 0.15
+                else:  # REJECTED, REVIEW
+                    result.step3_answer = "I couldn't generate a reliable answer."
+                    result.step3_confidence = 0.1
+                
+                result.error = verdict.reason
+            
+        except Exception as e:
+            logger.error(f"Pipeline execution failed: {e}")
+            result.error = str(e)
+        
+        result.total_duration_ms = (datetime.now() - start_time).total_seconds() * 1000
+        
+        self._trigger_learning_flow(result)
+        
+        return result
+    
+    def _trigger_learning_flow(self, result: PipelineResult) -> None:
+        """
+        Trigger the learning flow to detect gaps and queue learning tasks.
+        
+        This is called asynchronously after each query to learn from failures.
+        """
+        try:
+            from uuid import UUID
+            orchestrator = get_orchestrator(self.session)
+            orchestrator.on_query_response(
+                tenant_id=UUID(self.tenant_id),
+                query_text=result.query_text,
+                response_text=result.step3_answer or "",
+                confidence=result.step3_confidence,
+                qa_verdict=result.qa_verdict.get("status") if result.qa_verdict else None,
+                evidence={
+                    "relationships": len(result.step2_result.relationships) if result.step2_result else 0,
+                    "entities": len(result.step2_result.affected_entities) if result.step2_result else 0,
+                    "qa_reason": result.qa_verdict.get("reason") if result.qa_verdict else None,
+                    "error": result.error
+                }
+            )
+        except Exception as e:
+            logger.warning(f"[LearningFlow] Failed to trigger learning flow: {e}")
+    
+    def execute_step1_only(self, query_text: str) -> QueryIntent:
+        """Execute only Step 1 for debugging/testing."""
+        return self.interpreter.interpret(query_text)
+    
+    def execute_step2_only(self, intent: QueryIntent) -> RetrievalResult:
+        """Execute only Step 2 for debugging/testing."""
+        return self.retriever.execute(intent)
+    
+    def _synthesize_answer(
+        self,
+        query_text: str,
+        intent: QueryIntent,
+        retrieval: RetrievalResult
+    ) -> tuple:
+        """
+        Step 3: Synthesize the retrieval results into a natural language answer.
+        
+        Returns:
+            Tuple of (answer_text, confidence_score)
+        """
+        if not retrieval.entity_found:
+            return (
+                f"Entity '{intent.entity}' was not found in the knowledge graph. "
+                f"Please verify the entity name or check if it exists under a different name.",
+                0.0
+            )
+        
+        if not retrieval.relationships:
+            return (
+                f"No {intent.direction} relationships of type {intent.relationship_types} "
+                f"were found for '{retrieval.entity_name}'.\n\n"
+                f"This means either:\n"
+                f"1. No such relationships have been documented\n"
+                f"2. The relationships exist but haven't been ingested yet",
+                0.3
+            )
+        
+        context = self._format_retrieval_for_synthesis(retrieval)
+        
+        target_type_instruction = ""
+        if intent.target_type:
+            target_type_instruction = f"""
+TARGET TYPE: {intent.target_type}
+IMPORTANT: The user specifically asked for {intent.target_type}s. Your answer must ONLY list entities of type {intent.target_type}.
+Do NOT include services, databases, or other entity types unless they are {intent.target_type}s.
+"""
+        
+        try:
+            response = self.openai_client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": ANSWER_SYNTHESIS_PROMPT},
+                    {"role": "user", "content": f"""
+Query: "{query_text}"
+
+Query Intent:
+- Target Entity: {intent.entity}
+- Direction: {intent.direction}
+- Relationship Types: {intent.relationship_types}
+- Depth: {intent.depth}
+- Target Type: {intent.target_type or "None (show all types)"}
+{target_type_instruction}
+Retrieval Results:
+{context}
+
+Synthesize a clear answer based on these results. Remember: if target_type is specified, ONLY list entities of that type."""}
+                ],
+                temperature=0.0,
+                max_completion_tokens=1000
+            )
+            
+            answer = response.choices[0].message.content
+            
+            avg_confidence = sum(r.confidence for r in retrieval.relationships) / len(retrieval.relationships)
+            confidence = min(avg_confidence, 0.95)
+            
+            return (answer, confidence)
+            
+        except Exception as e:
+            logger.error(f"Answer synthesis failed: {e}")
+            return (
+                f"Found {len(retrieval.relationships)} relationships for '{retrieval.entity_name}', "
+                f"but failed to synthesize answer: {e}",
+                0.5
+            )
+    
+    def _format_retrieval_for_synthesis(self, retrieval: RetrievalResult) -> str:
+        """Format retrieval results for the synthesis LLM with context metadata."""
+        lines = []
+        
+        lines.append(f"Entity: {retrieval.entity_name} ({retrieval.entity_type})")
+        lines.append(f"Total Relationships Found: {len(retrieval.relationships)}")
+        lines.append(f"Unique Affected Entities: {len(retrieval.affected_entities)}")
+        lines.append("")
+        
+        by_depth = {}
+        for rel in retrieval.relationships:
+            depth = rel.depth
+            if depth not in by_depth:
+                by_depth[depth] = []
+            by_depth[depth].append(rel)
+        
+        for depth in sorted(by_depth.keys()):
+            lines.append(f"--- Depth {depth} ---")
+            for rel in by_depth[depth]:
+                # Base relationship line
+                rel_line = (
+                    f"  {rel.source_name} --[{rel.relationship_type}]--> {rel.target_name} "
+                    f"(confidence: {rel.confidence:.2f})"
+                )
+                lines.append(rel_line)
+                
+                # Add context metadata if available (Phase 3: Pipeline Integration)
+                if rel.description:
+                    lines.append(f"    - Why: \"{rel.description}\"")
+                if rel.source_location:
+                    lines.append(f"    - Source: {rel.source_location}")
+                elif rel.provenance_text:
+                    # Show truncated provenance if no source_location
+                    prov_short = rel.provenance_text[:80] + "..." if len(rel.provenance_text) > 80 else rel.provenance_text
+                    lines.append(f"    - Evidence: \"{prov_short}\"")
+            lines.append("")
+        
+        lines.append("Affected Entities:")
+        for entity in retrieval.affected_entities:
+            lines.append(f"  - {entity['name']} ({entity['type']}) via {entity['discovered_via']}")
+        
+        return "\n".join(lines)

@@ -1,0 +1,366 @@
+consider, assess, analyze, critque and provide feedback on the below:
+
+# RFC: Dual-System Cognitive Architecture for Knowledge Graph Governance
+
+**Status:** DRAFT - For Review  
+**Author:** QData / ADQ  
+**Date:** 2025-12-06  
+**Review Requested From:** ChatGPT, Gemini, Perplexity, Manus, Claude instances
+
+---
+
+## Abstract
+
+This RFC proposes a dual-system architecture for governing enterprise knowledge graphs. Rather than treating ontology (schema) and knowledge (instances) as a single system, we separate them into two coupled subsystems with different governance cadences, confidence thresholds, and agent responsibilities.
+
+**We request reviewers to challenge assumptions, identify flaws, propose alternatives, and research comparable systems.**
+
+---
+
+## 1. Problem Statement
+
+Enterprise knowledge graphs face a fundamental tension:
+
+| Concern | Schema (Ontology) | Instances (Knowledge) |
+|---------|-------------------|----------------------|
+| Change frequency | Rare | Continuous |
+| Cost of error | High (cascading) | Low (localized) |
+| Validation rigor | Strict | Flexible |
+| Source of truth | Human architects | Documents + LLMs |
+
+**Current approaches fail because:**
+
+1. **Monolithic systems** apply the same governance to schema and instances, either:
+   - Too rigid: Schema evolution is blocked, leading to workarounds and technical debt
+   - Too loose: Schema drifts, leading to inconsistency and query failures
+
+2. **Static ontologies** cannot adapt to new domains or evolving business reality
+
+3. **LLM-generated schemas** lack the rigor needed for production systems
+
+**Hypothesis:** Separating schema governance from instance governance, with explicit coupling, solves this tension.
+
+---
+
+## 2. Proposed Architecture
+
+### 2.1 Two Subsystems
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     ONTOLOGY FOUNDRY                            │
+│                   (Schema Governance)                           │
+│                                                                 │
+│  Purpose: Govern what TYPES of things can exist                 │
+│  Change cadence: Weekly/Monthly                                 │
+│  Confidence threshold: 0.95+                                    │
+│  Primary agents: TypeValidator, CollisionDetector, Hierarchy    │
+│                  Enforcer, SchemaPromoter                       │
+│                                                                 │
+│  Tri-Memory Role:                                               │
+│  - Semantic: Type definitions with confidence + provenance      │
+│  - Episodic: LLM-generated type proposals (drafts)              │
+│  - Symbolic: Architecture Standard as executable rules          │
+│                                                                 │
+│  Output: Validated ontology (types + relationships + rules)     │
+└─────────────────────────┬───────────────────────────────────────┘
+                          │
+                          │ CONSTRAINS (one-way dependency)
+                          │ "Only extract entities of valid types"
+                          ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     CONTEXT FOUNDRY                             │
+│                   (Knowledge Governance)                        │
+│                                                                 │
+│  Purpose: Govern what SPECIFIC things we know                   │
+│  Change cadence: Continuous (per document)                      │
+│  Confidence threshold: 0.70+ (configurable per type)            │
+│  Primary agents: Extractor, Gardener, Resolver, QueryAgent      │
+│                                                                 │
+│  Tri-Memory Role:                                               │
+│  - Semantic: Entity instances with confidence + provenance      │
+│  - Episodic: Source documents + extraction history              │
+│  - Symbolic: Business rules + integrity constraints             │
+│                                                                 │
+│  Output: Knowledge graph (entities + relationships + facts)     │
+└─────────────────────────┬───────────────────────────────────────┘
+                          │
+                          │ SURFACES PATTERNS (feedback loop)
+                          │ "We keep seeing X but have no type for it"
+                          ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     FEEDBACK CHANNEL                            │
+│                                                                 │
+│  Untyped Pattern Detection:                                     │
+│  - Entities extracted that don't match existing types           │
+│  - Relationship patterns not in ontology                        │
+│  - Confidence: Requires N occurrences across M documents        │
+│                                                                 │
+│  Signal → Ontology Foundry for evaluation                       │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 2.2 Coupling Mechanism
+
+The systems are coupled through a **one-way constraint + feedback loop**:
+
+**Constraint (Ontology → Context):**
+- Context Foundry can ONLY extract entities of types that exist in Ontology Foundry
+- Relationship extraction is CONSTRAINED by valid relationship types
+- Property extraction is CONSTRAINED by valid property schemas
+
+**Feedback (Context → Ontology):**
+- Context Foundry tracks "orphan patterns" - recurring concepts that don't fit existing types
+- When orphan patterns exceed threshold (e.g., 10 occurrences across 5 documents), a signal is sent to Ontology Foundry
+- Ontology Foundry evaluates whether a new type is warranted
+
+**Key principle:** Knowledge extraction cannot change the schema. Schema changes require explicit governance.
+
+### 2.3 Lifecycle States
+
+**Ontology Foundry States:**
+
+| State | Meaning | Transition Criteria |
+|-------|---------|---------------------|
+| PROPOSED | LLM-generated draft | Initial creation |
+| VALIDATING | Under rule evaluation | Passes syntax check |
+| CONTESTED | Conflicts with existing types | Collision detected |
+| APPROVED | Human/agent approved | Passes all rules + review |
+| ACTIVE | In production use | Loaded into Context Foundry |
+| DEPRECATED | Marked for removal | Superseded or unused |
+
+**Context Foundry States:**
+
+| State | Meaning | Transition Criteria |
+|-------|---------|---------------------|
+| STAGING | Newly extracted | Initial extraction |
+| CORROBORATED | Multiple sources agree | N sources confirm |
+| TRUSTED | High confidence | Gardener promotion |
+| CONTESTED | Conflicting evidence | Contradiction detected |
+| RETRACTED | Proven false | Explicit retraction |
+
+### 2.4 Agent Responsibilities
+
+**Ontology Foundry Agents:**
+
+| Agent | Responsibility |
+|-------|----------------|
+| TypeValidator | Check JSON schema validity, property completeness |
+| CollisionDetector | Detect name collisions across domains |
+| HierarchyEnforcer | Ensure depth ≥ 3, no Layer 1 direct inheritance |
+| NamespaceGuard | Ensure UUID allocation follows conventions |
+| SchemaPromoter | Promote APPROVED → ACTIVE when human approves |
+| DeprecationAgent | Identify unused types for deprecation |
+
+**Context Foundry Agents:**
+
+| Agent | Responsibility |
+|-------|----------------|
+| Extractor | Extract entities/relationships from documents |
+| Gardener | Promote STAGING → TRUSTED based on corroboration |
+| Resolver | Resolve entity references across documents |
+| QueryAgent | Answer questions with confidence + provenance |
+| OrphanDetector | Surface patterns that don't fit existing types |
+
+---
+
+## 3. Key Design Decisions
+
+### 3.1 Why Separate Systems?
+
+**Decision:** Two distinct systems rather than one unified system.
+
+**Rationale:**
+- Different change frequencies require different governance
+- Schema errors have cascading effects; instance errors are localized
+- Separation of concerns enables independent scaling
+- Clearer audit trail for compliance
+
+**Alternative considered:** Single system with "type" as another entity type.
+
+**Rejected because:** Allows schema changes at instance cadence, defeating governance purpose.
+
+**Challenge this:** Is separation necessary, or can a single system with configurable governance per entity type achieve the same result?
+
+### 3.2 One-Way Constraint
+
+**Decision:** Ontology constrains Context, not vice versa.
+
+**Rationale:**
+- Schema should be stable foundation, not reactive to noise
+- Prevents "schema drift" from aggressive LLM extraction
+- Matches traditional database design principles
+
+**Alternative considered:** Bidirectional coupling where frequent instance patterns automatically create types.
+
+**Rejected because:** Leads to ontology pollution and loss of semantic coherence.
+
+**Challenge this:** Are there cases where automatic type creation from instance patterns is desirable? How would we bound this?
+
+### 3.3 Feedback Loop with Threshold
+
+**Decision:** Orphan patterns must exceed threshold before surfacing to Ontology Foundry.
+
+**Rationale:**
+- Prevents noise from one-off mentions
+- Requires cross-document corroboration
+- Human/agent review remains in the loop
+
+**Proposed threshold:** 10+ occurrences across 5+ documents.
+
+**Challenge this:** How should thresholds be set? Should they vary by domain? What's the risk of setting them too high (missing valid types) vs. too low (noise)?
+
+### 3.4 Confidence Threshold Differential
+
+**Decision:** Ontology requires 0.95+ confidence; Context accepts 0.70+.
+
+**Rationale:**
+- Schema changes are expensive to reverse
+- Instance extraction can be corrected incrementally
+- Lower threshold enables learning while maintaining quality
+
+**Challenge this:** Are these the right thresholds? How do we calibrate them? Should confidence be computed differently for types vs. instances?
+
+---
+
+## 4. Open Questions for Reviewers
+
+### 4.1 Architectural Questions
+
+1. **Circular dependency risk:** Does Ontology Foundry using tri-memory architecture to govern itself create problematic recursion? How do we bootstrap?
+
+2. **Meta-ontology scope:** How minimal can the meta-ontology (Layer 0) be while still being sufficient? What's the irreducible core?
+
+3. **Cross-system consistency:** If Ontology Foundry deprecates a type, how should Context Foundry handle existing instances of that type?
+
+4. **Version compatibility:** How do we handle ontology evolution while maintaining query compatibility for historical data?
+
+### 4.2 Implementation Questions
+
+5. **Agent coordination:** Should Ontology Foundry and Context Foundry agents share a message bus, or be completely isolated?
+
+6. **Storage:** Should both systems share the same database with different tables, or be physically separated?
+
+7. **Human-in-the-loop:** Where exactly should human approval be required vs. optional?
+
+### 4.3 Validation Questions
+
+8. **Success criteria:** How do we measure whether this architecture is working? What metrics?
+
+9. **Failure modes:** What are the likely failure modes, and how do we detect/recover from them?
+
+10. **Comparison:** What existing systems (academic or commercial) use similar dual-system approaches? What can we learn from them?
+
+---
+
+## 5. Research Requests
+
+We request reviewers to research and report on:
+
+### 5.1 Comparable Systems
+
+- **SHACL/ShEx:** How do RDF schema validation languages handle schema-instance separation?
+- **Protégé + Reasoners:** How does ontology editing tooling handle schema evolution?
+- **Schema.org:** How does a large-scale shared ontology evolve over time?
+- **Enterprise MDM systems:** How do Master Data Management systems handle schema governance?
+- **LLM-based ontology learning:** What approaches exist for automated ontology construction, and what are their failure modes?
+
+### 5.2 Theoretical Foundations
+
+- **Type theory:** What does type theory say about the relationship between types and instances?
+- **Database theory:** How do schema evolution and data migration interact in temporal databases?
+- **Cognitive architecture:** Is there precedent for dual-system approaches in cognitive science (System 1 / System 2)?
+
+### 5.3 Failure Mode Analysis
+
+- What happens when the feedback threshold is wrong?
+- What happens when orphan patterns are actually noise?
+- What happens when schema evolution breaks downstream queries?
+- What happens when confidence calibration is off?
+
+---
+
+## 6. Proposed Validation Plan
+
+### 6.1 Phase 1: Theoretical Validation
+
+- [ ] Review by 4+ LLMs with explicit critique requested
+- [ ] Research comparable systems and document learnings
+- [ ] Identify and document all assumptions
+- [ ] Enumerate failure modes and mitigations
+
+### 6.2 Phase 2: Simulation
+
+- [ ] Implement minimal Ontology Foundry with 3 types
+- [ ] Simulate orphan pattern detection
+- [ ] Test threshold sensitivity
+- [ ] Measure feedback loop latency
+
+### 6.3 Phase 3: Production Pilot
+
+- [ ] Deploy against single domain (e.g., AVIATION)
+- [ ] Measure schema stability over 30 days
+- [ ] Measure false positive rate for orphan patterns
+- [ ] Gather human reviewer feedback
+
+---
+
+## 7. Request for Comments
+
+We explicitly request:
+
+1. **Challenges:** What's wrong with this architecture? Where will it fail?
+
+2. **Alternatives:** What other approaches should we consider?
+
+3. **Research:** What existing work should we study?
+
+4. **Clarifications:** What's unclear or underspecified?
+
+5. **Endorsements:** If you agree with aspects, say so explicitly (with reasoning).
+
+Please respond with structured feedback using the following format:
+
+```
+## Reviewer: [Your Name/Model]
+
+### Endorsements
+- [What you agree with and why]
+
+### Challenges
+- [What you disagree with and why]
+
+### Alternatives
+- [Other approaches to consider]
+
+### Research References
+- [Relevant papers, systems, or prior art]
+
+### Clarifying Questions
+- [What needs more detail]
+
+### Risk Assessment
+- [Likelihood and impact of failure modes]
+```
+
+---
+
+## 8. Appendix: Glossary
+
+| Term | Definition |
+|------|------------|
+| Ontology Foundry | Subsystem governing entity and relationship types (schema) |
+| Context Foundry | Subsystem governing entity instances and facts (knowledge) |
+| Meta-ontology | Minimal bootstrap schema defining what a "type" is |
+| Orphan pattern | Recurring concept in documents that doesn't match existing types |
+| Feedback loop | Mechanism for Context to signal potential new types to Ontology |
+| Tri-memory | Architecture with Semantic (graph), Episodic (documents), Symbolic (rules) layers |
+| Gardener | Agent responsible for promoting entities based on corroboration |
+| Confidence | Numeric score (0-1) representing certainty about a fact or type |
+| Provenance | Chain of evidence showing where information came from |
+
+---
+
+**End of RFC**
+
+*Submit feedback to the review channel or respond directly to this document.*

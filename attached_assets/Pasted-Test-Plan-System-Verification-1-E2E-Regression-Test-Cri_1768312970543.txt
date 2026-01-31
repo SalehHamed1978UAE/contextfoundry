@@ -1,0 +1,144 @@
+Test Plan: System Verification
+
+  1. E2E Regression Test (Critical)
+
+  Re-run the full test suite to confirm 49/49 still passes after Learning Flow integration.
+
+  python scripts/e2e_lifecycle_test.py --all-vaults
+
+  Expected: 49/49 queries pass (100%)
+
+  ---
+  2. Learning Flow Integration Test
+
+  Test the full learning cycle:
+
+  # Step 1: Query something that doesn't exist (should trigger gap)
+  curl -X POST http://localhost:3000/api/query \
+    -H "Content-Type: application/json" \
+    -d '{"vault_id": "<vault_id>", "query": "Who is the Chief Marketing Officer?"}'
+
+  # Step 2: Check if gap was detected
+  curl http://localhost:3000/api/learning/gaps/<vault_id>
+
+  # Step 3: Check learning queue
+  curl http://localhost:3000/api/learning/status/<vault_id>
+
+  # Step 4: Manually trigger learning
+  curl -X POST http://localhost:3000/api/learning/trigger/<vault_id>
+
+  # Step 5: Check if gap was resolved
+  curl http://localhost:3000/api/learning/gaps/<vault_id>
+
+  Expected:
+  - Gap detected for unknown query
+  - Task queued with appropriate priority
+  - Targeted extraction runs
+  - Gap status changes (OPEN → RESOLVED or stays OPEN if not found in docs)
+
+  ---
+  3. Job Tracking Verification
+
+  Verify extraction jobs are tracked correctly:
+
+  -- Check recent extraction jobs
+  SELECT document_name, status, progress_pct, entities_extracted, relationships_extracted
+  FROM document_extraction_status
+  ORDER BY started_at DESC
+  LIMIT 10;
+
+  -- Verify job counts match vault health
+  SELECT * FROM extraction_jobs
+  WHERE status = 'COMPLETE'
+  ORDER BY completed_at DESC
+  LIMIT 5;
+
+  -- Test verification endpoint
+  curl http://localhost:8000/api/vault/<vault_id>/extraction/status
+
+  Expected:
+  - All documents show COMPLETE status
+  - Entity/relationship counts are reasonable
+  - No stuck jobs (RUNNING for >10 min)
+
+  ---
+  4. API Health Checks
+
+  Test all critical endpoints respond:
+
+  # Web App (port 5000/8000)
+  curl http://localhost:8000/api/vault/<vault_id>/documents
+  curl http://localhost:8000/api/vault/<vault_id>/health
+
+  # Brain Service (port 3000)
+  curl http://localhost:3000/api/learning/dashboard
+  curl http://localhost:3000/api/query -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"vault_id": "<vault_id>", "query": "Who is the CEO?"}'
+
+  # Check extraction endpoints
+  curl http://localhost:8000/api/extraction/jobs/<job_id>/verify
+
+  Expected: All endpoints return 200 with valid JSON
+
+  ---
+  5. Performance Check
+
+  Measure query response times:
+
+  # Time a simple query
+  time curl -X POST http://localhost:3000/api/query \
+    -H "Content-Type: application/json" \
+    -d '{"vault_id": "<vault_id>", "query": "Who is the CEO?"}'
+
+  # Run 10 queries and check average time
+  for i in {1..10}; do
+    time curl -s -X POST http://localhost:3000/api/query \
+      -H "Content-Type: application/json" \
+      -d '{"vault_id": "<vault_id>", "query": "List all employees"}' > /dev/null
+  done
+
+  Expected: Query response time < 5 seconds for typical queries
+
+  ---
+  6. Database Integrity Check
+
+  -- Check for orphaned records
+  SELECT COUNT(*) FROM entities WHERE tenant_id NOT IN (SELECT id FROM platform.tenants);
+  SELECT COUNT(*) FROM relationships WHERE tenant_id NOT IN (SELECT id FROM platform.tenants);
+
+  -- Check for corrupted entity names (the issue we fixed)
+  SELECT * FROM entities WHERE name LIKE '%\n%' OR name LIKE '%\r%';
+
+  -- Verify extraction job status distribution
+  SELECT status, COUNT(*) FROM extraction_jobs GROUP BY status;
+
+  -- Check learning flow tables
+  SELECT COUNT(*) FROM query_gaps;
+  SELECT COUNT(*) FROM learning_queue;
+  SELECT status, COUNT(*) FROM learning_queue GROUP BY status;
+
+  Expected:
+  - No orphaned records
+  - No corrupted entity names
+  - All jobs in terminal states (COMPLETE/FAILED, not stuck in RUNNING)
+  - Learning tables exist and are queryable
+
+  ---
+  Test Execution Order
+  ┌─────┬─────────────────────────────┬──────────┬────────┐
+  │  #  │            Test             │ Priority │  Time  │
+  ├─────┼─────────────────────────────┼──────────┼────────┤
+  │ 1   │ E2E Regression (49 queries) │ Critical │ ~5 min │
+  ├─────┼─────────────────────────────┼──────────┼────────┤
+  │ 2   │ Database Integrity          │ Critical │ ~1 min │
+  ├─────┼─────────────────────────────┼──────────┼────────┤
+  │ 3   │ API Health Checks           │ High     │ ~1 min │
+  ├─────┼─────────────────────────────┼──────────┼────────┤
+  │ 4   │ Job Tracking Verification   │ High     │ ~1 min │
+  ├─────┼─────────────────────────────┼──────────┼────────┤
+  │ 5   │ Learning Flow Integration   │ Medium   │ ~2 min │
+  ├─────┼─────────────────────────────┼──────────┼────────┤
+  │ 6   │ Performance Check           │ Medium   │ ~2 min │
+  └─────┴─────────────────────────────┴──────────┴────────┘
+  ---

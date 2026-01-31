@@ -1,0 +1,993 @@
+CONTEXT FOUNDRY – RELATIONSHIP EXTRACTION (RE) AGENT
+Specification v3.0 – Unified, Implementable, Domain-Agnostic
+0. Purpose
+The Relationship Extraction (RE) Agent is a knowledge graph enrichment subsystem that discovers relationships between existing entities using existing documents.
+It exists to solve CF's "Bag-of-Nouns" problem:
+CF extracted 12,086 entities but only 2,822 relationships → 79.8% isolated nodes.
+The RE Agent increases relationship density safely, truthfully, and incrementally.
+Key Properties:
+Domain-agnostic (works for IT, Healthcare, Finance, HR, Supply Chain, etc.)
+Extracts relationships ONLY between already-defined entities
+Writes relationships into STAGING with full provenance
+Enforces strict grounding — no speculation, no new entities
+Integrates with Gardener, lifecycle, ontology, tenants, validation, provenance
+Target Metrics:
+Relationship density: 0.23 → 1.0+ rel/entity
+Isolated entities: 9,641 → <5,000
+Precision: ≥80% on manual sample
+1. Architecture
+┌──────────────────────────────────────────────────────────────────────────┐
+│                      RELATIONSHIP EXTRACTION AGENT                        │
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                           │
+│  ┌───────────────┐   ┌───────────────┐   ┌───────────────┐               │
+│  │   ISOLATED    │──▶│   DOCUMENT    │──▶│    CHUNK      │               │
+│  │   ENTITIES    │   │   RETRIEVAL   │   │   PROCESSOR   │               │
+│  └───────────────┘   └───────────────┘   └───────────────┘               │
+│         │                                       │                         │
+│         │            ┌───────────────┐          │                         │
+│         │            │   CANDIDATE   │◀─────────┘                         │
+│         │            │   DETECTOR    │                                    │
+│         │            └───────────────┘                                    │
+│         │                   │                                             │
+│         │            ┌───────────────┐                                    │
+│         │            │   ONTOLOGY    │                                    │
+│         │            │   PLUG-IN     │                                    │
+│         │            └───────────────┘                                    │
+│         │                   │                                             │
+│         │            ┌───────────────┐                                    │
+│         │            │     LLM       │                                    │
+│         │            │  EXTRACTION   │                                    │
+│         │            └───────────────┘                                    │
+│         │                   │                                             │
+│         │            ┌───────────────┐                                    │
+│         │            │   EVIDENCE    │                                    │
+│         │            │   VALIDATOR   │                                    │
+│         │            └───────────────┘                                    │
+│         │                   │                                             │
+│         │    ┌──────────────┴──────────────┐                             │
+│         │    │                             │                              │
+│         ▼    ▼                             ▼                              │
+│  ┌───────────────┐                ┌───────────────┐                      │
+│  │   STAGING     │                │   REJECTED    │                      │
+│  │ (with tags)   │                │   (logged)    │                      │
+│  └───────────────┘                └───────────────┘                      │
+│         │                                                                 │
+│         ▼                                                                 │
+│  ┌───────────────┐                                                       │
+│  │   GARDENER    │ (existing CF governance)                              │
+│  │   PROMOTION   │                                                       │
+│  └───────────────┘                                                       │
+│                                                                           │
+└──────────────────────────────────────────────────────────────────────────┘
+2. Data Model
+2.1 Core Tables (New)
+-- Document chunks for RE processing
+CREATE TABLE document_chunks (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_id UUID NOT NULL REFERENCES documents(id),
+    tenant_id UUID NOT NULL,
+    chunk_index INT NOT NULL,
+    text TEXT NOT NULL,
+    char_start INT,
+    char_end INT,
+    metadata JSONB DEFAULT '{}',
+    created_at TIMESTAMPTZ DEFAULT now(),
+    
+    UNIQUE(document_id, chunk_index)
+);
+
+CREATE INDEX idx_chunks_document ON document_chunks(document_id);
+CREATE INDEX idx_chunks_tenant ON document_chunks(tenant_id);
+
+-- Entity mentions (linking entities to document chunks)
+CREATE TABLE entity_mentions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    entity_id UUID NOT NULL REFERENCES entities(id),
+    document_id UUID NOT NULL REFERENCES documents(id),
+    chunk_id UUID REFERENCES document_chunks(id),
+    tenant_id UUID NOT NULL,
+    mention_text TEXT NOT NULL,
+    char_start INT,
+    char_end INT,
+    confidence FLOAT DEFAULT 1.0,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    
+    UNIQUE(entity_id, chunk_id, char_start)
+);
+
+CREATE INDEX idx_mentions_entity ON entity_mentions(entity_id);
+CREATE INDEX idx_mentions_document ON entity_mentions(document_id);
+CREATE INDEX idx_mentions_chunk ON entity_mentions(chunk_id);
+2.2 Inference Job Tracking
+-- Track inference runs for idempotency and rollback
+CREATE TABLE inference_runs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    started_at TIMESTAMPTZ DEFAULT now(),
+    completed_at TIMESTAMPTZ,
+    status VARCHAR(20) DEFAULT 'RUNNING',  -- RUNNING | COMPLETED | FAILED | ROLLED_BACK
+    
+    -- Configuration
+    batch_size INT NOT NULL,
+    entity_filter JSONB,
+    prompt_version VARCHAR(50) NOT NULL,
+    ontology_version VARCHAR(50),
+    
+    -- Results
+    entities_processed INT DEFAULT 0,
+    chunks_analyzed INT DEFAULT 0,
+    relationships_proposed INT DEFAULT 0,
+    relationships_approved INT DEFAULT 0,
+    relationships_rejected INT DEFAULT 0,
+    
+    -- Cost tracking
+    llm_tokens_used INT DEFAULT 0,
+    estimated_cost_usd DECIMAL(10,4) DEFAULT 0,
+    
+    -- Rollback
+    rollback_executed BOOLEAN DEFAULT FALSE,
+    rollback_at TIMESTAMPTZ,
+    rollback_reason TEXT
+);
+
+CREATE INDEX idx_runs_status ON inference_runs(status);
+CREATE INDEX idx_runs_tenant ON inference_runs(tenant_id);
+
+-- Idempotency: track which chunks have been processed per run
+CREATE TABLE inference_run_chunks (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    run_id UUID NOT NULL REFERENCES inference_runs(id),
+    chunk_id UUID NOT NULL REFERENCES document_chunks(id),
+    entity_id UUID NOT NULL REFERENCES entities(id),
+    status VARCHAR(20) DEFAULT 'COMPLETED',  -- COMPLETED | NO_CANDIDATES | FAILED
+    relationships_found INT DEFAULT 0,
+    processed_at TIMESTAMPTZ DEFAULT now(),
+    
+    UNIQUE(run_id, chunk_id, entity_id)  -- Idempotency key
+);
+2.3 Proposed Relationships (Staging Area)
+CREATE TABLE proposed_relationships (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    source_entity_id UUID NOT NULL REFERENCES entities(id),
+    target_entity_id UUID NOT NULL REFERENCES entities(id),
+    relationship_type VARCHAR(50) NOT NULL,
+    confidence FLOAT NOT NULL,
+    
+    -- Provenance (CRITICAL for rollback and audit)
+    inference_run_id UUID NOT NULL REFERENCES inference_runs(id),
+    source_document_id UUID NOT NULL REFERENCES documents(id),
+    source_chunk_id UUID REFERENCES document_chunks(id),
+    evidence_span TEXT NOT NULL,
+    evidence_char_start INT,
+    evidence_char_end INT,
+    
+    -- Classification
+    inference_method VARCHAR(30) NOT NULL,  -- 'llm_extraction' | 'heuristic_name' | 'heuristic_transitive'
+    has_lexical_evidence BOOLEAN DEFAULT FALSE,
+    
+    -- Lifecycle
+    status VARCHAR(20) DEFAULT 'PENDING',  -- PENDING | APPROVED | REJECTED | AUTO_APPROVED
+    reviewed_by VARCHAR(100),
+    reviewed_at TIMESTAMPTZ,
+    rejection_reason TEXT,
+    
+    -- Corroboration (same edge found in multiple places)
+    corroboration_count INT DEFAULT 1,
+    corroborating_chunks JSONB DEFAULT '[]',
+    
+    created_at TIMESTAMPTZ DEFAULT now(),
+    
+    -- Prevent exact duplicates
+    UNIQUE(source_entity_id, target_entity_id, relationship_type, source_chunk_id)
+);
+
+CREATE INDEX idx_proposed_status ON proposed_relationships(status);
+CREATE INDEX idx_proposed_run ON proposed_relationships(inference_run_id);
+CREATE INDEX idx_proposed_confidence ON proposed_relationships(confidence DESC);
+CREATE INDEX idx_proposed_tenant ON proposed_relationships(tenant_id);
+2.4 Domain Ontology Configuration
+CREATE TABLE ontology_relationship_types (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID,  -- NULL = global default
+    domain VARCHAR(50) NOT NULL,  -- 'IT', 'Healthcare', 'Finance', etc.
+    relationship_type VARCHAR(50) NOT NULL,
+    definition TEXT NOT NULL,
+    
+    -- Type constraints
+    valid_source_types TEXT[] NOT NULL,  -- ['SERVICE', 'SYSTEM']
+    valid_target_types TEXT[] NOT NULL,  -- ['SERVICE', 'DATABASE']
+    
+    -- Lexical patterns for detection
+    lexical_patterns TEXT[] NOT NULL,  -- ['depends on', 'relies on', 'requires']
+    
+    -- Thresholds
+    min_confidence FLOAT DEFAULT 0.70,
+    auto_approve_confidence FLOAT DEFAULT 0.90,
+    
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    
+    UNIQUE(tenant_id, domain, relationship_type)
+);
+
+-- Seed default IT ontology
+INSERT INTO ontology_relationship_types 
+(domain, relationship_type, definition, valid_source_types, valid_target_types, lexical_patterns)
+VALUES
+('IT', 'DEPENDS_ON', 'Service/system dependency', 
+ ARRAY['SERVICE', 'SYSTEM', 'APPLICATION'], 
+ ARRAY['SERVICE', 'SYSTEM', 'DATABASE', 'API'],
+ ARRAY['depends on', 'relies on', 'requires', 'needs', 'uses']),
+ 
+('IT', 'OWNS', 'Ownership/responsibility relationship',
+ ARRAY['TEAM', 'PERSON', 'ORGANIZATION'],
+ ARRAY['SERVICE', 'SYSTEM', 'APPLICATION', 'DATABASE'],
+ ARRAY['owns', 'owned by', 'manages', 'managed by', 'responsible for']),
+ 
+('IT', 'CALLS', 'API/service invocation',
+ ARRAY['SERVICE', 'APPLICATION'],
+ ARRAY['SERVICE', 'API', 'ENDPOINT'],
+ ARRAY['calls', 'invokes', 'sends to', 'requests from', 'connects to']),
+ 
+('IT', 'CONTAINS', 'Hierarchical containment',
+ ARRAY['SYSTEM', 'CLUSTER', 'ENVIRONMENT'],
+ ARRAY['SERVICE', 'DATABASE', 'APPLICATION'],
+ ARRAY['contains', 'includes', 'has', 'comprises', 'consists of']),
+ 
+('IT', 'IMPACTS', 'Causal impact relationship',
+ ARRAY['INCIDENT', 'CHANGE', 'DEPLOYMENT'],
+ ARRAY['SERVICE', 'SYSTEM', 'CUSTOMER'],
+ ARRAY['impacts', 'affects', 'influences', 'causes', 'disrupts']);
+3. Safety Constraints (CRITICAL)
+These constraints maintain CF's zero-hallucination guarantee. Violations are fatal errors.
+Constraint 1: No New Entities
+The agent MUST NOT create new entities. It can ONLY propose relationships between existing TRUSTED entities.
+def validate_entities(source_id: UUID, target_id: UUID, tenant_id: UUID) -> tuple[bool, str]:
+    """Both entities must exist and be TRUSTED."""
+    source = db.get_entity(source_id)
+    target = db.get_entity(target_id)
+    
+    if not source:
+        return False, f"Source entity {source_id} does not exist"
+    if not target:
+        return False, f"Target entity {target_id} does not exist"
+    if source.lifecycle_state != 'TRUSTED':
+        return False, f"Source entity not TRUSTED (state: {source.lifecycle_state})"
+    if target.lifecycle_state != 'TRUSTED':
+        return False, f"Target entity not TRUSTED (state: {target.lifecycle_state})"
+    if source.tenant_id != tenant_id or target.tenant_id != tenant_id:
+        return False, "Cross-tenant relationship not allowed"
+    if source_id == target_id:
+        return False, "Self-referential relationship not allowed"
+    
+    return True, None
+Constraint 2: Evidence Required
+Every proposed relationship MUST have an evidence_span from the source document. No evidence = rejected.
+def validate_evidence(evidence_span: str, chunk_text: str) -> tuple[bool, str]:
+    """Evidence must actually exist in the chunk."""
+    if not evidence_span:
+        return False, "Evidence span is empty"
+    if evidence_span not in chunk_text:
+        return False, "Evidence span not found in chunk text"
+    if len(evidence_span) < 10:
+        return False, f"Evidence too short ({len(evidence_span)} chars, min 10)"
+    if len(evidence_span) > 500:
+        return False, f"Evidence too long ({len(evidence_span)} chars, max 500)"
+    
+    return True, None
+Constraint 3: Type Pair Validation
+Relationships must respect ontology constraints for source/target types.
+def validate_type_pair(
+    source_type: str, 
+    target_type: str, 
+    relationship_type: str,
+    tenant_id: UUID,
+    domain: str = 'IT'
+) -> tuple[bool, str]:
+    """Relationship type must be valid for this source/target pair."""
+    ontology = db.get_ontology(tenant_id, domain, relationship_type)
+    
+    if not ontology:
+        return False, f"Unknown relationship type: {relationship_type}"
+    if not ontology.is_active:
+        return False, f"Relationship type {relationship_type} is disabled"
+    if source_type not in ontology.valid_source_types:
+        return False, f"{source_type} cannot be source of {relationship_type}"
+    if target_type not in ontology.valid_target_types:
+        return False, f"{target_type} cannot be target of {relationship_type}"
+    
+    return True, None
+Constraint 4: Lexical Evidence Detection
+Check if evidence contains explicit relationship language (increases confidence).
+def has_lexical_evidence(evidence_span: str, relationship_type: str, ontology) -> bool:
+    """Check if evidence contains lexical patterns for this relationship type."""
+    evidence_lower = evidence_span.lower()
+    
+    for pattern in ontology.lexical_patterns:
+        if pattern.lower() in evidence_lower:
+            return True
+    
+    return False
+Constraint 5: Confidence Thresholds
+def get_disposition(confidence: float, has_lexical: bool, ontology) -> str:
+    """Determine what to do with this proposal based on confidence."""
+    if confidence >= ontology.auto_approve_confidence and has_lexical:
+        return 'AUTO_APPROVE'
+    elif confidence >= ontology.min_confidence:
+        return 'PENDING'  # Needs review
+    else:
+        return 'REJECT'
+Constraint 6: Never Direct to TRUSTED
+All proposed relationships go to proposed_relationships table first. NEVER directly insert into relationships table. Promotion happens through explicit approval or Gardener governance.
+Constraint 7: Dedupe Before Insert
+def check_duplicate(source_id, target_id, rel_type, tenant_id) -> bool:
+    """Check if this relationship already exists."""
+    existing = db.query("""
+        SELECT 1 FROM relationships
+        WHERE tenant_id = %s
+          AND source_id = %s
+          AND target_id = %s
+          AND relationship_type = %s
+          AND lifecycle_state != 'ARCHIVED'
+        LIMIT 1
+    """, tenant_id, source_id, target_id, rel_type)
+    
+    return existing is not None
+4. LLM Prompt Design
+4.1 System Prompt
+You are the Relationship Extraction Agent for Context Foundry, an enterprise knowledge graph.
+
+Your task is to identify relationships between KNOWN ENTITIES based on document evidence.
+
+CRITICAL RULES — VIOLATIONS ARE UNACCEPTABLE:
+1. You may ONLY identify relationships between entities in ENTITY_LIST
+2. You may ONLY use relationship types in ALLOWED_RELATIONSHIPS
+3. You may NOT invent, suggest, or hallucinate new entities
+4. You may NOT invent new relationship types
+5. Every relationship MUST have an exact quote from the document as evidence
+6. If no clear relationship exists, return an empty list — DO NOT GUESS
+7. Confidence scores must reflect actual certainty (0.0-1.0)
+
+OUTPUT REQUIREMENTS:
+- Return valid JSON only
+- Include evidence_span with exact quote (10-500 chars)
+- Include confidence score (0.0-1.0)
+- If uncertain, lower confidence or omit entirely
+4.2 User Prompt Template
+DOMAIN: {{domain}}
+TENANT: {{tenant_id}}
+
+ENTITY_LIST (you may ONLY use these — match by entity_code):
+{% for e in candidate_entities %}
+- {{e.code}}: "{{e.name}}" (type: {{e.entity_type}})
+{% endfor %}
+
+ALLOWED_RELATIONSHIPS (you may ONLY use these types):
+{% for rel in allowed_relationships %}
+- {{rel.type}}: {{rel.definition}}
+  Valid: {{rel.valid_source_types}} → {{rel.valid_target_types}}
+{% endfor %}
+
+DOCUMENT CHUNK:
+"""
+{{chunk.text}}
+"""
+
+TASK:
+Extract all EXPLICIT relationships between the entities above that are stated in this text.
+Do not infer relationships that are not clearly expressed.
+
+OUTPUT FORMAT (JSON):
+{
+  "relationships": [
+    {
+      "source_entity_code": "E1",
+      "target_entity_code": "E3",
+      "relationship_type": "DEPENDS_ON",
+      "confidence": 0.85,
+      "evidence_span": "exact quote from document text"
+    }
+  ]
+}
+
+If no relationships can be identified with evidence, return:
+{"relationships": []}
+5. Processing Pipeline
+5.1 Main Worker
+async def run_inference_job(run_id: UUID):
+    """Main RE Agent processing loop."""
+    run = await db.get_inference_run(run_id)
+    
+    try:
+        # Get isolated entities for this batch
+        entities = await select_isolated_entities(
+            tenant_id=run.tenant_id,
+            batch_size=run.batch_size,
+            entity_filter=run.entity_filter
+        )
+        
+        for entity in entities:
+            await process_entity(entity, run)
+            run.entities_processed += 1
+            await db.update_run(run)
+        
+        run.status = 'COMPLETED'
+        run.completed_at = datetime.now()
+        
+    except Exception as e:
+        run.status = 'FAILED'
+        run.error_message = str(e)
+        logger.error(f"Inference run {run_id} failed: {e}")
+    
+    await db.update_run(run)
+
+
+async def process_entity(entity: Entity, run: InferenceRun):
+    """Process a single entity: find its documents, extract relationships."""
+    
+    # Get all chunks containing this entity
+    chunks = await get_chunks_for_entity(entity.id, run.tenant_id)
+    
+    for chunk in chunks:
+        # Idempotency check
+        if await already_processed(run.id, chunk.id, entity.id):
+            continue
+        
+        try:
+            await process_chunk(entity, chunk, run)
+        except Exception as e:
+            await record_chunk_failure(run.id, chunk.id, entity.id, str(e))
+
+
+async def process_chunk(entity: Entity, chunk: DocumentChunk, run: InferenceRun):
+    """Process a single chunk for relationship extraction."""
+    
+    # Find candidate entities in this chunk
+    candidates = await find_candidate_entities(chunk, run.tenant_id)
+    
+    if len(candidates) < 2:
+        await record_chunk_processed(run.id, chunk.id, entity.id, 'NO_CANDIDATES', 0)
+        return
+    
+    # Get ontology for this tenant/domain
+    ontology = await get_ontology(run.tenant_id, domain='IT')
+    
+    # Build and execute LLM prompt
+    prompt = build_extraction_prompt(
+        chunk=chunk,
+        candidates=candidates,
+        allowed_relationships=ontology
+    )
+    
+    response = await llm.complete(prompt)
+    run.llm_tokens_used += response.usage.total_tokens
+    
+    # Parse and validate relationships
+    proposed = parse_llm_response(response.content)
+    validated = []
+    
+    for rel in proposed:
+        validation_result = await validate_proposal(rel, chunk, candidates, ontology, run)
+        if validation_result.is_valid:
+            validated.append(validation_result.proposal)
+    
+    # Store validated proposals
+    for proposal in validated:
+        await store_proposal(proposal)
+    
+    await record_chunk_processed(run.id, chunk.id, entity.id, 'COMPLETED', len(validated))
+
+
+async def validate_proposal(
+    raw: dict, 
+    chunk: DocumentChunk, 
+    candidates: list[Entity],
+    ontology: list[OntologyRelType],
+    run: InferenceRun
+) -> ValidationResult:
+    """Validate a single proposed relationship against all constraints."""
+    
+    # Map entity codes to actual entities
+    source = next((c for c in candidates if c.code == raw['source_entity_code']), None)
+    target = next((c for c in candidates if c.code == raw['target_entity_code']), None)
+    
+    if not source or not target:
+        return ValidationResult(False, "Entity code not in candidate list")
+    
+    # Constraint 1: Entities exist and are TRUSTED
+    valid, msg = validate_entities(source.id, target.id, run.tenant_id)
+    if not valid:
+        return ValidationResult(False, msg)
+    
+    # Constraint 2: Evidence exists in chunk
+    valid, msg = validate_evidence(raw['evidence_span'], chunk.text)
+    if not valid:
+        return ValidationResult(False, msg)
+    
+    # Constraint 3: Type pair is valid
+    rel_type_ontology = next((o for o in ontology if o.relationship_type == raw['relationship_type']), None)
+    if not rel_type_ontology:
+        return ValidationResult(False, f"Unknown relationship type: {raw['relationship_type']}")
+    
+    valid, msg = validate_type_pair(
+        source.entity_type, target.entity_type, 
+        raw['relationship_type'], run.tenant_id
+    )
+    if not valid:
+        return ValidationResult(False, msg)
+    
+    # Constraint 4: Check lexical evidence
+    has_lexical = has_lexical_evidence(raw['evidence_span'], raw['relationship_type'], rel_type_ontology)
+    
+    # Constraint 5: Confidence threshold
+    disposition = get_disposition(raw['confidence'], has_lexical, rel_type_ontology)
+    if disposition == 'REJECT':
+        return ValidationResult(False, f"Confidence {raw['confidence']} below threshold")
+    
+    # Constraint 7: Dedupe
+    if check_duplicate(source.id, target.id, raw['relationship_type'], run.tenant_id):
+        return ValidationResult(False, "Relationship already exists")
+    
+    # Build proposal
+    proposal = ProposedRelationship(
+        tenant_id=run.tenant_id,
+        source_entity_id=source.id,
+        target_entity_id=target.id,
+        relationship_type=raw['relationship_type'],
+        confidence=raw['confidence'],
+        inference_run_id=run.id,
+        source_document_id=chunk.document_id,
+        source_chunk_id=chunk.id,
+        evidence_span=raw['evidence_span'],
+        inference_method='llm_extraction',
+        has_lexical_evidence=has_lexical,
+        status='AUTO_APPROVED' if disposition == 'AUTO_APPROVE' else 'PENDING'
+    )
+    
+    return ValidationResult(True, None, proposal)
+5.2 Entity & Chunk Selection
+async def select_isolated_entities(
+    tenant_id: UUID,
+    batch_size: int = 100,
+    entity_filter: dict = None
+) -> list[Entity]:
+    """Select isolated entities prioritized by confidence."""
+    
+    query = """
+        SELECT e.* 
+        FROM entities e
+        LEFT JOIN relationships r ON e.id = r.source_id OR e.id = r.target_id
+        WHERE e.tenant_id = $1
+          AND e.lifecycle_state = 'TRUSTED'
+          AND r.id IS NULL
+    """
+    
+    if entity_filter:
+        if entity_filter.get('entity_types'):
+            query += f" AND e.entity_type = ANY($3)"
+        if entity_filter.get('min_confidence'):
+            query += f" AND e.confidence >= $4"
+    
+    query += " ORDER BY e.confidence DESC LIMIT $2"
+    
+    return await db.fetch(query, tenant_id, batch_size, ...)
+
+
+async def get_chunks_for_entity(entity_id: UUID, tenant_id: UUID) -> list[DocumentChunk]:
+    """Get all document chunks mentioning this entity."""
+    
+    return await db.fetch("""
+        SELECT DISTINCT c.*
+        FROM document_chunks c
+        JOIN entity_mentions em ON c.id = em.chunk_id
+        WHERE em.entity_id = $1
+          AND c.tenant_id = $2
+        ORDER BY c.document_id, c.chunk_index
+    """, entity_id, tenant_id)
+
+
+async def find_candidate_entities(chunk: DocumentChunk, tenant_id: UUID) -> list[Entity]:
+    """Find all TRUSTED entities mentioned in this chunk."""
+    
+    return await db.fetch("""
+        SELECT DISTINCT e.*, em.mention_text
+        FROM entities e
+        JOIN entity_mentions em ON e.id = em.entity_id
+        WHERE em.chunk_id = $1
+          AND e.tenant_id = $2
+          AND e.lifecycle_state = 'TRUSTED'
+    """, chunk.id, tenant_id)
+6. API Endpoints
+6.1 Start Inference Run
+POST /api/v1/inference/runs
+
+Request:
+{
+    "tenant_id": "uuid",           // Required
+    "batch_size": 100,             // Optional, default 100, max 500
+    "entity_filter": {             // Optional
+        "entity_types": ["SERVICE", "SYSTEM"],
+        "min_confidence": 0.7,
+        "entity_ids": ["uuid1", "uuid2"]  // Explicit list overrides other filters
+    },
+    "include_heuristics": false,   // Optional, default false
+    "domain": "IT"                 // Optional, default "IT"
+}
+
+Response:
+{
+    "run_id": "uuid",
+    "status": "RUNNING",
+    "entities_queued": 100,
+    "estimated_time_minutes": 15
+}
+6.2 Get Run Status
+GET /api/v1/inference/runs/{run_id}
+
+Response:
+{
+    "run_id": "uuid",
+    "status": "COMPLETED",
+    "started_at": "2025-12-11T22:00:00Z",
+    "completed_at": "2025-12-11T22:15:00Z",
+    "entities_processed": 100,
+    "chunks_analyzed": 342,
+    "relationships_proposed": 89,
+    "pending_review": 67,
+    "auto_approved": 22,
+    "rejected": 0,
+    "llm_tokens_used": 145000,
+    "estimated_cost_usd": 0.58
+}
+6.3 Review Queue
+GET /api/v1/inference/review?status=PENDING&limit=50&run_id={run_id}
+
+Response:
+{
+    "proposals": [
+        {
+            "id": "uuid",
+            "source_entity": {
+                "id": "uuid",
+                "name": "Payment Gateway",
+                "type": "SERVICE"
+            },
+            "target_entity": {
+                "id": "uuid",
+                "name": "Transaction Database",
+                "type": "DATABASE"
+            },
+            "relationship_type": "DEPENDS_ON",
+            "confidence": 0.85,
+            "has_lexical_evidence": true,
+            "evidence_span": "Payment Gateway connects to Transaction Database for storing payment records",
+            "source_document": {
+                "id": "uuid",
+                "title": "Architecture Overview"
+            },
+            "inference_method": "llm_extraction",
+            "corroboration_count": 2
+        }
+    ],
+    "total_pending": 67,
+    "page": 1,
+    "pages": 2
+}
+6.4 Approve/Reject Single Proposal
+POST /api/v1/inference/review/{proposal_id}
+
+Request:
+{
+    "action": "approve",           // "approve" | "reject"
+    "reviewed_by": "saleh@adq.ae",
+    "rejection_reason": null       // Required if rejecting
+}
+
+Response:
+{
+    "proposal_id": "uuid",
+    "status": "APPROVED",
+    "relationship_id": "uuid"      // Only if approved - the new relationship ID
+}
+6.5 Bulk Approve
+POST /api/v1/inference/bulk-approve
+
+Request:
+{
+    "run_id": "uuid",                    // Optional - scope to specific run
+    "min_confidence": 0.90,              // Required
+    "require_lexical_evidence": true,    // Optional, default true
+    "reviewed_by": "saleh@adq.ae"
+}
+
+Response:
+{
+    "approved_count": 22,
+    "relationship_ids": ["uuid1", "uuid2", ...]
+}
+6.6 Rollback Run
+POST /api/v1/inference/runs/{run_id}/rollback
+
+Request:
+{
+    "reason": "Precision below acceptable threshold",
+    "delete_proposals": true,           // Also delete proposals, not just relationships
+    "executed_by": "saleh@adq.ae"
+}
+
+Response:
+{
+    "run_id": "uuid",
+    "status": "ROLLED_BACK",
+    "relationships_deleted": 22,
+    "proposals_deleted": 89
+}
+6.7 Metrics Dashboard
+GET /api/v1/inference/metrics?tenant_id={tenant_id}
+
+Response:
+{
+    "relationship_density": {
+        "current": 0.35,
+        "target": 1.0,
+        "change_7d": +0.12
+    },
+    "isolated_entities": {
+        "current": 7500,
+        "total": 12086,
+        "percent": 62.1
+    },
+    "recent_runs": [
+        {
+            "run_id": "uuid",
+            "completed_at": "2025-12-11T22:15:00Z",
+            "relationships_added": 89,
+            "precision_estimate": 0.87
+        }
+    ],
+    "review_queue": {
+        "pending": 67,
+        "oldest_pending_hours": 4.2
+    }
+}
+7. Promotion to TRUSTED
+When a proposal is approved (manually or via bulk-approve):
+async def promote_proposal(proposal_id: UUID, approved_by: str) -> UUID:
+    """Move approved proposal to main relationships table."""
+    
+    proposal = await db.get_proposal(proposal_id)
+    
+    if proposal.status not in ['PENDING', 'AUTO_APPROVED']:
+        raise ValueError(f"Cannot promote proposal with status {proposal.status}")
+    
+    # Insert into relationships with full provenance
+    relationship_id = await db.execute("""
+        INSERT INTO relationships 
+        (tenant_id, source_id, target_id, relationship_type, confidence,
+         lifecycle_state, provenance, created_at)
+        VALUES ($1, $2, $3, $4, $5, 'TRUSTED', $6, NOW())
+        RETURNING id
+    """, 
+        proposal.tenant_id,
+        proposal.source_entity_id,
+        proposal.target_entity_id,
+        proposal.relationship_type,
+        proposal.confidence,
+        json.dumps({
+            'source': 'inference_agent',
+            'run_id': str(proposal.inference_run_id),
+            'document_id': str(proposal.source_document_id),
+            'chunk_id': str(proposal.source_chunk_id),
+            'evidence': proposal.evidence_span,
+            'method': proposal.inference_method,
+            'has_lexical_evidence': proposal.has_lexical_evidence,
+            'corroboration_count': proposal.corroboration_count,
+            'approved_by': approved_by,
+            'approved_at': datetime.now().isoformat()
+        })
+    )
+    
+    # Update proposal status
+    await db.execute("""
+        UPDATE proposed_relationships 
+        SET status = 'APPROVED', 
+            reviewed_by = $1, 
+            reviewed_at = NOW()
+        WHERE id = $2
+    """, approved_by, proposal_id)
+    
+    # Update run statistics
+    await db.execute("""
+        UPDATE inference_runs 
+        SET relationships_approved = relationships_approved + 1
+        WHERE id = $1
+    """, proposal.inference_run_id)
+    
+    return relationship_id
+8. Heuristic Augmentation (Optional)
+Lower-confidence enrichment for v2:
+async def heuristic_name_matching(
+    entities: list[Entity], 
+    run_id: UUID,
+    tenant_id: UUID
+) -> list[ProposedRelationship]:
+    """
+    Generate low-confidence relationships based on name patterns.
+    Example: "Payment Service" + "Payment Team" → OWNS relationship
+    """
+    proposals = []
+    
+    for e1 in entities:
+        for e2 in entities:
+            if e1.id >= e2.id:  # Avoid duplicates and self-refs
+                continue
+            
+            # Check for shared significant keywords
+            e1_words = set(e1.name.lower().split())
+            e2_words = set(e2.name.lower().split())
+            stop_words = {'service', 'team', 'system', 'the', 'a', 'an', 'of', 'for'}
+            shared = (e1_words & e2_words) - stop_words
+            
+            if not shared:
+                continue
+            
+            # TEAM + SERVICE with shared keyword → OWNS
+            if e1.entity_type == 'TEAM' and e2.entity_type == 'SERVICE':
+                proposals.append(ProposedRelationship(
+                    tenant_id=tenant_id,
+                    source_entity_id=e1.id,
+                    target_entity_id=e2.id,
+                    relationship_type='OWNS',
+                    confidence=0.60,
+                    inference_run_id=run_id,
+                    inference_method='heuristic_name',
+                    evidence_span=f"Name similarity: shared keywords {shared}",
+                    has_lexical_evidence=False,
+                    status='PENDING'
+                ))
+    
+    return proposals
+9. Success Metrics
+Primary: Relationship Density
+SELECT 
+    COUNT(DISTINCT r.id)::float / NULLIF(COUNT(DISTINCT e.id), 0) as density
+FROM entities e
+LEFT JOIN relationships r ON (e.id = r.source_id OR e.id = r.target_id)
+    AND r.lifecycle_state = 'TRUSTED'
+WHERE e.lifecycle_state = 'TRUSTED'
+  AND e.tenant_id = :tenant_id;
+
+-- Target progression: 0.23 → 0.5 → 1.0 → 2.5
+Secondary Metrics
+-- Precision (from reviewed proposals)
+SELECT 
+    COUNT(*) FILTER (WHERE status = 'APPROVED') as approved,
+    COUNT(*) FILTER (WHERE status = 'REJECTED') as rejected,
+    ROUND(
+        COUNT(*) FILTER (WHERE status = 'APPROVED')::numeric / 
+        NULLIF(COUNT(*) FILTER (WHERE status IN ('APPROVED', 'REJECTED')), 0),
+        3
+    ) as precision
+FROM proposed_relationships
+WHERE inference_run_id = :run_id;
+-- Target: ≥80%
+
+-- Isolated entity count
+SELECT COUNT(*) as isolated
+FROM entities e
+LEFT JOIN relationships r ON e.id = r.source_id OR e.id = r.target_id
+WHERE e.lifecycle_state = 'TRUSTED'
+  AND e.tenant_id = :tenant_id
+  AND r.id IS NULL;
+-- Target: 9,641 → <5,000
+
+-- Edges per run
+SELECT 
+    r.id,
+    r.entities_processed,
+    r.relationships_proposed,
+    ROUND(r.relationships_proposed::numeric / NULLIF(r.entities_processed, 0), 2) as edges_per_entity
+FROM inference_runs r
+WHERE r.tenant_id = :tenant_id
+ORDER BY r.started_at DESC
+LIMIT 10;
+
+-- Cost efficiency
+SELECT 
+    r.id,
+    r.llm_tokens_used,
+    r.relationships_approved,
+    ROUND(r.estimated_cost_usd / NULLIF(r.relationships_approved, 0), 4) as cost_per_edge
+FROM inference_runs r
+WHERE r.relationships_approved > 0
+ORDER BY r.started_at DESC;
+10. Non-Goals (Critical Boundaries)
+The RE Agent explicitly does NOT:
+Non-Goal
+Reason
+Create new entities
+Violates "no hallucination" contract
+Infer speculative relationships
+If not in text, don't propose it
+Cross-tenant inference
+Data isolation requirement
+Free-text reasoning about relationships
+Only explicit extraction
+Blast-radius analysis
+That's Reasoning Agent's job using the graph RE builds
+Replace existing relationships
+Only adds new edges, never modifies
+Work without evidence
+Every edge needs a source quote
+11. File Structure
+src/context_foundry/
+├── agents/
+│   └── inference/
+│       ├── __init__.py
+│       ├── agent.py              # Main REAgent class
+│       ├── worker.py             # Async job worker
+│       ├── prompts.py            # LLM prompt templates
+│       ├── validators.py         # All validation functions
+│       ├── heuristics.py         # Name matching, transitivity (v2)
+│       └── models.py             # ProposedRelationship, InferenceRun, etc.
+├── routes/
+│   └── inference.py              # FastAPI endpoints
+├── services/
+│   └── ontology.py               # Ontology configuration service
+└── migrations/
+    ├── 20251211_001_document_chunks.sql
+    ├── 20251211_002_entity_mentions.sql
+    ├── 20251211_003_inference_runs.sql
+    ├── 20251211_004_proposed_relationships.sql
+    └── 20251211_005_ontology_seed.sql
+12. Rollout Plan
+Day 1: Schema & Foundation
+[ ] Run migrations (all 5 files)
+[ ] Verify document_chunks populated (or build chunker)
+[ ] Verify entity_mentions populated (or build mention detector)
+[ ] Seed ontology for IT domain
+Day 2: Core Agent
+[ ] Implement validators.py (all 7 constraints)
+[ ] Implement prompts.py (system + user templates)
+[ ] Implement agent.py (main REAgent class)
+[ ] Unit tests for validators
+Day 3: Worker & Pipeline
+[ ] Implement worker.py (async job processing)
+[ ] Implement idempotency checks
+[ ] Integration test on 5 entities
+[ ] Verify proposals appear in proposed_relationships
+Day 4: API & Review
+[ ] Implement all 7 API endpoints
+[ ] Manual review of 10 proposals
+[ ] Test bulk-approve
+[ ] Test rollback
+Day 5: Scale Test
+[ ] Run on 100 isolated entities
+[ ] Sample 50 proposals for precision
+[ ] Measure density improvement
+[ ] Document results
+Go/No-Go Criteria
+[ ] Precision ≥ 80% on manual sample
+[ ] Zero new entities created
+[ ] All evidence spans traceable to documents
+[ ] Rollback tested and working
+[ ] Density improved (any positive movement)
+13. Questions for Replit (Blockers)
+Before starting, we need answers to:
+entity_mentions table — Does it exist? If not, how are entities currently linked to documents? We need this mapping to find candidate entities per chunk.
+document_chunks table — Does chunking exist? If documents are stored whole, we need to build a chunker first. What's the max chunk size we should use?
+Current LLM — OpenAI GPT-4? Claude? What's the context window and cost per 1K tokens?
+Review UI — Is there a UI we can hook the review queue into, or should this be API-only for now? (API-only is fine for v1)
+tenant_id — Is multi-tenancy active, or is there a single implicit tenant? This affects several queries.
+Heuristics in v1 — Include name-matching heuristics, or defer to v2? (Recommend: defer to v2, get LLM extraction working first)
+14. Key Safety Principles (4-Model Consensus)
+This spec incorporates learnings from Gemini, ChatGPT, Perplexity, and Claude:
+Gemini: "Bag of Nouns" diagnosis — we're excellent at NER, failing at RE. Fix the prompts.
+ChatGPT: Confirm pipeline works before scaling. Fix entity resolution. Start with high-value entities.
+Perplexity: Separate evidence-based from inferred edges. Tight prompt constraints. Tag everything for rollback.
+Claude: Safety constraints as code. 7 explicit validation rules. Never direct to TRUSTED.
+Context Foundry achieved 0% hallucination through Data Gates. The RE Agent must not undo that.
+Specification v3.0 — December 11, 2025
+Ready for implementation

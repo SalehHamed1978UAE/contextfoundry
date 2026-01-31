@@ -1,0 +1,82 @@
+**Chunk 4 complete.**
+
+---
+
+**Tell Replit:**
+
+---
+
+## Chunk 5: Gardener Agent
+
+**Purpose:** The heartbeat of the living brain. Runs every 5 minutes to maintain graph health.
+
+**This is what makes CF "alive" — without it, facts never decay, never get promoted, never get archived.**
+
+---
+
+**5 Passes (in order):**
+
+### Pass 1: Decay
+- Query TRUSTED facts older than grace period
+- Apply decay rate by fact type:
+  - Ownership (OWNS): 0.02/week, floor 0.5, grace 14 days
+  - Dependencies (DEPENDS_ON): 0.01/week, floor 0.6, grace 30 days
+  - Attributes: 0.015/week, floor 0.4, grace 7 days
+- Reduce confidence score
+- Flag facts that drop below staleness threshold
+
+### Pass 2: Promotion
+- Query STAGING facts meeting ALL criteria:
+  - validation_status = VALID
+  - confidence >= 0.75
+  - dwell_time >= 1 hour (time in STAGING)
+  - no unresolved conflicts with TRUSTED
+  - identity resolution complete (no pending duplicates)
+- Move to TRUSTED (lifecycle_state = 'TRUSTED')
+
+### Pass 3: Conflict Resolution
+- Query unresolved conflicts from `conflicts` table
+- Apply resolution strategy by type:
+  - attribute_mismatch → higher_confidence_wins
+  - relationship_contradiction → higher_confidence_wins
+  - temporal_overlap → newer_wins
+  - cardinality_violation → rule_determined
+- If margin < 0.15: keep in review_queue for human decision
+- Mark conflict as resolved
+
+### Pass 4: Demotion
+- Query TRUSTED facts with confidence < 0.4
+- Query TRUSTED facts superseded by newly promoted facts
+- Move to ARCHIVED (lifecycle_state = 'ARCHIVED', valid_to = now)
+
+### Pass 5: Cleanup
+- Delete STAGING facts older than 30 days (never promoted)
+- Delete resolved conflicts older than 90 days
+
+---
+
+**Implementation:**
+
+Check if `gardener.py` exists. Enhance or create.
+
+```python
+class GardenerAgent:
+    def run_cycle() -> GardenerCycleResult
+    def decay_pass() -> DecayResult
+    def promotion_pass() -> PromotionResult
+    def conflict_resolution_pass() -> ConflictResult
+    def demotion_pass() -> DemotionResult
+    def cleanup_pass() -> CleanupResult
+```
+
+**Scheduling:**
+- Run every 5 minutes via background task or cron
+- Also callable on-demand: `POST /api/gardener/run`
+
+**Logging:**
+- Every cycle writes to `gardener_logs` table
+- Record: cycle_start, cycle_end, facts_decayed, facts_promoted, facts_demoted, conflicts_resolved
+
+---
+
+**After complete, confirm with test results and proceed to Chunk 6: Integration.**

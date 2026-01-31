@@ -1,0 +1,656 @@
+schema_version: "2.0"
+domain: "Core Foundation"
+description: "Domain-agnostic schema for enterprise knowledge graph extraction. Supports any document type with foundational entity and relationship types."
+
+example_queries:
+  - "What organizations are mentioned in this document?"
+  - "Who works at which organization?"
+  - "What processes does this organization manage?"
+  - "What concepts are described in this document?"
+  - "What locations are organizations operating in?"
+
+entity_types:
+  - name: PERSON
+    description: "An individual human being - employee, executive, author, stakeholder"
+    keywords:
+      - person
+      - individual
+      - employee
+      - manager
+      - director
+      - executive
+      - author
+      - stakeholder
+      - expert
+      - leader
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - role
+      - title
+      - organization
+      - email
+
+  - name: JOB_TITLE
+    description: "A job title, role, or position held by a person - CEO, CTO, Manager, Director"
+    keywords:
+      - title
+      - role
+      - position
+      - CEO
+      - CTO
+      - CFO
+      - COO
+      - CDO
+      - Chief Executive Officer
+      - Chief Technology Officer
+      - Chief Financial Officer
+      - President
+      - Vice President
+      - Director
+      - Manager
+      - General Counsel
+      - Partner
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - abbreviation
+      - level
+      - department
+
+  - name: ORGANIZATION
+    description: "Any formal group - company, government agency, department, ministry, committee, team"
+    keywords:
+      - organization
+      - company
+      - corporation
+      - agency
+      - ministry
+      - department
+      - committee
+      - team
+      - institution
+      - government
+      - enterprise
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - type
+      - industry
+      - location
+      - parent_organization
+
+  - name: DOCUMENT
+    description: "Any written document - report, policy, standard, specification, publication"
+    keywords:
+      - document
+      - report
+      - policy
+      - standard
+      - specification
+      - publication
+      - paper
+      - article
+      - memo
+      - guideline
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - document_type
+      - author
+      - date
+      - version
+
+  - name: LOCATION
+    description: "A geographical place - city, country, region, building, facility"
+    keywords:
+      - location
+      - city
+      - country
+      - region
+      - building
+      - facility
+      - headquarters
+      - office
+      - site
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - type
+      - parent_location
+      - coordinates
+
+  - name: EVENT
+    description: "A significant occurrence - meeting, conference, incident, launch, milestone"
+    keywords:
+      - event
+      - meeting
+      - conference
+      - incident
+      - launch
+      - milestone
+      - announcement
+      - workshop
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - date
+      - location
+      - participants
+
+  - name: CONCEPT
+    description: "An abstract idea, framework, methodology, or principle"
+    keywords:
+      - concept
+      - framework
+      - methodology
+      - principle
+      - model
+      - approach
+      - strategy
+      - theory
+      - standard
+      - practice
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - domain
+      - definition
+      - related_concepts
+
+  - name: PROCESS
+    description: "A series of actions or steps - workflow, procedure, lifecycle, pipeline"
+    keywords:
+      - process
+      - workflow
+      - procedure
+      - lifecycle
+      - pipeline
+      - operation
+      - mechanism
+      - routine
+      - protocol
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - stages
+      - inputs
+      - outputs
+      - owner
+
+  - name: SERVICE
+    description: "A software service, API, or application component"
+    keywords:
+      - service
+      - api
+      - application
+      - endpoint
+      - microservice
+      - gateway
+      - server
+      - system
+      - app
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - owner
+      - dependencies
+      - endpoints
+
+  - name: DATABASE
+    description: "A data storage system - database, data store, repository"
+    keywords:
+      - database
+      - datastore
+      - repository
+      - storage
+      - cluster
+      - cache
+      - db
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - type
+      - owner
+
+  - name: TEAM
+    description: "A group of people working together - team, squad, department (internal organizational units)"
+    keywords:
+      - team
+      - squad
+      - department
+      - group
+      - unit
+      - division
+      - engineering team
+      - platform team
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - parent_organization
+      - lead
+      - focus_area
+
+  - name: INCIDENT
+    description: "An operational issue or outage - incident, outage, issue with an ID (e.g., INC-2026-001)"
+    keywords:
+      - incident
+      - outage
+      - issue
+      - failure
+      - disruption
+      - INC-
+      - alert
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - severity
+      - status
+      - date
+      - affected_services
+
+  - name: DATE
+    description: "A specific point in time - date, year, deadline, period"
+    keywords:
+      - date
+      - year
+      - deadline
+      - period
+      - timeline
+      - quarter
+      - fiscal year
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - format
+      - precision
+
+relationship_types:
+  # Membership & Hierarchy
+  - name: WORKS_AT
+    description: "Person works at/for an Organization"
+    source_types:
+      - PERSON
+    target_types:
+      - ORGANIZATION
+    cardinality: many-to-many
+
+  - name: MEMBER_OF
+    description: "Person or Organization is a member of an Organization"
+    source_types:
+      - PERSON
+      - ORGANIZATION
+    target_types:
+      - ORGANIZATION
+    cardinality: many-to-many
+
+  - name: REPORTS_TO
+    description: "Person reports to another Person"
+    source_types:
+      - PERSON
+    target_types:
+      - PERSON
+    cardinality: many-to-one
+
+  - name: PART_OF
+    description: "Entity is part of another entity (hierarchical containment)"
+    source_types:
+      - PROCESS
+      - CONCEPT
+      - ORGANIZATION
+    target_types:
+      - PROCESS
+      - CONCEPT
+      - ORGANIZATION
+    cardinality: many-to-many
+    semantics:
+      modes:
+        hierarchy:
+          transitive: true
+
+  # Ownership & Control
+  - name: OWNS
+    description: "Organization owns another Organization or asset"
+    source_types:
+      - ORGANIZATION
+    target_types:
+      - ORGANIZATION
+    cardinality: many-to-many
+
+  - name: MANAGES
+    description: "Person, Organization, or Team manages a Process, Organization, Concept, Service, or Database"
+    source_types:
+      - PERSON
+      - ORGANIZATION
+      - TEAM
+    target_types:
+      - PROCESS
+      - ORGANIZATION
+      - CONCEPT
+      - SERVICE
+      - DATABASE
+    cardinality: many-to-many
+
+  - name: GOVERNS
+    description: "Organization or Concept governs/controls another entity"
+    source_types:
+      - ORGANIZATION
+      - CONCEPT
+    target_types:
+      - ORGANIZATION
+      - PROCESS
+      - CONCEPT
+    cardinality: many-to-many
+
+  # Conceptual
+  - name: IMPLEMENTS
+    description: "Entity implements/realizes a Concept or Process"
+    source_types:
+      - CONCEPT
+      - PROCESS
+      - ORGANIZATION
+    target_types:
+      - CONCEPT
+      - PROCESS
+    cardinality: many-to-many
+
+  - name: ENABLES
+    description: "Concept or Process enables another Concept or Process"
+    source_types:
+      - CONCEPT
+      - PROCESS
+    target_types:
+      - CONCEPT
+      - PROCESS
+    cardinality: many-to-many
+
+  # Documents & References
+  - name: DESCRIBES
+    description: "Document describes a Concept, Process, or Organization"
+    source_types:
+      - DOCUMENT
+    target_types:
+      - CONCEPT
+      - PROCESS
+      - ORGANIZATION
+    cardinality: many-to-many
+
+  - name: REFERENCES
+    description: "Document or Concept references another entity"
+    source_types:
+      - DOCUMENT
+      - CONCEPT
+    target_types:
+      - DOCUMENT
+      - CONCEPT
+      - ORGANIZATION
+    cardinality: many-to-many
+
+  - name: AUTHORED_BY
+    description: "Document was authored/created by Person or Organization"
+    source_types:
+      - DOCUMENT
+    target_types:
+      - PERSON
+      - ORGANIZATION
+    cardinality: many-to-many
+
+  # Location
+  - name: LOCATED_IN
+    description: "Organization or Person is located in a Location"
+    source_types:
+      - ORGANIZATION
+      - PERSON
+    target_types:
+      - LOCATION
+    cardinality: many-to-many
+
+  - name: OPERATES_IN
+    description: "Organization operates in a Location"
+    source_types:
+      - ORGANIZATION
+    target_types:
+      - LOCATION
+    cardinality: many-to-many
+
+  # Temporal
+  - name: OCCURRED_ON
+    description: "Event occurred on a Date"
+    source_types:
+      - EVENT
+    target_types:
+      - DATE
+    cardinality: many-to-one
+
+  # Team/Service Ownership
+  - name: OWNS
+    description: "Team owns/is responsible for a Service, Database, or System"
+    source_types:
+      - TEAM
+      - PERSON
+    target_types:
+      - SERVICE
+      - DATABASE
+      - PROCESS
+    cardinality: many-to-many
+    semantics:
+      modes:
+        ownership:
+          include: true
+          from_source: true
+          from_target: false
+          transitive: false
+
+  # Incident Relationships
+  - name: AFFECTS
+    description: "Incident affects a Service, Database, or other entity"
+    source_types:
+      - INCIDENT
+    target_types:
+      - SERVICE
+      - DATABASE
+      - PROCESS
+      - TEAM
+    cardinality: many-to-many
+    semantics:
+      modes:
+        incident:
+          include: true
+          from_source: true
+          from_target: false
+          transitive: false
+
+  - name: TRIGGERED_BY
+    description: "Incident was triggered by a Service, Database, or other entity failure"
+    source_types:
+      - INCIDENT
+    target_types:
+      - SERVICE
+      - DATABASE
+      - INCIDENT
+    cardinality: many-to-many
+    semantics:
+      modes:
+        incident:
+          include: true
+          from_source: true
+          from_target: false
+          transitive: true
+
+  # Dependencies (for IT/Services)
+  - name: DEPENDS_ON
+    description: "Service or Process depends on another Service, Process, or resource"
+    source_types:
+      - SERVICE
+      - PROCESS
+      - CONCEPT
+      - ORGANIZATION
+      - DATABASE
+    target_types:
+      - SERVICE
+      - PROCESS
+      - CONCEPT
+      - ORGANIZATION
+      - DATABASE
+    cardinality: many-to-many
+    semantics:
+      modes:
+        impact:
+          include: true
+          from_source: false
+          from_target: true
+          transitive: true
+        dependency:
+          include: true
+          from_source: true
+          from_target: false
+          transitive: true
+
+  - name: ROUTES_TO
+    description: "Traffic or requests route from one service to another"
+    source_types:
+      - SERVICE
+      - PROCESS
+      - CONCEPT
+    target_types:
+      - SERVICE
+      - PROCESS
+      - CONCEPT
+    cardinality: many-to-many
+    semantics:
+      modes:
+        impact:
+          include: true
+          from_source: false
+          from_target: true
+          transitive: true
+
+  - name: ESCALATES_TO
+    description: "Person or Process escalates issues to another Person or Process"
+    source_types:
+      - PERSON
+      - PROCESS
+    target_types:
+      - PERSON
+      - PROCESS
+    cardinality: many-to-many
+    semantics:
+      modes:
+        escalation:
+          include: true
+          from_source: true
+          from_target: false
+          transitive: true
+
+  # Career/Positions
+  - name: HOLDS_POSITION
+    description: "Person holds a position/role (target must be JOB_TITLE, ROLE, or CONCEPT, not ORGANIZATION)"
+    source_types:
+      - PERSON
+    target_types:
+      - JOB_TITLE
+      - ROLE
+      - CONCEPT
+    cardinality: many-to-many
+
+  # Compensation
+  - name: HAS_COMPENSATION
+    description: "Person has compensation/salary"
+    source_types:
+      - PERSON
+    target_types:
+      - CONCEPT
+    cardinality: many-to-many
+    examples:
+      - "John earns $200,000 annually"
+      - "CEO compensation is $5M"
+
+  - name: EARNS
+    description: "Alternative for compensation relationships"
+    source_types:
+      - PERSON
+    target_types:
+      - CONCEPT
+    cardinality: many-to-many
+
+  # Investments
+  - name: INVESTED_IN
+    description: "Organization or Person invested in another Organization"
+    source_types:
+      - ORGANIZATION
+      - PERSON
+    target_types:
+      - ORGANIZATION
+    cardinality: many-to-many
+
+  # Leadership/Roles
+  - name: LEADS
+    description: "Person leads a project, team, or organization"
+    source_types:
+      - PERSON
+    target_types:
+      - ORGANIZATION
+      - TEAM
+      - PROCESS
+      - CONCEPT
+    cardinality: many-to-many
+
+  # Research/Collaboration
+  - name: COLLABORATED_WITH
+    description: "Person collaborated with another person on a project or paper"
+    source_types:
+      - PERSON
+    target_types:
+      - PERSON
+    cardinality: many-to-many
+
+  - name: AFFILIATED_WITH
+    description: "Person or Organization is affiliated with another Organization"
+    source_types:
+      - PERSON
+      - ORGANIZATION
+    target_types:
+      - ORGANIZATION
+    cardinality: many-to-many
+
+  # Fallback
+  - name: RELATED_TO
+    description: "Generic relationship between any entities (use when no specific type applies)"
+    source_types:
+      - PERSON
+      - ORGANIZATION
+      - CONCEPT
+      - PROCESS
+      - DOCUMENT
+      - EVENT
+      - LOCATION
+      - DATE
+      - SERVICE
+      - DATABASE
+      - TEAM
+      - INCIDENT
+    target_types:
+      - PERSON
+      - ORGANIZATION
+      - CONCEPT
+      - PROCESS
+      - DOCUMENT
+      - EVENT
+      - LOCATION
+      - DATE
+      - SERVICE
+      - DATABASE
+      - TEAM
+      - INCIDENT
+    cardinality: many-to-many
+
+validation_rules:
+  - name: single_supervisor
+    description: "Each person can only report to one supervisor"
+    applies_to: REPORTS_TO
+    constraint: cardinality
+
+  - name: single_event_date
+    description: "Each event can only occur on one date"
+    applies_to: OCCURRED_ON
+    constraint: cardinality

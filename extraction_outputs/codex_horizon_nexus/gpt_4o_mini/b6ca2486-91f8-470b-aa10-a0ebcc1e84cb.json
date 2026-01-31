@@ -1,0 +1,90 @@
+{
+  "document_id": "5b57bbba4596",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:33:52.866980",
+  "entities": [
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "source_excerpt": "Attendees - Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "source_excerpt": "Attendees - Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "milestones reinforced"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "source_excerpt": "Reinforce Horizon Prime milestones.",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Task management and tracking"
+      },
+      "confidence": 0.6,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "source_excerpt": "Owners assigned in PulseOps.",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Supply Chain Taskforce",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "evidence": "Attendees - Maya Serrano"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Supply Chain Taskforce",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "evidence": "Attendees - Dylan Kaur"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Supply Chain Taskforce",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.6,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "evidence": "Reinforce Horizon Prime milestones."
+    }
+  ],
+  "metadata": {
+    "filename": "supply_chain_taskforce_2026_01_28.md",
+    "raw_entity_count": 4,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

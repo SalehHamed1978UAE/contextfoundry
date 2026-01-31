@@ -1,0 +1,24 @@
+REPLIT: Search for Honeywell + flight computer in the corpus                                           
+                                                                                                         
+  -- Search chunks for Honeywell AND flight computer                                                     
+  SELECT id, text, document_id                                                                           
+  FROM document_chunks                                                                                   
+  WHERE tenant_id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'                                               
+  AND (                                                                                                  
+    (text ILIKE '%honeywell%' AND text ILIKE '%flight%')                                                 
+    OR (text ILIKE '%honeywell%' AND text ILIKE '%computer%')                                            
+    OR (text ILIKE '%honeywell%' AND text ILIKE '%avionics%')                                            
+    OR (text ILIKE '%honeywell%' AND text ILIKE '%falcon%')                                              
+  );                                                                                                     
+                                                                                                         
+  Also check the raw corpus files if accessible:                                                         
+  grep -ri "honeywell" /path/to/corpus/ | grep -i "flight\|computer\|falcon\|avionics"                   
+                                                                                                         
+  Two possible outcomes:                                                                                 
+                                                                                                         
+  1. Corpus says Honeywell → flight computers: Extraction bug. Fix the extraction pipeline or manually   
+  add the relationship.                                                                                  
+  2. Corpus does NOT say Honeywell → flight computers: The test question's expected answer is wrong.     
+  Update the test to match the actual data.                                                              
+                                                                                                         
+  Report what the corpus actually says.    

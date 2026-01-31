@@ -1,0 +1,20 @@
+The score dropped from 75% to 74%. We need to check Phase 1 acceptance criteria specifically.          
+                                                                                                         
+  Please provide pass/fail status for these specific questions:                                          
+                                                                                                         
+  | Question | Expected Answer      | Pass/Fail? |                                                       
+  |----------|----------------------|------------|                                                       
+  | Q2       | Michael Chang (CFO)  | ?          |                                                       
+  | Q17      | Nel Hydrogen         | ?          |                                                       
+  | Q18      | Shell                | ?          |                                                       
+  | Q40      | $12.4B Nexus backlog | ?          |                                                       
+  | Q78      | Honeywell            | ?          |                                                       
+  | Q95      | Raytheon             | ?          |                                                       
+                                                                                                         
+  Also:                                                                                                  
+  1. Did Q40 stop returning Boeing's $11.5B? (This validates the anchor filter fix)                      
+  2. Did Q2 return Michael Chang? (This validates RoleResolver fix)                                      
+  3. What questions regressed (passed before, fail now)?                                                 
+                                                                                                         
+  If Q2 and Q40 still fail, the anchor filter fixes aren't working. If they pass but Q17/Q78/Q95 fail,   
+  that's the multi-hop reasoning issue.  

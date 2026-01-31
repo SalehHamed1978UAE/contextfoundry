@@ -1,0 +1,33 @@
+Start Priority 1 - Scoped Relationships                                                        
+                                                                                                         
+  For each of these 4 questions, find the document evidence and add the relationship:                    
+                                                                                                         
+  Q32: Toyota JV CEO                                                                                     
+                                                                                                         
+  # Find evidence                                                                                        
+  grep -ri "robert martinez" /path/to/corpus/ | grep -i "ceo\|chief\|nextgen\|toyota\|battery"           
+  Add: (Dr. Robert Martinez)-[CEO_OF]->(NextGen Battery Technologies)                                    
+                                                                                                         
+  Q37: GreenHydrogen Project Director                                                                    
+                                                                                                         
+  grep -ri "jennifer walsh" /path/to/corpus/ | grep -i "director\|greenhydrogen\|project"                
+  Add: (Jennifer Walsh)-[DIRECTS]->(GreenHydrogen Initiative)                                            
+                                                                                                         
+  Q68: Export Control Committee Chair                                                                    
+                                                                                                         
+  grep -ri "james foster" /path/to/corpus/ | grep -i "chair\|export\|committee"                          
+  Add: (Col. James Foster)-[CHAIRS]->(Export Control Committee)                                          
+                                                                                                         
+  Q83: SmartGrid Controller Customer                                                                     
+                                                                                                         
+  grep -ri "pacific power" /path/to/corpus/ | grep -i "smartgrid\|customer\|controller"                  
+  Add: (Pacific Power)-[CUSTOMER_OF]->(SmartGrid Controller)                                             
+                                                                                                         
+  ---                                                                                                    
+  Process for each:                                                                                      
+  1. Grep corpus to confirm evidence exists                                                              
+  2. Check if entities exist in KG                                                                       
+  3. Add the scoped relationship                                                                         
+  4. Test the question                                                                                   
+                                                                                                         
+  Report findings for all 4, then add the relationships.

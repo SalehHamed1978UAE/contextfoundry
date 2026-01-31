@@ -1,0 +1,102 @@
+ REPLIT: Fix Retrieval Layer (Systematic)                                                               
+                                                                                                         
+  Fix 1: Role-to-Relationship Type Mapping                                                               
+                                                                                                         
+  Find: The role resolver or query routing code (likely role_resolver.py or retrieval_router.py)         
+                                                                                                         
+  Add: A mapping from query role terms to KG relationship types:                                         
+                                                                                                         
+  ROLE_TO_RELATIONSHIP_MAP = {                                                                           
+      # Executive roles → HOLDS_POSITION, LEADS                                                          
+      'ceo': ['HOLDS_POSITION', 'LEADS', 'CEO_OF'],                                                      
+      'chief executive': ['HOLDS_POSITION', 'LEADS'],                                                    
+      'president': ['HOLDS_POSITION', 'LEADS'],                                                          
+      'cfo': ['HOLDS_POSITION'],                                                                         
+      'cto': ['HOLDS_POSITION'],                                                                         
+      'coo': ['HOLDS_POSITION'],                                                                         
+                                                                                                         
+      # Director roles → MANAGES, DIRECTS, LEADS                                                         
+      'director': ['MANAGES', 'DIRECTS', 'LEADS'],                                                       
+      'project director': ['MANAGES', 'DIRECTS'],                                                        
+      'program director': ['MANAGES', 'DIRECTS'],                                                        
+                                                                                                         
+      # Chair roles → LEADS, CHAIRS                                                                      
+      'chair': ['LEADS', 'CHAIRS', 'HEADS'],                                                             
+      'chairman': ['LEADS', 'CHAIRS'],                                                                   
+      'committee chair': ['LEADS', 'CHAIRS'],                                                            
+                                                                                                         
+      # General leadership                                                                               
+      'head': ['LEADS', 'HEADS', 'MANAGES'],                                                             
+      'lead': ['LEADS', 'MANAGES'],                                                                      
+  }                                                                                                      
+                                                                                                         
+  def get_relationship_types_for_role(role_query: str) -> list:                                          
+      """Map a role query to KG relationship types."""                                                   
+      role_lower = role_query.lower()                                                                    
+      for role_term, rel_types in ROLE_TO_RELATIONSHIP_MAP.items():                                      
+          if role_term in role_lower:                                                                    
+              return rel_types                                                                           
+      return ['HOLDS_POSITION', 'MANAGES', 'LEADS']  # Default fallback                                  
+                                                                                                         
+  Use it: When querying "Who is the CEO of X?" or "Who is the Project Director of Y?", search for ALL    
+  mapped relationship types.                                                                             
+                                                                                                         
+  ---                                                                                                    
+  Fix 2: Product-to-Customer Traversal                                                                   
+                                                                                                         
+  For Q83: Query asks for SmartGrid Controller customers, but KG has Pacific Power CUSTOMER_OF Nexus     
+  Energy Systems.                                                                                        
+                                                                                                         
+  Add traversal logic:                                                                                   
+                                                                                                         
+  def get_customers_for_product(product_name: str) -> list:                                              
+      """                                                                                                
+      Get customers for a product.                                                                       
+      If no direct CUSTOMER_OF edges, traverse through parent org.                                       
+      """                                                                                                
+      # First try direct: Product ← CUSTOMER_OF ← Customer                                               
+      direct_customers = query_kg(f"""                                                                   
+          SELECT c.name FROM entities c                                                                  
+          JOIN relationships r ON c.id = r.source_id                                                     
+          JOIN entities p ON r.target_id = p.id                                                          
+          WHERE p.name ILIKE '%{product_name}%'                                                          
+          AND r.relationship_type = 'CUSTOMER_OF'                                                        
+      """)                                                                                               
+                                                                                                         
+      if direct_customers:                                                                               
+          return direct_customers                                                                        
+                                                                                                         
+      # Fallback: Product → PRODUCT_OF → Division ← CUSTOMER_OF ← Customer                               
+      indirect_customers = query_kg(f"""                                                                 
+          SELECT c.name FROM entities c                                                                  
+          JOIN relationships r1 ON c.id = r1.source_id  -- Customer → CUSTOMER_OF                        
+          JOIN entities div ON r1.target_id = div.id    -- → Division                                    
+          JOIN relationships r2 ON div.id = r2.target_id -- Division ← PRODUCT_OF                        
+          JOIN entities p ON r2.source_id = p.id        -- ← Product                                     
+          WHERE p.name ILIKE '%{product_name}%'                                                          
+          AND r1.relationship_type = 'CUSTOMER_OF'                                                       
+          AND r2.relationship_type IN ('PRODUCT_OF', 'PART_OF', 'BELONGS_TO')                            
+      """)                                                                                               
+                                                                                                         
+      return indirect_customers                                                                          
+                                                                                                         
+  ---                                                                                                    
+  Verify the Fix                                                                                         
+                                                                                                         
+  After implementing, test directly:                                                                     
+                                                                                                         
+  # Q32: CEO of NextGen Battery                                                                          
+  # Should find: Robert Martinez via HOLDS_POSITION                                                      
+  cf.query("Who is the CEO of NextGen Battery Technologies?")                                            
+                                                                                                         
+  # Q37: Project Director of GreenHydrogen                                                               
+  # Should find: Jennifer Walsh via MANAGES                                                              
+  cf.query("Who is the Project Director of GreenHydrogen?")                                              
+                                                                                                         
+  # Q83: SmartGrid Controller customer                                                                   
+  # Should find: Pacific Power via traversal                                                             
+  cf.query("Who is the customer for SmartGrid Controller?")                                              
+                                                                                                         
+  ---                                                                                                    
+  Find the role resolver code first and show me how it currently handles role queries. Then we add the   
+  mapping.       

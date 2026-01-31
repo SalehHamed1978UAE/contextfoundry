@@ -1,0 +1,21 @@
+The code is all there! The issue is likely that the server needs to restart to pick up the changes.    
+                                                                                                         
+  Tell Replit to:                                                                                        
+  1. Stop the server (Ctrl+C or stop button)                                                             
+  2. Clear any cached .pyc files: find . -name "*.pyc" -delete                                           
+  3. Restart the server                                                                                  
+                                                                                                         
+  After restart, they should see these logs for Q32:                                                     
+  [SCOPED_EXTRACT] Input query: 'Who will be the CEO of the Toyota JV (NextGen Battery Technologies)?'   
+  [ROLE_RESOLVER] Scoped pattern matched: role='CEO', entity='NextGen Battery Technologies'              
+                                                                                                         
+  If the logs STILL don't appear after restart, the issue might be that the query classifier isn't       
+  detecting "CEO" as a role reference. In that case, the code path starting at line 2017:                
+  if classification.has_role_reference and classification.role_referenced:                               
+  wouldn't be triggered.                                                                                 
+                                                                                                         
+  Quick diagnostic: Ask Replit to add this log at line 2005 of retrieval_router.py:                      
+  logger.info(f"[PIPELINE] Classification: has_role={classification.has_role_reference},                 
+  role={classification.role_referenced}")                                                                
+                                                                                                         
+  This will show if the classifier is detecting "CEO" as a role.   

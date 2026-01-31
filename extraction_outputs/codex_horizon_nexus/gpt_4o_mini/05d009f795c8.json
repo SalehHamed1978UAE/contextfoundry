@@ -1,0 +1,40 @@
+{
+  "document_id": "05d009f795c8",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/cpo_memo_product_vision.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:46:15.559226",
+  "entities": [
+    {
+      "name": "Jonah Keene",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CPO",
+        "role": "Chief Product Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/cpo_memo_product_vision.md",
+      "source_excerpt": "Author: Jonah Keene",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Jonah Keene",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "CPO",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/cpo_memo_product_vision.md",
+      "evidence": "Jonah Keene is the CPO"
+    }
+  ],
+  "metadata": {
+    "filename": "cpo_memo_product_vision.md",
+    "raw_entity_count": 1,
+    "raw_relationship_count": 1,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

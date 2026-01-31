@@ -1,0 +1,184 @@
+PHASE 1 VERIFICATION — TEST CANDIDATE DETECTION
+
+Before we build Phase 2 (approval workflow), let's verify Phase 1 is working.
+
+================================================================================
+TEST 1: API ENDPOINTS WORKING
+================================================================================
+
+Test the three endpoints:
+
+# Stats endpoint
+curl http://localhost:5000/api/ontology/stats
+
+# Candidates list
+curl http://localhost:5000/api/ontology/candidates
+
+# Should return JSON with counts and candidate list (may be empty)
+
+================================================================================
+TEST 2: FORCE A CANDIDATE TO BE CREATED
+================================================================================
+
+We need to test that unknown relationship types become candidates.
+
+Option A: Create a test script
+```python
+# test_ontology_candidate.py
+
+from src.context_foundry.ontology.candidate_store import CandidateStore
+from src.context_foundry.ontology.normalizer import CandidateNormalizer
+from src.context_foundry.models.schema import get_session
+from uuid import UUID
+
+# Use an existing tenant_id from your test data
+TENANT_ID = UUID("your-tenant-id-here")  # Replace with actual tenant ID
+
+def test_candidate_creation():
+    session = get_session()
+    store = CandidateStore(session, TENANT_ID)
+    normalizer = CandidateNormalizer()
+    
+    # Test normalizer
+    print("Testing normalizer...")
+    assert normalizer.normalize_relationship("INVESTS_IN") == "INVESTED_IN"
+    assert normalizer.normalize_relationship("BOUGHT") == "ACQUIRED"
+    assert normalizer.normalize_relationship("COMPLETELY_NEW_TYPE") == "COMPLETELY_NEW_TYPE"
+    print("✓ Normalizer working")
+    
+    # Create a test candidate
+    print("\nCreating test candidate...")
+    candidate_id = store.add_relationship_candidate(
+        proposed_name="TEST_RELATIONSHIP",
+        normalized_name="TEST_RELATIONSHIP",
+        source_entity_type="ORGANIZATION",
+        target_entity_type="ORGANIZATION",
+        source_entity_name="TestCompanyA",
+        target_entity_name="TestCompanyB",
+        properties={"amount": "$1M"},
+        original_text="TestCompanyA acquired TestCompanyB for $1M",
+        document_id="test-doc-001"
+    )
+    print(f"✓ Candidate created: {candidate_id}")
+    
+    # Retrieve it
+    print("\nRetrieving candidates...")
+    candidates = store.get_pending_candidates()
+    print(f"✓ Found {len(candidates)} candidates")
+    
+    # Find our test candidate
+    test_candidate = next((c for c in candidates if c['normalized_name'] == 'TEST_RELATIONSHIP'), None)
+    if test_candidate:
+        print(f"✓ Test candidate found:")
+        print(f"  - ID: {test_candidate['id']}")
+        print(f"  - Confidence: {test_candidate['confidence_score']}")
+        print(f"  - Documents: {test_candidate['document_count']}")
+        print(f"  - Mentions: {test_candidate['mention_count']}")
+    
+    # Get pending extractions
+    print("\nRetrieving pending extractions...")
+    extractions = store.get_pending_extractions(candidate_id)
+    print(f"✓ Found {len(extractions)} pending extractions")
+    
+    if extractions:
+        print(f"  - Source: {extractions[0]['source_entity_name']}")
+        print(f"  - Target: {extractions[0]['target_entity_name']}")
+    
+    # Get stats
+    print("\nGetting stats...")
+    stats = store.get_stats()
+    print(f"✓ Stats: {stats}")
+    
+    # Add another mention (same type, different document)
+    print("\nAdding second mention...")
+    store.add_relationship_candidate(
+        proposed_name="TEST_RELATIONSHIP",
+        normalized_name="TEST_RELATIONSHIP",
+        source_entity_type="ORGANIZATION",
+        target_entity_type="ORGANIZATION",
+        source_entity_name="TestCompanyC",
+        target_entity_name="TestCompanyD",
+        properties={"amount": "$2M"},
+        original_text="TestCompanyC acquired TestCompanyD for $2M",
+        document_id="test-doc-002"
+    )
+    
+    # Check confidence increased
+    candidates = store.get_pending_candidates()
+    test_candidate = next((c for c in candidates if c['normalized_name'] == 'TEST_RELATIONSHIP'), None)
+    if test_candidate:
+        print(f"✓ Updated confidence: {test_candidate['confidence_score']}")
+        print(f"  - Documents: {test_candidate['document_count']}")
+        print(f"  - Mentions: {test_candidate['mention_count']}")
+    
+    print("\n✅ All tests passed!")
+
+if __name__ == "__main__":
+    test_candidate_creation()
+```
+
+Run: python test_ontology_candidate.py
+
+================================================================================
+TEST 3: GRAPHBUILDER INTEGRATION
+================================================================================
+
+Verify that the GraphBuilder is routing unknown types to candidates.
+
+Either:
+A) Add logging and upload a document, check logs for:
+   "[GraphBuilder] Unknown type X → candidate as Y"
+
+B) Manually call the GraphBuilder method:
+```python
+from src.context_foundry.extraction.graph_builder import GraphBuilder
+from src.context_foundry.models.schema import get_session
+
+session = get_session()
+builder = GraphBuilder(session, TENANT_ID)
+
+# Test with known type (should go to KG)
+result = builder.process_extracted_relationship(
+    relationship_type="WORKS_AT",
+    source_entity_name="John Smith",
+    source_entity_type="PERSON",
+    target_entity_name="Acme Corp",
+    target_entity_type="ORGANIZATION"
+)
+print(f"Known type result: {result}")
+# Expected: {"action": "written_to_kg", "type": "WORKS_AT"}
+
+# Test with unknown type (should become candidate)
+result = builder.process_extracted_relationship(
+    relationship_type="MENTORED_BY",
+    source_entity_name="Jane Doe",
+    source_entity_type="PERSON",
+    target_entity_name="John Smith",
+    target_entity_type="PERSON",
+    chunk_text="Jane Doe was mentored by John Smith"
+)
+print(f"Unknown type result: {result}")
+# Expected: {"action": "stored_as_candidate", "type": "MENTORED_BY", "candidate_id": "..."}
+```
+
+================================================================================
+EXPECTED RESULTS
+================================================================================
+
+1. API endpoints return valid JSON (even if empty)
+2. CandidateStore creates and retrieves candidates
+3. Confidence increases with more mentions
+4. Pending extractions are stored
+5. GraphBuilder routes unknown types to candidates
+
+================================================================================
+REPORT BACK
+================================================================================
+
+Let me know:
+1. API endpoint responses
+2. Test script output
+3. Any errors encountered
+
+Once verified, we proceed to Phase 2.
+================================================================================

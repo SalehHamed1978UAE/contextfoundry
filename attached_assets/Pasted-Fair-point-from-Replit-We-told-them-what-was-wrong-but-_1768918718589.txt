@@ -1,0 +1,226 @@
+Fair point from Replit. We told them *what* was wrong but didn't give them the complete spec. Let me write it now.
+
+---
+
+## Message to Replit
+
+---
+
+Here's the complete state machine spec:
+
+---
+
+# Test Runner State Machine Specification
+
+## 1. States (Enum)
+
+```python
+class TestRunStatus(Enum):
+    IDLE = 'idle'              # No test running, ready to start
+    CREATING_VAULT = 'creating_vault'  # Fresh mode: vault being created
+    UPLOADING = 'uploading'    # Documents being uploaded to vault
+    EXTRACTING = 'extracting'  # Waiting for extraction to complete
+    RUNNING_QA = 'running_qa'  # QA questions being executed
+    COMPLETE = 'complete'      # Test finished successfully
+    FAILED = 'failed'          # Test failed with error
+    INTERRUPTED = 'interrupted' # Test was interrupted (server restart, manual stop)
+```
+
+## 2. Valid Transitions Table
+
+| From | To | Trigger |
+|------|----|---------|
+| IDLE | CREATING_VAULT | Fresh mode start |
+| IDLE | UPLOADING | Auto mode start (vault already exists) |
+| CREATING_VAULT | UPLOADING | Vault created successfully |
+| CREATING_VAULT | FAILED | Vault creation failed |
+| UPLOADING | EXTRACTING | All files uploaded |
+| UPLOADING | FAILED | Upload failed |
+| EXTRACTING | RUNNING_QA | Extraction complete (entities > 0, jobs done) |
+| EXTRACTING | FAILED | Extraction failed or timeout |
+| RUNNING_QA | COMPLETE | All questions answered |
+| RUNNING_QA | FAILED | Unrecoverable error |
+| ANY except COMPLETE | INTERRUPTED | Server restart with stale heartbeat (>5 min) OR manual stop |
+| INTERRUPTED | RUNNING_QA | Resume (only valid if was in RUNNING_QA) |
+| ANY | IDLE | Reset endpoint called |
+
+**Invalid transitions should raise an exception:**
+```python
+def transition_to(run_id: int, new_status: TestRunStatus):
+    run = TestRun.query.get(run_id)
+    old_status = TestRunStatus(run.status)
+    
+    if not is_valid_transition(old_status, new_status):
+        raise InvalidStateTransition(f"Cannot go from {old_status} to {new_status}")
+    
+    run.status = new_status.value
+    run.updated_at = datetime.utcnow()
+    run.heartbeat_at = datetime.utcnow()
+    db.session.commit()
+    
+    log.info(f"Test run {run_id}: {old_status.value} → {new_status.value}")
+```
+
+## 3. Database Schema (test_runs table)
+
+```sql
+CREATE TABLE test_runs (
+    id SERIAL PRIMARY KEY,
+    status VARCHAR(20) NOT NULL DEFAULT 'idle',  -- From TestRunStatus enum
+    vault_id UUID NULL,  -- NULL until vault is created
+    vault_name VARCHAR(255) NULL,
+    mode VARCHAR(10) NOT NULL,  -- 'fresh' or 'auto'
+    
+    -- Progress tracking
+    questions_total INTEGER DEFAULT 0,
+    questions_passed INTEGER DEFAULT 0,
+    questions_failed INTEGER DEFAULT 0,
+    current_question INTEGER DEFAULT 0,
+    
+    -- Timing
+    created_at TIMESTAMP DEFAULT NOW(),
+    started_at TIMESTAMP NULL,  -- When QA actually started
+    completed_at TIMESTAMP NULL,
+    heartbeat_at TIMESTAMP NULL,  -- Updated every 30 seconds during run
+    
+    -- Error tracking
+    error_message TEXT NULL,
+    
+    -- Results
+    results_file VARCHAR(255) NULL
+);
+```
+
+## 4. Fresh Mode Flow
+
+```python
+def start_fresh_mode(corpus_path: str):
+    # Step 1: Create test run with NO vault_id
+    run = TestRun(
+        status=TestRunStatus.CREATING_VAULT.value,
+        vault_id=None,  # CRITICAL: No vault yet
+        vault_name=None,
+        mode='fresh',
+        created_at=datetime.utcnow(),
+        heartbeat_at=datetime.utcnow()
+    )
+    db.session.add(run)
+    db.session.commit()
+    run_id = run.id
+    
+    try:
+        # Step 2: Delete old vault if exists (optional cleanup)
+        # ...
+        
+        # Step 3: Create new vault
+        vault_id, vault_name = create_vault("Manus HealthTech Clean")
+        
+        # Step 4: Update THIS run with new vault_id
+        run.vault_id = vault_id
+        run.vault_name = vault_name
+        transition_to(run_id, TestRunStatus.UPLOADING)
+        
+        # Step 5: Upload documents
+        upload_documents(vault_id, corpus_path)
+        transition_to(run_id, TestRunStatus.EXTRACTING)
+        
+        # Step 6: Wait for extraction
+        wait_for_extraction(vault_id, run_id)  # Polls until complete
+        transition_to(run_id, TestRunStatus.RUNNING_QA)
+        
+        # Step 7: Run QA
+        run.started_at = datetime.utcnow()
+        db.session.commit()
+        
+        results = run_qa_test(vault_id, run_id)
+        
+        # Step 8: Complete
+        run.completed_at = datetime.utcnow()
+        run.results_file = save_results(results)
+        transition_to(run_id, TestRunStatus.COMPLETE)
+        
+    except Exception as e:
+        run.error_message = str(e)
+        transition_to(run_id, TestRunStatus.FAILED)
+        raise
+```
+
+## 5. Auto Mode Flow
+
+```python
+def start_auto_mode(vault_id: UUID):
+    # Vault already exists, skip creation
+    run = TestRun(
+        status=TestRunStatus.UPLOADING.value,  # Start at uploading
+        vault_id=vault_id,  # Already have it
+        mode='auto',
+        created_at=datetime.utcnow(),
+        heartbeat_at=datetime.utcnow()
+    )
+    db.session.add(run)
+    db.session.commit()
+    
+    # Continue from step 5 (upload) onward...
+```
+
+## 6. Heartbeat & Interruption
+
+```python
+# In runner.py - update heartbeat every 30 seconds during QA
+def run_qa_test(vault_id, run_id):
+    run = TestRun.query.get(run_id)
+    
+    for i, question in enumerate(questions):
+        # Update heartbeat
+        run.heartbeat_at = datetime.utcnow()
+        run.current_question = i + 1
+        db.session.commit()
+        
+        # Run question...
+
+# In api.py startup - mark stale tests as interrupted
+def startup_cleanup():
+    stale_threshold = datetime.utcnow() - timedelta(minutes=5)
+    
+    stale_runs = TestRun.query.filter(
+        TestRun.status.in_(['creating_vault', 'uploading', 'extracting', 'running_qa']),
+        TestRun.heartbeat_at < stale_threshold
+    ).all()
+    
+    for run in stale_runs:
+        run.status = TestRunStatus.INTERRUPTED.value
+        run.error_message = "Interrupted: Server restarted with stale heartbeat"
+    
+    db.session.commit()
+```
+
+## 7. API Endpoints
+
+| Endpoint | Action |
+|----------|--------|
+| `POST /api/test-runner/start` | Start Fresh or Auto mode |
+| `POST /api/test-runner/stop` | Transition to INTERRUPTED |
+| `POST /api/test-runner/reset` | Transition to IDLE, clear all data |
+| `POST /api/test-runner/resume` | Resume from INTERRUPTED (if was in RUNNING_QA) |
+| `GET /api/test-runner/status` | Return current state from DB (not status.json) |
+
+## 8. UI Display Mapping
+
+| Status | UI Shows |
+|--------|----------|
+| IDLE | "Ready to start" |
+| CREATING_VAULT | "Creating vault..." |
+| UPLOADING | "Uploading documents..." |
+| EXTRACTING | "Extracting entities... (X entities found)" |
+| RUNNING_QA | "Running Q&A... (X/235 complete)" |
+| COMPLETE | "Complete: X% accuracy" |
+| FAILED | "Failed: {error_message}" |
+| INTERRUPTED | "Interrupted - Resume?" |
+
+---
+
+**Implement this exactly.** No ad-hoc status updates. Every status change goes through `transition_to()`.
+
+---
+
+This is the complete spec. Let them build it.

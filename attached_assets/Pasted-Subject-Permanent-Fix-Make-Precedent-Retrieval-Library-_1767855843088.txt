@@ -1,0 +1,32 @@
+Subject: Permanent Fix — Make Precedent Retrieval Library-First (No Transport Tech Debt)
+We are not optimizing around Replit network overhead anymore. We want a permanent production-grade architecture.
+1) Core directive (non-negotiable)
+Implement precedent retrieval as a library-first core capability, with transport adapters.
+Create src/context_foundry/dtl/core.py (or equivalent) as the single source of truth for precedent retrieval.
+Both the in-process path (agents/orchestrator) and the HTTP endpoint must call this core function.
+No retrieval logic may live in adapters. Adapters only handle auth + request/response formatting.
+2) Security rule (non-negotiable)
+Core must accept only an AuthContext object (tenant_id/user_id/role derived from authentication).
+No raw tenant_id from request bodies, ever.
+Core must set DB session vars (app.current_tenant_id, app.current_user_id, app.current_user_role) before calling search_precedents_api() so RLS is enforced identically in all paths.
+3) Embeddings policy (permanent)
+Default: caller supplies query_embedding (agents compute + cache).
+Optional fallback: core may compute embedding if missing, but that path is marked “slow”.
+4) Required deliverables
+A) Core API
+search_precedents(ctx, query_text, query_embedding, decision_type_hint, required_entity_ids, limit, min_confidence) -> List[PrecedentResult]
+B) Adapters
+dtl_http.py: HTTP endpoint → authenticate → build AuthContext → call core → return JSON
+dtl_inline.py: in-process wrapper → call core (no HTTP)
+C) Tests
+Parity test: same input through HTTP adapter and inline adapter returns identical results (ids + ordering + scores within tolerance).
+Security test: cross-tenant returns 0 results in both adapters even if client attempts override.
+Performance test: inline path p95 under agreed threshold with 10k synthetic decisions (no dependency on Replit network).
+5) Definition of Done (we will sign off only if all are true)
+One and only one place contains retrieval logic: dtl/core.py
+Both HTTP and in-process paths call core (no duplicated ranking/scoring code)
+AuthContext required; DB session vars set in core
+RLS enforced in DB for both paths
+Parity + security + performance tests pass
+Remove any “special timeout hacks” added solely to compensate for Replit HTTP overhead
+Once this is complete, we will treat precedent retrieval as permanently solved and stop revisiting transport latency.

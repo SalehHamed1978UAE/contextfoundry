@@ -1,0 +1,271 @@
+DEBUG    RLS tenant context set: 53e94d0c...                                                                                                            
+           INFO     SemanticMemory initialized for tenant 53e94d0c...                                                                                              
+           INFO     EpisodicMemory initialized for tenant 53e94d0c... (model=text-embedding-3-small)                                                               
+           INFO     SymbolicMemory initialized                                                                                                                     
+           INFO     EntityResolver initialized                                                                                                                     
+           INFO     RetrievalAgent initialized for tenant 53e94d0c...                                                                                              
+           INFO     ReasoningAgent initialized with model: gpt-4o-mini                                                                                             
+           INFO     SymbolicMemory initialized                                                                                                                     
+           INFO     ValidationAgent initialized                                                                                                                    
+           INFO     ContextFoundry core initialized for tenant 53e94d0c... (RLM enabled: True)                                                                     
+           INFO     [c378f500] QUERY_START: {"query": "What is the blast radius if the API Gateway becomes unavailable?"}                                          
+           DEBUG    RLS tenant context set: 53e94d0c...                                                                                                            
+           INFO     [c378f500] PIPELINE_START: {"query": "What is the blast radius if the API Gateway becomes unavailable?", "as_of_date": null, "tier": "tier1",  
+                    "complexity_score": 0.0, "rlm_enabled": true}                                                                                                  
+           INFO     [c378f500] QUERY_CLASSIFICATION: {"query_type": "impact", "query": "What is the blast radius if the API Gateway becomes unavailable?",         
+                    "sequence_intent": false, "sequence_reason": null}                                                                                             
+[03:23:25] INFO     Using default type mappings (type_translation table empty)                                                                                     
+           INFO     Loaded ontology schema: 225 entity types, 208 relationship types, 15 type mappings                                                             
+           INFO     Loaded domain schema from ontology tables: 225 entity types, 208 relationship types                                                            
+           INFO     [c378f500] TARGET_ENTITY_CHECK: {"target_entity": "API Gateway", "found": false, "match": null}                                                
+           WARNING  TARGET ENTITY NOT FOUND: 'API Gateway' does not exist in knowledge graph                                                                       
+           INFO     [c378f500] RETRIEVAL_START: {"keywords": ["blast", "radius", "API", "Gateway", "becomes", "unavailable"], "inferred_entity_types":             
+                    ["ACCOUNTHOLDER", "ACCOUNTSTATEMENT", "AGENT", "AIRCRAFT", "AIRCRAFTLOG", "AIRLINE", "AIRPORT", "AIRPORTRUNWAY", "AIRPORTTERMINAL",            
+                    "APPOINTMENT", "ASSET", "AVIATIONAIRPORT", "AVIATIONEVENT", "AVIATIONFACILITY", "BAGGAGE", "BANKACCOUNT", "BANKBRANCH", "BANKINGTRANSACTION",  
+                    "BED", "BERTH", "BILLOFLADING", "BOND", "BROKERAGEACCOUNT", "BUDGET", "COMPANY", "COMPONENT", "CONCEPT", "CABINCREW", "CAREPLAN",              
+                    "CARGOVESSEL", "CARRIER", "CHANGEORDER", "CLINIC", "CLINICALTRIAL", "COLDSTORAGE", "COMMISSIONINGREPORT", "COMMODITY", "COMMODITYTRADE",       
+                    "COMPLIANCECHECK", "CONSTRUCTIONDEFECT", "CONSTRUCTIONFACILITY", "CONSTRUCTIONMATERIAL", "CONSTRUCTIONPROJECT", "CONSTRUCTIONSITE",            
+                    "CONSULTANT", "CONTAINER", "CONTRACT", "CONTRACTOR", "CONTROLCENTER", "CORPORATEACTION", "CRANE", "CREDITPRODUCT", "CREWMEMBER",               
+                    "CUSTODYACCOUNT", "DATABASE", "DATE", "DOCUMENT", "DATACENTER", "DEFECTEVENT", "DELAY", "DESALINATIONPLANT", "DIAGNOSIS", "DIAGNOSTICREPORT",  
+                    "DRAWING", "DRUGBATCH", "EVENT", "ENCOUNTER", "ENVIRONMENTALASSESSMENT", "EQUIPMENT", "EQUIPMENTMAINTENANCE", "EQUITY", "FACILITY", "FARM",    
+                    "FINANCIALACCOUNT", "FINANCIALEVENT", "FINANCIALFACILITY", "FINANCIALINSTRUMENT", "FINISHEDPRODUCT", "FLIGHT", "FLIGHTCREW", "FLIGHTMANIFEST", 
+                    "FLIGHTPLAN", "FREIGHTTRUCK", "FUND", "GATE", "GENERATIONEVENT", "GOOD", "GRIDINFRASTRUCTURE", "GROUNDCREW", "GROUNDVEHICLE", "HANGAR",        
+                    "HARVEST", "HEALTHFACILITY", "HEALTHCAREPROVIDER", "HOSPITAL", "INCIDENT", "INCIDENTREPORT", "INFRASTRUCTURECOMPONENT",                        
+                    "INFRASTRUCTUREVEHICLE", "INSPECTIONEVENT", "INSPECTIONREPORT", "INSURANCECLAIM", "INSURANCEPOLICY", "INVENTORY", "LABORATORY",                
+                    "LEGALINSTRUMENT", "LINEARASSET", "LOAN", "LOCATION", "LOCOMOTIVE", "MSDS", "MAINTENANCECHECK", "MAINTENANCEDEPOT", "MAINTENANCEEVENT",        
+                    "MAINTENANCELOG", "MAINTENANCETEAM", "MANUFACTURINGFACILITY", "MANUFACTURINGPLANT", "MARKETDATA", "MATERIALDELIVERY", "MEDICALDEVICE",         
+                    "MEDICALEVENT", "MEDICALPROCEDURE", "MEDICALRECORD", "MEDICALTEAM", "MEDICATION", "MICROSERVICE", "MILESTONE", "NUCLEARREACTOR", "OBJECT",     
+                    "ORGANIZATION", "OPERATINGPERMIT", "OPERATIONALDOCUMENT", "OPERATIONALTEAM", "OPERATIONSTEAM", "OUTAGEEVENT", "PERSON", "PPPAGREEMENT",        
+                    "PROCESS", "PACKINGHOUSE", "PASSENGER", "PASSENGERBOOKING", "PATIENT", "PAYMENTCERTIFICATE", "PERMIT", "PHARMAMFGPLANT",                       
+                    "PHYTOSANITARYCERTIFICATE", "PILOT", "PIPELINE", "PORT", "PORTFOLIOREBALANCING", "POWERPLANT", "PRESCRIPTION", "PROCEDURE",                    
+                    "PROCESSINGFACILITY", "PRODUCER", "PRODUCTBATCH", "PRODUCTSPEC", "PRODUCTIONFACILITY", "PRODUCTIONLINE", "PRODUCTIONORDER", "PRODUCTIONRUN",   
+                    "PROGRESSREPORT", "PROJECT", "PROJECTMANAGER", "PROJECTPHASE", "PROJECTSPONSOR", "PURCHASEAGREEMENT", "QCLAB", "QCREPORT", "QCTESTEVENT",      
+                    "QUALITYCERTIFICATE", "QUALITYFACILITY", "QUALITYINSPECTION", "QUALITYTEAM", "RAILSTATION", "RAILWAYLINE", "RAWMATERIAL", "REFERRAL",          
+                    "REGULATORYAPPROVAL", "REGULATORYFILING", "REGULATORYREPORT", "RISKASSESSMENT", "ROUTE", "RUNWAY", "SERVICE", "SAFETYANALYSISREPORT",          
+                    "SAFETYINSPECTION", "SAFETYREPORT", "SECURITIESCONFIRMATION", "SECURITIESTRADE", "SETTLEMENT", "SHIPMENT", "SILO", "SITESUPERVISOR",           
+                    "STORAGEFACILITY", "SUBCONTRACT", "SUBSTATION", "SUPPLIER", "SUPPLYPORT", "TEAM", "TENDERDOCUMENT", "TERMINAL", "TESTTYPE1765040152",          
+                    "TESTTYPE1765040194", "THING", "TRADECONFIRMATION", "TRADER", "TRADINGDESK", "TRADINGFLOOR", "TRANSMISSIONLINE", "TRANSPORTFACILITY",          
+                    "TRANSPORTHUB", "TRANSPORTVEHICLE", "TRUCK", "TURNAROUNDEVENT", "UTILITYPLANT", "UTILITYPRODUCT", "VESSEL", "VESSELCALLEVENT", "WAGON",        
+                    "WAREHOUSE", "WASTEMANAGEMENTFACILITY", "WASTEPROCESSINGPLANT", "WASTESTREAM"], "target_entity": "API Gateway", "target_entity_found": false,  
+                    "query_type": "impact"}                                                                                                                        
+           INFO     [c378f500] IMPACT_QUERY_DETECTED: {"target_entity": "API Gateway", "traversal_direction": "incoming"}                                          
+           DEBUG    Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key':                                              
+                    'stainless-python-retry-e352879d-79f9-4fbc-abcc-38df8bdcf9f5', 'json_data': {'messages': [{'role': 'system', 'content': 'You are a query       
+                    analyzer for a knowledge graph system.\n\nCURRENT DOMAIN: Ontology Foundation\n\nENTITY TYPES and their QUERYABLE                              
+                    PROPERTIES:\n\nACCOUNTHOLDER:\n- canonical_name\n\nACCOUNTSTATEMENT:\n- canonical_name\n\nAGENT:\n- canonical_name\n\nAIRCRAFT:\n-             
+                    canonical_name\n\nAIRCRAFTLOG:\n- canonical_name\n\nAIRLINE:\n- canonical_name\n\nAIRPORT:\n- canonical_name\n\nAIRPORTRUNWAY:\n-              
+                    canonical_name\n\nAIRPORTTERMINAL:\n- canonical_name\n\nAPPOINTMENT:\n- canonical_name\n\nASSET:\n- canonical_name\n\nAVIATIONAIRPORT:\n-      
+                    canonical_name\n\nAVIATIONEVENT:\n- canonical_name\n\nAVIATIONFACILITY:\n- canonical_name\n\nBAGGAGE:\n- canonical_name\n\nBANKACCOUNT:\n-     
+                    canonical_name\n\nBANKBRANCH:\n- canonical_name\n\nBANKINGTRANSACTION:\n- canonical_name\n\nBED:\n- canonical_name\n\nBERTH:\n-                
+                    canonical_name\n\nBILLOFLADING:\n- canonical_name\n\nBOND:\n- canonical_name\n\nBROKERAGEACCOUNT:\n- canonical_name\n\nBUDGET:\n-              
+                    canonical_name\n\nCOMPANY:\n- canonical_name\n\nCOMPONENT:\n- canonical_name\n\nCONCEPT:\n- canonical_name\n\nCABINCREW:\n-                    
+                    canonical_name\n\nCAREPLAN:\n- canonical_name\n\nCARGOVESSEL:\n- canonical_name\n\nCARRIER:\n- canonical_name\n\nCHANGEORDER:\n-               
+                    canonical_name\n\nCLINIC:\n- canonical_name\n\nCLINICALTRIAL:\n- canonical_name\n\nCOLDSTORAGE:\n- canonical_name\n\nCOMMISSIONINGREPORT:\n-   
+                    canonical_name\n\nCOMMODITY:\n- canonical_name\n\nCOMMODITYTRADE:\n- canonical_name\n\nCOMPLIANCECHECK:\n-                                     
+                    canonical_name\n\nCONSTRUCTIONDEFECT:\n- canonical_name\n\nCONSTRUCTIONFACILITY:\n- canonical_name\n\nCONSTRUCTIONMATERIAL:\n-                 
+                    canonical_name\n\nCONSTRUCTIONPROJECT:\n- canonical_name\n\nCONSTRUCTIONSITE:\n- canonical_name\n\nCONSULTANT:\n-                              
+                    canonical_name\n\nCONTAINER:\n- canonical_name\n\nCONTRACT:\n- canonical_name\n\nCONTRACTOR:\n- canonical_name\n\nCONTROLCENTER:\n-            
+                    canonical_name\n\nCORPORATEACTION:\n- canonical_name\n\nCRANE:\n- canonical_name\n\nCREDITPRODUCT:\n- canonical_name\n\nCREWMEMBER:\n-         
+                    canonical_name\n\nCUSTODYACCOUNT:\n- canonical_name\n\nDATABASE:\n- canonical_name\n\nDATE:\n- canonical_name\n\nDOCUMENT:\n-                  
+                    canonical_name\n\nDATACENTER:\n- canonical_name\n\nDEFECTEVENT:\n- canonical_name\n\nDELAY:\n- canonical_name\n\nDESALINATIONPLANT:\n-         
+                    canonical_name\n\nDIAGNOSIS:\n- canonical_name\n\nDIAGNOSTICREPORT:\n- canonical_name\n\nDRAWING:\n- canonical_name\n\nDRUGBATCH:\n-           
+                    canonical_name\n\nEVENT:\n- canonical_name\n\nENCOUNTER:\n- canonical_name\n\nENVIRONMENTALASSESSMENT:\n- canonical_name\n\nEQUIPMENT:\n-      
+                    canonical_name\n\nEQUIPMENTMAINTENANCE:\n- canonical_name\n\nEQUITY:\n- canonical_name\n\nFACILITY:\n- canonical_name\n\nFARM:\n-              
+                    canonical_name\n\nFINANCIALACCOUNT:\n- canonical_name\n\nFINANCIALEVENT:\n- canonical_name\n\nFINANCIALFACILITY:\n-                            
+                    canonical_name\n\nFINANCIALINSTRUMENT:\n- canonical_name\n\nFINISHEDPRODUCT:\n- canonical_name\n\nFLIGHT:\n- canonical_name\n\nFLIGHTCREW:\n-  
+                    canonical_name\n\nFLIGHTMANIFEST:\n- canonical_name\n\nFLIGHTPLAN:\n- canonical_name\n\nFREIGHTTRUCK:\n- canonical_name\n\nFUND:\n-            
+                    canonical_name\n\nGATE:\n- canonical_name\n\nGENERATIONEVENT:\n- canonical_name\n\nGOOD:\n- canonical_name\n\nGRIDINFRASTRUCTURE:\n-           
+                    canonical_name\n\nGROUNDCREW:\n- canonical_name\n\nGROUNDVEHICLE:\n- canonical_name\n\nHANGAR:\n- canonical_name\n\nHARVEST:\n-                
+                    canonical_name\n\nHEALTHFACILITY:\n- canonical_name\n\nHEALTHCAREPROVIDER:\n- canonical_name\n\nHOSPITAL:\n- canonical_name\n\nINCIDENT:\n-    
+                    canonical_name\n\nINCIDENTREPORT:\n- canonical_name\n\nINFRASTRUCTURECOMPONENT:\n- canonical_name\n\nINFRASTRUCTUREVEHICLE:\n-                 
+                    canonical_name\n\nINSPECTIONEVENT:\n- canonical_name\n\nINSPECTIONREPORT:\n- canonical_name\n\nINSURANCECLAIM:\n-                              
+                    canonical_name\n\nINSURANCEPOLICY:\n- canonical_name\n\nINVENTORY:\n- canonical_name\n\nLABORATORY:\n- canonical_name\n\nLEGALINSTRUMENT:\n-   
+                    canonical_name\n\nLINEARASSET:\n- canonical_name\n\nLOAN:\n- canonical_name\n\nLOCATION:\n- canonical_name\n\nLOCOMOTIVE:\n-                   
+                    canonical_name\n\nMSDS:\n- canonical_name\n\nMAINTENANCECHECK:\n- canonical_name\n\nMAINTENANCEDEPOT:\n- canonical_name\n\nMAINTENANCEEVENT:\n-
+                    canonical_name\n\nMAINTENANCELOG:\n- canonical_name\n\nMAINTENANCETEAM:\n- canonical_name\n\nMANUFACTURINGFACILITY:\n-                         
+                    canonical_name\n\nMANUFACTURINGPLANT:\n- canonical_name\n\nMARKETDATA:\n- canonical_name\n\nMATERIALDELIVERY:\n-                               
+                    canonical_name\n\nMEDICALDEVICE:\n- canonical_name\n\nMEDICALEVENT:\n- canonical_name\n\nMEDICALPROCEDURE:\n-                                  
+                    canonical_name\n\nMEDICALRECORD:\n- canonical_name\n\nMEDICALTEAM:\n- canonical_name\n\nMEDICATION:\n- canonical_name\n\nMICROSERVICE:\n-      
+                    canonical_name\n\nMILESTONE:\n- canonical_name\n\nNUCLEARREACTOR:\n- canonical_name\n\nOBJECT:\n- canonical_name\n\nORGANIZATION:\n-           
+                    canonical_name\n\nOPERATINGPERMIT:\n- canonical_name\n\nOPERATIONALDOCUMENT:\n- canonical_name\n\nOPERATIONALTEAM:\n-                          
+                    canonical_name\n\nOPERATIONSTEAM:\n- canonical_name\n\nOUTAGEEVENT:\n- canonical_name\n\nPERSON:\n- canonical_name\n\nPPPAGREEMENT:\n-         
+                    canonical_name\n\nPROCESS:\n- canonical_name\n\nPACKINGHOUSE:\n- canonical_name\n\nPASSENGER:\n- canonical_name\n\nPASSENGERBOOKING:\n-        
+                    canonical_name\n\nPATIENT:\n- canonical_name\n\nPAYMENTCERTIFICATE:\n- canonical_name\n\nPERMIT:\n- canonical_name\n\nPHARMAMFGPLANT:\n-       
+                    canonical_name\n\nPHYTOSANITARYCERTIFICATE:\n- canonical_name\n\nPILOT:\n- canonical_name\n\nPIPELINE:\n- canonical_name\n\nPORT:\n-           
+                    canonical_name\n\nPORTFOLIOREBALANCING:\n- canonical_name\n\nPOWERPLANT:\n- canonical_name\n\nPRESCRIPTION:\n- canonical_name\n\nPROCEDURE:\n- 
+                    canonical_name\n\nPROCESSINGFACILITY:\n- canonical_name\n\nPRODUCER:\n- canonical_name\n\nPRODUCTBATCH:\n- canonical_name\n\nPRODUCTSPEC:\n-   
+                    canonical_name\n\nPRODUCTIONFACILITY:\n- canonical_name\n\nPRODUCTIONLINE:\n- canonical_name\n\nPRODUCTIONORDER:\n-                            
+                    canonical_name\n\nPRODUCTIONRUN:\n- canonical_name\n\nPROGRESSREPORT:\n- canonical_name\n\nPROJECT:\n- canonical_name\n\nPROJECTMANAGER:\n-    
+                    canonical_name\n\nPROJECTPHASE:\n- canonical_name\n\nPROJECTSPONSOR:\n- canonical_name\n\nPURCHASEAGREEMENT:\n- canonical_name\n\nQCLAB:\n-    
+                    canonical_name\n\nQCREPORT:\n- canonical_name\n\nQCTESTEVENT:\n- canonical_name\n\nQUALITYCERTIFICATE:\n- canonical_name\n\nQUALITYFACILITY:\n-
+                    canonical_name\n\nQUALITYINSPECTION:\n- canonical_name\n\nQUALITYTEAM:\n- canonical_name\n\nRAILSTATION:\n- canonical_name\n\nRAILWAYLINE:\n-  
+                    canonical_name\n\nRAWMATERIAL:\n- canonical_name\n\nREFERRAL:\n- canonical_name\n\nREGULATORYAPPROVAL:\n-                                      
+                    canonical_name\n\nREGULATORYFILING:\n- canonical_name\n\nREGULATORYREPORT:\n- canonical_name\n\nRISKASSESSMENT:\n- canonical_name\n\nROUTE:\n- 
+                    canonical_name\n\nRUNWAY:\n- canonical_name\n\nSERVICE:\n- canonical_name\n\nSAFETYANALYSISREPORT:\n- canonical_name\n\nSAFETYINSPECTION:\n-   
+                    canonical_name\n\nSAFETYREPORT:\n- canonical_name\n\nSECURITIESCONFIRMATION:\n- canonical_name\n\nSECURITIESTRADE:\n-                          
+                    canonical_name\n\nSETTLEMENT:\n- canonical_name\n\nSHIPMENT:\n- canonical_name\n\nSILO:\n- canonical_name\n\nSITESUPERVISOR:\n-                
+                    canonical_name\n\nSTORAGEFACILITY:\n- canonical_name\n\nSUBCONTRACT:\n- canonical_name\n\nSUBSTATION:\n- canonical_name\n\nSUPPLIER:\n-        
+                    canonical_name\n\nSUPPLYPORT:\n- canonical_name\n\nTEAM:\n- canonical_name\n\nTENDERDOCUMENT:\n- canonical_name\n\nTERMINAL:\n-                
+                    canonical_name\n\nTESTTYPE1765040152:\n- canonical_name\n\nTESTTYPE1765040194:\n- canonical_name\n\nTHING:\n-                                  
+                    canonical_name\n\nTRADECONFIRMATION:\n- canonical_name\n\nTRADER:\n- canonical_name\n\nTRADINGDESK:\n- canonical_name\n\nTRADINGFLOOR:\n-      
+                    canonical_name\n\nTRANSMISSIONLINE:\n- canonical_name\n\nTRANSPORTFACILITY:\n- canonical_name\n\nTRANSPORTHUB:\n-                              
+                    canonical_name\n\nTRANSPORTVEHICLE:\n- canonical_name\n\nTRUCK:\n- canonical_name\n\nTURNAROUNDEVENT:\n- canonical_name\n\nUTILITYPLANT:\n-    
+                    canonical_name\n\nUTILITYPRODUCT:\n- canonical_name\n\nVESSEL:\n- canonical_name\n\nVESSELCALLEVENT:\n- canonical_name\n\nWAGON:\n-            
+                    canonical_name\n\nWAREHOUSE:\n- canonical_name\n\nWASTEMANAGEMENTFACILITY:\n- canonical_name\n\nWASTEPROCESSINGPLANT:\n-                       
+                    canonical_name\n\nWASTESTREAM:\n- canonical_name\n\nAnalyze the query and determine if it\'s asking for entities filtered by their             
+                    properties.\nReturn a JSON object with:\n- needs_property_search: boolean - true if this query needs property-based filtering\n- entity_type:  
+                    One of ["ACCOUNTHOLDER", "ACCOUNTSTATEMENT", "AGENT", "AIRCRAFT", "AIRCRAFTLOG", "AIRLINE", "AIRPORT", "AIRPORTRUNWAY", "AIRPORTTERMINAL",     
+                    "APPOINTMENT", "ASSET", "AVIATIONAIRPORT", "AVIATIONEVENT", "AVIATIONFACILITY", "BAGGAGE", "BANKACCOUNT", "BANKBRANCH", "BANKINGTRANSACTION",  
+                    "BED", "BERTH", "BILLOFLADING", "BOND", "BROKERAGEACCOUNT", "BUDGET", "COMPANY", "COMPONENT", "CONCEPT", "CABINCREW", "CAREPLAN",              
+                    "CARGOVESSEL", "CARRIER", "CHANGEORDER", "CLINIC", "CLINICALTRIAL", "COLDSTORAGE", "COMMISSIONINGREPORT", "COMMODITY", "COMMODITYTRADE",       
+                    "COMPLIANCECHECK", "CONSTRUCTIONDEFECT", "CONSTRUCTIONFACILITY", "CONSTRUCTIONMATERIAL", "CONSTRUCTIONPROJECT", "CONSTRUCTIONSITE",            
+                    "CONSULTANT", "CONTAINER", "CONTRACT", "CONTRACTOR", "CONTROLCENTER", "CORPORATEACTION", "CRANE", "CREDITPRODUCT", "CREWMEMBER",               
+                    "CUSTODYACCOUNT", "DATABASE", "DATE", "DOCUMENT", "DATACENTER", "DEFECTEVENT", "DELAY", "DESALINATIONPLANT", "DIAGNOSIS", "DIAGNOSTICREPORT",  
+                    "DRAWING", "DRUGBATCH", "EVENT", "ENCOUNTER", "ENVIRONMENTALASSESSMENT", "EQUIPMENT", "EQUIPMENTMAINTENANCE", "EQUITY", "FACILITY", "FARM",    
+                    "FINANCIALACCOUNT", "FINANCIALEVENT", "FINANCIALFACILITY", "FINANCIALINSTRUMENT", "FINISHEDPRODUCT", "FLIGHT", "FLIGHTCREW", "FLIGHTMANIFEST", 
+                    "FLIGHTPLAN", "FREIGHTTRUCK", "FUND", "GATE", "GENERATIONEVENT", "GOOD", "GRIDINFRASTRUCTURE", "GROUNDCREW", "GROUNDVEHICLE", "HANGAR",        
+                    "HARVEST", "HEALTHFACILITY", "HEALTHCAREPROVIDER", "HOSPITAL", "INCIDENT", "INCIDENTREPORT", "INFRASTRUCTURECOMPONENT",                        
+                    "INFRASTRUCTUREVEHICLE", "INSPECTIONEVENT", "INSPECTIONREPORT", "INSURANCECLAIM", "INSURANCEPOLICY", "INVENTORY", "LABORATORY",                
+                    "LEGALINSTRUMENT", "LINEARASSET", "LOAN", "LOCATION", "LOCOMOTIVE", "MSDS", "MAINTENANCECHECK", "MAINTENANCEDEPOT", "MAINTENANCEEVENT",        
+                    "MAINTENANCELOG", "MAINTENANCETEAM", "MANUFACTURINGFACILITY", "MANUFACTURINGPLANT", "MARKETDATA", "MATERIALDELIVERY", "MEDICALDEVICE",         
+                    "MEDICALEVENT", "MEDICALPROCEDURE", "MEDICALRECORD", "MEDICALTEAM", "MEDICATION", "MICROSERVICE", "MILESTONE", "NUCLEARREACTOR", "OBJECT",     
+                    "ORGANIZATION", "OPERATINGPERMIT", "OPERATIONALDOCUMENT", "OPERATIONALTEAM", "OPERATIONSTEAM", "OUTAGEEVENT", "PERSON", "PPPAGREEMENT",        
+                    "PROCESS", "PACKINGHOUSE", "PASSENGER", "PASSENGERBOOKING", "PATIENT", "PAYMENTCERTIFICATE", "PERMIT", "PHARMAMFGPLANT",                       
+                    "PHYTOSANITARYCERTIFICATE", "PILOT", "PIPELINE", "PORT", "PORTFOLIOREBALANCING", "POWERPLANT", "PRESCRIPTION", "PROCEDURE",                    
+                    "PROCESSINGFACILITY", "PRODUCER", "PRODUCTBATCH", "PRODUCTSPEC", "PRODUCTIONFACILITY", "PRODUCTIONLINE", "PRODUCTIONORDER", "PRODUCTIONRUN",   
+                    "PROGRESSREPORT", "PROJECT", "PROJECTMANAGER", "PROJECTPHASE", "PROJECTSPONSOR", "PURCHASEAGREEMENT", "QCLAB", "QCREPORT", "QCTESTEVENT",      
+                    "QUALITYCERTIFICATE", "QUALITYFACILITY", "QUALITYINSPECTION", "QUALITYTEAM", "RAILSTATION", "RAILWAYLINE", "RAWMATERIAL", "REFERRAL",          
+                    "REGULATORYAPPROVAL", "REGULATORYFILING", "REGULATORYREPORT", "RISKASSESSMENT", "ROUTE", "RUNWAY", "SERVICE", "SAFETYANALYSISREPORT",          
+                    "SAFETYINSPECTION", "SAFETYREPORT", "SECURITIESCONFIRMATION", "SECURITIESTRADE", "SETTLEMENT", "SHIPMENT", "SILO", "SITESUPERVISOR",           
+                    "STORAGEFACILITY", "SUBCONTRACT", "SUBSTATION", "SUPPLIER", "SUPPLYPORT", "TEAM", "TENDERDOCUMENT", "TERMINAL", "TESTTYPE1765040152",          
+                    "TESTTYPE1765040194", "THING", "TRADECONFIRMATION", "TRADER", "TRADINGDESK", "TRADINGFLOOR", "TRANSMISSIONLINE", "TRANSPORTFACILITY",          
+                    "TRANSPORTHUB", "TRANSPORTVEHICLE", "TRUCK", "TURNAROUNDEVENT", "UTILITYPLANT", "UTILITYPRODUCT", "VESSEL", "VESSELCALLEVENT", "WAGON",        
+                    "WAREHOUSE", "WASTEMANAGEMENTFACILITY", "WASTEPROCESSINGPLANT", "WASTESTREAM"] or null\n- filters: array of filter objects, each with:\n  -    
+                    property: the property name\n  - contains: value to search for (use for partial matches, lists, or text search)\n  - equals: exact value match 
+                    (use for exact matches)\n- intersection_logic: "AND" or "OR" - how multiple filters should be combined\n\nEXAMPLES:\nQuery: "Which entities    
+                    have a specific property value?"\n{\n  "needs_property_search": true,\n  "entity_type": "ENTITY_TYPE",\n  "filters": [{"property":             
+                    "property_name", "contains": "value"}],\n  "intersection_logic": "AND"\n}\n\nQuery: "What depends on X?" or "Who is X?"\n{\n                   
+                    "needs_property_search": false,\n  "entity_type": null,\n  "filters": [],\n  "intersection_logic": "AND"\n}'}, {'role': 'user', 'content':     
+                    'Analyze this query:\n\nWhat is the blast radius if the API Gateway becomes unavailable?'}], 'model': 'gpt-4o-mini', 'max_completion_tokens':  
+                    500, 'response_format': {'type': 'json_object'}, 'temperature': 0.0}}                                                                          
+           DEBUG    Sending HTTP Request: POST http://localhost:1106/modelfarm/openai/chat/completions                                                             
+           DEBUG    connect_tcp.started host='localhost' port=1106 local_address=None timeout=5.0 socket_options=None                                              
+           DEBUG    connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7fa63fbe95d0>                                                
+           DEBUG    send_request_headers.started request=<Request [b'POST']>                                                                                       
+           DEBUG    send_request_headers.complete                                                                                                                  
+           DEBUG    send_request_body.started request=<Request [b'POST']>                                                                                          
+           DEBUG    send_request_body.complete                                                                                                                     
+           DEBUG    receive_response_headers.started request=<Request [b'POST']>                                                                                   
+[03:23:26] DEBUG    receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Length', b'1340'), (b'Content-Type', b'application/json'),
+                    (b'Date', b'Tue, 06 Jan 2026 03:23:25 GMT'), (b'Via', b'1.1 google'), (b'X-Request-Id', b'c69b01ed-cf74-46a9-bec8-3ce13fc1e1a4')])             
+           INFO     HTTP Request: POST http://localhost:1106/modelfarm/openai/chat/completions "HTTP/1.1 200 OK"                                                   
+           DEBUG    receive_response_body.started request=<Request [b'POST']>                                                                                      
+           DEBUG    receive_response_body.complete                                                                                                                 
+           DEBUG    response_closed.started                                                                                                                        
+           DEBUG    response_closed.complete                                                                                                                       
+           DEBUG    HTTP Response: POST http://localhost:1106/modelfarm/openai/chat/completions "200 OK" Headers({'content-length': '1340', 'content-type':        
+                    'application/json', 'date': 'Tue, 06 Jan 2026 03:23:25 GMT', 'via': '1.1 google', 'x-request-id': 'c69b01ed-cf74-46a9-bec8-3ce13fc1e1a4'})     
+           DEBUG    request_id: c69b01ed-cf74-46a9-bec8-3ce13fc1e1a4                                                                                               
+           DEBUG    Property query analysis: {'needs_property_search': False, 'entity_type': None, 'filters': [], 'intersection_logic': 'AND'}                     
+           DEBUG    Entity search 'blast': found 0 results (as_of=None)                                                                                            
+           DEBUG    Entity search 'radius': found 0 results (as_of=None)                                                                                           
+           DEBUG    Entity search 'API': found 1 results (as_of=None)                                                                                              
+           DEBUG    Entity search 'Gateway': found 1 results (as_of=None)                                                                                          
+           DEBUG    Entity search 'becomes': found 0 results (as_of=None)                                                                                          
+           DEBUG    Entity search 'unavailable': found 0 results (as_of=None)                                                                                      
+           WARNING  Entity not found for schema-driven blast radius: API Gateway                                                                                   
+           INFO     [c378f500] SEMANTIC_RETRIEVAL: {"entities_count": 2, "relationships_count": 0, "entities": ["Banking API", "Payment Gateway"], "confidence":   
+                    0.85}                                                                                                                                          
+           DEBUG    Semantic query: 2 entities, 0 relationships                                                                                                    
+           DEBUG    Request options: {'method': 'post', 'url': '/embeddings', 'files': None, 'idempotency_key':                                                    
+                    'stainless-python-retry-7599b87f-0f1c-457d-b857-7db2c65316b7', 'post_parser': <function Embeddings.create.<locals>.parser at 0x7fa656d23f60>,  
+                    'json_data': {'input': 'What is the blast radius if the API Gateway becomes unavailable?', 'model': 'text-embedding-3-small',                  
+                    'encoding_format': 'base64'}}                                                                                                                  
+           DEBUG    Sending HTTP Request: POST https://api.openai.com/v1/embeddings                                                                                
+           DEBUG    connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=5.0 socket_options=None                                          
+           DEBUG    connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7fa63fa60c10>                                                
+           DEBUG    start_tls.started ssl_context=<ssl.SSLContext object at 0x7fa63fa00b00> server_hostname='api.openai.com' timeout=5.0                           
+           DEBUG    start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7fa63fa63d90>                                                  
+           DEBUG    send_request_headers.started request=<Request [b'POST']>                                                                                       
+           DEBUG    send_request_headers.complete                                                                                                                  
+           DEBUG    send_request_body.started request=<Request [b'POST']>                                                                                          
+           DEBUG    send_request_body.complete                                                                                                                     
+           DEBUG    receive_response_headers.started request=<Request [b'POST']>                                                                                   
+[03:23:27] DEBUG    receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Tue, 06 Jan 2026 03:23:27 GMT'), (b'Content-Type',       
+                    b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-allow-origin', b'*'),              
+                    (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-model', b'text-embedding-3-small'), (b'openai-organization',                    
+                    b'user-ojcvlffga8vilzrv14wxrme2'), (b'openai-processing-ms', b'99'), (b'openai-project', b'proj_wG1zaK73E1yPLH9GcDid8tyf'), (b'openai-version',
+                    b'2020-10-01'), (b'strict-transport-security', b'max-age=31536000; includeSubDomains; preload'), (b'via', b'envoy-router-587b8b494d-bv85l'),   
+                    (b'x-envoy-upstream-service-time', b'260'), (b'x-ratelimit-limit-requests', b'5000'), (b'x-ratelimit-limit-tokens', b'5000000'),               
+                    (b'x-ratelimit-remaining-requests', b'4999'), (b'x-ratelimit-remaining-tokens', b'4999984'), (b'x-ratelimit-reset-requests', b'12ms'),         
+                    (b'x-ratelimit-reset-tokens', b'0s'), (b'x-request-id', b'req_6226f10a109d4dfeb2527510f1646af8'), (b'x-openai-proxy-wasm', b'v0.1'),           
+                    (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie',                                                                                              
+                    b'__cf_bm=3t0rwcglLEbooAs5keu6iIHwuBTuJjfsfSNDQRBShPY-1767669807-1.0.1.1-IX.jYvVldFhg6LWC1DLnQSYjjCinidJ.sS_PxeLnDwCtrKTcrZUjsSGho7X1DXJYYhUt_7
+                    cxNHzUdFfP_b9GbOqfWTTjIhWpQc.Cnzgx_qg; path=/; expires=Tue, 06-Jan-26 03:53:27 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), 
+                    (b'X-Content-Type-Options', b'nosniff'), (b'Set-Cookie', b'_cfuvid=3YJRgye1NfEa.49Uzi.JypRpRgR4J26PuFn.ukS5DCA-1767669807219-0.0.1.1-604800000;
+                    path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'9b9818c51d19dad8-ORD'),           
+                    (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])                                                                         
+           INFO     HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"                                                                      
+           DEBUG    receive_response_body.started request=<Request [b'POST']>                                                                                      
+           DEBUG    receive_response_body.complete                                                                                                                 
+           DEBUG    response_closed.started                                                                                                                        
+           DEBUG    response_closed.complete                                                                                                                       
+           DEBUG    HTTP Response: POST https://api.openai.com/v1/embeddings "200 OK" Headers([('date', 'Tue, 06 Jan 2026 03:23:27 GMT'), ('content-type',         
+                    'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('access-control-allow-origin', '*'),                     
+                    ('access-control-expose-headers', 'X-Request-ID'), ('openai-model', 'text-embedding-3-small'), ('openai-organization',                         
+                    'user-ojcvlffga8vilzrv14wxrme2'), ('openai-processing-ms', '99'), ('openai-project', 'proj_wG1zaK73E1yPLH9GcDid8tyf'), ('openai-version',      
+                    '2020-10-01'), ('strict-transport-security', 'max-age=31536000; includeSubDomains; preload'), ('via', 'envoy-router-587b8b494d-bv85l'),        
+                    ('x-envoy-upstream-service-time', '260'), ('x-ratelimit-limit-requests', '5000'), ('x-ratelimit-limit-tokens', '5000000'),                     
+                    ('x-ratelimit-remaining-requests', '4999'), ('x-ratelimit-remaining-tokens', '4999984'), ('x-ratelimit-reset-requests', '12ms'),               
+                    ('x-ratelimit-reset-tokens', '0s'), ('x-request-id', 'req_6226f10a109d4dfeb2527510f1646af8'), ('x-openai-proxy-wasm', 'v0.1'),                 
+                    ('cf-cache-status', 'DYNAMIC'), ('set-cookie',                                                                                                 
+                    '__cf_bm=3t0rwcglLEbooAs5keu6iIHwuBTuJjfsfSNDQRBShPY-1767669807-1.0.1.1-IX.jYvVldFhg6LWC1DLnQSYjjCinidJ.sS_PxeLnDwCtrKTcrZUjsSGho7X1DXJYYhUt_7c
+                    xNHzUdFfP_b9GbOqfWTTjIhWpQc.Cnzgx_qg; path=/; expires=Tue, 06-Jan-26 03:53:27 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'),  
+                    ('x-content-type-options', 'nosniff'), ('set-cookie', '_cfuvid=3YJRgye1NfEa.49Uzi.JypRpRgR4J26PuFn.ukS5DCA-1767669807219-0.0.1.1-604800000;    
+                    path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '9b9818c51d19dad8-ORD'),               
+                    ('content-encoding', 'gzip'), ('alt-svc', 'h3=":443"; ma=86400')])                                                                             
+           DEBUG    request_id: req_6226f10a109d4dfeb2527510f1646af8                                                                                               
+           DEBUG    Episodic search 'What is the blast radius if the API Gateway become...': found 0 similar documents                                             
+           DEBUG    Keyword search ['blast', 'radius', 'API', 'Gateway', 'becomes', 'unavailable']: found 0 documents                                              
+           INFO     [c378f500] EPISODIC_RETRIEVAL: {"documents_count": 0, "top_similarity": 0, "avg_similarity": 0}                                                
+           DEBUG    Episodic query: 0 documents                                                                                                                    
+           DEBUG    Found 4 applicable rules                                                                                                                       
+           INFO     [c378f500] SYMBOLIC_QUERY: {"rules_found": 4, "rule_names": ["Auth Service Required for API", "Payment Service Dependency Check", "On-Call     
+                    Requirement", "Cascade Impact Assessment"]}                                                                                                    
+           DEBUG    Symbolic query: 4 applicable rules                                                                                                             
+           INFO     [c378f500] CONTEXT_BUNDLE_BUILT: {"semantic_items": 2, "episodic_items": 0, "rules_count": 4, "overall_confidence": 0.1}                       
+           INFO     [c378f500] ENTITY_NOT_FOUND_GUARD: {"target_entity": "API Gateway", "action": "short_circuit_before_reasoning"}                                
+           WARNING  ENTITY NOT FOUND: 'API Gateway' - refusing to hallucinate                                                                                      
+           INFO     [c378f500] QUERY_COMPLETE: {"success": true, "duration_seconds": 2.51991, "final_confidence": 0.0, "total_events": 11}                         
+           DEBUG    Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'idempotency_key':                                              
+                    'stainless-python-retry-772b3725-ca96-4739-8c68-f869a2f9c512', 'json_data': {'messages': [{'role': 'user', 'content': 'You are answering a     
+                    blast radius / impact analysis query about an IT operations knowledge base.\n\nContext from knowledge graph:\nENTITIES:\n  - Payment Gateway   
+                    (SERVICE): \n  - Banking API (SERVICE): \n\nRELATIONSHIPS:\n  - Payment Gateway --[DEPENDS_ON]--> Fraud Detection Service\n  - Payment Gateway 
+                    --[DEPENDS_ON]--> Banking API\n  - Order Processing Service --[DEPENDS_ON]--> Payment Gateway\n  - Platform Engineering Team --[MANAGES]-->    
+                    Payment Gateway\n  - Incident INC-2026-0105-A --[TRIGGERED_BY]--> Payment Gateway\n  - Integrations Team --[MANAGES]--> Banking                
+                    API\n\nQuestion: What is the blast radius if the API Gateway becomes unavailable?\n\nIMPORTANT: Your answer MUST follow this exact structure   
+                    with TWO labeled sections ONLY:\n\nGROUNDED (facts from the data only):\n- List ONLY entities that DEPEND ON the failing service\n- Use format:
+                    "[Dependent] depends on [FailingService] [REL-xxx]" for each\n- If no entities depend on the failing service, say: "No services are documented 
+                    as depending on [FailingService]"\n- EVERY claim MUST cite a specific relationship from the context\n\nGAPS (what is not documented):\n- State 
+                    what information is missing\n- Be explicit about missing information\n\nDO NOT include an INFERRED section. DO NOT speculate. If it\'s not in  
+                    the relationships, don\'t mention it.'}], 'model': 'gpt-4o-mini', 'max_tokens': 500, 'temperature': 0.0}}                                      
+           DEBUG    Sending HTTP Request: POST http://localhost:1106/modelfarm/openai/chat/completions                                                             
+           DEBUG    connect_tcp.started host='localhost' port=1106 local_address=None timeout=5.0 socket_options=None                                              
+           DEBUG    connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7fa63faac310>                                                
+           DEBUG    send_request_headers.started request=<Request [b'POST']>                                                                                       
+           DEBUG    send_request_headers.complete                                                                                                                  
+           DEBUG    send_request_body.started request=<Request [b'POST']>                                                                                          
+           DEBUG    send_request_body.complete                                                                                                                     
+           DEBUG    receive_response_headers.started request=<Request [b'POST']>                                                                                   
+[03:23:29] DEBUG    receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Length', b'1856'), (b'Content-Type', b'application/json'),
+                    (b'Date', b'Tue, 06 Jan 2026 03:23:29 GMT'), (b'Via', b'1.1 google'), (b'X-Request-Id', b'8853d073-f7a2-4e79-a1b6-218b5a7adb01')])             
+           INFO     HTTP Request: POST http://localhost:1106/modelfarm/openai/chat/completions "HTTP/1.1 200 OK"                                                   
+           DEBUG    receive_response_body.started request=<Request [b'POST']>                                                                                      
+           DEBUG    receive_response_body.complete                                                                                                                 
+           DEBUG    response_closed.started                                                                                                                        
+           DEBUG    response_closed.complete                                                                                                                       
+           DEBUG    HTTP Response: POST http://localhost:1106/modelfarm/openai/chat/completions "200 OK" Headers({'content-length': '1856', 'content-type':        
+                    'application/json', 'date': 'Tue, 06 Jan 2026 03:23:29 GMT', 'via': '1.1 google', 'x-request-id': '8853d073-f7a2-4e79-a1b6-218b5a7adb01'})     
+           DEBUG    request_id: 8853d073-f7a2-4e79-a1b6-218b5a7adb01                                                                                               
+           INFO     172.31.121.130 - - [06/Jan/2026 03:23:29] "POST /api/evaluation/compare HTTP/1.1" 200 -                                                        
+[03:23:51] INFO     172.31.121.130 - - [06/Jan/2026 03:23:51] "GET /api/v1/health HTTP/1.1" 200 -

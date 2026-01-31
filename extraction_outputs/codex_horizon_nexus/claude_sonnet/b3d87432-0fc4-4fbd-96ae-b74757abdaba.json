@@ -1,0 +1,134 @@
+{
+  "document_id": "f926d5524a7b",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/security_compliance_committee_2026_01_29.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:32:00.765550",
+  "entities": [
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/security_compliance_committee_2026_01_29.md",
+      "source_excerpt": "Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/security_compliance_committee_2026_01_29.md",
+      "source_excerpt": "Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "Security & Compliance Committee",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "security, compliance, FedRAMP, Basel IV"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/security_compliance_committee_2026_01_29.md",
+      "source_excerpt": "Security & Compliance Committee Meeting Notes",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "active with milestones"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/security_compliance_committee_2026_01_29.md",
+      "source_excerpt": "Reinforce Horizon Prime milestones",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "task management platform"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/security_compliance_committee_2026_01_29.md",
+      "source_excerpt": "Owners assigned in PulseOps",
+      "aliases": []
+    },
+    {
+      "name": "FedRAMP",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "federal security compliance"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/security_compliance_committee_2026_01_29.md",
+      "source_excerpt": "Topics: FedRAMP, Basel IV, incident drills",
+      "aliases": []
+    },
+    {
+      "name": "Basel IV",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "banking regulation"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/security_compliance_committee_2026_01_29.md",
+      "source_excerpt": "Topics: FedRAMP, Basel IV, incident drills",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Security & Compliance Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/security_compliance_committee_2026_01_29.md",
+      "evidence": "Maya Serrano listed as attendee of Security & Compliance Committee meeting"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Security & Compliance Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/security_compliance_committee_2026_01_29.md",
+      "evidence": "Dylan Kaur listed as attendee of Security & Compliance Committee meeting"
+    },
+    {
+      "source_entity": "Security & Compliance Committee",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/security_compliance_committee_2026_01_29.md",
+      "evidence": "Committee made decision to reinforce Horizon Prime milestones"
+    },
+    {
+      "source_entity": "Security & Compliance Committee",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "USES",
+      "target_entity": "PulseOps",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/security_compliance_committee_2026_01_29.md",
+      "evidence": "Owners assigned in PulseOps for action items"
+    }
+  ],
+  "metadata": {
+    "filename": "security_compliance_committee_2026_01_29.md",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

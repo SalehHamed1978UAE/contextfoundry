@@ -1,0 +1,102 @@
+{
+  "document_id": "46f2570a026b",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/people_ops_leadership_2026_01_30.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:32:18.415123",
+  "entities": [
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/people_ops_leadership_2026_01_30.md",
+      "source_excerpt": "Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/people_ops_leadership_2026_01_30.md",
+      "source_excerpt": "Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "People Ops Leadership Meeting",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "2026-01-30",
+        "status": "ongoing"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/people_ops_leadership_2026_01_30.md",
+      "source_excerpt": "People Ops Leadership Meeting Notes",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "active with milestones"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/people_ops_leadership_2026_01_30.md",
+      "source_excerpt": "Reinforce Horizon Prime milestones",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "System for assigning owners"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/people_ops_leadership_2026_01_30.md",
+      "source_excerpt": "Owners assigned in PulseOps",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "People Ops Leadership Meeting",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/people_ops_leadership_2026_01_30.md",
+      "evidence": "Maya Serrano listed as attendee"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "People Ops Leadership Meeting",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/people_ops_leadership_2026_01_30.md",
+      "evidence": "Dylan Kaur listed as attendee"
+    },
+    {
+      "source_entity": "People Ops Leadership Meeting",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "PulseOps",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/people_ops_leadership_2026_01_30.md",
+      "evidence": "Owners assigned in PulseOps as action item"
+    }
+  ],
+  "metadata": {
+    "filename": "people_ops_leadership_2026_01_30.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "document_id": "bcb7e37a362a",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/strategy/transformation_program_horizon_prime.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T09:14:49.810055",
+  "entities": [
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": null,
+        "timeline": "Q4 2026",
+        "status": "ongoing"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/transformation_program_horizon_prime.md",
+      "source_excerpt": "Transformation Program Horizon Prime",
+      "aliases": []
+    },
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": null,
+        "role": "staff member"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/transformation_program_horizon_prime.md",
+      "source_excerpt": "Launch executive analytics cockpit for Maya Serrano's staff",
+      "aliases": []
+    },
+    {
+      "name": "BluePeak",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": null,
+        "industry": null
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/transformation_program_horizon_prime.md",
+      "source_excerpt": "Consolidate supplier portals under BluePeak hosting",
+      "aliases": []
+    },
+    {
+      "name": "Citadel",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": null,
+        "industry": null
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/transformation_program_horizon_prime.md",
+      "source_excerpt": "Embed compliance by design for Citadel deployments",
+      "aliases": []
+    },
+    {
+      "name": "Operating Expense Savings",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Operating Expense Savings",
+        "value": 42000000,
+        "period": null,
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/transformation_program_horizon_prime.md",
+      "source_excerpt": "Operating Expense Savings: $42M",
+      "aliases": []
+    },
+    {
+      "name": "Cycle Time Reduction",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Cycle Time Reduction",
+        "value": 18,
+        "period": null,
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/transformation_program_horizon_prime.md",
+      "source_excerpt": "Cycle Time Reduction: 18%",
+      "aliases": []
+    },
+    {
+      "name": "Unified CRM Adoption",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Unified CRM Adoption",
+        "value": 98,
+        "period": null,
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/transformation_program_horizon_prime.md",
+      "source_excerpt": "Unified CRM Adoption: 98%",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Board sponsors",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/transformation_program_horizon_prime.md",
+      "evidence": "Board sponsors reaffirmed appetite for disciplined growth."
+    },
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/transformation_program_horizon_prime.md",
+      "evidence": "Launch executive analytics cockpit for Maya Serrano's staff"
+    }
+  ],
+  "metadata": {
+    "filename": "transformation_program_horizon_prime.md",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

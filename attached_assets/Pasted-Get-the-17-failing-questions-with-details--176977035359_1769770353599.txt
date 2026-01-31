@@ -1,0 +1,32 @@
+Get the 17 failing questions with details                                                      
+                                                                                                         
+  # Extract all failing questions                                                                        
+  python3 -c "                                                                                           
+  import json                                                                                            
+  import glob                                                                                            
+                                                                                                         
+  for f in glob.glob('test_results/*progress*.jsonl'):                                                   
+      with open(f) as file:                                                                              
+          for line in file:                                                                              
+              if line.strip():                                                                           
+                  d = json.loads(line)                                                                   
+                  if not d.get('passed'):                                                                
+                      print(f\"Q{d['q']}: {d.get('query', '')[:60]}\")                                   
+                      print(f\"  Expected: {d.get('expected', '')[:60]}\")                               
+                      print(f\"  Got: {d.get('actual', '')[:80]}\")                                      
+                      print(f\"  Failure: {d.get('failure_category', 'unknown')}\")                      
+                      print()                                                                            
+  "                                                                                                      
+                                                                                                         
+  Or from the JSON results file:                                                                         
+                                                                                                         
+  cat test_results/*results*.json | python3 -c "                                                         
+  import sys, json                                                                                       
+  data = json.load(sys.stdin)                                                                            
+  for f in data.get('failures', []):                                                                     
+      print(f\"Q{f['q']}: {f['query'][:60]}\")                                                           
+      print(f\"  Expected: {f['expected'][:50]}\")                                                       
+      print(f\"  Category: {f.get('failure_category', 'unknown')}\")                                     
+      print()                                                                                            
+  "                                                                                                      
+                                                          

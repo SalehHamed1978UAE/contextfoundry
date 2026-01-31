@@ -1,0 +1,138 @@
+{
+  "document_id": "78a069fdcfab",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_corematrix_semiconductors.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:57:48.996023",
+  "entities": [
+    {
+      "name": "CoreMatrix Semiconductors",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "category": "Chipsets",
+        "tier": "Tier 1",
+        "engagement_model": "Long-term",
+        "average_lead_time": "102 days",
+        "service_level": "98.4%"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_corematrix_semiconductors.md",
+      "source_excerpt": "Supplier Profile: CoreMatrix Semiconductors",
+      "aliases": []
+    },
+    {
+      "name": "Victor Liao",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Executive Sponsor"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_corematrix_semiconductors.md",
+      "source_excerpt": "Executive Sponsor: Victor Liao",
+      "aliases": []
+    },
+    {
+      "name": "Procurement",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "escalation management",
+          "supplier relations"
+        ]
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_corematrix_semiconductors.md",
+      "source_excerpt": "Escalation path defined through Procurement",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Logistics scheduling service"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_corematrix_semiconductors.md",
+      "source_excerpt": "Align sourcing forecasts with Titan Logistics schedule",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Documentation platform for continuity plans"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_corematrix_semiconductors.md",
+      "source_excerpt": "Document continuity plans in Horizon Prime",
+      "aliases": []
+    },
+    {
+      "name": "98.4%",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Service Level",
+        "value": "98.4%",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_corematrix_semiconductors.md",
+      "source_excerpt": "Service Level: 98.4%",
+      "aliases": []
+    },
+    {
+      "name": "102 days",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Average Lead Time",
+        "value": "102 days",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_corematrix_semiconductors.md",
+      "source_excerpt": "Average Lead Time: 102 days",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Victor Liao",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "CoreMatrix Semiconductors",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_corematrix_semiconductors.md",
+      "evidence": "Victor Liao serves as Executive Sponsor for CoreMatrix Semiconductors"
+    },
+    {
+      "source_entity": "CoreMatrix Semiconductors",
+      "source_type": "SUPPLIER",
+      "relationship_type": "USES",
+      "target_entity": "Titan Logistics",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_corematrix_semiconductors.md",
+      "evidence": "Need to align sourcing forecasts with Titan Logistics schedule"
+    },
+    {
+      "source_entity": "Procurement",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_corematrix_semiconductors.md",
+      "evidence": "Document continuity plans in Horizon Prime"
+    }
+  ],
+  "metadata": {
+    "filename": "supplier_assessment_corematrix_semiconductors.md",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

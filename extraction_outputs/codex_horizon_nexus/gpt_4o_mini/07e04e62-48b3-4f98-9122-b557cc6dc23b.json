@@ -1,0 +1,116 @@
+{
+  "document_id": "11fa74667a05",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:42:24.002145",
+  "entities": [
+    {
+      "name": "Marcus Nguyen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "GM/VP",
+        "role": "General Manager/Vice President"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "source_excerpt": "GM/VP: Marcus Nguyen",
+      "aliases": []
+    },
+    {
+      "name": "TransitEdge",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Transportation"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "source_excerpt": "TransitEdge FY26 Roadmap",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "data lake"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "source_excerpt": "integration with Horizon Prime data lake",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Annual Recurring Revenue",
+        "value": 365000000,
+        "period": "FY26",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "source_excerpt": "ARR: $365M",
+      "aliases": []
+    },
+    {
+      "name": "Active Corridors",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Active Corridors",
+        "value": 118,
+        "period": "FY26",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "source_excerpt": "Active Corridors: 118",
+      "aliases": []
+    },
+    {
+      "name": "Gross Margin",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Gross Margin",
+        "value": 54,
+        "period": "FY26",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "source_excerpt": "Gross Margin: 54%",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Marcus Nguyen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "TransitEdge",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "evidence": "GM/VP: Marcus Nguyen"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "evidence": "integration with Horizon Prime data lake"
+    }
+  ],
+  "metadata": {
+    "filename": "transitedge_roadmap.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

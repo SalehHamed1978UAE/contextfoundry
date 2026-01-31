@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corpus Maker - Context Foundry</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ cache_bust }}">
+    <style>
+        .maker-page {
+            min-height: 100vh;
+            background: var(--bg-primary);
+            padding: 32px;
+        }
+        
+        .maker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .back-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .back-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        .maker-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .maker-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        
+        .maker-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        @media (max-width: 1024px) {
+            .maker-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .maker-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+        }
+        
+        .maker-card.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card-title svg {
+            color: var(--accent-primary);
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: var(--accent-primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--accent-primary);
+        }
+        
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .file-upload {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .file-upload:hover {
+            border-color: var(--accent-primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        .file-upload.dragover {
+            border-color: var(--accent-primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        .file-upload-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px;
+            color: var(--text-muted);
+        }
+        
+        .file-upload-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .file-upload-text strong {
+            color: var(--accent-primary);
+        }
+        
+        .file-list {
+            margin-top: 16px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+        }
+        
+        .file-item-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .file-item-icon {
+            color: var(--accent-primary);
+        }
+        
+        .file-item-name {
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+        
+        .file-item-size {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+        
+        .file-item-remove {
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+        }
+        
+        .file-item-remove:hover {
+            color: var(--error);
+        }
+        
+        .category-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .corpus-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .corpus-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .corpus-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        
+        .corpus-table tr:hover td {
+            background: var(--bg-primary);
+        }
+        
+        .corpus-name {
+            font-weight: 500;
+        }
+        
+        .accuracy-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .accuracy-high {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+        
+        .accuracy-medium {
+            background: rgba(251, 191, 36, 0.1);
+            color: var(--warning);
+        }
+        
+        .accuracy-low {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+        }
+        
+        .status-extracted {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+        
+        .status-pending {
+            background: rgba(251, 191, 36, 0.1);
+            color: var(--warning);
+        }
+        
+        .upload-progress {
+            margin-top: 16px;
+            display: none;
+        }
+        
+        .upload-progress.active {
+            display: block;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-primary);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-primary);
+            border-radius: var(--radius-full);
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+        
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error);
+            color: var(--error);
+        }
+        
+        .alert-info {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-muted);
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .validation-results {
+            margin-top: 16px;
+        }
+        
+        .validation-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .validation-item:last-child {
+            border-bottom: none;
+        }
+        
+        .validation-icon {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .validation-icon.success {
+            color: var(--success);
+        }
+        
+        .validation-icon.error {
+            color: var(--error);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            background: var(--bg-primary);
+            padding: 4px;
+            border-radius: var(--radius-md);
+            width: fit-content;
+        }
+        
+        .tab {
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            background: transparent;
+        }
+        
+        .tab.active {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .notification {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .notification-success {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+        }
+        .notification-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+        .notification-icon { font-size: 1.25rem; font-weight: bold; }
+        .notification-message { flex: 1; }
+        .notification-close {
+            background: none; border: none; color: inherit;
+            font-size: 1.25rem; cursor: pointer; opacity: 0.7;
+        }
+        .notification-close:hover { opacity: 1; }
+
+        .progress-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.9);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000;
+        }
+        .progress-content { text-align: center; color: #e2e8f0; }
+        .spinner {
+            width: 48px; height: 48px;
+            border: 3px solid #334155; border-top-color: #06b6d4;
+            border-radius: 50%; animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .selection-panel {
+            margin-top: 1rem; border: 1px solid var(--border-color);
+            border-radius: 12px; background: var(--bg-card); overflow: hidden;
+        }
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem; background: var(--bg-primary); border-bottom: 1px solid var(--border-color);
+        }
+        .panel-header h4 { margin: 0; font-size: 0.938rem; color: var(--text-primary); }
+        .panel-actions { display: flex; gap: 1rem; }
+        .btn-link {
+            background: none; border: none; color: var(--accent-primary);
+            font-size: 0.75rem; cursor: pointer; padding: 0;
+        }
+        .btn-link:hover { text-decoration: underline; }
+        .btn-link.danger { color: #f87171; }
+        .panel-hint {
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.75rem 1rem; background: rgba(6, 182, 212, 0.1);
+            color: var(--accent-primary); font-size: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .item-list { max-height: 350px; overflow-y: auto; }
+        .item-row {
+            display: flex; align-items: center; padding: 0.625rem 1rem;
+            border-bottom: 1px solid var(--bg-primary); transition: background 0.15s;
+        }
+        .item-row:hover { background: rgba(255, 255, 255, 0.02); }
+        .item-row:last-child { border-bottom: none; }
+        .item-row.excluded { opacity: 0.5; }
+        .item-checkbox {
+            width: 18px; height: 18px; margin-right: 0.75rem;
+            accent-color: var(--accent-primary); cursor: pointer;
+        }
+        .item-icon { margin-right: 0.5rem; font-size: 1rem; }
+        .item-icon.folder { color: #fbbf24; }
+        .item-icon.file { color: #64748b; }
+        .item-name { flex: 1; font-size: 0.875rem; color: var(--text-primary); }
+        .item-row.excluded .item-name { color: #64748b; text-decoration: line-through; }
+        .item-count { font-size: 0.75rem; color: var(--text-muted); margin-right: 1rem; }
+        .item-category { width: 130px; }
+        .category-select {
+            width: 100%; padding: 0.25rem 0.5rem; background: var(--bg-primary);
+            border: 1px solid var(--border-color); border-radius: 4px;
+            color: var(--text-primary); font-size: 0.75rem;
+        }
+        .item-row.excluded .category-select { display: none; }
+        .item-remove {
+            margin-left: 8px; padding: 4px 8px; background: transparent;
+            border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 4px;
+            color: #ef4444; font-size: 0.7rem; cursor: pointer; transition: all 0.15s;
+        }
+        .item-remove:hover { background: rgba(239, 68, 68, 0.1); border-color: #ef4444; }
+        .selection-summary {
+            padding: 1rem; background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .summary-text { font-size: 0.875rem; color: var(--text-primary); }
+        .summary-text strong { color: var(--accent-primary); }
+        .item-separator {
+            padding: 0.5rem 1rem; background: var(--bg-primary);
+            color: var(--text-muted); font-size: 0.75rem;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .corpora-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1rem;
+        }
+        
+        .corpus-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        .corpus-card:hover {
+            border-color: var(--accent-primary);
+        }
+        
+        .corpus-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+        
+        .corpus-card-header h4 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .corpus-files-badge {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .corpus-details {
+            margin-bottom: 1rem;
+        }
+        
+        .corpus-detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.813rem;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid var(--bg-card);
+        }
+        
+        .corpus-detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .corpus-detail-row .label {
+            color: var(--text-muted);
+        }
+        
+        .corpus-detail-row .value {
+            color: var(--text-secondary);
+            font-family: monospace;
+        }
+        
+        .corpus-detail-row .value.success {
+            color: #4ade80;
+        }
+        
+        .corpus-detail-row .value.warning {
+            color: #fbbf24;
+        }
+        
+        .corpus-vaults {
+            margin-bottom: 1rem;
+        }
+        
+        .corpus-vaults-header {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .vault-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 4px;
+            color: var(--accent-primary);
+            margin-right: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .vault-tag .vault-id {
+            font-family: monospace;
+        }
+        
+        .corpus-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .corpus-actions .btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 8px 12px;
+            font-size: 0.813rem;
+        }
+        
+        .btn-create-vault {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            border: none;
+            color: white;
+        }
+        
+        .btn-create-vault:hover {
+            background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%);
+        }
+        
+        .btn-view-vault {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .btn-delete-corpus {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+        
+        .btn-delete-corpus:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="maker-page">
+        <div class="maker-header">
+            <div class="header-left">
+                <a href="/test-runner" class="back-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </a>
+                <div>
+                    <h1 class="maker-title">Corpus Maker</h1>
+                    <p class="maker-subtitle">Upload and manage test corpora for Q&A evaluation</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="upload">Upload Corpus</button>
+            <button class="tab" data-tab="list">Registered Corpora</button>
+            <button class="tab" data-tab="validate">Validate Files</button>
+        </div>
+        
+        <div id="alertContainer"></div>
+        
+        <div id="uploadTab" class="tab-content active">
+            <div class="maker-grid">
+                <div class="maker-card">
+                    <h3 class="card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                        Corpus Details
+                    </h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Corpus Name</label>
+                        <input type="text" id="corpusName" class="form-input" placeholder="e.g., Acme Corporation Q4 2025">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Description (optional)</label>
+                        <input type="text" id="corpusDescription" class="form-input" placeholder="Brief description of this corpus">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Anchor Organization (optional)</label>
+                        <input type="text" id="anchorOrg" class="form-input" placeholder="e.g., Acme Corporation">
+                    </div>
+                </div>
+                
+                <div class="maker-card">
+                    <h3 class="card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                        Question Set
+                    </h3>
+                    
+                    <div class="file-upload" id="questionUpload">
+                        <input type="file" id="questionFile" accept=".json" style="display: none;">
+                        <svg class="file-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        <p class="file-upload-text">
+                            <strong>Click to upload</strong> or drag and drop<br>
+                            JSON file with questions and expected answers
+                        </p>
+                    </div>
+                    
+                    <div class="file-list" id="questionFileList"></div>
+                </div>
+                
+                <div class="maker-card full-width">
+                    <h3 class="card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        Documents
+                    </h3>
+                    
+                    <button type="button" class="btn btn-primary" id="selectCorpusFolderBtn" style="margin-bottom: 16px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        Select Corpus Folder
+                    </button>
+                    <input type="file" id="corpusFolderInput" webkitdirectory directory multiple style="display: none;">
+                    
+                    <div class="file-upload" id="docDropZone" style="padding: 32px; cursor: pointer;">
+                        <svg class="file-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        <p class="file-upload-text">
+                            <strong>Drag folders here</strong><br>
+                            <span style="font-size: 13px; color: var(--text-muted);">Select multiple folders in Finder/Explorer, then drag them all at once</span>
+                        </p>
+                        <p style="color: var(--text-muted); font-size: 12px; margin: 12px 0;">— or —</p>
+                        <p style="font-size: 13px; color: var(--text-muted);">
+                            Click to select one folder <span style="opacity: 0.7;">(browser limitation)</span>
+                        </p>
+                    </div>
+                    
+                    <div id="selectionPanel" class="selection-panel" style="display: none;">
+                        <div class="panel-header">
+                            <h4 id="rootFolderName">Selected Folders</h4>
+                            <div class="panel-actions">
+                                <button type="button" class="btn-link" onclick="addMoreFolders()">+ Add More</button>
+                                <button type="button" class="btn-link" onclick="selectAllFolders()">Select All</button>
+                                <button type="button" class="btn-link" onclick="deselectAll()">Deselect All</button>
+                                <button type="button" class="btn-link danger" onclick="clearFolderSelection()">Clear</button>
+                            </div>
+                        </div>
+                        <div class="panel-hint">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+                            </svg>
+                            Folders are selected by default. Loose files (questions.json, manifest.json) are excluded.
+                        </div>
+                        <div id="itemList" class="item-list"></div>
+                        <div id="selectionSummary" class="selection-summary"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="upload-progress" id="uploadProgress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="progress-text">
+                    <span id="progressStatus">Uploading...</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 12px; margin-top: 16px;">
+                <button class="btn btn-primary" id="uploadBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    Upload Corpus
+                </button>
+                <button class="btn btn-secondary" id="validateBeforeUpload">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    Validate First
+                </button>
+            </div>
+        </div>
+        
+        <div id="listTab" class="tab-content">
+            <div class="maker-card">
+                <h3 class="card-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                    Registered Corpora
+                </h3>
+                
+                <div id="corporaCards" class="corpora-grid"></div>
+                
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <p>No corpora registered yet</p>
+                    <p style="font-size: 13px;">Upload your first corpus using the Upload tab</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="validateTab" class="tab-content">
+            <div class="maker-grid">
+                <div class="maker-card">
+                    <h3 class="card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        Validate Question File
+                    </h3>
+                    
+                    <div class="file-upload" id="validateQuestionUpload">
+                        <input type="file" id="validateQuestionFile" accept=".json" style="display: none;">
+                        <svg class="file-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        <p class="file-upload-text">
+                            <strong>Click to upload</strong> a JSON question file to validate
+                        </p>
+                    </div>
+                    
+                    <div class="validation-results" id="questionValidationResults"></div>
+                </div>
+                
+                <div class="maker-card">
+                    <h3 class="card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                        Validate Documents
+                    </h3>
+                    
+                    <div class="file-upload" id="validateDocUpload">
+                        <input type="file" id="validateDocFiles" multiple accept=".pdf,.docx,.doc,.txt,.md,.xlsx,.xls,.csv" style="display: none;">
+                        <svg class="file-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        <p class="file-upload-text">
+                            <strong>Click to upload</strong> documents to validate
+                        </p>
+                    </div>
+                    
+                    <div class="validation-results" id="docValidationResults"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let allFiles = [];
+        let folderStructure = {};
+        let looseFiles = [];
+        let rootFolderName = '';
+        let uploadedQuestions = null;
+
+        const AUTO_EXCLUDE_PATTERNS = [
+            /^questions.*\.json$/i,
+            /^manifest\.json$/i,
+            /^readme\.md$/i,
+            /^\..*$/,
+            /.*\.log$/i,
+        ];
+
+        const CATEGORY_KEYWORDS = {
+            'strategy': ['strategy', 'strategic', 'planning', 'roadmap', 'vision'],
+            'projects': ['project', 'projects', 'initiative', 'program'],
+            'financials': ['financial', 'finance', 'budget', 'revenue', 'earnings'],
+            'compliance': ['compliance', 'regulatory', 'audit', 'risk'],
+            'hr': ['hr', 'human', 'personnel', 'employee'],
+            'technical': ['technical', 'engineering', 'architecture', 'system'],
+            'legal': ['legal', 'contract', 'agreement', 'nda'],
+        };
+
+        const SUPPORTED_EXTENSIONS = ['.pdf', '.docx', '.doc', '.txt', '.md', '.xlsx', '.xls', '.csv'];
+
+        function showNotification(type, message) {
+            document.querySelectorAll('.notification').forEach(n => n.remove());
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <span class="notification-icon">${type === 'success' ? '✓' : '✕'}</span>
+                <span class="notification-message">${message}</span>
+                <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            const container = document.getElementById('alertContainer');
+            container.insertBefore(notification, container.firstChild);
+            setTimeout(() => notification.remove(), 5000);
+        }
+
+        function showProgress(message) {
+            let overlay = document.getElementById('progressOverlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'progressOverlay';
+                overlay.className = 'progress-overlay';
+                overlay.innerHTML = `<div class="progress-content"><div class="spinner"></div><p id="progressMessage">${message}</p></div>`;
+                document.body.appendChild(overlay);
+            } else {
+                document.getElementById('progressMessage').textContent = message;
+                overlay.style.display = 'flex';
+            }
+        }
+
+        function hideProgress() {
+            const overlay = document.getElementById('progressOverlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        function shouldAutoExclude(filename) {
+            return AUTO_EXCLUDE_PATTERNS.some(pattern => pattern.test(filename));
+        }
+
+        function detectCategory(folderName) {
+            const nameLower = folderName.toLowerCase();
+            for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+                if (keywords.some(kw => nameLower.includes(kw))) {
+                    return category;
+                }
+            }
+            return 'uncategorized';
+        }
+
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    ${type === 'success' ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>' : 
+                      type === 'error' ? '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>' :
+                      '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>'}
+                </svg>
+                <span>${message}</span>
+            `;
+            container.appendChild(alert);
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        document.getElementById('selectCorpusFolderBtn').addEventListener('click', () => {
+            document.getElementById('corpusFolderInput').click();
+        });
+
+        document.getElementById('docDropZone').addEventListener('click', () => {
+            document.getElementById('corpusFolderInput').click();
+        });
+
+        const docDropZone = document.getElementById('docDropZone');
+        docDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            docDropZone.classList.add('dragover');
+        });
+        docDropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            docDropZone.classList.remove('dragover');
+        });
+        docDropZone.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            docDropZone.classList.remove('dragover');
+            
+            const entries = [];
+            const items = e.dataTransfer.items;
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (item.kind === 'file') {
+                    const entry = item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
+                    if (entry && entry.isDirectory) {
+                        entries.push(entry);
+                    }
+                }
+            }
+            
+            if (entries.length === 0) {
+                console.log('No directory entries found in drop');
+                return;
+            }
+            
+            console.log(`Processing ${entries.length} dropped folders`);
+            
+            for (const entry of entries) {
+                try {
+                    const files = await traverseDirectory(entry);
+                    console.log(`Folder "${entry.name}" has ${files.length} files`);
+                    addDroppedFolder(entry.name, files);
+                } catch (err) {
+                    console.error(`Error processing folder ${entry.name}:`, err);
+                }
+            }
+            
+            updateSelectionUI();
+        });
+
+        async function traverseDirectory(dirEntry, path = '') {
+            const files = [];
+            const reader = dirEntry.createReader();
+            
+            const readEntries = () => new Promise(resolve => reader.readEntries(resolve));
+            
+            let entries;
+            do {
+                entries = await readEntries();
+                for (const entry of entries) {
+                    const entryPath = path ? `${path}/${entry.name}` : entry.name;
+                    
+                    if (entry.isFile) {
+                        const file = await new Promise(resolve => entry.file(resolve));
+                        file.relativePath = `${dirEntry.name}/${entryPath}`;
+                        const ext = '.' + file.name.split('.').pop().toLowerCase();
+                        if (SUPPORTED_EXTENSIONS.includes(ext)) {
+                            files.push(file);
+                        }
+                    } else if (entry.isDirectory) {
+                        const subFiles = await traverseDirectory(entry, entryPath);
+                        files.push(...subFiles);
+                    }
+                }
+            } while (entries.length > 0);
+            
+            return files;
+        }
+
+        function addDroppedFolder(folderName, files) {
+            if (folderStructure[folderName]) {
+                console.log(`Folder "${folderName}" already in selection`);
+                return;
+            }
+            
+            if (!rootFolderName) {
+                rootFolderName = 'Multiple Folders';
+            }
+            
+            folderStructure[folderName] = {
+                files: files,
+                included: true,
+                category: detectCategory(folderName)
+            };
+            
+            allFiles = allFiles.concat(files);
+        }
+
+        let isAddingMore = false;
+        
+        document.getElementById('corpusFolderInput').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+            processSelectedFolder(files, isAddingMore);
+            isAddingMore = false;
+            e.target.value = '';
+        });
+
+        function processSelectedFolder(files, accumulate = false) {
+            const newFiles = files.filter(f => {
+                const ext = '.' + f.name.split('.').pop().toLowerCase();
+                return SUPPORTED_EXTENSIONS.includes(ext);
+            });
+            
+            if (!accumulate || Object.keys(folderStructure).length === 0) {
+                allFiles = newFiles;
+                folderStructure = {};
+                looseFiles = [];
+                const firstPath = files[0].webkitRelativePath || '';
+                rootFolderName = firstPath.split('/')[0] || 'Selected Folder';
+            } else {
+                allFiles = allFiles.concat(newFiles);
+                rootFolderName = 'Multiple Folders';
+            }
+            
+            newFiles.forEach(file => {
+                const path = file.webkitRelativePath || file.name;
+                const parts = path.split('/');
+                
+                if (parts.length === 2) {
+                    const fileName = parts[1];
+                    const alreadyExists = looseFiles.some(lf => lf.name === fileName);
+                    if (!alreadyExists) {
+                        looseFiles.push({
+                            file: file,
+                            name: fileName,
+                            included: !shouldAutoExclude(fileName)
+                        });
+                    }
+                } else if (parts.length > 2) {
+                    const subfolder = parts[1];
+                    if (!folderStructure[subfolder]) {
+                        folderStructure[subfolder] = {
+                            files: [],
+                            included: true,
+                            category: detectCategory(subfolder)
+                        };
+                    }
+                    folderStructure[subfolder].files.push(file);
+                }
+            });
+            
+            updateSelectionUI();
+        }
+
+        function updateSelectionUI() {
+            const dropZone = document.getElementById('docDropZone');
+            const panel = document.getElementById('selectionPanel');
+            const itemList = document.getElementById('itemList');
+            
+            dropZone.style.display = 'none';
+            panel.style.display = 'block';
+            document.getElementById('rootFolderName').textContent = `📁 ${rootFolderName}`;
+            
+            let html = '';
+            const sortedFolders = Object.entries(folderStructure).sort((a, b) => a[0].localeCompare(b[0]));
+            
+            sortedFolders.forEach(([name, data]) => {
+                const escapedName = name.replace(/'/g, "\\'");
+                html += `
+                    <div class="item-row ${data.included ? '' : 'excluded'}" data-type="folder" data-name="${name}">
+                        <input type="checkbox" class="item-checkbox" ${data.included ? 'checked' : ''} onchange="toggleFolder('${escapedName}', this.checked)">
+                        <span class="item-icon folder">📁</span>
+                        <span class="item-name">${name}</span>
+                        <span class="item-count">${data.files.length} files</span>
+                        <div class="item-category">
+                            <select class="category-select" onchange="setCategory('${escapedName}', this.value)">
+                                <option value="uncategorized" ${data.category === 'uncategorized' ? 'selected' : ''}>Uncategorized</option>
+                                <option value="strategy" ${data.category === 'strategy' ? 'selected' : ''}>Strategy</option>
+                                <option value="projects" ${data.category === 'projects' ? 'selected' : ''}>Projects</option>
+                                <option value="financials" ${data.category === 'financials' ? 'selected' : ''}>Financials</option>
+                                <option value="compliance" ${data.category === 'compliance' ? 'selected' : ''}>Compliance</option>
+                                <option value="hr" ${data.category === 'hr' ? 'selected' : ''}>HR</option>
+                                <option value="technical" ${data.category === 'technical' ? 'selected' : ''}>Technical</option>
+                                <option value="legal" ${data.category === 'legal' ? 'selected' : ''}>Legal</option>
+                            </select>
+                        </div>
+                        <button type="button" class="item-remove" onclick="removeFolder('${escapedName}')" title="Remove folder">✕</button>
+                    </div>
+                `;
+            });
+            
+            if (looseFiles.length > 0) {
+                html += `<div class="item-separator">Root Files</div>`;
+                looseFiles.forEach((item, index) => {
+                    html += `
+                        <div class="item-row ${item.included ? '' : 'excluded'}" data-type="file" data-index="${index}">
+                            <input type="checkbox" class="item-checkbox" ${item.included ? 'checked' : ''} onchange="toggleLooseFile(${index}, this.checked)">
+                            <span class="item-icon file">📄</span>
+                            <span class="item-name">${item.name}</span>
+                            <span class="item-count"></span>
+                            <div class="item-category"></div>
+                            <button type="button" class="item-remove" onclick="removeLooseFile(${index})" title="Remove file">✕</button>
+                        </div>
+                    `;
+                });
+            }
+            
+            itemList.innerHTML = html;
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const summary = document.getElementById('selectionSummary');
+            let includedFolders = 0, includedFiles = 0, excludedFiles = 0;
+            
+            Object.values(folderStructure).forEach(data => {
+                if (data.included) {
+                    includedFolders++;
+                    includedFiles += data.files.length;
+                } else {
+                    excludedFiles += data.files.length;
+                }
+            });
+            
+            looseFiles.forEach(item => {
+                if (item.included) includedFiles++;
+                else excludedFiles++;
+            });
+            
+            summary.innerHTML = `
+                <span class="summary-text"><strong>${includedFolders}</strong> folders, <strong>${includedFiles}</strong> files selected</span>
+                <span class="summary-text" style="color: var(--text-muted);">${excludedFiles} excluded</span>
+            `;
+        }
+
+        function toggleFolder(name, included) {
+            folderStructure[name].included = included;
+            updateSelectionUI();
+        }
+
+        function toggleLooseFile(index, included) {
+            looseFiles[index].included = included;
+            updateSelectionUI();
+        }
+
+        function removeFolder(name) {
+            if (folderStructure[name]) {
+                const fileCount = folderStructure[name].files.length;
+                allFiles = allFiles.filter(f => {
+                    const subfolder = f.webkitRelativePath.split('/').slice(1, -1).join('/');
+                    return subfolder !== name;
+                });
+                delete folderStructure[name];
+                updateSelectionUI();
+                
+                if (Object.keys(folderStructure).length === 0 && looseFiles.length === 0) {
+                    clearFolderSelection();
+                }
+            }
+        }
+
+        function removeLooseFile(index) {
+            const file = looseFiles[index];
+            if (file) {
+                allFiles = allFiles.filter(f => f !== file.file);
+                looseFiles.splice(index, 1);
+                updateSelectionUI();
+                
+                if (Object.keys(folderStructure).length === 0 && looseFiles.length === 0) {
+                    clearFolderSelection();
+                }
+            }
+        }
+
+        function setCategory(name, category) {
+            folderStructure[name].category = category;
+        }
+
+        function selectAllFolders() {
+            Object.keys(folderStructure).forEach(name => folderStructure[name].included = true);
+            updateSelectionUI();
+        }
+
+        function deselectAll() {
+            Object.keys(folderStructure).forEach(name => folderStructure[name].included = false);
+            looseFiles.forEach(item => item.included = false);
+            updateSelectionUI();
+        }
+
+        function clearFolderSelection() {
+            allFiles = [];
+            folderStructure = {};
+            looseFiles = [];
+            rootFolderName = '';
+            document.getElementById('docDropZone').style.display = 'block';
+            document.getElementById('selectionPanel').style.display = 'none';
+        }
+
+        function addMoreFolders() {
+            isAddingMore = true;
+            document.getElementById('corpusFolderInput').click();
+        }
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + 'Tab').classList.add('active');
+                
+                if (tab.dataset.tab === 'list') {
+                    loadCorpora();
+                }
+            });
+        });
+
+        function setupFileUpload(uploadZoneId, inputSelector, callback) {
+            const zone = document.getElementById(uploadZoneId);
+            const input = zone.querySelector(inputSelector) || document.getElementById(inputSelector);
+            
+            zone.addEventListener('click', () => input.click());
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('dragover');
+            });
+            zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('dragover');
+                callback(e.dataTransfer.files);
+            });
+            input.addEventListener('change', () => callback(input.files));
+        }
+
+        setupFileUpload('questionUpload', 'questionFile', (files) => {
+            if (files.length > 0) {
+                uploadedQuestions = files[0];
+                renderQuestionFile();
+            }
+        });
+
+        function renderQuestionFile() {
+            const list = document.getElementById('questionFileList');
+            if (!uploadedQuestions) {
+                list.innerHTML = '';
+                return;
+            }
+            list.innerHTML = `
+                <div class="file-item">
+                    <div class="file-item-info">
+                        <svg class="file-item-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                        <span class="file-item-name">${uploadedQuestions.name}</span>
+                        <span class="file-item-size">${formatFileSize(uploadedQuestions.size)}</span>
+                    </div>
+                    <span class="file-item-remove" onclick="removeQuestionFile()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </span>
+                </div>
+            `;
+        }
+
+        function removeQuestionFile() {
+            uploadedQuestions = null;
+            document.getElementById('questionFile').value = '';
+            renderQuestionFile();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        function getSelectedFiles() {
+            const selectedFiles = [];
+            const categoryMap = {};
+            
+            Object.entries(folderStructure).forEach(([folderName, data]) => {
+                if (data.included) {
+                    data.files.forEach(file => {
+                        selectedFiles.push(file);
+                        const path = file.webkitRelativePath || file.name;
+                        categoryMap[path] = data.category;
+                    });
+                }
+            });
+            
+            looseFiles.forEach(item => {
+                if (item.included) {
+                    selectedFiles.push(item.file);
+                    const path = item.file.webkitRelativePath || item.file.name;
+                    categoryMap[path] = 'uncategorized';
+                }
+            });
+            
+            return { selectedFiles, categoryMap };
+        }
+
+        document.getElementById('uploadBtn').addEventListener('click', async () => {
+            const name = document.getElementById('corpusName').value.trim();
+            if (!name) {
+                showNotification('error', 'Please enter a corpus name');
+                return;
+            }
+            
+            if (!uploadedQuestions) {
+                showNotification('error', 'Please upload a question file');
+                return;
+            }
+            
+            const { selectedFiles, categoryMap } = getSelectedFiles();
+            
+            if (selectedFiles.length === 0) {
+                showNotification('error', 'Please select at least one document or folder');
+                return;
+            }
+            
+            const progress = document.getElementById('uploadProgress');
+            const progressFill = document.getElementById('progressFill');
+            const progressStatus = document.getElementById('progressStatus');
+            const progressPercent = document.getElementById('progressPercent');
+            progress.classList.add('active');
+            
+            try {
+                progressStatus.textContent = 'Preparing files...';
+                progressFill.style.width = '10%';
+                progressPercent.textContent = '10%';
+                
+                const formData = new FormData();
+                formData.append('name', name);
+                formData.append('description', document.getElementById('corpusDescription').value);
+                formData.append('anchor_org', document.getElementById('anchorOrg').value);
+                formData.append('questions', uploadedQuestions);
+                
+                const pathMap = {};
+                selectedFiles.forEach(file => {
+                    formData.append('documents', file);
+                    pathMap[file.name] = file.webkitRelativePath || file.name;
+                });
+                
+                formData.append('category_map', JSON.stringify(categoryMap));
+                formData.append('path_map', JSON.stringify(pathMap));
+                
+                const folderCategoryMap = {};
+                Object.entries(folderStructure).forEach(([name, data]) => {
+                    if (data.included) {
+                        folderCategoryMap[name] = data.category;
+                    }
+                });
+                formData.append('folder_structure', JSON.stringify(folderCategoryMap));
+                
+                progressStatus.textContent = 'Uploading files...';
+                progressFill.style.width = '30%';
+                progressPercent.textContent = '30%';
+                
+                const response = await fetch('/api/corpus/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                progressFill.style.width = '80%';
+                progressPercent.textContent = '80%';
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    progressFill.style.width = '100%';
+                    progressPercent.textContent = '100%';
+                    progressStatus.textContent = 'Complete!';
+                    
+                    showNotification('success', `Corpus "${name}" uploaded successfully with ${result.document_count || selectedFiles.length} documents!`);
+                    
+                    document.getElementById('corpusName').value = '';
+                    document.getElementById('corpusDescription').value = '';
+                    document.getElementById('anchorOrg').value = '';
+                    uploadedQuestions = null;
+                    renderQuestionFile();
+                    clearFolderSelection();
+                    
+                    setTimeout(() => progress.classList.remove('active'), 2000);
+                } else {
+                    throw new Error(result.error || 'Upload failed');
+                }
+            } catch (err) {
+                showNotification('error', err.message);
+                progress.classList.remove('active');
+            }
+        });
+
+        document.getElementById('validateBeforeUpload').addEventListener('click', async () => {
+            if (!uploadedQuestions) {
+                showNotification('error', 'Please upload a question file to validate');
+                return;
+            }
+            
+            const { selectedFiles } = getSelectedFiles();
+            
+            const formData = new FormData();
+            formData.append('questions', uploadedQuestions);
+            
+            selectedFiles.forEach(file => {
+                formData.append('documents', file);
+            });
+            
+            try {
+                const response = await fetch('/api/corpus/validate', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.valid) {
+                    showNotification('success', 'All files are valid and ready for upload!');
+                } else {
+                    const errors = result.errors.join(', ');
+                    showNotification('error', `Validation failed: ${errors}`);
+                }
+            } catch (err) {
+                showNotification('error', 'Validation request failed: ' + err.message);
+            }
+        });
+
+        async function loadCorpora() {
+            try {
+                const response = await fetch('/api/corpus/list');
+                const data = await response.json();
+                
+                const container = document.getElementById('corporaCards');
+                const empty = document.getElementById('emptyState');
+                
+                if (!data.corpora || data.corpora.length === 0) {
+                    container.innerHTML = '';
+                    empty.style.display = 'block';
+                    return;
+                }
+                
+                empty.style.display = 'none';
+                container.innerHTML = data.corpora.map(c => {
+                    const accuracy = c.last_accuracy;
+                    let accuracyClass = '';
+                    if (typeof accuracy === 'number' && accuracy >= 80) accuracyClass = 'success';
+                    else if (typeof accuracy === 'number' && accuracy >= 60) accuracyClass = 'warning';
+                    
+                    const lastRun = c.last_run ? new Date(c.last_run).toLocaleDateString() : 'Never';
+                    const accuracyDisplay = typeof accuracy === 'number' 
+                        ? `${accuracy.toFixed(1)}%` 
+                        : 'N/A';
+                    
+                    const vaultIds = c.vault_ids || (c.vault_id ? [c.vault_id] : []);
+                    const vaultTags = vaultIds.length > 0 
+                        ? vaultIds.map(id => `<span class="vault-tag"><span class="vault-id">${id.slice(0, 8)}...</span></span>`).join('')
+                        : '<span style="color: var(--text-muted); font-size: 0.75rem;">No vaults created yet</span>';
+                    
+                    const corpusId = c.name.toLowerCase().replace(/\s+/g, '-');
+                    
+                    return `
+                        <div class="corpus-card" data-corpus-id="${corpusId}">
+                            <div class="corpus-card-header">
+                                <h4>${c.name}</h4>
+                                <span class="corpus-files-badge">${c.document_count || '?'} files</span>
+                            </div>
+                            
+                            <div class="corpus-details">
+                                <div class="corpus-detail-row">
+                                    <span class="label">Questions:</span>
+                                    <span class="value">${c.question_count || 0}</span>
+                                </div>
+                                <div class="corpus-detail-row">
+                                    <span class="label">Last Run:</span>
+                                    <span class="value">${lastRun}</span>
+                                </div>
+                                <div class="corpus-detail-row">
+                                    <span class="label">Accuracy:</span>
+                                    <span class="value ${accuracyClass}">${accuracyDisplay}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="corpus-vaults">
+                                <div class="corpus-vaults-header">Associated Vaults</div>
+                                ${vaultTags}
+                            </div>
+                            
+                            <div class="corpus-actions">
+                                <button class="btn btn-create-vault" onclick="createVaultFromCorpus('${c.name}')">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 5v14M5 12h14"/>
+                                    </svg>
+                                    Create Vault
+                                </button>
+                                <button class="btn btn-view-vault" onclick="viewCorpus('${c.name}')">
+                                    Test
+                                </button>
+                                <button class="btn btn-delete-corpus" onclick="deleteCorpus('${c.name}')">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                showNotification('error', 'Failed to load corpora: ' + err.message);
+            }
+        }
+
+        function viewCorpus(name) {
+            window.location.href = `/test-runner?corpus=${encodeURIComponent(name)}`;
+        }
+        
+        async function createVaultFromCorpus(corpusName) {
+            const vaultName = prompt(
+                `Create new vault from "${corpusName}"?\n\nEnter vault name:`,
+                `${corpusName} - ${new Date().toLocaleDateString()}`
+            );
+            
+            if (!vaultName) return;
+            
+            showProgress('Creating vault...');
+            
+            try {
+                const response = await fetch('/api/corpus/create-vault', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        corpus_name: corpusName,
+                        vault_name: vaultName,
+                        auto_extract: true
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('success', `Vault "${vaultName}" created! ${result.documents_uploaded} documents uploaded.`);
+                    loadCorpora();
+                    
+                    if (confirm('Vault created! Open Test Runner with this vault?')) {
+                        window.location.href = `/test-runner?corpus=${encodeURIComponent(corpusName)}`;
+                    }
+                } else {
+                    showNotification('error', `Failed to create vault: ${result.error}`);
+                }
+            } catch (error) {
+                showNotification('error', `Error: ${error.message}`);
+            } finally {
+                hideProgress();
+            }
+        }
+        
+        async function deleteCorpus(corpusName) {
+            if (!confirm(`Delete corpus "${corpusName}"? This will unregister the corpus but won't delete any vaults.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/corpus/${encodeURIComponent(corpusName)}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('success', `Corpus "${corpusName}" deleted`);
+                    loadCorpora();
+                } else {
+                    showNotification('error', result.error || 'Failed to delete corpus');
+                }
+            } catch (error) {
+                showNotification('error', `Error: ${error.message}`);
+            }
+        }
+
+        setupFileUpload('validateQuestionUpload', 'validateQuestionFile', async (files) => {
+            if (files.length === 0) return;
+            
+            const formData = new FormData();
+            formData.append('questions', files[0]);
+            
+            const results = document.getElementById('questionValidationResults');
+            results.innerHTML = '<div style="color: var(--text-muted);">Validating...</div>';
+            
+            try {
+                const response = await fetch('/api/corpus/validate', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.valid) {
+                    results.innerHTML = `
+                        <div class="validation-item">
+                            <svg class="validation-icon success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                            <span>Question file is valid (${data.question_count || 0} questions)</span>
+                        </div>
+                    `;
+                } else {
+                    results.innerHTML = data.errors.map(err => `
+                        <div class="validation-item">
+                            <svg class="validation-icon error" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="15" y1="9" x2="9" y2="15"/>
+                                <line x1="9" y1="9" x2="15" y2="15"/>
+                            </svg>
+                            <span>${err}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch (err) {
+                results.innerHTML = `<div class="validation-item"><span style="color: var(--error);">Validation failed: ${err.message}</span></div>`;
+            }
+        });
+
+        setupFileUpload('validateDocUpload', 'validateDocFiles', async (files) => {
+            const results = document.getElementById('docValidationResults');
+            
+            if (files.length === 0) return;
+            
+            results.innerHTML = '<div style="color: var(--text-muted);">Validating...</div>';
+            
+            const formData = new FormData();
+            for (let file of files) {
+                formData.append('documents', file);
+            }
+            
+            try {
+                const response = await fetch('/api/corpus/validate', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.valid) {
+                    results.innerHTML = `
+                        <div class="validation-item">
+                            <svg class="validation-icon success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                            <span>All ${files.length} documents are valid</span>
+                        </div>
+                    `;
+                } else {
+                    results.innerHTML = data.errors.map(err => `
+                        <div class="validation-item">
+                            <svg class="validation-icon error" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="15" y1="9" x2="9" y2="15"/>
+                                <line x1="9" y1="9" x2="15" y2="15"/>
+                            </svg>
+                            <span>${err}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch (err) {
+                results.innerHTML = `<div class="validation-item"><span style="color: var(--error);">Validation failed: ${err.message}</span></div>`;
+            }
+        });
+
+        loadCorpora();
+    </script>
+</body>
+</html>

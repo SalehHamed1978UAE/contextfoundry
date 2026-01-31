@@ -1,0 +1,47 @@
+Fix Q15 - Execute Now                                                                                  
+                                                                                                         
+  Step 1: Fix the corpus                                                                                 
+                                                                                                         
+  Find the treasury report file and change "Robert Kim, CFO" to "Michael Chang, CFO":                    
+                                                                                                         
+  # Find the file                                                                                        
+  grep -rl "Robert Kim, CFO" /path/to/corpus/                                                            
+                                                                                                         
+  # Edit the file - replace "Robert Kim, CFO" with "Michael Chang, CFO"                                  
+                                                                                                         
+  Step 2: Fix the database relationship                                                                  
+                                                                                                         
+  -- Update Michael Chang to report to Victoria Chen (not Robert Kim)                                    
+  UPDATE relationships                                                                                   
+  SET target_id = '77053ba9-efb3-41de-b2ff-cc2e31ee6696'                                                 
+  WHERE id = '0f39cdbb-ea59-4bd7-b40f-7d74c4c8cd01';                                                     
+                                                                                                         
+  -- Verify the fix                                                                                      
+  SELECT e1.canonical_name as source, r.relationship_type, e2.canonical_name as target                   
+  FROM relationships r                                                                                   
+  JOIN entities e1 ON r.source_id = e1.id                                                                
+  JOIN entities e2 ON r.target_id = e2.id                                                                
+  WHERE r.id = '0f39cdbb-ea59-4bd7-b40f-7d74c4c8cd01';                                                   
+                                                                                                         
+  Expected output: Michael Chang | REPORTS_TO | Dr. Victoria Chen                                        
+                                                                                                         
+  Step 3: Test Q15                                                                                       
+                                                                                                         
+  python -m src.test_runner.runner \                                                                     
+    --vault-id "1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91" \                                                  
+    --force \                                                                                            
+    --questions 15                                                                                       
+                                                                                                         
+  Or if single question not supported:                                                                   
+                                                                                                         
+  # Run full test and check Q15 result                                                                   
+  python -m src.test_runner.runner \                                                                     
+    --vault-id "1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91" \                                                  
+    --force                                                                                              
+                                                                                                         
+  Step 4: Report Q15 result                                                                              
+                                                                                                         
+  Expected: "Dr. Victoria Chen" or "Dr. Victoria Chen (CEO)"                                             
+                                                                                                         
+  ---                                                                                                    
+  Execute Steps 1-4. Report the Q15 result.  

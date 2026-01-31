@@ -1,0 +1,42 @@
+Good diagnosis. Two separate issues:
+Issue 1: True pollution (11 entities) - DELETE
+sqlDELETE FROM entities 
+WHERE entity_type IN ('CREATURE', 'CHARACTER', 'FUND', 'THESIS', 'ANALYST');
+Issue 2: Naming mismatch (293 entities) - MIGRATE, don't delete
+These are legitimate entities. We need to either:
+Option A: Add IT types to ontology (cleaner)
+sqlINSERT INTO ontology.types (id, type_name, layer, display_name, description, parent_type_id, status, confidence, version, valid_from)
+VALUES 
+('20000000-0000-0008-0000-000000000001', 'SERVICE', 2, 'Service', 'IT Service or microservice', '10000000-0000-0000-0000-000000000001', 'ACTIVE', 1.0, '1.0.0', NOW()),
+('20000000-0000-0008-0000-000000000002', 'INCIDENT', 2, 'Incident', 'IT incident or outage event', '00000000-0000-0000-0000-000000000002', 'ACTIVE', 1.0, '1.0.0', NOW()),
+('20000000-0000-0008-0000-000000000003', 'TEAM', 2, 'Team', 'Organizational team', '10000000-0000-0000-0000-000000000005', 'ACTIVE', 1.0, '1.0.0', NOW()),
+('20000000-0000-0008-0000-000000000004', 'DATABASE', 2, 'Database', 'Database system', '10000000-0000-0000-0000-000000000004', 'ACTIVE', 1.0, '1.0.0', NOW()),
+('20000000-0000-0008-0000-000000000005', 'COMPONENT', 2, 'Component', 'System component', '10000000-0000-0000-0000-000000000004', 'ACTIVE', 1.0, '1.0.0', NOW());
+Option B: Migrate entity types to match ontology (more work)
+sqlUPDATE entities SET entity_type = 'Microservice' WHERE entity_type = 'SERVICE';
+UPDATE entities SET entity_type = 'IncidentReport' WHERE entity_type = 'INCIDENT';
+-- etc.
+I recommend Option A - add IT types to ontology. The entities are the real data; ontology should accommodate them.
+Then add enforcement:
+sqlCREATE OR REPLACE FUNCTION validate_entity_type()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM ontology.types 
+        WHERE LOWER(type_name) = LOWER(NEW.entity_type) 
+        AND status = 'ACTIVE'
+    ) THEN
+        RAISE EXCEPTION 'Invalid entity_type: %. Must match ACTIVE type in ontology.types', NEW.entity_type;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER enforce_entity_type
+BEFORE INSERT OR UPDATE ON entities
+FOR EACH ROW EXECUTE FUNCTION validate_entity_type();
+Do Option A + delete pollution + add trigger. Then verify with:
+sqlSELECT COUNT(*) as still_invalid FROM entities e
+LEFT JOIN ontology.types t ON LOWER(e.entity_type) = LOWER(t.type_name)
+WHERE t.id IS NULL;
+Should be 0

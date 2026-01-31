@@ -1,0 +1,61 @@
+Perplexity confirms the approach. Here's the execution plan:
+
+**Step 1: Insert GENERIC ontology**
+```sql
+INSERT INTO ontology_relationship_types 
+(domain, relationship_type, definition, valid_source_types, valid_target_types, lexical_patterns)
+VALUES
+('GENERIC', 'RELATED_TO', 'General semantic relationship',
+ ARRAY['CONCEPT', 'PROCESS', 'ORGANIZATION', 'EVENT', 'PERSON', 'LOCATION', 'TECHNOLOGY'],
+ ARRAY['CONCEPT', 'PROCESS', 'ORGANIZATION', 'EVENT', 'PERSON', 'LOCATION', 'TECHNOLOGY'],
+ ARRAY['related to', 'associated with', 'connected to', 'linked to']),
+
+('GENERIC', 'PART_OF', 'Hierarchical membership',
+ ARRAY['CONCEPT', 'PROCESS', 'ORGANIZATION', 'PERSON', 'TECHNOLOGY'],
+ ARRAY['CONCEPT', 'PROCESS', 'ORGANIZATION', 'SYSTEM'],
+ ARRAY['part of', 'belongs to', 'member of', 'within', 'under']),
+
+('GENERIC', 'INVOLVES', 'Process/event participation',
+ ARRAY['PROCESS', 'EVENT', 'ORGANIZATION'],
+ ARRAY['CONCEPT', 'PERSON', 'ORGANIZATION', 'TECHNOLOGY', 'LOCATION'],
+ ARRAY['involves', 'includes', 'requires', 'uses', 'engages']),
+
+('GENERIC', 'PRODUCES', 'Output/creation relationship',
+ ARRAY['PROCESS', 'ORGANIZATION', 'PERSON', 'EVENT'],
+ ARRAY['CONCEPT', 'TECHNOLOGY', 'DOCUMENT'],
+ ARRAY['produces', 'creates', 'generates', 'outputs', 'delivers']),
+
+('GENERIC', 'GOVERNS', 'Authority/control relationship',
+ ARRAY['ORGANIZATION', 'PERSON', 'PROCESS', 'POLICY'],
+ ARRAY['PROCESS', 'ORGANIZATION', 'CONCEPT', 'TECHNOLOGY'],
+ ARRAY['governs', 'controls', 'manages', 'oversees', 'regulates']);
+```
+
+**Step 2: Re-run inference**
+```python
+result = agent.run_inference(
+    tenant_id=tenant_id,
+    batch_size=10,
+    domain='GENERIC'
+)
+```
+
+**Step 3: Check proposals**
+```sql
+SELECT 
+    pr.relationship_type,
+    pr.confidence,
+    pr.has_lexical_evidence,
+    pr.evidence_span,
+    se.name as source_name,
+    se.entity_type as source_type,
+    te.name as target_name,
+    te.entity_type as target_type
+FROM proposed_relationships pr
+JOIN entities se ON pr.source_entity_id = se.id
+JOIN entities te ON pr.target_entity_id = te.id
+ORDER BY pr.confidence DESC
+LIMIT 20;
+```
+
+If you get proposals this time, we sample for precision. Go for it.

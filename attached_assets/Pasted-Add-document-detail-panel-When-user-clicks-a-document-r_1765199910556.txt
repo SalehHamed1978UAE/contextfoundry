@@ -1,0 +1,90 @@
+Add document detail panel. When user clicks a document row, show a slide-in panel:
+
+1. Add click handler to document rows:
+   - Click row → open detail panel on the right
+   - Panel slides in from right side
+
+2. Detail panel content:
+
+<div class="document-detail-panel">
+    <div class="panel-header">
+        <h3>{{ document.name }}</h3>
+        <button class="close-panel">×</button>
+    </div>
+    
+    <div class="panel-metadata">
+        <div><strong>Type:</strong> PDF</div>
+        <div><strong>Status:</strong> Done</div>
+        <div><strong>Uploaded:</strong> Dec 8, 2025</div>
+        <div><strong>Domain:</strong> Core (0.31)</div>
+        <div><strong>Size:</strong> 16 MB</div>
+    </div>
+    
+    <div class="panel-entities">
+        <h4>Entities ({{ count }})</h4>
+        <!-- Group by type -->
+        <div class="entity-group">
+            <div class="entity-type">ORGANIZATION (1)</div>
+            <ul>
+                <li>AI Value Inc</li>
+            </ul>
+        </div>
+        <div class="entity-group">
+            <div class="entity-type">PERSON (3)</div>
+            <ul>
+                <li>John Smith</li>
+                <li>Sarah Chen</li>
+                <li>...</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="panel-actions">
+        <button onclick="viewInGraph(docId)">View in Knowledge Graph</button>
+        <button onclick="reExtract(docId)">Re-extract</button>
+        <button onclick="deleteDoc(docId)" class="danger">Delete</button>
+    </div>
+</div>
+
+3. API endpoint to get document details:
+
+GET /api/documents/<doc_id>/details
+Returns:
+{
+    "id": "...",
+    "name": "AI_Value_Blueprint.pdf",
+    "type": "PDF",
+    "status": "extracted",
+    "uploaded_at": "2025-12-08T...",
+    "domain_detected": "core",
+    "domain_confidence": 0.31,
+    "file_size": 16182206,
+    "entities": [
+        {"type": "ORGANIZATION", "name": "AI Value Inc", "confidence": 0.85},
+        ...
+    ],
+    "entity_counts": {"ORGANIZATION": 1, "PERSON": 0, ...}
+}
+
+4. CSS for slide-in panel:
+
+.document-detail-panel {
+    position: fixed;
+    right: -400px;
+    top: 0;
+    width: 400px;
+    height: 100vh;
+    background: #1e293b;
+    border-left: 1px solid #334155;
+    transition: right 0.3s ease;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.document-detail-panel.open {
+    right: 0;
+}
+
+5. Clicking outside panel or × button closes it
+
+Implement this document detail panel.

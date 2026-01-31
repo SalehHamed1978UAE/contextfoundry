@@ -1,0 +1,129 @@
+{
+  "document_id": "6e95bfa0427d",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_roadmap.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T09:08:21.684544",
+  "entities": [
+    {
+      "name": "Breck Collins",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "GM/VP",
+        "role": "General Manager/Vice President"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_roadmap.md",
+      "source_excerpt": "GM/VP: Breck Collins",
+      "aliases": []
+    },
+    {
+      "name": "Aether Shield",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": null,
+        "timeline": "FY26",
+        "status": null
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_roadmap.md",
+      "source_excerpt": "Aether Shield FY26 Roadmap",
+      "aliases": []
+    },
+    {
+      "name": "SentinelShield services",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": null
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_roadmap.md",
+      "source_excerpt": "SentinelShield services",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "data lake",
+        "category": null
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_roadmap.md",
+      "source_excerpt": "integration with Horizon Prime data lake",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Annual Recurring Revenue",
+        "value": 287000000,
+        "period": "FY26",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_roadmap.md",
+      "source_excerpt": "ARR: $287M",
+      "aliases": []
+    },
+    {
+      "name": "SLA Compliance",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Service Level Agreement Compliance",
+        "value": 99.4,
+        "period": "FY26",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_roadmap.md",
+      "source_excerpt": "SLA Compliance: 99.4%",
+      "aliases": []
+    },
+    {
+      "name": "Managed Seats",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Managed Seats",
+        "value": 142000,
+        "period": "FY26",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_roadmap.md",
+      "source_excerpt": "Managed Seats: 142k",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Breck Collins",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Aether Shield",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_roadmap.md",
+      "evidence": "GM/VP: Breck Collins"
+    },
+    {
+      "source_entity": "Aether Shield",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_roadmap.md",
+      "evidence": "Deepen integration with Horizon Prime data lake"
+    }
+  ],
+  "metadata": {
+    "filename": "aether_shield_roadmap.md",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

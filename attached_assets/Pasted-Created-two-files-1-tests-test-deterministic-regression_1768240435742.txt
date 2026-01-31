@@ -1,0 +1,58 @@
+Created two files:
+
+  1. tests/test_deterministic_regression.py - Comprehensive test suite
+  ┌────────────────────────┬──────────────────────────────────────────┐
+  │        Category        │              What it tests               │
+  ├────────────────────────┼──────────────────────────────────────────┤
+  │ Database State         │ Entities, positions, relationships exist │
+  ├────────────────────────┼──────────────────────────────────────────┤
+  │ Ontology Guards        │ Known types NOT in candidates table      │
+  ├────────────────────────┼──────────────────────────────────────────┤
+  │ Golden Queries         │ Exact string matching on query outputs   │
+  ├────────────────────────┼──────────────────────────────────────────┤
+  │ Relationship Integrity │ Critical relationship types in KG        │
+  ├────────────────────────┼──────────────────────────────────────────┤
+  │ Schema Consistency     │ Schema has required types                │
+  ├────────────────────────┼──────────────────────────────────────────┤
+  │ Extraction Pipeline    │ Imports work, normalizer correct         │
+  └────────────────────────┴──────────────────────────────────────────┘
+  2. scripts/regression_gate.py - Go/no-go script
+
+  # Quick check (30 seconds)
+  python scripts/regression_gate.py --quick
+
+  # Full suite
+  python scripts/regression_gate.py
+
+  # Verbose output
+  python scripts/regression_gate.py -v
+
+  Output:
+  ======================================================================
+                           GATE: PASS
+  ======================================================================
+  All regression tests passed.
+  Safe to proceed with deployment/changes.
+
+  or
+
+  ======================================================================
+                           GATE: FAIL
+  ======================================================================
+  Regression tests FAILED.
+  DO NOT PROCEED until issues are resolved.
+
+  Key test that would have caught the Ontology Foundry regression:
+
+  def test_known_types_not_in_candidates(self, db_session):
+      """Known types should NEVER appear as pending candidates."""
+      result = db_session.execute(text("""
+          SELECT normalized_name FROM ontology_candidates
+          WHERE normalized_name = ANY(:known_types)
+            AND status = 'PENDING'
+      """), {"known_types": KNOWN_TYPES_MUST_NOT_BE_CANDIDATES})
+
+      violations = list(result)
+      assert len(violations) == 0, f"REGRESSION: {violations}"
+
+  To customize for your data, edit the VAULT_CONFIGS dict at the top of test_deterministic_regression.py to match your actual vaults and expected data.

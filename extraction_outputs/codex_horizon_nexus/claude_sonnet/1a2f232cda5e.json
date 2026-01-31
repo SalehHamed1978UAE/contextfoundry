@@ -1,0 +1,153 @@
+{
+  "document_id": "1a2f232cda5e",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_roadmap.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T09:08:09.005203",
+  "entities": [
+    {
+      "name": "GridWave",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "Advanced grid orchestration",
+          "ArcShield microgrid controllers",
+          "Regional regulatory compliance"
+        ]
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_roadmap.md",
+      "source_excerpt": "# GridWave FY26 Roadmap",
+      "aliases": []
+    },
+    {
+      "name": "Priya Thakur",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "GM/VP",
+        "role": "General Manager/Vice President"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_roadmap.md",
+      "source_excerpt": "**GM/VP:** Priya Thakur",
+      "aliases": []
+    },
+    {
+      "name": "ArcShield microgrid controllers",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "microgrid controllers",
+        "category": "grid control technology"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_roadmap.md",
+      "source_excerpt": "ArcShield microgrid controllers",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime data lake",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "data lake platform"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_roadmap.md",
+      "source_excerpt": "Deepen integration with Horizon Prime data lake",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Annual Recurring Revenue",
+        "value": "$420M",
+        "period": "FY26",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_roadmap.md",
+      "source_excerpt": "**ARR:** $420M",
+      "aliases": []
+    },
+    {
+      "name": "Pipeline Coverage",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Pipeline Coverage",
+        "value": "3.3x",
+        "period": "FY26",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_roadmap.md",
+      "source_excerpt": "**Pipeline Coverage:** 3.3x",
+      "aliases": []
+    },
+    {
+      "name": "Gross Margin",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Gross Margin",
+        "value": "57%",
+        "period": "FY26",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_roadmap.md",
+      "source_excerpt": "**Gross Margin:** 57%",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Priya Thakur",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "GridWave",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_roadmap.md",
+      "evidence": "**GM/VP:** Priya Thakur heading GridWave FY26 Roadmap"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "Advanced grid orchestration",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_roadmap.md",
+      "evidence": "Focus Areas - Advanced grid orchestration"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "ArcShield microgrid controllers",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_roadmap.md",
+      "evidence": "ArcShield microgrid controllers listed as focus area"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime data lake",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_roadmap.md",
+      "evidence": "Deepen integration with Horizon Prime data lake"
+    }
+  ],
+  "metadata": {
+    "filename": "gridwave_roadmap.md",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

@@ -1,0 +1,104 @@
+import json
+from pathlib import Path
+from typing import Dict, Optional, Any
+from datetime import datetime
+
+DEFAULT_CONFIG = {
+    "api_base_url": "http://localhost:5000/api",
+    "corpora": {
+        "ClaudeCode Medsync": {
+            "root_path": "test_documents/claudecode_medsync/",
+            "questions_file": "medsync_235q_v2.json",
+            "current_vault_id": None,
+            "last_run": None,
+            "last_accuracy": None
+        },
+        "Manus Healthtec": {
+            "root_path": "test_documents/medsync_health/",
+            "questions_file": "medsync_235q.json",
+            "current_vault_id": None,
+            "last_run": None,
+            "last_accuracy": None
+        },
+        "Manus Medsync": {
+            "root_path": "test_documents/manus_medsync/",
+            "questions_file": "medsync_235q.json",
+            "current_vault_id": None,
+            "last_run": None,
+            "last_accuracy": None
+        },
+        "Manus Orion": {
+            "root_path": "test documents/Manus Orion/",
+            "questions_file": "orion_verified_106q.json",
+            "current_vault_id": None,
+            "last_run": None,
+            "last_accuracy": None
+        },
+        "ClaudeCode Nexus Industries": {
+            "root_path": "test documents/ClaudeCode_NExus_Industries_corpus/",
+            "questions_file": "nexus_100q.json",
+            "current_vault_id": None,
+            "last_run": None,
+            "last_accuracy": None
+        }
+    },
+    "questions_dir": "test_questions/",
+    "results_dir": "test_results/",
+    "upload_rules": {
+        "include_folders": ["documents", "excel_data", "compliance", "customers", "financials", "hr", "legal", "operations", "projects", "reports", "spreadsheets", "strategy", "engineering", "meeting_notes", "policies", "finances", "All docs", "communications", "meetings", "organizational", "stakeholders", "technical"],
+        "include_root_extensions": [".md", ".txt"],
+        "valid_extensions": [".pdf", ".docx", ".xlsx", ".xls", ".csv", ".txt", ".md"],
+        "exclude_files": ["README.md", "readme.md", "qa_pairs.md", "question_bank_200.md", "ambiguity_log.md", "consistency_validation.md", "CORPUS_STATS.txt", "qa_master.md", "qa_master.jsonl"]
+    },
+    "extraction": {
+        "timeout_minutes": 20,
+        "min_expected_chunks": 50,
+        "poll_interval_seconds": 10
+    }
+}
+
+class TestConfig:
+    def __init__(self, config_path: str = "src/test_config.json"):
+        self.config_path = Path(config_path)
+        self.data = self._load()
+    
+    def _load(self) -> Dict:
+        if self.config_path.exists():
+            with open(self.config_path) as f:
+                return json.load(f)
+        return DEFAULT_CONFIG.copy()
+    
+    def save(self):
+        with open(self.config_path, 'w') as f:
+            json.dump(self.data, f, indent=2)
+    
+    def get_corpus(self, name: str) -> Optional[Dict]:
+        return self.data.get('corpora', {}).get(name)
+    
+    def update_corpus(self, name: str, **kwargs):
+        if name in self.data.get('corpora', {}):
+            self.data['corpora'][name].update(kwargs)
+            self.save()
+    
+    def list_corpora(self) -> Dict[str, Dict]:
+        return self.data.get('corpora', {})
+    
+    @property
+    def api_base_url(self) -> str:
+        return self.data.get('api_base_url', 'http://localhost:5000/api')
+    
+    @property
+    def questions_dir(self) -> Path:
+        return Path(self.data.get('questions_dir', 'test_questions/'))
+    
+    @property
+    def results_dir(self) -> Path:
+        return Path(self.data.get('results_dir', 'test_results/'))
+    
+    @property
+    def upload_rules(self) -> Dict:
+        return self.data.get('upload_rules', DEFAULT_CONFIG['upload_rules'])
+    
+    @property
+    def extraction_config(self) -> Dict:
+        return self.data.get('extraction', DEFAULT_CONFIG['extraction'])

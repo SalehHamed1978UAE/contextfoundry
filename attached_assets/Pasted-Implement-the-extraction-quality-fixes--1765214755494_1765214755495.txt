@@ -1,0 +1,73 @@
+Implement the extraction quality fixes:
+
+═══════════════════════════════════════════════════════════════
+FIX 1: REWRITE EXTRACTION PROMPT
+═══════════════════════════════════════════════════════════════
+
+Change from conservative to comprehensive. Find the entity extraction prompt and update:
+
+OLD (too conservative):
+"Only extract entities that are EXPLICITLY mentioned"
+"Do NOT infer or hallucinate entities"
+
+NEW (comprehensive):
+"Extract ALL entities mentioned in the document. Err on the side of inclusion.
+If a term appears to be a named concept, framework, methodology, organization, 
+or process - extract it. 
+
+Include:
+- Named frameworks and methodologies (e.g., 'Hub-and-Spoke', 'Crawl-Walk-Run')
+- Titled concepts (e.g., 'Minimum Viable Metadata', 'Federated Data Catalog')
+- Organizations including government bodies, agencies, departments, companies
+- Roles and titles when they represent distinct concepts (e.g., 'Data Steward')
+- Explicit phases or stages (e.g., 'Phase 1: The Foundation')
+
+When in doubt, extract it. We can filter later; we can't recover what wasn't extracted."
+
+═══════════════════════════════════════════════════════════════
+FIX 2: CLARIFY ENTITY TYPE DEFINITIONS
+═══════════════════════════════════════════════════════════════
+
+Add clearer definitions to prevent misclassification:
+
+ORGANIZATION: "Companies, corporations, government bodies, agencies, departments, 
+ministries, institutions, teams. Examples: Ministry of Health, Corporate Holding Company,
+Government Entity, Subsidiary A"
+
+LOCATION: "Physical places only - cities, countries, buildings, addresses, regions.
+NOT organizational types like 'Government' or 'Corporate'"
+
+CONCEPT: "Abstract ideas, frameworks, methodologies, models, standards, principles.
+Examples: Federated Data Catalog, Hub-and-Spoke, Minimum Viable Metadata, 
+Commercial Firewalls, Legislative Air Cover, Data Domains"
+
+PERSON: "Individual humans AND named roles that represent distinct functions.
+Examples: Data Steward, Data Domain Owner, P&L Leader"
+
+═══════════════════════════════════════════════════════════════
+FIX 3: ENSURE CHUNKING FOR LONG DOCUMENTS
+═══════════════════════════════════════════════════════════════
+
+For documents > 4000 chars:
+1. Split into ~2000 char chunks with overlap
+2. Run extraction on each chunk
+3. Merge and deduplicate results
+
+Check that DOCX extraction is using this chunking path.
+
+═══════════════════════════════════════════════════════════════
+FIX 4: TEST
+═══════════════════════════════════════════════════════════════
+
+After implementing, re-extract:
+Gemini_-_Consolidated_Critical_Success_Factors_for_Federated_Data_Catalogs.docx
+
+Expected results:
+- "Federated Data Catalog" as CONCEPT ✓
+- "Hub-and-Spoke" as CONCEPT ✓  
+- "Ministry of Health" as ORGANIZATION ✓
+- "Corporate Holding Company" as ORGANIZATION (not LOCATION) ✓
+- "Data Steward" as PERSON/ROLE ✓
+- 40+ entities total
+
+Show me the new extraction results.

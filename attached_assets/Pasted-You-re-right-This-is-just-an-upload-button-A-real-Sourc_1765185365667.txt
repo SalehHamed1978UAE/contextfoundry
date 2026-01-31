@@ -1,0 +1,150 @@
+You're right. This is just an upload button. A real Sources module should give users visibility into their corpus.
+
+**What the Sources module should show:**
+
+---
+
+**SOURCES DASHBOARD — Proper Design**
+
+```
++------------------------------------------------------------------------+
+| 🔷 CONTEXT FOUNDRY                                                     |
+| [📥 Sources*]  [🧠 Knowledge]                     Saleh Hamed  [Logout]|
++------------------------------------------------------------------------+
+| Saleh Hamed's Space                                                    |
++------------------------------------------------------------------------+
+|  [Upload]  [Connectors]  [Status]  [API Keys]                          |
++------------------------------------------------------------------------+
+
+CORPUS OVERVIEW (always visible at top)
++------------------------------------------------------------------------+
+|  📄 47 Documents    |  🧠 2,341 Entities    |  🔗 892 Relationships    |
+|  ✅ 45 Extracted    |  ⏳ 2 Processing      |  ❌ 0 Failed             |
++------------------------------------------------------------------------+
+
+RECENT ACTIVITY
++------------------------------------------------------------------------+
+| Today                                                                  |
+|   📄 Q3_Financial_Report.pdf          ✅ Extracted    42 entities      |
+|   📄 Board_Meeting_Notes.docx         ⏳ Processing...                 |
+|                                                                        |
+| Yesterday                                                              |
+|   📄 IT_Incident_Report.pdf           ✅ Extracted    18 entities      |
+|   📄 Healthcare_Policy.docx           ✅ Extracted    31 entities      |
+|                                                                        |
+| Last Week                                                              |
+|   📁 December Uploads (12 files)                                       |
+|   📁 November Uploads (23 files)                                       |
++------------------------------------------------------------------------+
+
+UPLOAD NEW
++------------------------------------------------------------------------+
+|  [Drag & drop files here or click to browse]                           |
+|  Supports PDF, DOCX, TXT, MD, JSON, CSV, XLS (max 50MB)               |
++------------------------------------------------------------------------+
+```
+
+---
+
+**STATUS TAB — Document List View**
+
+```
++------------------------------------------------------------------------+
+| FILTERS: [All ▾]  [All Types ▾]  [All Domains ▾]    🔍 Search docs... |
++------------------------------------------------------------------------+
+| Name                          | Type | Domain      | Status    | Entities |
++------------------------------------------------------------------------+
+| Q3_Financial_Report.pdf       | PDF  | Finance     | ✅ Done   | 42       |
+| Board_Meeting_Notes.docx      | DOCX | General     | ⏳ 45%    | -        |
+| IT_Incident_Report.pdf        | PDF  | IT Infra    | ✅ Done   | 18       |
+| Healthcare_Policy.docx        | DOCX | Healthcare  | ✅ Done   | 31       |
+| README.txt                    | TXT  | General     | ✅ Done   | 11       |
+| Critical_Success_Factors.docx | DOCX | General     | ✅ Done   | 30       |
++------------------------------------------------------------------------+
+| Showing 6 of 47 documents                          [< 1 2 3 4 5 ... >] |
++------------------------------------------------------------------------+
+```
+
+---
+
+**CLICKING A DOCUMENT — Detail View**
+
+```
++------------------------------------------------------------------------+
+| ← Back to Status                                                       |
++------------------------------------------------------------------------+
+| 📄 Q3_Financial_Report.pdf                                             |
++------------------------------------------------------------------------+
+| Uploaded:     Dec 8, 2025 at 2:15 PM                                   |
+| Size:         2.4 MB                                                   |
+| Type:         PDF                                                      |
+| Domain:       Finance (confidence: 0.78)                               |
+| Status:       ✅ Extracted                                             |
+| Processing:   Completed in 23 seconds                                  |
++------------------------------------------------------------------------+
+| EXTRACTED ENTITIES (42)                                                |
++------------------------------------------------------------------------+
+| ORGANIZATION (8)                                                       |
+|   • Goldman Sachs                                                      |
+|   • Morgan Stanley                                                     |
+|   • ADQ Holdings                                                       |
+|   ...                                                                  |
+|                                                                        |
+| PERSON (5)                                                             |
+|   • John Smith (CFO)                                                   |
+|   • Sarah Chen (Analyst)                                               |
+|   ...                                                                  |
+|                                                                        |
+| FINANCIAL_INSTRUMENT (12)                                              |
+|   • Series A Bond                                                      |
+|   • Q3 Equity Position                                                 |
+|   ...                                                                  |
++------------------------------------------------------------------------+
+| [View in Knowledge Graph]  [Re-extract]  [Delete]                      |
++------------------------------------------------------------------------+
+```
+
+---
+
+**Tell Replit:**
+
+```
+The Sources interface is too basic. Expand it:
+
+1. CORPUS OVERVIEW (top of dashboard, always visible):
+   - Total documents count
+   - Total entities extracted
+   - Total relationships
+   - Documents by status: Extracted / Processing / Failed
+
+2. RECENT ACTIVITY section:
+   - Group documents by date (Today, Yesterday, Last Week, Earlier)
+   - Show document name, status, entity count
+   - Collapsible date groups
+
+3. STATUS TAB improvements:
+   - Table view with columns: Name, Type, Domain Detected, Status, Entities, Date
+   - Filters: by status, by file type, by domain
+   - Search box to find documents
+   - Pagination
+   - Click row to see document details
+
+4. DOCUMENT DETAIL VIEW (when clicking a document):
+   - Full metadata (upload date, size, type, domain detected, confidence)
+   - Processing time
+   - List of extracted entities grouped by type
+   - Entity count per type
+   - Actions: View in Knowledge Graph, Re-extract, Delete
+
+5. UPLOAD section:
+   - Keep drag & drop
+   - Show upload progress
+   - Show real-time status as documents process
+
+Query the database for real data:
+- SELECT COUNT(*) FROM platform.documents WHERE tenant_id = ?
+- SELECT COUNT(*) FROM public.entities WHERE tenant_id = ?
+- SELECT status, COUNT(*) FROM platform.documents GROUP BY status
+
+Make it informative. Users should understand their corpus at a glance.
+```

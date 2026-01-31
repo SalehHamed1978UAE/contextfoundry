@@ -1,0 +1,81 @@
+APPROVED. Implement the permanent fix.
+
+================================================================================
+REQUIREMENTS
+================================================================================
+
+1. Create helper function:
+```python
+def get_tenant_id_by_name(vault_name: str) -> str:
+    """Look up tenant ID by vault name at runtime."""
+    result = session.execute(
+        text("""
+            SELECT id FROM platform.tenants 
+            WHERE name ILIKE :name 
+            LIMIT 1
+        """),
+        {"name": f"%{vault_name}%"}
+    ).fetchone()
+    
+    if not result:
+        raise ValueError(f"Vault '{vault_name}' not found in platform.tenants")
+    
+    return str(result.id)
+```
+
+2. Update VAULT_CONFIG to use names only:
+```python
+# BEFORE (hardcoded IDs = BAD)
+VAULT_CONFIG = {
+    "TechVentures": {"tenant_id": "abc123..."},
+    "Hospital": {"tenant_id": "def456..."},
+}
+
+# AFTER (names only = GOOD)
+VAULT_CONFIG = {
+    "TechVentures": {"name_pattern": "TechVentures"},
+    "Law Firm": {"name_pattern": "Morrison"},
+    "Hospital": {"name_pattern": "Riverside"},
+    "Manufacturing": {"name_pattern": "Titan"},
+    "Accelerator": {"name_pattern": "Launchpad"},
+}
+```
+
+3. Look up IDs at runtime:
+```python
+def get_vault_configs() -> dict:
+    """Get vault configs with tenant IDs looked up at runtime."""
+    configs = {}
+    for vault_name, config in VAULT_CONFIG.items():
+        tenant_id = get_tenant_id_by_name(config["name_pattern"])
+        configs[vault_name] = {
+            "tenant_id": tenant_id,
+            **config
+        }
+    return configs
+```
+
+4. Add validation at test startup:
+```python
+def validate_vaults():
+    """Fail fast if any vault is missing."""
+    for vault_name, config in VAULT_CONFIG.items():
+        try:
+            tenant_id = get_tenant_id_by_name(config["name_pattern"])
+            print(f"✓ {vault_name}: {tenant_id}")
+        except ValueError as e:
+            print(f"✗ {vault_name}: NOT FOUND")
+            raise
+```
+
+================================================================================
+AFTER IMPLEMENTATION
+================================================================================
+
+1. Run validate_vaults() to confirm all 5 vaults resolve correctly
+2. Run full test suite to confirm still 49/49 passing
+3. Commit with message: "fix: dynamic vault ID lookup prevents stale tenant IDs"
+
+================================================================================
+
+This prevents the same bug from ever happening again.

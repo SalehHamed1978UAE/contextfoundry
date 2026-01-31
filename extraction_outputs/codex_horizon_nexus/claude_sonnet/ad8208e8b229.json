@@ -1,0 +1,79 @@
+{
+  "document_id": "ad8208e8b229",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/risk/synapse_one_model_risk.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:56:26.607078",
+  "entities": [
+    {
+      "name": "Synapse One Model Risk",
+      "entity_type": "PROJECT",
+      "properties": {
+        "risk_types": [
+          "Bias",
+          "drift",
+          "governance"
+        ],
+        "cadence": "Quarterly",
+        "current_likelihood": "Medium",
+        "current_impact": "High"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/synapse_one_model_risk.md",
+      "source_excerpt": "# Synapse One Model Risk",
+      "aliases": []
+    },
+    {
+      "name": "Eden Park",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Risk Owner"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/synapse_one_model_risk.md",
+      "source_excerpt": "**Owner:** Eden Park",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime risk register",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Risk tracking system"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/synapse_one_model_risk.md",
+      "source_excerpt": "Track via Horizon Prime risk register",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Eden Park",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Synapse One Model Risk",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/synapse_one_model_risk.md",
+      "evidence": "**Owner:** Eden Park"
+    },
+    {
+      "source_entity": "Synapse One Model Risk",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime risk register",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/synapse_one_model_risk.md",
+      "evidence": "Track via Horizon Prime risk register"
+    }
+  ],
+  "metadata": {
+    "filename": "synapse_one_model_risk.md",
+    "raw_entity_count": 3,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

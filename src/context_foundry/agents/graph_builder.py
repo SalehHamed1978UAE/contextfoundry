@@ -1,0 +1,1351 @@
+"""
+Graph Builder Agent - Ingests documents, extracts entities/relationships, writes to STAGING.
+
+This is the "perception layer" - how Context Foundry sees new information entering the knowledge graph.
+
+Key principles:
+1. Schema-driven extraction - Only looks for defined entity/relationship types from config
+2. Everything goes to STAGING first (not TRUSTED)
+3. Full provenance tracking (source doc, sentence, character offsets)
+4. Confidence scoring on every extraction
+5. No inference - only extracts explicitly stated facts
+6. Domain-agnostic - works with any schema (IT Ops, Finance, Healthcare, etc.)
+"""
+import os
+import json
+import re
+import uuid
+from datetime import datetime
+from typing import Dict, List, Optional, Tuple, Set
+from dataclasses import dataclass, field
+from openai import OpenAI
+
+from ..models.schema import (
+    Entity, Relationship, Document, EntityAlias, RelationshipContext,
+    LifecycleState,
+    get_session
+)
+from ..config.domain_schema import get_schema_loader, DomainSchemaLoader
+from ..ontology_foundry.schema_service import get_ontology_schema_service
+from ..utils.logger import logger
+from ..memory.episodic import openai_embedding
+from ..extraction.post_processor import get_post_processor, ExtractionPostProcessor
+from ..ontology.normalizer import CandidateNormalizer
+from ..ontology.candidate_store import CandidateStore
+
+
+def parse_date_string(date_str: str) -> Optional[datetime]:
+    """Parse various date formats to datetime for Stage 2 temporal context.
+    
+    Handles formats like:
+    - "2011-08" (YYYY-MM)
+    - "2011" (YYYY)
+    - "August 2011"
+    - "2011-08-24" (YYYY-MM-DD)
+    - null, None, "", "ongoing", "present" -> None
+    """
+    if not date_str or date_str.lower() in ("null", "none", "ongoing", "present", "current"):
+        return None
+    
+    import re
+    date_str = str(date_str).strip()
+    
+    try:
+        # YYYY-MM format
+        if re.match(r'^\d{4}-\d{2}$', date_str):
+            return datetime.strptime(date_str, "%Y-%m")
+        
+        # YYYY-MM-DD format
+        if re.match(r'^\d{4}-\d{2}-\d{2}$', date_str):
+            return datetime.strptime(date_str, "%Y-%m-%d")
+        
+        # YYYY format
+        if re.match(r'^\d{4}$', date_str):
+            return datetime.strptime(date_str, "%Y")
+        
+        # Month YYYY format (e.g., "August 2011")
+        month_year_pattern = r'^(\w+)\s+(\d{4})$'
+        match = re.match(month_year_pattern, date_str)
+        if match:
+            try:
+                return datetime.strptime(date_str, "%B %Y")
+            except ValueError:
+                try:
+                    return datetime.strptime(date_str, "%b %Y")
+                except ValueError:
+                    pass
+        
+        # Fallback: try dateutil parser if available
+        try:
+            from dateutil import parser as date_parser
+            return date_parser.parse(date_str, default=datetime(2000, 1, 1))
+        except ImportError:
+            pass
+        
+        logger.debug(f"Could not parse date string: {date_str}")
+        return None
+        
+    except Exception as e:
+        logger.debug(f"Date parse error for '{date_str}': {e}")
+        return None
+
+AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
+AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+
+
+@dataclass
+class Chunk:
+    """A chunk of text with provenance."""
+    text: str
+    start_offset: int
+    end_offset: int
+    chunk_index: int
+    source_document_id: str
+
+
+@dataclass
+class ExtractedEntity:
+    """An entity extracted from text."""
+    entity_type: str
+    canonical_name: str
+    properties: Dict = field(default_factory=dict)
+    confidence: float = 0.5
+    source_sentence: str = ""
+    aliases: List[str] = field(default_factory=list)
+    start_offset: int = 0
+    end_offset: int = 0
+
+
+@dataclass
+class ExtractedRelationship:
+    """A relationship extracted from text with rich context metadata."""
+    relationship_type: str
+    source_name: str
+    target_name: str
+    properties: Dict = field(default_factory=dict)
+    confidence: float = 0.5
+    source_sentence: str = ""
+    # Context metadata fields (Stage 2: Context-Attached Knowledge)
+    provenance_text: str = ""
+    description: str = ""
+    event_context: str = ""  # The situation or event this relationship belongs to
+    valid_from: str = ""  # Start date/time as string (parsed later)
+    valid_to: str = ""  # End date/time as string (parsed later)
+    qualifiers: List[Dict] = field(default_factory=list)
+    confidence_reasoning: str = ""
+
+
+@dataclass
+class ExtractionResult:
+    """Result of document ingestion."""
+    document_id: str
+    entities_extracted: int
+    relationships_extracted: int
+    entities_staged: int
+    relationships_staged: int
+    chunks_processed: int
+    errors: List[str] = field(default_factory=list)
+    staged: bool = True
+
+
+ENTITY_EXTRACTION_PROMPT_TEMPLATE = """You are an entity extraction system for {domain} knowledge graphs.
+
+Given this text, extract any entities of these EXACT types:
+
+{entity_types_section}
+
+TYPE PRIORITY - Use SPECIFIC types over GENERIC ones:
+- Use PERSON for: individuals, people, executives, employees, researchers, board members
+  Examples: "John Smith" → PERSON, "Dr. Sarah Chen" → PERSON, "Saleh Hamed" → PERSON
+  In resumes/CVs: The name in the header/title is ALWAYS a PERSON entity
+- Use JOB_TITLE for: specific positions or roles held by people (EXTRACT THESE AS SEPARATE ENTITIES!)
+  Examples: "Systems Engineer" → JOB_TITLE, "CEO" → JOB_TITLE, "Manager, Systems Design" → JOB_TITLE
+  CRITICAL: When you see "Sarah Chen, Chief Executive Officer" you MUST extract BOTH:
+    - PERSON: "Sarah Chen"
+    - JOB_TITLE: "Chief Executive Officer"
+  Common job titles to recognize: CEO, CTO, CFO, COO, CDO, President, Vice President, Director, 
+  General Counsel, Managing Partner, Board Member, Chairman (and their full forms)
+- Use SERVICE (not ORGANIZATION or PROCESS) for: software services, APIs, applications, gateways, microservices
+  Examples: "Payment Gateway" → SERVICE, "Authentication Service" → SERVICE, "Order Processing API" → SERVICE
+- Use DATABASE (not ORGANIZATION or PROCESS) for: databases, data stores, warehouses, caches
+  Examples: "User Database" → DATABASE, "Inventory DB" → DATABASE, "Redis Cache" → DATABASE
+- Use TEAM (not ORGANIZATION) for: internal teams, squads, departments, engineering groups
+  Examples: "Platform Engineering Team" → TEAM, "Security Team" → TEAM, "DevOps Squad" → TEAM
+- Use INCIDENT (not EVENT) for: operational incidents, outages, issues with IDs
+  Examples: "INC-2026-0105-A" → INCIDENT, "Database Outage" → INCIDENT, "Production Incident" → INCIDENT
+- Use ORGANIZATION for: companies, agencies, government bodies, corporations, universities, research institutions
+  Examples: "Acme Corporation" → ORGANIZATION, "AWS" → ORGANIZATION, "Stanford University" → ORGANIZATION, "Emirates Nuclear Energy Corporation" → ORGANIZATION
+- Use PROCESS only for: abstract business workflows, procedures, methodologies (NOT software services)
+  Examples: "Approval Workflow" → PROCESS, "Onboarding Procedure" → PROCESS
+- Use EVENT only for: meetings, conferences, announcements (NOT operational incidents)
+  Examples: "Annual Conference" → EVENT, "Q4 Kickoff Meeting" → EVENT
+
+For EACH entity found, return:
+- type: One of {entity_type_names}
+- canonical_name: The standardized name (full name, not abbreviation)
+- aliases: List of alternate names, acronyms, or abbreviations for this entity
+- properties: Any additional attributes mentioned (as key-value pairs)
+- confidence: 0.0-1.0 how certain you are this is correct
+- source_sentence: The EXACT sentence it came from (copy verbatim)
+
+ALIAS EXTRACTION:
+- If text mentions "Electronic Health Record (EHR)", canonical_name is "Electronic Health Record", aliases is ["EHR"]
+- If text mentions "API Gateway (APIGW)", canonical_name is "API Gateway", aliases is ["APIGW"]
+- If text mentions "AWS", and you know it's Amazon Web Services, canonical_name is "Amazon Web Services", aliases is ["AWS"]
+- If no aliases exist, use empty array: []
+
+CRITICAL RULES:
+1. Only extract what is EXPLICITLY stated in the text
+2. Do NOT infer entities that aren't mentioned
+3. Use canonical naming (e.g., "Auth Service" not "the auth service")
+4. ALWAYS prefer specific types (SERVICE, DATABASE, TEAM, INCIDENT) over generic types (ORGANIZATION, PROCESS, EVENT)
+5. Each entity should only appear ONCE with ONE type - no duplicates
+6. Confidence should reflect clarity of mention:
+   - 0.9-1.0: Clearly named and defined
+   - 0.7-0.9: Mentioned by name but minimal context
+   - 0.5-0.7: Implied or ambiguous reference
+   - Below 0.5: Don't extract, too uncertain
+
+TEXT TO ANALYZE:
+{text}
+
+Respond with ONLY a valid JSON array of entities. If no entities found, return [].
+Example format:
+[
+  {{
+    "type": "SERVICE",
+    "canonical_name": "Payment Gateway",
+    "aliases": ["PG", "PayGW"],
+    "properties": {{"owner": "Platform Team"}},
+    "confidence": 0.95,
+    "source_sentence": "The Payment Gateway (PG) handles all credit card transactions."
+  }},
+  {{
+    "type": "TEAM",
+    "canonical_name": "Platform Engineering Team",
+    "aliases": [],
+    "properties": {{}},
+    "confidence": 0.90,
+    "source_sentence": "The Platform Engineering Team manages the core infrastructure."
+  }}
+]"""
+
+RELATIONSHIP_EXTRACTION_PROMPT_TEMPLATE = """You are a relationship extraction system for {domain} knowledge graphs.
+
+Given this text and the entities already identified, extract relationships between them WITH RICH CONTEXT.
+
+{relationship_types_section}
+
+ENTITIES FOUND IN THIS TEXT:
+{entities}
+
+TEXT TO ANALYZE:
+{text}
+
+For EACH relationship found, return these fields:
+- type: One of {relationship_type_names}
+- source_name: The canonical name of the source entity
+- target_name: The canonical name of the target entity
+- properties: Any additional context (as key-value pairs)
+- confidence: 0.0-1.0 how certain you are this relationship exists
+- source_sentence: The EXACT sentence that states this relationship
+- provenance_text: Quote the EXACT text passage (1-3 sentences) that supports this relationship
+- description: A brief explanation of what this relationship means in context
+- valid_from: When did this relationship START? Use format "YYYY-MM" or "YYYY" or null if ongoing/unknown
+- valid_to: When did this relationship END? Use format "YYYY-MM" or "YYYY" or null if still active/ongoing
+- event_context: What situation, phase, or event is this relationship part of? (e.g., "Phase 1", "first tenure", "Series A", "during restructuring")
+- qualifiers: Array of qualifier objects like {{"type": "purpose", "text": "credential storage"}}
+- confidence_reasoning: Brief explanation of why you assigned this confidence score
+
+TEMPORAL EXTRACTION IS CRITICAL:
+- Look for date ranges like "August 2003 - September 2008" → valid_from: "2003-08", valid_to: "2008-09"
+- Look for "since", "from", "starting" → valid_from with null valid_to
+- Look for "until", "ended", "resigned" → valid_to with context
+- "Present", "current", "ongoing" → valid_to: null
+- If no dates mentioned → valid_from: null, valid_to: null
+
+EVENT CONTEXT IS CRITICAL:
+- Identify phases: "Phase 1", "Phase 2", "first term", "second tenure"
+- Identify investment rounds: "Series A", "Series B", "follow-on"
+- Identify career transitions: "promoted from", "resigned", "appointed"
+- Identify project phases or collaboration periods
+
+QUALIFIER TYPES:
+- "purpose": Why this relationship exists (e.g., "for authentication", "data storage")
+- "amount": Financial amounts (e.g., "$2M investment")
+- "role_level": Position level (e.g., "executive", "senior", "junior")
+- "at_organization": Organization context for HOLDS_POSITION relationships
+- "end_reason": Why relationship ended (e.g., "resignation", "promotion", "exit")
+- "outcome": Result of relationship (e.g., "3x return", "successful launch")
+
+CRITICAL RULES:
+1. Only extract relationships EXPLICITLY stated in the text
+2. Both source and target must be in the entities list
+3. Verify the relationship type matches allowed source→target types
+4. Do NOT infer relationships that aren't directly stated
+5. ALWAYS look for and extract temporal information (dates, durations, periods)
+6. ALWAYS identify event context when multiple instances of same relationship exist
+7. Confidence reflects how clearly the relationship is stated:
+   - 0.9-1.0: Explicit statement with dates and context
+   - 0.7-0.9: Mentioned directly with some context
+   - 0.5-0.7: Implied but supported by text
+
+ROLE/POSITION EXTRACTION (VERY IMPORTANT):
+When a person is mentioned with a job title, ALWAYS create a HOLDS_POSITION relationship.
+
+Pattern recognition for titles (create HOLDS_POSITION for ALL of these):
+- "Sarah Chen, CEO" → HOLDS_POSITION: Sarah Chen → CEO
+- "CEO Sarah Chen" → HOLDS_POSITION: Sarah Chen → CEO  
+- "Sarah Chen, Chief Executive Officer" → HOLDS_POSITION: Sarah Chen → CEO (normalize to CEO)
+- "Marcus Williams was promoted to CTO" → HOLDS_POSITION: Marcus Williams → CTO
+- "James O'Brien serves as CFO" → HOLDS_POSITION: James O'Brien → CFO
+- "Dr. Amira Hassan, Chief Data Officer" → HOLDS_POSITION: Dr. Amira Hassan → CDO
+
+ROLE NORMALIZATION (use abbreviated form as target):
+- Chief Executive Officer → CEO
+- Chief Technology Officer → CTO
+- Chief Financial Officer → CFO
+- Chief Operating Officer → COO
+- Chief Data Officer → CDO
+- Vice President → VP
+
+Common titles to recognize (extract as HOLDS_POSITION target):
+- CEO, CTO, CFO, COO, CDO (ALWAYS use abbreviation as entity name)
+- President, Vice President, SVP, EVP
+- Director, Managing Director, General Counsel
+- Founder, Co-founder, Partner, Managing Partner
+- Board Member, Chairman
+
+For each person-title pattern found:
+1. Create PERSON entity for the individual
+2. Create JOB_TITLE or ROLE entity for the position (use abbreviation: "CEO" not "Chief Executive Officer")
+3. Create HOLDS_POSITION relationship: Person → JOB_TITLE
+4. Add qualifier "at_organization" with the company name if mentioned
+
+RELATIONSHIP TYPE CONSTRAINTS (VERY IMPORTANT):
+- HOLDS_POSITION: Source must be PERSON, Target must be JOB_TITLE, ROLE, or CONCEPT (NOT ORGANIZATION)
+  WRONG: John Smith --[HOLDS_POSITION]--> TechCorp (TechCorp is ORG, not job title)
+  RIGHT: John Smith --[HOLDS_POSITION]--> CTO
+  RIGHT: John Smith --[WORKS_AT]--> TechCorp
+- WORKS_AT / EMPLOYED_BY: Source must be PERSON, Target must be ORGANIZATION
+- REPORTS_TO: Source and Target must both be PERSON
+- HAS_COMPENSATION / EARNS: Use for salary/compensation facts. Source is PERSON, Target is CONCEPT (the amount)
+  RIGHT: John Smith --[HAS_COMPENSATION]--> $200,000 annual salary
+  WRONG: Embedding salary as a qualifier on HOLDS_POSITION
+
+Respond with ONLY a valid JSON array of relationships. If none found, return [].
+Example format:
+[
+  {{
+    "type": "HOLDS_POSITION",
+    "source_name": "Saleh Hamed",
+    "target_name": "Systems Engineer",
+    "properties": {{}},
+    "confidence": 0.95,
+    "source_sentence": "Systems Engineer (August 2003 - September 2008)",
+    "provenance_text": "Emirates Nuclear Energy Corporation (ENEC) - Systems Engineer (August 2003 - September 2008)",
+    "description": "Saleh's first position at ENEC as a technical contributor",
+    "valid_from": "2003-08",
+    "valid_to": "2008-09",
+    "event_context": "Early career at ENEC",
+    "qualifiers": [{{"type": "at_organization", "text": "ENEC"}}],
+    "confidence_reasoning": "Explicit position with exact dates stated"
+  }},
+  {{
+    "type": "INVESTED_IN",
+    "source_name": "Horizon Ventures",
+    "target_name": "TechStart Inc",
+    "properties": {{}},
+    "confidence": 0.95,
+    "source_sentence": "TechStart Inc (March 2020, $2M) - AI/ML startup",
+    "provenance_text": "Series A Investments: TechStart Inc (March 2020, $2M) - AI/ML startup",
+    "description": "Horizon's initial investment in TechStart during Series A round",
+    "valid_from": "2020-03",
+    "valid_to": null,
+    "event_context": "Series A investment round",
+    "qualifiers": [{{"type": "amount", "text": "$2M"}}, {{"type": "sector", "text": "AI/ML"}}],
+    "confidence_reasoning": "Explicit investment with date and amount"
+  }}
+]"""
+
+
+class GraphBuilderAgent:
+    """
+    Agent that ingests documents, extracts entities/relationships,
+    and writes them to STAGING with confidence and provenance.
+    
+    This is the perception layer of the cognitive loop.
+    Now fully configurable via domain_schema.yaml for any domain.
+    """
+    
+    MAX_CHUNK_TOKENS = 512
+    CHARS_PER_TOKEN = 4
+    
+    def __init__(self, session=None, schema_config_path: str = None):
+        self.session = session or get_session()
+        
+        self.schema_loader = get_schema_loader(
+            config_path=schema_config_path, 
+            force_reload=schema_config_path is not None
+        )
+        self.schema = self.schema_loader.schema
+        
+        logger.info(f"GraphBuilderAgent using domain: {self.schema.domain}")
+        logger.info(f"Entity types: {list(self.schema.entity_types.keys())}")
+        logger.info(f"Relationship types: {list(self.schema.relationship_types.keys())}")
+        
+        if AI_INTEGRATIONS_OPENAI_API_KEY and AI_INTEGRATIONS_OPENAI_BASE_URL:
+            self.client = OpenAI(
+                api_key=AI_INTEGRATIONS_OPENAI_API_KEY,
+                base_url=AI_INTEGRATIONS_OPENAI_BASE_URL
+            )
+        elif OPENAI_API_KEY:
+            self.client = OpenAI(api_key=OPENAI_API_KEY)
+        else:
+            raise ValueError("No OpenAI API key available. Set OPENAI_API_KEY or use Replit AI Integrations.")
+        
+        self.model = "gpt-4o-mini"
+        self._entity_cache = {}
+        
+        self._valid_entity_types = self.schema_loader.get_valid_entity_types()
+        self._valid_relationship_types = self.schema_loader.get_valid_relationship_types()
+        
+        self._candidate_normalizer = CandidateNormalizer()
+        self._known_relationship_types_cache = None
+        
+        logger.info("GraphBuilderAgent initialized with configurable schema")
+    
+    def _get_known_relationship_types(self, tenant_id: str = None) -> Set[str]:
+        """
+        Get all known relationship types (base schema + approved candidates).
+        
+        Ontology Foundry Phase 1: Types not in this set will be stored as candidates.
+        """
+        if self._known_relationship_types_cache is not None:
+            return self._known_relationship_types_cache
+        
+        base_types = set(self._valid_relationship_types)
+        
+        if tenant_id:
+            try:
+                from sqlalchemy import text
+                query = """
+                    SELECT DISTINCT normalized_name 
+                    FROM ontology_candidates 
+                    WHERE tenant_id = :tenant_id 
+                      AND candidate_type = 'RELATIONSHIP' 
+                      AND status = 'APPROVED'
+                """
+                result = self.session.execute(text(query), {'tenant_id': tenant_id})
+                approved = {row.normalized_name for row in result}
+                base_types = base_types | approved
+            except Exception as e:
+                logger.debug(f"Could not load approved candidates: {e}")
+        
+        self._known_relationship_types_cache = base_types
+        return base_types
+    
+    def _is_known_relationship_type(self, rel_type: str, tenant_id: str = None) -> bool:
+        """Check if a relationship type is known (in schema or approved)."""
+        normalized = self._candidate_normalizer.normalize_relationship(rel_type)
+        known_types = self._get_known_relationship_types(tenant_id)
+        return normalized in known_types
+    
+    def _build_entity_extraction_prompt(self, text: str) -> str:
+        """Build entity extraction prompt dynamically from schema config."""
+        entity_types_section = self.schema_loader.build_entity_extraction_prompt()
+        entity_type_names = ", ".join(self.schema.get_entity_type_names())
+        
+        return ENTITY_EXTRACTION_PROMPT_TEMPLATE.format(
+            domain=self.schema.domain,
+            entity_types_section=entity_types_section,
+            entity_type_names=entity_type_names,
+            text=text
+        )
+    
+    def _build_relationship_extraction_prompt(self, text: str, entities: List[ExtractedEntity]) -> str:
+        """Build relationship extraction prompt dynamically from schema config."""
+        relationship_types_section = self.schema_loader.build_relationship_extraction_prompt()
+        relationship_type_names = ", ".join(self.schema.get_relationship_type_names())
+        
+        entities_str = json.dumps([
+            {"type": e.entity_type, "name": e.canonical_name}
+            for e in entities
+        ], indent=2)
+        
+        return RELATIONSHIP_EXTRACTION_PROMPT_TEMPLATE.format(
+            domain=self.schema.domain,
+            relationship_types_section=relationship_types_section,
+            relationship_type_names=relationship_type_names,
+            entities=entities_str,
+            text=text
+        )
+    
+    SPECIFIC_TYPE_PATTERNS = {
+        "SERVICE": ["service", "gateway", "api", "app", "server", "endpoint", "microservice", "portal"],
+        "DATABASE": ["database", "db", "datastore", "store", "warehouse", "cache", "redis", "postgres", "mysql"],
+        "TEAM": ["team", "squad", "department", "group", "engineering", "platform team", "security team"],
+        "INCIDENT": ["inc-", "incident", "outage", "issue #", "failure", "disruption", "alert"],
+    }
+    
+    @property
+    def type_mappings(self) -> Dict[str, str]:
+        """Get type mappings from OntologySchemaService.
+        
+        Week 3 Stabilization: Consolidated from hardcoded TYPE_MAPPING to 
+        database-backed mappings via OntologySchemaService.
+        """
+        try:
+            service = get_ontology_schema_service()
+            return service.type_mappings
+        except Exception:
+            return {
+                "APPLICATION": "SERVICE",
+                "API": "SERVICE",
+                "PLATFORM": "SERVICE",
+                "GATEWAY": "SERVICE",
+                "MICROSERVICE": "SERVICE",
+                "GROUP": "TEAM",
+                "SQUAD": "TEAM",
+                "DEPARTMENT": "TEAM",
+                "OUTAGE": "INCIDENT",
+                "ISSUE": "INCIDENT",
+                "FAILURE": "INCIDENT",
+                "DATASTORE": "DATABASE",
+                "REPOSITORY": "DATABASE",
+                "CACHE": "DATABASE",
+                "TECHNOLOGY": "SERVICE",
+            }
+    
+    def _validate_entity_type(self, entity_type: str) -> bool:
+        """Check if entity type is valid according to loaded schema."""
+        return entity_type.upper() in self._valid_entity_types
+    
+    def _validate_relationship(self, rel_type: str, source_type: str, target_type: str) -> Tuple[bool, str]:
+        """Validate relationship type and source/target compatibility."""
+        return self.schema.validate_relationship(rel_type, source_type, target_type)
+    
+    def _correct_entity_type(self, extracted_type: str, entity_name: str) -> str:
+        """Correct/map generic entity types to specific types.
+        
+        Uses a priority system:
+        1. Direct mapping from OntologySchemaService type_mappings
+        2. Pattern matching on entity name
+        3. Keep original type if already valid
+        
+        Week 3 Stabilization: Now uses OntologySchemaService for type mappings.
+        """
+        extracted_type = extracted_type.upper()
+        
+        mappings = self.type_mappings
+        if extracted_type in mappings:
+            mapped = mappings[extracted_type]
+            logger.debug(f"Type mapping: {extracted_type} → {mapped} for '{entity_name}'")
+            return mapped
+        
+        name_lower = entity_name.lower()
+        
+        if extracted_type in ("ORGANIZATION", "PROCESS", "EVENT", "CONCEPT"):
+            for specific_type, patterns in self.SPECIFIC_TYPE_PATTERNS.items():
+                if any(pattern in name_lower for pattern in patterns):
+                    logger.info(f"Type correction: {extracted_type} → {specific_type} for '{entity_name}' (pattern match)")
+                    return specific_type
+        
+        return extracted_type
+    
+    def _normalize_entity_type(self, entity_type: str) -> str:
+        """Normalize entity type string for database storage.
+        
+        Since entity_type is now VARCHAR, we just normalize to uppercase.
+        No enum mapping needed - any type from loaded schema is valid.
+        """
+        return entity_type.upper()
+    
+    def _normalize_relationship_type(self, rel_type: str) -> str:
+        """Normalize relationship type string for database storage.
+        
+        Since relationship_type is now VARCHAR, we just normalize to uppercase.
+        No enum mapping needed - any type from loaded schema is valid.
+        """
+        return rel_type.upper()
+    
+    def ingest_document(self, doc_path: str = None, text: str = None, 
+                        doc_type: str = "DOCUMENT", title: str = None,
+                        tenant_id: str = None) -> ExtractionResult:
+        """
+        Main entry point: Ingest a document and extract entities/relationships.
+        
+        Args:
+            doc_path: Path to document file (optional)
+            text: Raw text content (optional, use if doc_path not provided)
+            doc_type: Type of document (RUNBOOK, MEETING_NOTES, etc.)
+            title: Document title (defaults to filename or generated)
+            
+        Returns:
+            ExtractionResult with extraction statistics
+        """
+        doc_id = str(uuid.uuid4())[:8]
+        logger.info(f"[{doc_id}] Starting document ingestion for domain: {self.schema.domain}")
+        
+        if doc_path:
+            try:
+                with open(doc_path, 'r', encoding='utf-8') as f:
+                    text = f.read()
+                title = title or os.path.basename(doc_path)
+            except Exception as e:
+                logger.error(f"[{doc_id}] Failed to read file: {e}")
+                return ExtractionResult(
+                    document_id=doc_id,
+                    entities_extracted=0,
+                    relationships_extracted=0,
+                    entities_staged=0,
+                    relationships_staged=0,
+                    chunks_processed=0,
+                    errors=[f"Failed to read file: {str(e)}"],
+                    staged=False
+                )
+        
+        if not text:
+            return ExtractionResult(
+                document_id=doc_id,
+                entities_extracted=0,
+                relationships_extracted=0,
+                entities_staged=0,
+                relationships_staged=0,
+                chunks_processed=0,
+                errors=["No text provided"],
+                staged=False
+            )
+        
+        title = title or f"Document_{doc_id}"
+        
+        chunks = self.chunk_document(text, doc_id)
+        logger.info(f"[{doc_id}] Document chunked into {len(chunks)} chunks")
+        
+        all_entities: List[ExtractedEntity] = []
+        all_relationships: List[ExtractedRelationship] = []
+        errors: List[str] = []
+        
+        for chunk in chunks:
+            try:
+                entities = self.extract_entities(chunk)
+                all_entities.extend(entities)
+                logger.debug(f"[{doc_id}] Chunk {chunk.chunk_index}: {len(entities)} entities")
+                
+                relationships = self.extract_relationships(chunk, entities)
+                all_relationships.extend(relationships)
+                logger.debug(f"[{doc_id}] Chunk {chunk.chunk_index}: {len(relationships)} relationships")
+                
+            except Exception as e:
+                error_msg = f"Chunk {chunk.chunk_index} extraction failed: {str(e)}"
+                logger.error(f"[{doc_id}] {error_msg}")
+                errors.append(error_msg)
+        
+        all_entities, all_relationships = self.create_implicit_role_relationships(
+            all_entities, all_relationships
+        )
+        
+        # Phase 2.6: Post-processor catches relationships LLM missed
+        try:
+            post_processor = get_post_processor()
+            existing_entities = [{"name": e.canonical_name, "entity_type": e.entity_type} for e in all_entities]
+            existing_rels = [{"source_name": r.source_name, "target_name": r.target_name, "relationship_type": r.relationship_type} for r in all_relationships]
+            
+            pp_result = post_processor.process(text, existing_entities, existing_rels)
+            
+            # Add new entities from post-processor
+            for new_ent in pp_result.new_entities:
+                all_entities.append(ExtractedEntity(
+                    entity_type=new_ent["entity_type"],
+                    canonical_name=new_ent["name"],
+                    confidence=new_ent.get("confidence", 0.85),
+                    source_sentence=f"Post-processor: {new_ent.get('source', 'pattern')}",
+                ))
+            
+            # Add new relationships from post-processor
+            for new_rel in pp_result.new_relationships:
+                all_relationships.append(ExtractedRelationship(
+                    relationship_type=new_rel.relationship_type,
+                    source_name=new_rel.source_name,
+                    target_name=new_rel.target_name,
+                    confidence=new_rel.confidence,
+                    source_sentence=new_rel.source_text,
+                    provenance_text=f"Post-processor: {new_rel.pattern_name}",
+                ))
+            
+            if pp_result.patterns_matched > 0:
+                logger.info(f"[{doc_id}] Post-processor added {len(pp_result.new_entities)} entities, "
+                           f"{len(pp_result.new_relationships)} relationships")
+        except Exception as e:
+            logger.warning(f"[{doc_id}] Post-processor failed (non-fatal): {e}")
+        
+        entities_staged, relationships_staged = self.write_to_staging(
+            entities=all_entities,
+            relationships=all_relationships,
+            source_document_id=doc_id,
+            document_title=title,
+            document_type=doc_type,
+            document_text=text,
+            tenant_id=tenant_id,
+            chunks=chunks
+        )
+        
+        result = ExtractionResult(
+            document_id=doc_id,
+            entities_extracted=len(all_entities),
+            relationships_extracted=len(all_relationships),
+            entities_staged=entities_staged,
+            relationships_staged=relationships_staged,
+            chunks_processed=len(chunks),
+            errors=errors,
+            staged=True
+        )
+        
+        holds_position_count = sum(
+            1 for r in all_relationships 
+            if r.relationship_type in ('HOLDS_POSITION', 'HELD_POSITION', 'HOLD_POSITION')
+        )
+        person_entities = [e for e in all_entities if e.entity_type == 'PERSON']
+        role_entities = [e for e in all_entities if e.entity_type in ('ROLE', 'JOB_TITLE')]
+        
+        logger.info(f"[{doc_id}] Ingestion complete: {result.entities_extracted} entities, "
+                   f"{result.relationships_extracted} relationships extracted")
+        logger.info(f"[{doc_id}] Extraction summary:")
+        logger.info(f"  - PERSON entities: {len(person_entities)}")
+        logger.info(f"  - ROLE/JOB_TITLE entities: {len(role_entities)}")
+        logger.info(f"  - HOLDS_POSITION relationships: {holds_position_count}")
+        
+        if person_entities and holds_position_count == 0:
+            logger.warning(f"[{doc_id}] WARNING: Found {len(person_entities)} PERSON entities but no HOLDS_POSITION relationships!")
+            logger.warning(f"[{doc_id}] Role resolution may fail for this document. Check extraction quality.")
+        
+        return result
+    
+    def chunk_document(self, text: str, doc_id: str = "unknown") -> List[Chunk]:
+        """
+        Split document into sentence-aware chunks (max 512 tokens).
+        
+        Uses sentence boundaries to avoid cutting mid-sentence.
+        """
+        max_chars = self.MAX_CHUNK_TOKENS * self.CHARS_PER_TOKEN
+        
+        sentences = re.split(r'(?<=[.!?])\s+', text)
+        
+        chunks = []
+        current_chunk = ""
+        current_start = 0
+        chunk_index = 0
+        char_position = 0
+        
+        for sentence in sentences:
+            sentence_with_space = sentence + " "
+            
+            if len(current_chunk) + len(sentence_with_space) > max_chars:
+                if current_chunk.strip():
+                    chunks.append(Chunk(
+                        text=current_chunk.strip(),
+                        start_offset=current_start,
+                        end_offset=char_position,
+                        chunk_index=chunk_index,
+                        source_document_id=doc_id
+                    ))
+                    chunk_index += 1
+                
+                current_chunk = sentence_with_space
+                current_start = char_position
+            else:
+                current_chunk += sentence_with_space
+            
+            char_position += len(sentence_with_space)
+        
+        if current_chunk.strip():
+            chunks.append(Chunk(
+                text=current_chunk.strip(),
+                start_offset=current_start,
+                end_offset=char_position,
+                chunk_index=chunk_index,
+                source_document_id=doc_id
+            ))
+        
+        return chunks
+    
+    def extract_entities(self, chunk: Chunk) -> List[ExtractedEntity]:
+        """
+        Extract entities from a chunk using schema-driven LLM prompts.
+        Prompts are built dynamically from domain_schema.yaml.
+        """
+        prompt = self._build_entity_extraction_prompt(chunk.text)
+        
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are an entity extraction system. Respond only with valid JSON."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.0,  # Deterministic extraction
+                max_tokens=2000
+            )
+            
+            content = response.choices[0].message.content.strip()
+            
+            if content.startswith("```"):
+                content = re.sub(r'^```(?:json)?\n?', '', content)
+                content = re.sub(r'\n?```$', '', content)
+            
+            entities_data = json.loads(content)
+            
+            if not isinstance(entities_data, list):
+                entities_data = [entities_data] if entities_data else []
+            
+            entities = []
+            seen_names = set()
+            
+            for e in entities_data:
+                raw_type = e.get("type", "").upper()
+                canonical_name = e.get("canonical_name", e.get("name", ""))
+                
+                name_key = canonical_name.lower().strip()
+                if name_key in seen_names:
+                    logger.debug(f"Skipping duplicate entity: {canonical_name}")
+                    continue
+                seen_names.add(name_key)
+                
+                entity_type = self._correct_entity_type(raw_type, canonical_name)
+                
+                if not self._validate_entity_type(entity_type):
+                    logger.warning(f"Unknown entity type after correction: {entity_type} (original: {raw_type}, valid: {self._valid_entity_types})")
+                    continue
+                
+                confidence = float(e.get("confidence", 0.5))
+                if confidence < 0.5:
+                    logger.debug(f"Skipping low-confidence entity: {canonical_name} ({confidence})")
+                    continue
+                
+                source_sentence = e.get("source_sentence", "")
+                start_offset = chunk.start_offset
+                end_offset = chunk.end_offset
+                
+                if source_sentence:
+                    sentence_pos = chunk.text.find(source_sentence)
+                    if sentence_pos >= 0:
+                        start_offset = chunk.start_offset + sentence_pos
+                        end_offset = start_offset + len(source_sentence)
+                
+                aliases = e.get("aliases", [])
+                if not isinstance(aliases, list):
+                    aliases = []
+                
+                entity = ExtractedEntity(
+                    entity_type=entity_type,
+                    canonical_name=canonical_name,
+                    properties=e.get("properties", {}),
+                    confidence=confidence,
+                    source_sentence=source_sentence,
+                    aliases=aliases,
+                    start_offset=start_offset,
+                    end_offset=end_offset
+                )
+                entities.append(entity)
+            
+            return entities
+            
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse entity extraction response: {e}")
+            return []
+        except Exception as e:
+            logger.error(f"Entity extraction failed: {e}")
+            return []
+    
+    def extract_relationships(self, chunk: Chunk, entities: List[ExtractedEntity]) -> List[ExtractedRelationship]:
+        """
+        Extract relationships between entities using schema-driven LLM prompts.
+        Validates relationships against config-defined source/target types.
+        """
+        if len(entities) < 2:
+            return []
+        
+        prompt = self._build_relationship_extraction_prompt(chunk.text, entities)
+        
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are a relationship extraction system. Respond only with valid JSON."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.0,  # Deterministic extraction
+                max_tokens=2000
+            )
+            
+            content = response.choices[0].message.content.strip()
+            
+            if content.startswith("```"):
+                content = re.sub(r'^```(?:json)?\n?', '', content)
+                content = re.sub(r'\n?```$', '', content)
+            
+            relationships_data = json.loads(content)
+            
+            if not isinstance(relationships_data, list):
+                relationships_data = [relationships_data] if relationships_data else []
+            
+            entity_map = {e.canonical_name: e for e in entities}
+            
+            relationships = []
+            for r in relationships_data:
+                rel_type = r.get("type", "").upper()
+                
+                if rel_type not in self._valid_relationship_types:
+                    logger.warning(f"Unknown relationship type: {rel_type}")
+                    continue
+                
+                source_name = r.get("source_name")
+                target_name = r.get("target_name")
+                
+                if source_name not in entity_map or target_name not in entity_map:
+                    logger.debug(f"Relationship references unknown entity: {source_name} -> {target_name}")
+                    continue
+                
+                source_entity = entity_map[source_name]
+                target_entity = entity_map[target_name]
+                
+                is_valid, error_msg = self._validate_relationship(
+                    rel_type, source_entity.entity_type, target_entity.entity_type
+                )
+                
+                if not is_valid:
+                    logger.debug(f"Invalid relationship: {error_msg}")
+                    continue
+                
+                confidence = float(r.get("confidence", 0.5))
+                if confidence < 0.5:
+                    logger.debug(f"Skipping low-confidence relationship: {source_name} -> {target_name} ({confidence})")
+                    continue
+                
+                relationship = ExtractedRelationship(
+                    relationship_type=rel_type,
+                    source_name=source_name,
+                    target_name=target_name,
+                    properties=r.get("properties", {}),
+                    confidence=confidence,
+                    source_sentence=r.get("source_sentence", ""),
+                    # Context metadata (Stage 2: Context-Attached Knowledge)
+                    provenance_text=r.get("provenance_text", ""),
+                    description=r.get("description", ""),
+                    event_context=r.get("event_context", ""),
+                    valid_from=r.get("valid_from") or "",
+                    valid_to=r.get("valid_to") or "",
+                    qualifiers=r.get("qualifiers", []),
+                    confidence_reasoning=r.get("confidence_reasoning", "")
+                )
+                relationships.append(relationship)
+            
+            return relationships
+            
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse relationship extraction response: {e}")
+            return []
+        except Exception as e:
+            logger.error(f"Relationship extraction failed: {e}")
+            return []
+    
+    def create_implicit_role_relationships(
+        self, entities: List[ExtractedEntity], relationships: List[ExtractedRelationship]
+    ) -> Tuple[List[ExtractedEntity], List[ExtractedRelationship]]:
+        """
+        Create HOLDS_POSITION relationships from entity properties.
+        
+        If a PERSON entity has position/title/role property, create:
+        1. A ROLE entity for the position
+        2. A HOLDS_POSITION relationship from person to role
+        
+        Returns:
+            Tuple of (updated_entities, updated_relationships)
+        """
+        ROLE_PROPERTIES = ['position', 'title', 'role', 'job_title', 'job', 'current_position']
+        
+        ROLE_NORMALIZATIONS = {
+            'chief executive officer': 'CEO',
+            'chief technology officer': 'CTO',
+            'chief financial officer': 'CFO',
+            'chief operating officer': 'COO',
+            'chief data officer': 'CDO',
+            'chief marketing officer': 'CMO',
+            'chief information officer': 'CIO',
+            'vice president': 'VP',
+            'senior vice president': 'SVP',
+            'executive vice president': 'EVP',
+        }
+        
+        new_entities = list(entities)
+        new_relationships = list(relationships)
+        existing_entity_names = {e.canonical_name.lower() for e in entities}
+        existing_rel_keys = {
+            (r.source_name.lower(), r.relationship_type, r.target_name.lower())
+            for r in relationships
+        }
+        
+        for entity in entities:
+            if entity.entity_type != 'PERSON':
+                continue
+            
+            props = entity.properties or {}
+            
+            for prop_name in ROLE_PROPERTIES:
+                if prop_name not in props:
+                    continue
+                
+                role_value = str(props[prop_name]).strip()
+                if not role_value or len(role_value) < 2:
+                    continue
+                
+                normalized_role = ROLE_NORMALIZATIONS.get(role_value.lower(), role_value)
+                
+                if normalized_role.lower() not in existing_entity_names:
+                    role_entity = ExtractedEntity(
+                        entity_type='JOB_TITLE',
+                        canonical_name=normalized_role,
+                        properties={'normalized_from': role_value},
+                        confidence=0.85,
+                        source_sentence=f"Inferred from {entity.canonical_name}'s {prop_name} property",
+                        aliases=[role_value] if role_value != normalized_role else []
+                    )
+                    new_entities.append(role_entity)
+                    existing_entity_names.add(normalized_role.lower())
+                    logger.info(f"[IMPLICIT_ROLE] Created JOB_TITLE entity: {normalized_role}")
+                
+                rel_key = (entity.canonical_name.lower(), 'HOLDS_POSITION', normalized_role.lower())
+                if rel_key not in existing_rel_keys:
+                    role_rel = ExtractedRelationship(
+                        relationship_type='HOLDS_POSITION',
+                        source_name=entity.canonical_name,
+                        target_name=normalized_role,
+                        properties={},
+                        confidence=0.85,
+                        source_sentence=f"Inferred from {entity.canonical_name}'s {prop_name}: {role_value}",
+                        provenance_text=f"Property extraction: {entity.canonical_name} has {prop_name}={role_value}",
+                        description=f"{entity.canonical_name} holds position {normalized_role}",
+                    )
+                    new_relationships.append(role_rel)
+                    existing_rel_keys.add(rel_key)
+                    logger.info(f"[IMPLICIT_ROLE] Created HOLDS_POSITION: {entity.canonical_name} → {normalized_role}")
+        
+        if len(new_entities) > len(entities) or len(new_relationships) > len(relationships):
+            logger.info(f"[IMPLICIT_ROLE] Added {len(new_entities) - len(entities)} entities, {len(new_relationships) - len(relationships)} relationships")
+        
+        return new_entities, new_relationships
+    
+    def write_to_staging(self, entities: List[ExtractedEntity], 
+                         relationships: List[ExtractedRelationship],
+                         source_document_id: str,
+                         document_title: str,
+                         document_type: str,
+                         document_text: str,
+                         tenant_id: str = None,
+                         chunks: List[Chunk] = None) -> Tuple[int, int]:
+        """
+        Write extracted entities and relationships to STAGING (not TRUSTED).
+        Also stores document chunks for RAG retrieval.
+        
+        Maps schema-defined types to database enums for backward compatibility.
+        Stores original schema type in properties for future migration.
+        
+        Returns:
+            Tuple of (entities_staged, relationships_staged)
+        """
+        from ..models.schema import DocumentChunk
+        
+        entities_staged = 0
+        relationships_staged = 0
+        doc = None
+        
+        try:
+            doc = Document(
+                id=uuid.uuid4(),
+                tenant_id=uuid.UUID(tenant_id) if tenant_id else None,
+                title=document_title,
+                doc_type=document_type,
+                content=document_text[:5000],
+                source_document_id=source_document_id,
+                doc_metadata={
+                    "ingested_by": "graph_builder",
+                    "ingested_at": datetime.utcnow().isoformat(),
+                    "domain": self.schema.domain
+                }
+            )
+            self.session.add(doc)
+            self.session.flush()
+            
+            if chunks and doc:
+                chunks_stored = 0
+                for chunk in chunks:
+                    try:
+                        chunk_embedding = None
+                        try:
+                            chunk_embedding = openai_embedding(chunk.text, dim=1536)
+                        except Exception as embed_e:
+                            logger.warning(f"Failed to generate embedding for chunk {chunk.chunk_index}: {embed_e}")
+                        
+                        db_chunk = DocumentChunk(
+                            id=uuid.uuid4(),
+                            document_id=doc.id,
+                            tenant_id=uuid.UUID(tenant_id) if tenant_id else uuid.UUID("00000000-0000-0000-0000-000000000000"),
+                            chunk_index=chunk.chunk_index,
+                            text=chunk.text,
+                            char_start=chunk.start_offset,
+                            char_end=chunk.end_offset,
+                            chunk_metadata={
+                                "source_document_id": source_document_id,
+                                "document_title": document_title
+                            },
+                            embedding=chunk_embedding
+                        )
+                        self.session.add(db_chunk)
+                        chunks_stored += 1
+                    except Exception as chunk_e:
+                        logger.warning(f"Failed to store chunk {chunk.chunk_index}: {chunk_e}")
+                
+                self.session.flush()
+                logger.info(f"Stored {chunks_stored} document chunks with embeddings for RAG retrieval")
+            
+        except Exception as e:
+            logger.error(f"Failed to create document record: {e}")
+            self.session.rollback()
+        
+        entity_db_map = {}
+        
+        for entity in entities:
+            try:
+                db_entity_type = self._normalize_entity_type(entity.entity_type)
+                
+                from sqlalchemy import func
+                tid = uuid.UUID(tenant_id) if tenant_id else None
+                existing = self.session.query(Entity).filter(
+                    func.lower(Entity.name) == func.lower(entity.canonical_name),
+                    Entity.entity_type == db_entity_type,
+                    Entity.tenant_id == tid
+                ).first()
+                
+                if existing:
+                    entity_db_map[entity.canonical_name] = existing.id
+                    logger.debug(f"Entity already exists: {entity.canonical_name}")
+                    continue
+                
+                props_with_provenance = {
+                    **entity.properties,
+                    "_provenance": {
+                        "start_offset": entity.start_offset,
+                        "end_offset": entity.end_offset,
+                        "extraction_method": "graph_builder_llm"
+                    },
+                    "_schema_type": entity.entity_type,
+                    "_domain": self.schema.domain
+                }
+                
+                entity_name_embedding = None
+                try:
+                    embed_text = f"{entity.canonical_name}: {entity.entity_type}"
+                    entity_name_embedding = openai_embedding(embed_text, dim=1536)
+                except Exception as embed_e:
+                    logger.debug(f"Failed to generate embedding for entity {entity.canonical_name}: {embed_e}")
+                
+                db_entity = Entity(
+                    id=uuid.uuid4(),
+                    tenant_id=uuid.UUID(tenant_id) if tenant_id else None,
+                    name=entity.canonical_name,
+                    entity_type=db_entity_type,
+                    lifecycle_state=LifecycleState.STAGING,
+                    properties=props_with_provenance,
+                    confidence=entity.confidence,
+                    source_document_id=source_document_id,
+                    source_sentence=entity.source_sentence[:500] if entity.source_sentence else None,
+                    extracted_at=datetime.utcnow(),
+                    extraction_method="graph_builder_llm",
+                    name_embedding=entity_name_embedding
+                )
+                self.session.add(db_entity)
+                self.session.flush()
+                
+                if entity.aliases:
+                    for alias in entity.aliases:
+                        if alias and alias.lower() != entity.canonical_name.lower():
+                            alias_type = 'acronym' if alias.isupper() and len(alias) <= 10 else 'synonym'
+                            entity_alias = EntityAlias(
+                                entity_id=db_entity.id,
+                                alias=alias,
+                                alias_type=alias_type,
+                                source='extraction',
+                                tenant_id=uuid.UUID(tenant_id) if tenant_id else None
+                            )
+                            self.session.add(entity_alias)
+                
+                entity_db_map[entity.canonical_name] = db_entity.id
+                entities_staged += 1
+                
+                logger.debug(f"Staged entity: {entity.canonical_name} ({entity.entity_type})")
+                
+            except Exception as e:
+                logger.error(f"Failed to stage entity {entity.canonical_name}: {e}")
+                # Continue with next entity instead of rolling back all progress
+                continue
+        
+        # Also map existing entities for this tenant (needed for relationship resolution)
+        from sqlalchemy import func
+        for existing_entity in self.session.query(Entity).filter(
+            Entity.tenant_id == (uuid.UUID(tenant_id) if tenant_id else None)
+        ).all():
+            if existing_entity.name not in entity_db_map:
+                entity_db_map[existing_entity.name] = existing_entity.id
+        
+        for rel in relationships:
+            try:
+                source_id = entity_db_map.get(rel.source_name)
+                target_id = entity_db_map.get(rel.target_name)
+                
+                if not source_id or not target_id:
+                    logger.debug(f"Relationship references unmapped entity: {rel.source_name} -> {rel.target_name}")
+                    continue
+                
+                db_rel_type = self._normalize_relationship_type(rel.relationship_type)
+                
+                normalized_type = self._candidate_normalizer.normalize_relationship(rel.relationship_type)
+                if not self._is_known_relationship_type(rel.relationship_type, tenant_id):
+                    try:
+                        candidate_store = CandidateStore(self.session, uuid.UUID(tenant_id))
+                        source_entity = next((e for e in entities if e.canonical_name == rel.source_name), None)
+                        target_entity = next((e for e in entities if e.canonical_name == rel.target_name), None)
+                        
+                        candidate_store.add_relationship_candidate(
+                            proposed_name=rel.relationship_type,
+                            normalized_name=normalized_type,
+                            source_entity_type=source_entity.entity_type if source_entity else "UNKNOWN",
+                            target_entity_type=target_entity.entity_type if target_entity else "UNKNOWN",
+                            source_entity_name=rel.source_name,
+                            target_entity_name=rel.target_name,
+                            properties=rel.properties,
+                            original_text=rel.source_sentence,
+                            document_id=str(source_document_id) if source_document_id else None,
+                            chunk_id=None
+                        )
+                        logger.info(f"[OntologyFoundry] Unknown type '{rel.relationship_type}' → candidate as '{normalized_type}'")
+                        continue
+                    except Exception as e:
+                        logger.warning(f"[OntologyFoundry] Failed to store candidate: {e}")
+                
+                existing = self.session.query(Relationship).filter(
+                    Relationship.source_id == source_id,
+                    Relationship.target_id == target_id,
+                    Relationship.relationship_type == db_rel_type
+                ).first()
+                
+                if existing:
+                    logger.debug(f"Relationship already exists: {rel.source_name} -> {rel.target_name}")
+                    continue
+                
+                rel_props = {
+                    **rel.properties,
+                    "_schema_type": rel.relationship_type,
+                    "_domain": self.schema.domain
+                }
+                
+                # Parse temporal context for Stage 2
+                valid_from_dt = parse_date_string(rel.valid_from)
+                valid_to_dt = parse_date_string(rel.valid_to)
+                
+                # Prepare qualifiers as JSONB
+                qualifiers_json = rel.qualifiers if rel.qualifiers else None
+                
+                db_rel = Relationship(
+                    id=uuid.uuid4(),
+                    tenant_id=uuid.UUID(tenant_id) if tenant_id else None,
+                    source_id=source_id,
+                    target_id=target_id,
+                    relationship_type=db_rel_type,
+                    lifecycle_state=LifecycleState.STAGING,
+                    properties=rel_props,
+                    confidence=rel.confidence,
+                    source_document_id=source_document_id,
+                    source_sentence=rel.source_sentence[:500] if rel.source_sentence else None,
+                    extracted_at=datetime.utcnow(),
+                    # Stage 2: Context-Attached Knowledge fields
+                    valid_from=valid_from_dt,
+                    valid_to=valid_to_dt,
+                    provenance_text=rel.provenance_text[:2000] if rel.provenance_text else None,
+                    event_context=rel.event_context[:500] if rel.event_context else None,
+                    qualifiers=qualifiers_json
+                )
+                self.session.add(db_rel)
+                self.session.flush()  # Get db_rel.id
+                
+                # Create RelationshipContext record (Phase 2: Context Metadata)
+                if rel.provenance_text or rel.description or rel.qualifiers:
+                    # Determine temporal granularity from valid_from/valid_to
+                    temporal_granularity = None
+                    if rel.valid_from or rel.valid_to:
+                        # Detect granularity from date format
+                        if rel.valid_from and len(rel.valid_from) == 7:  # "YYYY-MM"
+                            temporal_granularity = "month"
+                        elif rel.valid_from and len(rel.valid_from) == 4:  # "YYYY"
+                            temporal_granularity = "year"
+                        elif rel.valid_to:
+                            temporal_granularity = "bounded"
+                        else:
+                            temporal_granularity = "current"
+                    
+                    context = RelationshipContext(
+                        id=uuid.uuid4(),
+                        relationship_id=db_rel.id,
+                        tenant_id=uuid.UUID(tenant_id) if tenant_id else None,
+                        provenance_text=rel.provenance_text[:2000] if rel.provenance_text else None,
+                        description=rel.description[:1000] if rel.description else None,
+                        qualifiers=rel.qualifiers if rel.qualifiers else [],
+                        temporal_start=valid_from_dt,
+                        temporal_end=valid_to_dt,
+                        temporal_granularity=temporal_granularity,
+                        extraction_method="graph_builder_llm",
+                        extraction_model=self.model,
+                        raw_extraction={
+                            "source_sentence": rel.source_sentence,
+                            "confidence_reasoning": rel.confidence_reasoning
+                        },
+                        confidence_extraction=rel.confidence,
+                        confidence_combined=rel.confidence
+                    )
+                    self.session.add(context)
+                    logger.debug(f"Created context for relationship: {rel.source_name} -> {rel.target_name}")
+                
+                relationships_staged += 1
+                
+                logger.debug(f"Staged relationship: {rel.source_name} -[{rel.relationship_type}]-> {rel.target_name}")
+                
+            except Exception as e:
+                logger.error(f"Failed to stage relationship {rel.source_name} -> {rel.target_name}: {e}")
+                # Continue with next relationship instead of rolling back all progress
+                continue
+        
+        try:
+            self.session.commit()
+            logger.info(f"Committed {entities_staged} entities and {relationships_staged} relationships to STAGING")
+        except Exception as e:
+            logger.error(f"Failed to commit staging data: {e}")
+            self.session.rollback()
+            return 0, 0
+        
+        return entities_staged, relationships_staged
+    
+    def get_schema_info(self) -> Dict:
+        """Return current schema configuration for debugging/API responses."""
+        return {
+            "domain": self.schema.domain,
+            "schema_version": self.schema.schema_version,
+            "description": self.schema.description,
+            "entity_types": list(self.schema.entity_types.keys()),
+            "relationship_types": list(self.schema.relationship_types.keys()),
+            "cardinality_constraints": self.schema_loader.get_cardinality_constraints()
+        }
+    
+    def close(self):
+        """Close database session."""
+        if self.session:
+            self.session.close()

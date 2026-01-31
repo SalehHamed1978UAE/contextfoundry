@@ -1,0 +1,142 @@
+{
+  "document_id": "9917090b-e6bb-4837-a9b4-e05992a6eb69",
+  "document_path": "05_intellectual_property.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T16:01:41.654078",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "05_intellectual_property.md",
+      "source_excerpt": "All IP created in scope of employment belongs to Nexus Industries.",
+      "aliases": []
+    },
+    {
+      "name": "General Counsel",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "General Counsel",
+        "role": "Legal Advisor"
+      },
+      "confidence": 0.9,
+      "source_document": "05_intellectual_property.md",
+      "source_excerpt": "Owner: General Counsel",
+      "aliases": []
+    },
+    {
+      "name": "Lisa Thompson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "General Counsel",
+        "role": "Legal Advisor"
+      },
+      "confidence": 0.95,
+      "source_document": "05_intellectual_property.md",
+      "source_excerpt": "Approved by: Lisa Thompson, General Counsel",
+      "aliases": []
+    },
+    {
+      "name": "IP Department",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Intellectual Property Management"
+      },
+      "confidence": 0.9,
+      "source_document": "05_intellectual_property.md",
+      "source_excerpt": "Submit to IP Department",
+      "aliases": []
+    },
+    {
+      "name": "Patent Committee",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Patent Review"
+      },
+      "confidence": 0.85,
+      "source_document": "05_intellectual_property.md",
+      "source_excerpt": "Patent Committee review",
+      "aliases": []
+    },
+    {
+      "name": "Intellectual Property Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "POL-005",
+        "category": "Corporate Policy"
+      },
+      "confidence": 0.95,
+      "source_document": "05_intellectual_property.md",
+      "source_excerpt": "Intellectual Property Policy",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Intellectual Property Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_intellectual_property.md",
+      "evidence": "This policy establishes guidelines for the creation, protection, and use of intellectual property at Nexus Industries"
+    },
+    {
+      "source_entity": "General Counsel",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_intellectual_property.md",
+      "evidence": "Owner: General Counsel"
+    },
+    {
+      "source_entity": "Lisa Thompson",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "05_intellectual_property.md",
+      "evidence": "Approved by: Lisa Thompson, General Counsel"
+    },
+    {
+      "source_entity": "General Counsel",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "IP Department",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "05_intellectual_property.md",
+      "evidence": "General Counsel (Chair)"
+    },
+    {
+      "source_entity": "General Counsel",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Patent Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "05_intellectual_property.md",
+      "evidence": "General Counsel (Chair)"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

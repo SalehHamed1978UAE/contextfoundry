@@ -1,0 +1,53 @@
+====================================================================================================
+CONTEXT FOUNDRY - FINAL VERIFICATION TEST
+Testing with proper tenant context (RLS)
+====================================================================================================
+
+
+TECHVENTURES TEST (10 queries)
+------------------------------------------------------------
+  [1] PASS 90% (SUP) | Who is the CEO?
+  [2] PASS 90% (SUP) | What is the CEO's salary?
+  [3] PASS 90% (SUP) | Who is the CTO?
+  [4] PASS 90% (SUP) | Who is the CTO of TechVentures?
+  [5] LOW 25% (INS) | What is Sarah Chen's compensation?
+  [6] PASS 90% (SUP) | Who reports to the CEO?
+  [7] PASS 75% (SUP) | What portfolio companies does TechVentures ha
+  [8] PASS 75% (SUP) | Tell me about CloudMatrix
+  [9] PASS 75% (SUP) | Tell me about HealthSync
+  [10] PASS 75% (SUP) | Tell me about SecureNode
+
+LAW FIRM VAULT (9 queries)
+------------------------------------------------------------
+  [1] PASS 90% (SUP) | Who is the Managing Partner?
+  [2] PASS 85% (SUP) | What is the Managing Partner's compensation?
+  [3] LOW 25% (INS) | Who is the CFO?
+  [4] LOW 25% (INS) | Who is the COO?
+  [5] PASS 75% (SUP) | Who reports to Amanda Foster?
+  [6] LOW 25% (INS) | What practice groups does the firm have?
+  [7] LOW 25% (INS) | Tell me about the litigation practice
+  [8] LOW 25% (INS) | Who are the Tier 1 clients?
+  [9] LOW 25% (INS) | What is Richard Sterling's compensation?
+
+HOSPITAL VAULT (10 queries)
+------------------------------------------------------------
+  [1] PASS 90% (SUP) | Who is the CEO?
+  [2] PASS 90% (SUP) | What is the CEO's salary?
+  [3] LOW 25% (INS) | Who is the CMO?
+  [4] PASS 90% (SUP) | Who is the CIO?
+  [5] PASS 85% (SUP) | What is the CIO's compensation?
+  [6] PASS 90% (SUP) | Who reports to the CEO?
+  [7] LOW 25% (INS) | What departments does the hospital have?
+  [8] LOW 25% (INS) | Tell me about the cardiac initiative
+  [9] PASS 70% (SUP) | Who leads the oncology department?
+  [10] PASS 70% (SUP) | Who leads the cardiology department?
+
+====================================================================================================
+SUMMARY
+====================================================================================================
+  TechVentures Test: 9/10 (90%)
+  Law Firm Vault: 3/9 (33%)
+  Hospital Vault: 7/10 (70%)
+
+  OVERALL: 19/29 (65.5%)
+====================================================================================================

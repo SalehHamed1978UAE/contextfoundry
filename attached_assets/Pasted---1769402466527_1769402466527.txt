@@ -1,0 +1,21 @@
+                                                                                                       
+  1. Check what entities are in the vault's knowledge graph:                                             
+  SELECT name, type, COUNT(*)                                                                            
+  FROM entities                                                                                          
+  WHERE tenant_id = '<nexus_vault_id>'                                                                   
+  GROUP BY name, type                                                                                    
+  ORDER BY COUNT(*) DESC                                                                                 
+  LIMIT 50;                                                                                              
+                                                                                                         
+  2. Check if contaminated entities exist:                                                               
+  SELECT * FROM entities                                                                                 
+  WHERE tenant_id = '<nexus_vault_id>'                                                                   
+  AND (name LIKE '%Boeing%' OR name LIKE '%Koji Sato%' OR name LIKE '%Patricia Martinez%');              
+                                                                                                         
+  3. Verify Nel Hydrogen was extracted:                                                                  
+  SELECT * FROM entities                                                                                 
+  WHERE tenant_id = '<nexus_vault_id>'                                                                   
+  AND name LIKE '%Nel%';                                                                                 
+                                                                                                         
+  If contaminated entities exist, the extraction pulled in external data somehow. If correct entities    
+  don't exist, extraction missed them.  

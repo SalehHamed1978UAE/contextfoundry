@@ -1,0 +1,75 @@
+{
+  "document_id": "ff952da0-dc1d-41ce-be98-384b6285278f",
+  "document_path": "04_procurement_policy.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T15:52:05.867020",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "This policy establishes standards for the procurement of goods and services at Nexus Industries",
+      "aliases": []
+    },
+    {
+      "name": "Thomas Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Procurement Officer",
+        "role": "CPO"
+      },
+      "confidence": 0.95,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "Approved by: Thomas Chen, Chief Procurement Officer",
+      "aliases": []
+    },
+    {
+      "name": "Procurement Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "POL-004",
+        "category": "Corporate Policy"
+      },
+      "confidence": 0.9,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "## Procurement Policy",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Procurement Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_procurement_policy.md",
+      "evidence": "This policy establishes standards for the procurement of goods and services at Nexus Industries"
+    },
+    {
+      "source_entity": "Thomas Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_procurement_policy.md",
+      "evidence": "Approved by: Thomas Chen, Chief Procurement Officer"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 3,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

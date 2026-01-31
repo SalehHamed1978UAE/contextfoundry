@@ -1,0 +1,285 @@
+# MedSync Health, Inc.
+## MedSync Analytics - ML Model Documentation
+**Document ID**: PROD-007
+**Classification**: Internal - Technical
+**Version**: 2.0 (January 2025)
+
+---
+
+## Overview
+
+MedSync Analytics includes a suite of machine learning models designed to help healthcare organizations predict risks, identify care gaps, and optimize resource allocation. All models are validated on real-world healthcare data and continuously monitored for performance.
+
+---
+
+## Model Inventory
+
+### Production Models
+
+| Model | Version | AUC | Status | Last Updated |
+|-------|---------|-----|--------|--------------|
+| Readmission Risk | 3.2 | 0.82 | Active | Dec 2024 |
+| No-Show Prediction | 2.1 | 0.78 | Active | Nov 2024 |
+| Clinical Deterioration | 2.0 | 0.85 | Active | Oct 2024 |
+| Risk Stratification | 4.0 | 0.80 | Active | Dec 2024 |
+| Cost Prediction | 1.5 | 0.75 | Active | Sep 2024 |
+| Medication Adherence | 1.2 | 0.79 | Active | Oct 2024 |
+| ED Utilization | 1.0 | 0.77 | Active | Oct 2024 |
+
+### Beta Models
+
+| Model | Version | AUC | Status | Target GA |
+|-------|---------|-----|--------|-----------|
+| Social Risk | 0.8 | 0.78 | Beta | Q1 2025 |
+| Chronic Progression | 0.5 | 0.82 | Beta | Q2 2025 |
+| Staff Optimization | 0.3 | 0.75 | Alpha | Q2 2025 |
+
+---
+
+## Readmission Risk Model
+
+### Purpose
+Predicts the probability of hospital readmission within 30 days of discharge.
+
+### Model Details
+
+| Attribute | Value |
+|-----------|-------|
+| Algorithm | Gradient Boosted Trees (XGBoost) |
+| Training Data | 2.5M discharges (2020-2024) |
+| Features | 156 |
+| AUC-ROC | 0.82 |
+| Precision @10% | 0.45 |
+| Recall @10% | 0.38 |
+
+### Feature Categories
+
+| Category | Features | Importance |
+|----------|----------|------------|
+| Prior Utilization | 28 | 32% |
+| Clinical Indicators | 45 | 28% |
+| Demographics | 12 | 8% |
+| Social Factors | 18 | 15% |
+| Medications | 32 | 12% |
+| Discharge Factors | 21 | 5% |
+
+### Top Features
+
+| Rank | Feature | Importance |
+|------|---------|------------|
+| 1 | Prior 30-day readmissions (12mo) | 8.5% |
+| 2 | Length of stay | 6.2% |
+| 3 | ED visits (6mo) | 5.8% |
+| 4 | Charlson Comorbidity Index | 5.4% |
+| 5 | Discharge disposition | 4.9% |
+| 6 | Age | 4.2% |
+| 7 | Number of active medications | 3.8% |
+| 8 | Primary diagnosis category | 3.5% |
+| 9 | Insurance type | 3.2% |
+| 10 | Social isolation score | 2.9% |
+
+### Risk Tiers
+
+| Tier | Score Range | % Population | Readmit Rate |
+|------|-------------|--------------|--------------|
+| Very High | 0.70 - 1.00 | 5% | 42% |
+| High | 0.50 - 0.69 | 12% | 28% |
+| Medium | 0.30 - 0.49 | 25% | 15% |
+| Low | 0.10 - 0.29 | 35% | 8% |
+| Very Low | 0.00 - 0.09 | 23% | 3% |
+
+### API Usage
+
+```http
+GET /analytics/patients/{patientId}/risk/readmission
+
+Response:
+{
+  "patientId": "pat_abc123",
+  "modelVersion": "3.2",
+  "score": 0.68,
+  "tier": "HIGH",
+  "confidence": 0.92,
+  "topFactors": [
+    {"factor": "Prior readmission in 90 days", "contribution": 0.15},
+    {"factor": "Heart failure diagnosis", "contribution": 0.12},
+    {"factor": "Polypharmacy (12+ meds)", "contribution": 0.08}
+  ],
+  "calculatedAt": "2025-01-17T10:30:00Z"
+}
+```
+
+---
+
+## Clinical Deterioration Model
+
+### Purpose
+Predicts risk of clinical deterioration requiring escalation of care within 24-48 hours.
+
+### Model Details
+
+| Attribute | Value |
+|-----------|-------|
+| Algorithm | LSTM Neural Network |
+| Training Data | 800K patient-days |
+| Features | 48 (time-series) |
+| AUC-ROC | 0.85 |
+| Precision @5% | 0.52 |
+| Sensitivity | 0.78 |
+
+### Input Features
+
+| Category | Features |
+|----------|----------|
+| Vital Signs | HR, BP, RR, SpO2, Temp |
+| Labs | BMP, CBC, Lactate, Troponin |
+| Nursing Assessments | Pain, LOC, Mobility |
+| Trends | 4hr, 8hr, 24hr deltas |
+| Context | Age, diagnosis, floor |
+
+### Alert Thresholds
+
+| Threshold | Score | Action |
+|-----------|-------|--------|
+| Critical | >0.80 | Immediate escalation |
+| High | 0.60-0.79 | MD notification |
+| Moderate | 0.40-0.59 | Increased monitoring |
+| Low | <0.40 | Standard care |
+
+---
+
+## Risk Stratification Model
+
+### Purpose
+Assigns patients to risk tiers for population health management and resource allocation.
+
+### Model Details
+
+| Attribute | Value |
+|-----------|-------|
+| Algorithm | Ensemble (RF + XGBoost + LR) |
+| Training Data | 5M patients |
+| Features | 212 |
+| AUC-ROC | 0.80 |
+| Segments | 5 |
+
+### Risk Segments
+
+| Segment | % Population | Characteristics |
+|---------|--------------|-----------------|
+| Rising Risk | 15% | 2+ chronic conditions, recent utilization |
+| High Cost | 5% | Top 5% spend, complex conditions |
+| Chronic Stable | 25% | Managed chronic conditions |
+| Healthy | 45% | Low utilization, few conditions |
+| Emerging | 10% | Early warning signs |
+
+### Use Cases
+
+| Use Case | Description |
+|----------|-------------|
+| Care Management | Prioritize outreach |
+| Resource Planning | Staff allocation |
+| Intervention Targeting | Program eligibility |
+| Financial Forecasting | Budget planning |
+
+---
+
+## Model Governance
+
+### Validation Process
+
+| Phase | Activity | Frequency |
+|-------|----------|-----------|
+| Development | Cross-validation, holdout testing | Per version |
+| Pre-Production | Prospective validation | Before release |
+| Production | Performance monitoring | Continuous |
+| Periodic Review | Full revalidation | Quarterly |
+
+### Fairness & Bias
+
+All models undergo fairness analysis across:
+- Age groups
+- Gender
+- Race/ethnicity
+- Insurance type
+- Geography
+
+**Fairness Metrics**:
+| Metric | Threshold |
+|--------|-----------|
+| Equalized Odds Difference | <0.05 |
+| Demographic Parity Ratio | 0.80-1.25 |
+| Calibration by Group | <0.10 |
+
+### Monitoring Dashboard
+
+| Metric | Threshold | Alert |
+|--------|-----------|-------|
+| AUC degradation | >0.02 | Warning |
+| AUC degradation | >0.05 | Critical |
+| Prediction drift | >10% | Warning |
+| Data quality | <95% | Warning |
+| Latency p95 | >200ms | Warning |
+
+---
+
+## Model Cards
+
+Each model includes a model card documenting:
+- Intended use cases
+- Out-of-scope uses
+- Training data characteristics
+- Performance metrics by subgroup
+- Limitations and known issues
+- Ethical considerations
+
+---
+
+## Data Requirements
+
+### Minimum Data
+
+| Data Type | Required | Improves Accuracy |
+|-----------|----------|-------------------|
+| Demographics | Yes | — |
+| Diagnoses (ICD-10) | Yes | — |
+| Encounters | Yes | — |
+| Medications | Recommended | +2-3% AUC |
+| Lab Results | Recommended | +3-5% AUC |
+| Vitals | Recommended | +1-2% AUC |
+| Social Data | Optional | +2-4% AUC |
+| Claims | Optional | +3-5% AUC |
+
+### Data Quality
+
+| Dimension | Minimum | Target |
+|-----------|---------|--------|
+| Completeness | 85% | 95% |
+| Accuracy | 90% | 98% |
+| Timeliness | 24 hours | 1 hour |
+| Consistency | 90% | 98% |
+
+---
+
+## Security & Privacy
+
+### PHI Handling
+
+- No PHI used in model training (de-identified data only)
+- Customer data never leaves customer environment
+- Model inference runs in isolated compute
+- All inputs and outputs encrypted
+
+### Compliance
+
+| Standard | Status |
+|----------|--------|
+| HIPAA | Compliant |
+| Model risk management (SR 11-7) | Aligned |
+| EU AI Act (draft) | Under review |
+
+---
+
+**Prepared by**: Data Science Team
+**Approved by**: Dr. James Wilson, CMO
+**Technical Review**: Kevin Zhang, VP Engineering Analytics

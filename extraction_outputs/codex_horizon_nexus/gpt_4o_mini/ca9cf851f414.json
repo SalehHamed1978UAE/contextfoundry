@@ -1,0 +1,175 @@
+{
+  "document_id": "ca9cf851f414",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/sentinelshield_policy_engine.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T09:04:49.327217",
+  "entities": [
+    {
+      "name": "Aether Shield",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Zero-trust enforcement"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/sentinelshield_policy_engine.md",
+      "source_excerpt": "Business Unit: Aether Shield",
+      "aliases": []
+    },
+    {
+      "name": "SentinelShield",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Policy engine for zero-trust enforcement",
+        "category": "Software"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/sentinelshield_policy_engine.md",
+      "source_excerpt": "Product/Module: SentinelShield",
+      "aliases": []
+    },
+    {
+      "name": "Breck Collins",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Design Owner",
+        "role": "Owner of SentinelShield design"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/sentinelshield_policy_engine.md",
+      "source_excerpt": "Design Owner: Breck Collins",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime Confluence",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Documentation interface"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/sentinelshield_policy_engine.md",
+      "source_excerpt": "Interfaces documented via Horizon Prime Confluence",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Firmware version dependency"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/sentinelshield_policy_engine.md",
+      "source_excerpt": "Dependencies on CoreMatrix firmware versions",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Dashboard for performance KPIs"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/sentinelshield_policy_engine.md",
+      "source_excerpt": "Performance KPIs stored in PulseOps dashboard",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Logistics",
+        "region": "Not specified"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/sentinelshield_policy_engine.md",
+      "source_excerpt": "Align telemetry schema with Titan Logistics requirements",
+      "aliases": []
+    },
+    {
+      "name": "VectorTech",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Supply readiness",
+        "risk level": "Not specified"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/sentinelshield_policy_engine.md",
+      "source_excerpt": "Confirm supply readiness with VectorTech",
+      "aliases": []
+    },
+    {
+      "name": "Security",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Encryption validation"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/sentinelshield_policy_engine.md",
+      "source_excerpt": "Validate encryption module with Security",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Breck Collins",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "SentinelShield",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/sentinelshield_policy_engine.md",
+      "evidence": "Design Owner: Breck Collins"
+    },
+    {
+      "source_entity": "Aether Shield",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "Zero-trust enforcement",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/sentinelshield_policy_engine.md",
+      "evidence": "Business Unit: Aether Shield"
+    },
+    {
+      "source_entity": "Titan Logistics",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "SentinelShield",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/sentinelshield_policy_engine.md",
+      "evidence": "Align telemetry schema with Titan Logistics requirements"
+    },
+    {
+      "source_entity": "VectorTech",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "SentinelShield",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/sentinelshield_policy_engine.md",
+      "evidence": "Confirm supply readiness with VectorTech"
+    },
+    {
+      "source_entity": "Security",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "MANAGES",
+      "target_entity": "SentinelShield",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/sentinelshield_policy_engine.md",
+      "evidence": "Validate encryption module with Security"
+    }
+  ],
+  "metadata": {
+    "filename": "sentinelshield_policy_engine.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

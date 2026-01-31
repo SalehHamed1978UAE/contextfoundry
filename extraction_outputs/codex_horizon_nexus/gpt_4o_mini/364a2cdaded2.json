@@ -1,0 +1,175 @@
+{
+  "document_id": "364a2cdaded2",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:25:29.870398",
+  "entities": [
+    {
+      "name": "Victor Liao",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Executive Sponsor",
+        "role": "Executive Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "source_excerpt": "Executive Sponsor: Victor Liao",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix Semiconductors",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Supplier",
+        "industry": "Semiconductors"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "source_excerpt": "CoreMatrix Semiconductors Account Brief",
+      "aliases": []
+    },
+    {
+      "name": "Corporate",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Corporate functions"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "source_excerpt": "Owning BU: Corporate",
+      "aliases": []
+    },
+    {
+      "name": "Supply assurance",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Assurance of supply for semiconductor products",
+        "category": "Semiconductor Services"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "source_excerpt": "Primary Products: Supply assurance",
+      "aliases": []
+    },
+    {
+      "name": "Chip allocations",
+      "entity_type": "PROJECT",
+      "properties": {
+        "current objective": "Chip allocations"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "source_excerpt": "Current Objective: Chip allocations",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Annual Recurring Revenue",
+        "value": 48000000,
+        "period": "Annual",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "source_excerpt": "ARR: $48M ARR",
+      "aliases": []
+    },
+    {
+      "name": "Deployment maturity",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Deployment maturity",
+        "value": 78,
+        "period": "Current",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "source_excerpt": "Deployment maturity: 78%",
+      "aliases": []
+    },
+    {
+      "name": "Expansion opportunities",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Expansion opportunities",
+        "value": 3,
+        "period": "Current",
+        "type": "COUNT"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "source_excerpt": "Expansion opportunities: 3",
+      "aliases": []
+    },
+    {
+      "name": "Risk indicators",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Risk indicators",
+        "value": "supplier dependencies",
+        "period": "Current",
+        "type": "DESCRIPTION"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "source_excerpt": "Risk indicators: supplier dependencies",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Victor Liao",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "CoreMatrix Semiconductors",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "evidence": "Executive Sponsor: Victor Liao"
+    },
+    {
+      "source_entity": "CoreMatrix Semiconductors",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Corporate",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "evidence": "Owning BU: Corporate"
+    },
+    {
+      "source_entity": "CoreMatrix Semiconductors",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Supply assurance",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "evidence": "Primary Products: Supply assurance"
+    },
+    {
+      "source_entity": "CoreMatrix Semiconductors",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Chip allocations",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "evidence": "Current Objective: Chip allocations"
+    }
+  ],
+  "metadata": {
+    "filename": "customer_dossier_corematrix_semiconductors.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

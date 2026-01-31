@@ -1,0 +1,162 @@
+
+Send to Replit
+BEFORE FINAL TESTING: IMPLEMENT PATH AUDIT
+
+We keep finding CLI vs Web inconsistencies. Let's prevent future ones.
+
+================================================================================
+1. CREATE PATH AUDIT SCRIPT
+================================================================================
+
+Create: scripts/audit_query_paths.py
+```python
+"""
+Audit query paths to ensure all entry points use shared helpers.
+Run after any code changes to catch path divergence.
+"""
+
+import re
+from pathlib import Path
+
+# Files to audit
+AUDIT_FILES = {
+    'src/context_foundry/web_app.py': {
+        'must_not_contain': [
+            (r'QAVerifier\(\)', 'Should not instantiate QAVerifier directly'),
+            (r'qa_verifier\.verify', 'Should not call QA verify directly'),
+            (r'confidence\s*=\s*(?!.*agent_result)', 'Should not calculate confidence directly'),
+        ],
+        'must_contain': [
+            (r'tool_agent\.query\(|ToolAgent.*\.query\(', 'Must call ToolAgent.query()'),
+        ],
+    },
+    'src/context_foundry/agents/tool_agent.py': {
+        'must_contain': [
+            (r'build_qa_evidence', 'Must use build_qa_evidence helper'),
+            (r'calculate_confidence', 'Must use calculate_confidence helper'),
+            (r'build_response', 'Must use build_response helper'),
+        ],
+    },
+}
+
+def audit_file(filepath: str, rules: dict) -> list:
+    violations = []
+    
+    try:
+        content = Path(filepath).read_text()
+    except FileNotFoundError:
+        return [f"FILE NOT FOUND: {filepath}"]
+    
+    for pattern, message in rules.get('must_contain', []):
+        if not re.search(pattern, content):
+            violations.append(f"MISSING in {filepath}: {message}")
+    
+    for pattern, message in rules.get('must_not_contain', []):
+        matches = list(re.finditer(pattern, content))
+        if matches:
+            for match in matches:
+                # Get line number
+                line_num = content[:match.start()].count('\n') + 1
+                violations.append(f"VIOLATION in {filepath}:{line_num}: {message}")
+    
+    return violations
+
+def main():
+    print("=" * 60)
+    print("QUERY PATH AUDIT")
+    print("=" * 60)
+    
+    all_violations = []
+    
+    for filepath, rules in AUDIT_FILES.items():
+        violations = audit_file(filepath, rules)
+        all_violations.extend(violations)
+    
+    if all_violations:
+        print("\n❌ AUDIT FAILED\n")
+        for v in all_violations:
+            print(f"  • {v}")
+        print(f"\nTotal violations: {len(all_violations)}")
+        return 1
+    else:
+        print("\n✅ AUDIT PASSED")
+        print("All query paths use shared helpers correctly.")
+        return 0
+
+if __name__ == "__main__":
+    exit(main())
+```
+
+================================================================================
+2. CREATE PATH CONSISTENCY TEST
+================================================================================
+
+Create: tests/test_path_consistency.py
+```python
+"""
+Verify CLI and Web return identical results for the same query.
+"""
+
+import pytest
+import requests
+from context_foundry.agents.tool_agent import ToolAgent
+
+# Test queries that have historically diverged
+CONSISTENCY_QUERIES = [
+    "Who is the CEO?",
+    "Who reports to the CEO?",
+    "What is the CIO's compensation?",
+]
+
+def get_cli_result(query: str, tenant_id: str) -> dict:
+    """Get result via CLI path (direct ToolAgent call)."""
+    agent = ToolAgent(tenant_id=tenant_id)
+    return agent.query(query)
+
+def get_web_result(query: str, vault_id: str, base_url: str = "http://localhost:5000") -> dict:
+    """Get result via Web path (API call)."""
+    response = requests.post(
+        f"{base_url}/api/vault/{vault_id}/chat",
+        json={"query": query}
+    )
+    return response.json()
+
+@pytest.mark.parametrize("query", CONSISTENCY_QUERIES)
+def test_cli_web_consistency(query, test_vault_id, test_tenant_id):
+    """CLI and Web must return same confidence for same query."""
+    
+    cli_result = get_cli_result(query, test_tenant_id)
+    web_result = get_web_result(query, test_vault_id)
+    
+    # Confidence must match
+    assert cli_result.get('confidence') == web_result.get('confidence'), \
+        f"Confidence mismatch for '{query}': CLI={cli_result.get('confidence')}, Web={web_result.get('confidence')}"
+    
+    # QA verdict must match
+    cli_verdict = cli_result.get('qa_verdict', {}).get('status')
+    web_verdict = web_result.get('qa_verdict', {}).get('status')
+    assert cli_verdict == web_verdict, \
+        f"QA verdict mismatch for '{query}': CLI={cli_verdict}, Web={web_verdict}"
+
+def test_no_duplicate_qa_in_web():
+    """Verify web path doesn't run QA twice."""
+    # This is a code inspection test
+    from pathlib import Path
+    web_app_content = Path('src/context_foundry/web_app.py').read_text()
+    
+    # Count QAVerifier instantiations
+    qa_count = web_app_content.count('QAVerifier(')
+    assert qa_count <= 1, f"Found {qa_count} QAVerifier instantiations in web_app.py - should be 0 or 1"
+```
+
+================================================================================
+3. RUN AUDIT NOW
+================================================================================
+
+Run the audit script and fix any violations before proceeding with testing.
+
+================================================================================
+4. ADD TO CI/PRE-COMMIT (Future)
+================================================================================
+
+Once audit passes, add to CI pipeline so future PRs are checked automatically.

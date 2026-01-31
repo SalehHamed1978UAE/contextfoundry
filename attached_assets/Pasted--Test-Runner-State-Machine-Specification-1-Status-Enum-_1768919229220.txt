@@ -1,0 +1,131 @@
+## Test Runner State Machine Specification
+
+  ### 1. Status Enum (single source of truth)
+
+  class TestRunStatus(Enum):
+      CREATING_VAULT = 'creating_vault'   # Fresh mode: deleting/creating vault
+      UPLOADING = 'uploading'             # Uploading corpus documents
+      EXTRACTING = 'extracting'           # Waiting for extraction to finish
+      RUNNING_QA = 'running_qa'           # Running Q&A loop
+      COMPLETE = 'complete'               # Test finished successfully
+      FAILED = 'failed'                   # Unrecoverable error
+      INTERRUPTED = 'interrupted'         # Server restart/manual stop
+
+  (Idle is implicit: if no test_runs row exists, system is ready to start.)
+
+  ### 2. Valid Transitions
+
+  | From (or “no row”) | To            | Trigger/Notes                                 |
+  |--------------------|---------------|----------------------------------------------|
+  | (no row)           | CREATING_VAULT| Fresh mode start                             |
+  | (no row)           | RUNNING_QA    | Auto mode start (vault already extracted)    |
+  | CREATING_VAULT     | UPLOADING     | Vault created successfully                   |
+  | CREATING_VAULT     | FAILED        | Vault creation failed                        |
+  | UPLOADING          | EXTRACTING    | All files uploaded                           |
+  | UPLOADING          | FAILED        | Upload failed                                |
+  | EXTRACTING         | RUNNING_QA    | Extraction complete                          |
+  | EXTRACTING         | FAILED        | Extraction failed or timeout                 |
+  | RUNNING_QA         | COMPLETE      | All questions answered                       |
+  | RUNNING_QA         | FAILED        | Unrecoverable error                          |
+  | Any active state   | INTERRUPTED   | Heartbeat stale (>5 min) or manual stop      |
+  | INTERRUPTED        | RUNNING_QA    | Resume (only valid if was in RUNNING_QA)     |
+
+  All transitions go through a helper:
+
+  def transition_to(run_id: int, new_status: TestRunStatus):
+      run = TestRun.query.get(run_id)
+      old = TestRunStatus(run.status)
+      if not is_valid_transition(old, new_status):
+          raise InvalidStateTransition(...)
+      run.status = new_status.value
+      run.updated_at = run.heartbeat_at = datetime.utcnow()
+      db.session.commit()
+
+  ### 3. test_runs schema
+
+  id SERIAL PK
+  status VARCHAR(20) NOT NULL
+  mode VARCHAR(10) NOT NULL            -- 'fresh' or 'auto'
+  vault_id UUID NULL                   -- set once vault exists
+  vault_name VARCHAR(255) NULL
+  questions_total INT DEFAULT 0
+  questions_answered INT DEFAULT 0
+  questions_passed INT DEFAULT 0
+  questions_failed INT DEFAULT 0
+  current_question JSONB NULL          -- {id, text}
+  created_at TIMESTAMP DEFAULT now()
+  started_at TIMESTAMP NULL
+  completed_at TIMESTAMP NULL
+  heartbeat_at TIMESTAMP NULL          -- updated every ~30s while active
+  error_message TEXT NULL
+  results_file VARCHAR(255) NULL
+
+  test_results remains one row per answered question.
+
+  ### 4. Flow Implementations
+
+  #### Fresh mode (POST /api/test-runner/start with mode='fresh')
+
+  1. Insert test_runs row with status=CREATING_VAULT, vault_id=NULL, mode='fresh',
+     created_at=heartbeat_at=now().
+  2. Delete old vault (if applicable).
+  3. Create new vault → set vault_id, vault_name, transition to UPLOADING.
+  4. Upload corpus files → on success transition to EXTRACTING, on failure transition to FAILED.
+  5. Wait for extraction (poll stats) → when complete transition to RUNNING_QA, set started_at=now().
+  6. Run Q&A via TestExecutor (now with per-question timeout). After each question: update
+     questions_answered/ passed/failed, current_question, heartbeat_at.
+  7. On completion: set completed_at=now(), results_file, transition to COMPLETE.
+  8. On any exception: set error_message, transition to FAILED.
+
+  #### Auto mode (mode='auto')
+
+  - Skip delete/upload/extract. Insert row with status=RUNNING_QA, vault_id from payload, mode='auto',
+    questions_total set.
+  - Run Q&A loop as above.
+  - Completion/Failures as in Fresh mode.
+
+  ### 5. Heartbeat & Interrupt Handling
+
+  - Runner updates heartbeat_at every question (and after each major stage during Fresh).
+  - On API startup (or via cron), detect stale runs:
+
+    stale = TestRun.query.filter(
+        TestRun.status.in_([
+            'creating_vault','uploading','extracting','running_qa'
+        ]),
+        TestRun.heartbeat_at < datetime.utcnow() - timedelta(minutes=5)
+    )
+    for run in stale:
+        transition_to(run.id, TestRunStatus.INTERRUPTED)
+        run.error_message = "Interrupted: heartbeat stale"
+  - /api/test-runner/resume only allowed when status was INTERRUPTED and the previous stage was RUNNING_QA.
+    Resume by continuing the Q&A loop using saved progress.
+
+  ### 6. API Endpoints (DB is sole source of truth)
+
+  - POST /api/test-runner/start → Creates row & spawns runner (fresh or auto).
+  - POST /api/test-runner/stop → transition to INTERRUPTED, stop worker.
+  - POST /api/test-runner/reset → delete test_runs/test_results rows for the run (or mark as CANCELLED).
+  - POST /api/test-runner/resume → ensure state is INTERRUPTED, restart Q&A using TestExecutor.
+  - GET /api/test-runner/status → returns current row (status, stage, progress, started_at formatted DD/MM/
+    YYYY HH:MM). No more status.json/PID checks.
+  - GET /api/test-runner/history → list rows sorted by created_at. Update rows immediately on start so
+    history table reflects running tests.
+
+  ### 7. UI Expectations
+
+  - Current Test panel shows the run with status in
+    ('creating_vault','uploading','extracting','running_qa'). Displays stage-specific message.
+  - “Started” column uses started_at.strftime('%d/%m/%Y %H:%M').
+  - History table updates as soon as a run is created (status shows e.g. “Extracting” with progress).
+  - Resume button appears when status INTERRUPTED with last stage running_qa.
+  - When no run exists, UI shows “Ready to start” (implicitly, no test_runs row).
+
+  ### 8. Additional requirements
+
+  - Remove dependency on status.json. DB is authoritative for status/stages/logs. If you still want a
+    short-lived cache for the frontend, populate it from the DB but never store extra state there.
+  - Ensure Fresh mode uses the new vault_id after creation for all subsequent stages.
+  - When new run starts, ensure previous run is marked complete/failed before creating the new row to avoid
+    multiple “active” rows.
+

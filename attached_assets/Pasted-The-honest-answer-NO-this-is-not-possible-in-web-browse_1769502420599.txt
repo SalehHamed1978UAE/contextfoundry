@@ -1,0 +1,41 @@
+The honest answer: NO, this is not possible in web browsers.                                           
+                                                                                                         
+  When you click a file input with webkitdirectory, the browser's native folder picker only allows       
+  selecting ONE folder. You cannot Cmd+click or Shift+click to select multiple folders. This is a browser
+   security limitation.                                                                                  
+                                                                                                         
+  Why some apps can do it:                                                                               
+  - Desktop apps (like VS Code, Slack desktop) - they have full OS access                                
+  - Electron apps - same, they're basically desktop apps                                                 
+  - Cloud storage pickers (Google Drive, Dropbox) - they use their own custom UI, not the browser's      
+  native picker                                                                                          
+                                                                                                         
+  Web browser options (all have tradeoffs):                                                              
+  ┌────────────────────────┬──────────────────────────────────┬────────────────────────────────┐         
+  │         Method         │           How it works           │           Limitation           │         
+  ├────────────────────────┼──────────────────────────────────┼────────────────────────────────┤         
+  │ Click to select folder │ Native picker                    │ ONE folder only                │         
+  ├────────────────────────┼──────────────────────────────────┼────────────────────────────────┤         
+  │ Drag and drop          │ Drag from Finder/Explorer        │ Must use mouse drag            │         
+  ├────────────────────────┼──────────────────────────────────┼────────────────────────────────┤         
+  │ Select parent folder   │ Pick parent, checkbox subfolders │ Extra step to uncheck unwanted │         
+  ├────────────────────────┼──────────────────────────────────┼────────────────────────────────┤         
+  │ Add More button        │ Click multiple times             │ Repetitive                     │         
+  └────────────────────────┴──────────────────────────────────┴────────────────────────────────┘         
+  The best UX for your case:                                                                             
+                                                                                                         
+  Since your corpus structure is:                                                                        
+  CorpusFolder/                                                                                          
+  ├── strategy/      ← want                                                                              
+  ├── projects/      ← want                                                                              
+  ├── financials/    ← want                                                                              
+  ├── questions.json ← don't want                                                                        
+  └── readme.md      ← don't want                                                                        
+                                                                                                         
+  Select the PARENT folder, then use checkboxes to exclude questions.json and readme.md. That's ONE click
+   + a couple unchecks.                                                                                  
+                                                                                                         
+  Or drag the 3 folders you want from Finder onto the drop zone in one action.                           
+                                                                                                         
+  There's no magic solution that lets you click once, see the native file picker, and multi-select       
+  folders. That's just not how web browsers work.  

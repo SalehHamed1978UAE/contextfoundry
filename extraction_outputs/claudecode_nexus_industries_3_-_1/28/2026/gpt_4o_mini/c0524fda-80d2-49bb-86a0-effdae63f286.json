@@ -1,0 +1,255 @@
+{
+  "document_id": "c0524fda-80d2-49bb-86a0-effdae63f286",
+  "document_path": "07_capital_allocation_plan.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-28T19:44:08.709692",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "07_capital_allocation_plan.md",
+      "source_excerpt": "Nexus Industries' capital allocation strategy",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "07_capital_allocation_plan.md",
+      "source_excerpt": "Dr. Victoria Chen, CEO, Chair",
+      "aliases": []
+    },
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO",
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "07_capital_allocation_plan.md",
+      "source_excerpt": "Robert Kim, CFO",
+      "aliases": []
+    },
+    {
+      "name": "Dr. James Wilson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CTO",
+        "role": "Chief Technology Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "07_capital_allocation_plan.md",
+      "source_excerpt": "Dr. James Wilson, CTO",
+      "aliases": []
+    },
+    {
+      "name": "Sarah Martinez",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Strategy Officer",
+        "role": "Chief Strategy Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "07_capital_allocation_plan.md",
+      "source_excerpt": "Sarah Martinez, Chief Strategy Officer",
+      "aliases": []
+    },
+    {
+      "name": "Richard Blackstone",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Board Chair",
+        "role": "Chairman of the Board"
+      },
+      "confidence": 0.95,
+      "source_document": "07_capital_allocation_plan.md",
+      "source_excerpt": "Board Chair, Richard Blackstone",
+      "aliases": []
+    },
+    {
+      "name": "Falcon X UAV",
+      "entity_type": "PROJECT",
+      "properties": {
+        "total_investment": "$145M",
+        "timeline": "FY2026-2028"
+      },
+      "confidence": 0.9,
+      "source_document": "07_capital_allocation_plan.md",
+      "source_excerpt": "Falcon X UAV | Aerospace | $145M",
+      "aliases": []
+    },
+    {
+      "name": "GreenHydrogen",
+      "entity_type": "PROJECT",
+      "properties": {
+        "total_investment": "$195M",
+        "timeline": "FY2026-2028"
+      },
+      "confidence": 0.9,
+      "source_document": "07_capital_allocation_plan.md",
+      "source_excerpt": "GreenHydrogen | Energy | $195M",
+      "aliases": []
+    },
+    {
+      "name": "NexusConnect Platform",
+      "entity_type": "PROJECT",
+      "properties": {
+        "total_investment": "$185M",
+        "timeline": "FY2026-2028"
+      },
+      "confidence": 0.9,
+      "source_document": "07_capital_allocation_plan.md",
+      "source_excerpt": "NexusConnect Platform | Digital | $185M",
+      "aliases": []
+    },
+    {
+      "name": "Operating Cash Flow",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Operating Cash Flow",
+        "value": "$4.59B",
+        "period": "FY2026-2028",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "07_capital_allocation_plan.md",
+      "source_excerpt": "Total Sources | $4.59B",
+      "aliases": []
+    },
+    {
+      "name": "Total Dividends",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Dividends",
+        "value": "$350M",
+        "period": "FY2028",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "07_capital_allocation_plan.md",
+      "source_excerpt": "Total Dividends | $350M",
+      "aliases": []
+    },
+    {
+      "name": "Debt Reduction",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Debt Reduction",
+        "value": "$0.5B",
+        "period": "FY2026-2028",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "07_capital_allocation_plan.md",
+      "source_excerpt": "Balance Sheet (Debt Reduction) | $0.5B",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_capital_allocation_plan.md",
+      "evidence": "Dr. Victoria Chen, CEO, Chair"
+    },
+    {
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_capital_allocation_plan.md",
+      "evidence": "Robert Kim, CFO"
+    },
+    {
+      "source_entity": "Dr. James Wilson",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_capital_allocation_plan.md",
+      "evidence": "Dr. James Wilson, CTO"
+    },
+    {
+      "source_entity": "Sarah Martinez",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_capital_allocation_plan.md",
+      "evidence": "Sarah Martinez, Chief Strategy Officer"
+    },
+    {
+      "source_entity": "Richard Blackstone",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_capital_allocation_plan.md",
+      "evidence": "Board Chair, Richard Blackstone"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Operating Cash Flow",
+      "target_type": "FINANCIAL_METRIC",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_capital_allocation_plan.md",
+      "evidence": "Total Sources | $4.59B"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Total Dividends",
+      "target_type": "FINANCIAL_METRIC",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_capital_allocation_plan.md",
+      "evidence": "Total Dividends | $350M"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Debt Reduction",
+      "target_type": "FINANCIAL_METRIC",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_capital_allocation_plan.md",
+      "evidence": "Balance Sheet (Debt Reduction) | $0.5B"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 12,
+    "raw_relationship_count": 8,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

@@ -1,0 +1,206 @@
+{
+  "document_id": "3214dcde157e",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:49:45.635908",
+  "entities": [
+    {
+      "name": "Synapse One",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "AI platform development"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
+      "source_excerpt": "Business Unit: Synapse One",
+      "aliases": []
+    },
+    {
+      "name": "Eden Park",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Sponsor"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
+      "source_excerpt": "Sponsor: Eden Park",
+      "aliases": []
+    },
+    {
+      "name": "Meridian Aerospace",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Aerospace"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
+      "source_excerpt": "Primary Customer: Meridian Aerospace",
+      "aliases": []
+    },
+    {
+      "name": "Project Helix",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$220M",
+        "timeline": "2024-2026",
+        "status": "Active"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
+      "source_excerpt": "Project Helix Delivery Brief",
+      "aliases": []
+    },
+    {
+      "name": "Synapse Insight",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Part of the technical stack"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
+      "source_excerpt": "Technical Stack: Synapse Insight",
+      "aliases": []
+    },
+    {
+      "name": "PulseForge",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Part of the technical stack"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
+      "source_excerpt": "Technical Stack: PulseForge",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Data lake readiness"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
+      "source_excerpt": "Dependencies: Horizon Prime data lake readiness",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Supply"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
+      "source_excerpt": "Dependencies: CoreMatrix supply",
+      "aliases": []
+    },
+    {
+      "name": "SkyPath",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Integrations"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
+      "source_excerpt": "Dependencies: SkyPath integrations",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Project Helix",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Eden Park",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
+      "evidence": "Sponsor: Eden Park"
+    },
+    {
+      "source_entity": "Project Helix",
+      "source_type": "PROJECT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Meridian Aerospace",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
+      "evidence": "Primary Customer: Meridian Aerospace"
+    },
+    {
+      "source_entity": "Synapse One",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Project Helix",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
+      "evidence": "Business Unit: Synapse One"
+    },
+    {
+      "source_entity": "Project Helix",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Synapse Insight",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
+      "evidence": "Technical Stack: Synapse Insight"
+    },
+    {
+      "source_entity": "Project Helix",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "PulseForge",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
+      "evidence": "Technical Stack: PulseForge"
+    },
+    {
+      "source_entity": "Project Helix",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
+      "evidence": "Dependencies: Horizon Prime data lake readiness"
+    },
+    {
+      "source_entity": "CoreMatrix",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Project Helix",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
+      "evidence": "Dependencies: CoreMatrix supply"
+    },
+    {
+      "source_entity": "SkyPath",
+      "source_type": "TECHNOLOGY",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Project Helix",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
+      "evidence": "Dependencies: SkyPath integrations"
+    }
+  ],
+  "metadata": {
+    "filename": "project_helix_brief.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 8,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

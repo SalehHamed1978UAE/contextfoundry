@@ -1,0 +1,46 @@
+We need to extend Corpus Maker/Test Runner so users can create fresh vaults from a corpus (and reuse a
+  corpus for multiple vaults) without destroying existing ones or going outside the UI. Current
+  limitations:
+
+  - Test Runner “Fresh” mode only deletes/rebuilds the current vault. There is no “Create New Vault from
+    Corpus” option in the product.
+  - Corpus Maker uploads files but does not expose any control to spin up a new vault from the normalized
+    corpus output.
+  - We can only reuse a corpus by manually hacking the config and blowing away the old vault. That prevents
+    creating multiple vaults from the same corpus.
+
+  Please implement:
+
+  1. Add “Create Vault” controls to Corpus Maker output
+
+  - After a corpus is registered, show a list of existing vaults and a “Create New Vault” button.
+  - Clicking “Create New Vault” should prompt for a vault name, then call the same backend logic to create
+    a new vault and populate it with the corpus’s documents/question set (similar to the CLI logic in
+    corpus_maker.upload).
+  - Allow selecting how many copies to make (e.g., “Create 2 copies”), so we can spin up multiple identical
+    vaults for testing.
+
+  2. Support multiple vaults per corpus in config
+
+  - test_config entries need to track zero or more vault IDs per corpus.
+  - UI must show all vaults tied to that corpus and allow selecting one when running tests.
+
+  3. Surface “Create Vault” button in Test Runner
+
+  - In the Test Runner “Start Test” section, add a button like “Create new vault from corpus…” that opens
+    the Corpus Maker selector.
+  - Provide a quick link to pick an existing corpus (from the registry) and create a new vault immediately.
+
+  4. No destructive requirement
+
+  - Creating a new vault must not require deleting the old one. Users need to keep multiple vaults for the
+    same corpus (for A/B tests, etc.).
+
+  5. Document the flow
+
+  - Add help text/tooltip explaining how to create new vaults and where they show up.
+
+  Summary to Replit: today there’s no way to create a fresh vault from a corpus inside the app. We need
+  first-class “Create vault from corpus” actions in Corpus Maker and the Test Runner, and support multiple
+  vaults per corpus. Without this, new corpora can’t be used unless we destroy an old vault via “Fresh”
+  mode.

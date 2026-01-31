@@ -1,0 +1,36 @@
+Here is a breakdown of the Context Foundry Design System I implemented, which you can share with the other window to replicate this exact look and feel.
+
+1. Art Direction: "Cybernetic Operations"
+The goal was to create an interface that feels like a high-precision tool for engineers, not just a generic admin panel.
+
+Theme: Dark Mode (Deep Slate/Navy) base to reduce eye strain and make data pop.
+Primary Color: Electric Cyan (#06b6d4) – chosen because it signifies "data flow" and "active systems."
+Visual Metaphor: "Head-Up Display" (HUD). We want the user to feel like a pilot monitoring a complex machine.
+2. Typography System
+I used a Tri-Font Stack to separate different types of information visually:
+
+Headers: Space Grotesk – A geometric sans-serif that feels modern and technical.
+Data & Code: JetBrains Mono – Monospaced font for metrics, IDs, and logs. It implies precision.
+UI Text: Inter – For standard readability in buttons and paragraphs.
+3. Key Visual Effects (The "Alive" Factor)
+The Scanline: A CSS animation that moves a subtle gradient down the screen every 10 seconds. It subconsciously tells the user "this system is running."
+.scanline {
+  background: linear-gradient(0deg, transparent, rgba(6, 182, 212, 0.1) 50%, transparent);
+  animation: scanline 10s linear infinite;
+  pointer-events: none; /* Lets you click through it */
+}
+
+Glassmorphism: Panels use bg-card/50 with backdrop-blur-md to let the background texture show through, adding depth.
+Tech Borders: I added custom corner accents (little "L" shapes) to panels to mimic camera viewfinders or tactical displays.
+4. Component Architecture
+Navigation: Sidebar with a "System Status" footer (simulating memory usage/latency) to reinforce the MVP technical context.
+Feedback Loop: Explicitly designed the "Learning Center" with color-coded queues (Red for incorrect, Green for verified) to show the AI's self-improvement process.
+Memory Graph: A visualization using SVGs and framer-motion to represent the "Tri-Memory" architecture (Staging vs. Trusted nodes).
+5. Technical Stack (Frontend Only)
+Framework: React + Vite + Wouter (Routing).
+Styling: Tailwind CSS v4 + tailwindcss-animate.
+Icons: Lucide React (customized with thinner strokes for a refined look).
+Animation: framer-motion for the smooth entry of reasoning steps and graph nodes.
+You can tell the other agent: *"Use a deep slate background, cyan accents, JetBrains Mono for data, and add a CSS
+
+scanline overlay to replicate the Context Foundry aesthetic."*

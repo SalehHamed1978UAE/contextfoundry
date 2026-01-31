@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vault Settings - Context Foundry</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ cache_bust }}">
+    <style>
+        .settings-page {
+            min-height: 100vh;
+            background: var(--bg-primary);
+            padding: 32px;
+        }
+        
+        .settings-container {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 24px;
+            transition: color 0.2s;
+        }
+        
+        .back-link:hover {
+            color: var(--accent-primary);
+        }
+        
+        .settings-header {
+            margin-bottom: 32px;
+        }
+        
+        .settings-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .settings-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .settings-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        
+        .form-input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .form-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+        
+        .api-key-display {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .api-key-input {
+            flex: 1;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+        
+        .btn-copy {
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-copy:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        .btn-generate {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            border-radius: var(--radius-md);
+            color: var(--bg-primary);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-generate:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+        
+        .btn-save {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            border-radius: var(--radius-md);
+            color: var(--bg-primary);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-save:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+        
+        .btn-save:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .danger-zone {
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        
+        .danger-zone .card-title {
+            color: var(--accent-error);
+        }
+        
+        .btn-danger {
+            padding: 12px 20px;
+            background: transparent;
+            border: 1px solid var(--accent-error);
+            border-radius: var(--radius-md);
+            color: var(--accent-error);
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .user-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .logout-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .logout-btn:hover {
+            border-color: var(--accent-error);
+            color: var(--accent-error);
+        }
+        
+        .content-wrapper {
+            margin-top: 56px;
+        }
+        
+        .success-msg {
+            color: var(--accent-success);
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            max-width: 480px;
+            width: 90%;
+        }
+        
+        .modal-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--accent-error);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .modal-body {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        
+        .modal-body strong {
+            color: var(--text-primary);
+        }
+        
+        .warning-list {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin: 16px 0;
+        }
+        
+        .warning-list ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .warning-list li {
+            margin-bottom: 8px;
+        }
+        
+        .warning-list li:last-child {
+            margin-bottom: 0;
+        }
+        
+        .confirm-input-group {
+            margin-bottom: 20px;
+        }
+        
+        .confirm-input-group label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .confirm-input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        .confirm-input-group input:focus {
+            outline: none;
+            border-color: var(--accent-error);
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        
+        .btn-cancel {
+            padding: 12px 24px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-cancel:hover {
+            border-color: var(--text-primary);
+            color: var(--text-primary);
+        }
+        
+        .btn-delete-confirm {
+            padding: 12px 24px;
+            background: var(--accent-error);
+            border: none;
+            border-radius: var(--radius-md);
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-delete-confirm:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-delete-confirm:not(:disabled):hover {
+            background: #dc2626;
+        }
+        
+        .delete-error {
+            color: var(--accent-error);
+            font-size: 13px;
+            margin-top: 12px;
+            display: none;
+        }
+        
+        .deleting-status {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .deleting-status.active {
+            display: flex;
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--accent-error);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="user-bar">
+        <a href="/app" class="logo">
+            <div class="logo-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <span class="logo-text">Context Foundry</span>
+        </a>
+        <div class="user-info">
+            <span class="user-name">{{ user_name }}</span>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+    </div>
+    
+    <div class="content-wrapper">
+        <div class="settings-page">
+            <div class="settings-container">
+                <a href="/app/{{ vault_id }}" class="back-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Back to Vault
+                </a>
+                
+                <div class="settings-header">
+                    <h1 class="settings-title">Vault Settings</h1>
+                    <p class="settings-subtitle">Manage your vault configuration and API access</p>
+                </div>
+                
+                <div class="settings-card">
+                    <h2 class="card-title">General</h2>
+                    <div class="form-group">
+                        <label for="vaultName" class="form-label">Vault Name</label>
+                        <input type="text" id="vaultName" class="form-input" placeholder="Loading...">
+                    </div>
+                    <button class="btn-save" id="saveNameBtn">Save Changes</button>
+                    <p class="success-msg" id="saveSuccess">Changes saved successfully!</p>
+                </div>
+                
+                <div class="settings-card">
+                    <h2 class="card-title">API Access</h2>
+                    <div class="form-group">
+                        <label class="form-label">Vault ID</label>
+                        <div class="api-key-display">
+                            <input type="text" class="form-input api-key-input" value="{{ vault_id }}" readonly>
+                            <button class="btn-copy" onclick="copyToClipboard('{{ vault_id }}')">Copy</button>
+                        </div>
+                        <p class="form-hint">Use this ID to access your vault via the API</p>
+                    </div>
+                </div>
+                
+                <div class="settings-card danger-zone">
+                    <h2 class="card-title">Danger Zone</h2>
+                    <div class="form-group">
+                        <label class="form-label">Delete Vault</label>
+                        <p class="form-hint" style="margin-bottom: 12px;">Permanently delete this vault and all its data. This action cannot be undone.</p>
+                        <button class="btn-danger" onclick="showDeleteModal()">Delete Vault</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <h2 class="modal-title">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                Delete Vault Permanently
+            </h2>
+            <div class="modal-body">
+                <p>You are about to permanently delete <strong id="vaultNameDisplay">this vault</strong>. This action <strong>cannot be undone</strong>.</p>
+                
+                <div class="warning-list">
+                    <strong>The following will be deleted:</strong>
+                    <ul>
+                        <li>All documents and files</li>
+                        <li>All extracted entities and relationships</li>
+                        <li>All knowledge graph data</li>
+                        <li>All query history and logs</li>
+                        <li>All API keys for this vault</li>
+                    </ul>
+                </div>
+                
+                <div class="confirm-input-group">
+                    <label>To confirm, type the vault name: <strong id="vaultNameHint"></strong></label>
+                    <input type="text" id="confirmNameInput" placeholder="Type vault name to confirm" autocomplete="off">
+                </div>
+                
+                <div class="deleting-status" id="deletingStatus">
+                    <div class="spinner"></div>
+                    <span>Deleting vault and all associated data...</span>
+                </div>
+                
+                <p class="delete-error" id="deleteError"></p>
+            </div>
+            <div class="modal-actions" id="modalActions">
+                <button class="btn-cancel" onclick="hideDeleteModal()">Cancel</button>
+                <button class="btn-delete-confirm" id="confirmDeleteBtn" disabled onclick="executeDelete()">Delete Vault</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const vaultId = "{{ vault_id }}";
+        let currentVaultName = "";
+        
+        async function loadVaultInfo() {
+            try {
+                const response = await fetch(`/api/vaults/${vaultId}`);
+                const data = await response.json();
+                if (data.success) {
+                    currentVaultName = data.vault.name;
+                    document.getElementById('vaultName').value = currentVaultName;
+                    document.getElementById('vaultNameDisplay').textContent = currentVaultName;
+                    document.getElementById('vaultNameHint').textContent = currentVaultName;
+                }
+            } catch (error) {
+                console.error('Failed to load vault info:', error);
+            }
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                btn.textContent = 'Copied!';
+                setTimeout(() => {
+                    btn.textContent = 'Copy';
+                }, 2000);
+            });
+        }
+        
+        function showDeleteModal() {
+            document.getElementById('deleteModal').classList.add('active');
+            document.getElementById('confirmNameInput').value = '';
+            document.getElementById('confirmDeleteBtn').disabled = true;
+            document.getElementById('deleteError').style.display = 'none';
+            document.getElementById('deletingStatus').classList.remove('active');
+            document.getElementById('modalActions').style.display = 'flex';
+            document.getElementById('confirmNameInput').focus();
+        }
+        
+        function hideDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+        }
+        
+        document.getElementById('confirmNameInput').addEventListener('input', (e) => {
+            const typed = e.target.value.trim();
+            const btn = document.getElementById('confirmDeleteBtn');
+            btn.disabled = typed !== currentVaultName;
+        });
+        
+        document.getElementById('deleteModal').addEventListener('click', (e) => {
+            if (e.target.id === 'deleteModal') {
+                hideDeleteModal();
+            }
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                hideDeleteModal();
+            }
+        });
+        
+        async function executeDelete() {
+            const confirmName = document.getElementById('confirmNameInput').value.trim();
+            
+            if (confirmName !== currentVaultName) {
+                document.getElementById('deleteError').textContent = 'Vault name does not match.';
+                document.getElementById('deleteError').style.display = 'block';
+                return;
+            }
+            
+            document.getElementById('modalActions').style.display = 'none';
+            document.getElementById('deletingStatus').classList.add('active');
+            document.getElementById('deleteError').style.display = 'none';
+            
+            try {
+                const response = await fetch(`/api/vaults/${vaultId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        confirmation_name: confirmName,
+                        confirm_delete: true
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.location.href = '/app';
+                } else {
+                    document.getElementById('deletingStatus').classList.remove('active');
+                    document.getElementById('modalActions').style.display = 'flex';
+                    document.getElementById('deleteError').textContent = data.error || 'Failed to delete vault.';
+                    document.getElementById('deleteError').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Delete failed:', error);
+                document.getElementById('deletingStatus').classList.remove('active');
+                document.getElementById('modalActions').style.display = 'flex';
+                document.getElementById('deleteError').textContent = 'An error occurred. Please try again.';
+                document.getElementById('deleteError').style.display = 'block';
+            }
+        }
+        
+        document.getElementById('saveNameBtn').addEventListener('click', async () => {
+            const name = document.getElementById('vaultName').value.trim();
+            if (!name) return;
+            
+            const successMsg = document.getElementById('saveSuccess');
+            successMsg.style.display = 'none';
+        });
+        
+        loadVaultInfo();
+    </script>
+</body>
+</html>

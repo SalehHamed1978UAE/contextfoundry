@@ -1,0 +1,110 @@
+REGRESSION FIX APPLIED — NOW VERIFY IT WORKS
+
+The normalizer and schema are fixed. But existing data is still broken.
+We need to re-extract TechVentures to verify the fix.
+
+================================================================================
+STEP 1: DELETE TECHVENTURES DATA (KEEP DOCUMENTS)
+================================================================================
+```sql
+-- Get TechVentures tenant ID
+SELECT id FROM vaults WHERE name = 'TechVentures';
+
+-- Delete extracted data (but keep documents and chunks)
+DELETE FROM relationships WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures');
+DELETE FROM entities WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures');
+
+-- Clear any candidates from TechVentures
+DELETE FROM pending_extractions WHERE candidate_id IN (
+    SELECT id FROM ontology_candidates 
+    WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures')
+);
+DELETE FROM ontology_candidates WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures');
+
+-- Verify cleanup
+SELECT 
+    (SELECT COUNT(*) FROM entities WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures')) as entities,
+    (SELECT COUNT(*) FROM relationships WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures')) as relationships;
+```
+
+================================================================================
+STEP 2: RE-RUN EXTRACTION ON TECHVENTURES
+================================================================================
+
+Trigger re-extraction on the existing chunks:
+```python
+# Option A: If there's an extraction endpoint
+# POST /api/vaults/{vault_id}/extract
+
+# Option B: If there's a script
+python scripts/extract_vault.py --vault TechVentures
+
+# Option C: Manual extraction trigger
+from src.context_foundry.extraction.pipeline import ExtractionPipeline
+from src.context_foundry.models.schema import get_session
+from sqlalchemy import text
+
+session = get_session()
+vault_id = session.execute(text("SELECT id FROM vaults WHERE name = 'TechVentures'")).fetchone().id
+
+pipeline = ExtractionPipeline(session)
+pipeline.extract_vault(vault_id)
+```
+
+================================================================================
+STEP 3: VERIFY COMPENSATION DATA NOW IN KG
+================================================================================
+```sql
+-- Check for compensation relationships (should now exist)
+SELECT r.relationship_type, 
+       e1.name as source, 
+       e2.name as target,
+       r.properties
+FROM relationships r
+JOIN entities e1 ON r.source_entity_id = e1.id
+JOIN entities e2 ON r.target_entity_id = e2.id
+WHERE r.tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures')
+  AND r.relationship_type IN ('HAS_COMPENSATION', 'HOLDS_POSITION', 'REPORTS_TO')
+ORDER BY r.relationship_type
+LIMIT 20;
+
+-- Count by type
+SELECT relationship_type, COUNT(*) 
+FROM relationships 
+WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures')
+GROUP BY relationship_type
+ORDER BY COUNT(*) DESC;
+```
+
+================================================================================
+STEP 4: TEST THE QUERY
+================================================================================
+```bash
+# Query the vault
+curl -X POST http://localhost:8000/api/vaults/{vault_id}/query \
+  -H "Content-Type: application/json" \
+  -d '{"query": "What is Sarah Chen'\''s compensation?"}'
+```
+
+Or via the E2E test (TechVentures only):
+```bash
+python scripts/e2e_lifecycle_test.py --vault TechVentures --skip-upload
+```
+
+================================================================================
+EXPECTED RESULTS
+================================================================================
+
+1. Compensation relationships should now be in the KG (not candidates)
+2. Query "What is Sarah Chen's compensation?" should return actual numbers
+3. HAS_COMPENSATION and HOLDS_POSITION relationships should exist
+
+================================================================================
+REPORT BACK WITH
+================================================================================
+
+1. Count of relationships after re-extraction
+2. Sample HAS_COMPENSATION relationships
+3. Query result for Sarah Chen's compensation
+
+================================================================================

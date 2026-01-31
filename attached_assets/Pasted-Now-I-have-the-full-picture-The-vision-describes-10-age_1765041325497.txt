@@ -1,0 +1,61 @@
+Now I have the full picture. The vision describes **10 agents in 4 families**, but the implementation has **22+ components** because they've been decomposed for modularity.
+
+**Mapping Vision → Implementation:**
+
+| Vision Agent | Implemented As |
+|--------------|----------------|
+| **Sensing Family** | |
+| Ingestion Agent | GraphLoaderAgent, document ingestion |
+| Perception Agent | EntityExtractor, RelationExtractor, ConstrainedExtractor |
+| **Semantic Family** | |
+| Graph Builder (Scribe) | GraphBuilderAgent |
+| Memory Router | SemanticMemory, EpisodicMemory, SymbolicMemory |
+| Identity Resolution | IdentityResolver, DuplicateDetector |
+| **Maintenance Family** | |
+| Gardener (Judge) | GardenerAgent, StagingValidatorAgent |
+| Feedback & Learning | OrphanDetector → TypeLifecycleManager loop |
+| **Cognitive Family** | |
+| Retrieval (Librarian) | RetrievalAgent |
+| Reasoning (Detective) | ReasoningAgent |
+| Validation (Safety) | ValidationAgent |
+
+Plus the **Ontology Foundry layer** (not in original vision): RuleExecutor, TypeValidator, HierarchyEnforcer, CollisionDetector, ApprovalManager, TypeLifecycleManager.
+
+---
+
+**Tell Replit:**
+
+> Now build the Command Center dashboard. Here's the spec:
+>
+> **Layout: 4 quadrants matching the 4 pillars**
+>
+> **1. PERCEPTION (Top Left)**
+> - Documents ingested (count, last 24h)
+> - Entities extracted (count, last 24h)
+> - Active extractors: EntityExtractor, RelationExtractor, ConstrainedExtractor
+> - Last extraction timestamp
+>
+> **2. MEMORY (Top Right)**
+> - Semantic: entities by status (STAGING/TRUSTED/ARCHIVED)
+> - Episodic: documents indexed, embedding count
+> - Symbolic: rules count
+> - Graph size: total nodes, total edges
+>
+> **3. AGENTS (Bottom Left)**
+> - Agent status table (all 22 agents, status, last action, next scheduled)
+> - Gardener: last cycle time, entities promoted/demoted/conflicts
+> - OrphanDetector: patterns pending, surfaced, promoted
+> - ApprovalManager: pending requests, SLA status (green/yellow/red)
+>
+> **4. CONTEXT (Bottom Right)**
+> - Types by status: PROPOSED → VALIDATED → ACTIVE → DEPRECATED
+> - Approval queue: pending reviews with SLA countdown
+> - Recent decisions: last 5 approvals/rejections
+> - Learning cycle: orphans → types promoted (proves the system learns)
+>
+> **Footer: Message Bus Activity**
+> - Live feed of last 10 events
+> - Dead letter queue count (should be 0)
+> - Events/minute throughput
+>
+> Start with a `/dashboard` route that queries real data. No mocks.

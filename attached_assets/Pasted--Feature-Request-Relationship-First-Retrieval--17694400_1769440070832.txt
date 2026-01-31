@@ -1,0 +1,70 @@
+### Feature Request: Relationship-First Retrieval                                                      
+                                                                                                         
+  Problem                                                                                                
+                                                                                                         
+  - Queries (e.g., “Who is the CFO?”) currently look for any entity whose properties include             
+  “title=CFO,”                                                                                           
+  even if that entity has no connection to the vault’s organization. That’s why we return Alex           
+  Bradley                                                                                                
+  (random CFO) instead of Michael Chang (Nexus CFO).                                                     
+  - Properties are being used to discover entities; relationships are only used afterward, if at         
+  all.                                                                                                   
+                                                                                                         
+  Goal                                                                                                   
+                                                                                                         
+  - Treat the KG as a graph, not a flat property store. Every answer must be explicitly connected        
+  to the                                                                                                 
+  context (vault’s organization, or whatever anchor the query mentions).                                 
+                                                                                                         
+  ———                                                                                                    
+                                                                                                         
+  ### Implementation Steps                                                                               
+                                                                                                         
+  1. Identify Anchor                                                                                     
+  - Derive the anchor entity from the query or vault context. Examples:                                  
+  - “Who is the CFO of Nexus?” → anchor = Nexus Industries (explicit).                                   
+  - “Who is the CEO?” in a Nexus vault → anchor = the vault’s primary organization                       
+  (implicit).                                                                                            
+  - Store each vault’s primary organization ID so we can default to it when queries don’t                
+  specify one.                                                                                           
+  2. Relationship Traversal First                                                                        
+  - From the anchor entity, traverse the relevant relationships (HAS_ROLE, LEADS, WORKS_FOR,             
+  etc.) to                                                                                               
+  find the answer.                                                                                       
+  - Use the relationships’ types and metadata to determine direction and relevance.                      
+  - Only if traversal yields nothing, fall back to property-based search or semantic matching.           
+  3. Properties as Filters, Not Search Keys                                                              
+  - Use properties (e.g., title = CFO) to filter the traversal results, not to discover the              
+  entities                                                                                               
+  themselves.                                                                                            
+  - This ensures role queries only return people connected to the anchor org.                            
+  4. Extraction-Time Safeguards                                                                          
+  - Ensure every entity includes:                                                                        
+  - tenant_id / vault_id provenance                                                                      
+  - source_org (primary org)                                                                             
+  - document_id                                                                                          
+  - Reject raw “CFO” answers at extraction time unless the document states “CFO of [Org]” so             
+  we always                                                                                              
+  know context.                                                                                          
+  - Mark whether an entity is “primary” (belongs to the vault) vs. “mentioned”                           
+  (partner/customer). This                                                                               
+  helps the retriever know which ones are in scope.                                                      
+  5. Fallback Behavior                                                                                   
+  - If traversal fails (no edges), allow a property/semantic fallback but clearly mark the               
+  answer as                                                                                              
+  low confidence and consider gating it through the Data Gate.                                           
+                                                                                                         
+  ———                                                                                                    
+                                                                                                         
+  ### Why This Matters                                                                                   
+                                                                                                         
+  - It generalizes beyond “Nexus” → works for any vault/organization.                                    
+  - It prevents contamination from other corpora (Boeing/Koji Sato) because those entities won’t         
+  be                                                                                                     
+  traversable from the vault’s anchor.                                                                   
+  - It aligns with Stanford’s “graph-based retrieval” recommendation (nuclear option vs. flat            
+  embeddings).                                                                                           
+                                                                                                         
+  Let’s have Replit implement relationship-first retrieval as the default, with property/semantic        
+  search as                                                                                              
+  a fallback, and ensure extraction always captures the relationships needed to support it.

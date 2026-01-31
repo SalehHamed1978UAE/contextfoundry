@@ -1,0 +1,204 @@
+{
+  "document_id": "941bf123fe0e",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:40:02.149071",
+  "entities": [
+    {
+      "name": "Transformation Program Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Internal transformation to unify the company data stack and modernize GTM motions",
+        "status": "active"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "source_excerpt": "Transformation Program Horizon Prime - Internal transformation to unify the company data stack and modernize GTM motions",
+      "aliases": []
+    },
+    {
+      "name": "Data Lake Cutover",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "Q4 2026"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "source_excerpt": "Data Lake Cutover: Q4 2026",
+      "aliases": []
+    },
+    {
+      "name": "Unified CRM Adoption",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Unified CRM Adoption",
+        "value": "98%",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "source_excerpt": "Unified CRM Adoption: 98%",
+      "aliases": []
+    },
+    {
+      "name": "Operating Expense Savings",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Operating Expense Savings",
+        "value": "$42M",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "source_excerpt": "Operating Expense Savings: $42M",
+      "aliases": []
+    },
+    {
+      "name": "Cycle Time Reduction",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Cycle Time Reduction",
+        "value": "18%",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "source_excerpt": "Cycle Time Reduction: 18%",
+      "aliases": []
+    },
+    {
+      "name": "BluePeak",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "hosting",
+        "description": "hosting platform for supplier portals"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "source_excerpt": "Consolidate supplier portals under BluePeak hosting",
+      "aliases": []
+    },
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "executive with staff"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "source_excerpt": "Launch executive analytics cockpit for Maya Serrano's staff",
+      "aliases": []
+    },
+    {
+      "name": "Executive Analytics Cockpit",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "analytics tool for executive staff",
+        "category": "analytics platform"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "source_excerpt": "Launch executive analytics cockpit for Maya Serrano's staff",
+      "aliases": []
+    },
+    {
+      "name": "Citadel",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "deployment platform requiring compliance by design"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "source_excerpt": "Embed compliance by design for Citadel deployments",
+      "aliases": []
+    },
+    {
+      "name": "Board",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "name": "Board of Directors",
+        "focus_areas": "governance, funding decisions"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "source_excerpt": "Board sponsors reaffirmed appetite for disciplined growth",
+      "aliases": []
+    },
+    {
+      "name": "Series F Covenant",
+      "entity_type": "POLICY",
+      "properties": {
+        "name": "Series F Covenant",
+        "category": "funding agreement"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "source_excerpt": "Funding model assumes continued Series F covenant compliance",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "Executive Analytics Cockpit",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "evidence": "Launch executive analytics cockpit for Maya Serrano's staff"
+    },
+    {
+      "source_entity": "Transformation Program Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "BluePeak",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "evidence": "Consolidate supplier portals under BluePeak hosting"
+    },
+    {
+      "source_entity": "Transformation Program Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Citadel",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "evidence": "Embed compliance by design for Citadel deployments"
+    },
+    {
+      "source_entity": "Data Lake Cutover",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Transformation Program Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "evidence": "Data Lake Cutover listed as target within Transformation Program Horizon Prime"
+    },
+    {
+      "source_entity": "Board",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Transformation Program Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "evidence": "Board sponsors reaffirmed appetite for disciplined growth"
+    }
+  ],
+  "metadata": {
+    "filename": "transformation_program_horizon_prime.md",
+    "raw_entity_count": 11,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

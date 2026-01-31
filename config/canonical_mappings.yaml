@@ -1,0 +1,166 @@
+entity_types:
+  person: PERSON
+  people: PERSON
+  individual: PERSON
+  human: PERSON
+  
+  company: ORGANIZATION
+  organization: ORGANIZATION
+  organisation: ORGANIZATION
+  corporation: ORGANIZATION
+  firm: FIRM
+  enterprise: ORGANIZATION
+  institution: ORGANIZATION
+  agency: ORGANIZATION
+  fund: ORGANIZATION
+  venture capital: ORGANIZATION
+  vc: ORGANIZATION
+  
+  project: PROJECT
+  initiative: PROJECT
+  program: PROJECT
+  
+  team: TEAM
+  group: TEAM
+  department: DEPARTMENT
+  division: DEPARTMENT
+  
+  location: LOCATION
+  place: LOCATION
+  city: LOCATION
+  country: LOCATION
+  region: LOCATION
+  address: LOCATION
+  venue: LOCATION
+  
+  event: EVENT
+  conference: EVENT
+  summit: EVENT
+  meeting: EVENT
+  
+  document: DOCUMENT
+  paper: DOCUMENT
+  report: DOCUMENT
+  publication: DOCUMENT
+  
+  date: DATE
+  time: DATE
+  period: DATE
+  
+  concept: CONCEPT
+  idea: CONCEPT
+  topic: CONCEPT
+  
+  technology: TECHNOLOGY
+  tool: TECHNOLOGY
+  platform: TECHNOLOGY
+  software: TECHNOLOGY
+  
+  product: PRODUCT
+  service: SERVICE
+  
+  role: ROLE
+  title: ROLE
+  position: ROLE
+  job: ROLE
+  
+  skill: SKILL
+  competency: SKILL
+
+relationship_types:
+  invests in: INVESTED_IN
+  invested in: INVESTED_IN
+  has invested in: INVESTED_IN
+  investment in: INVESTED_IN
+  
+  founded by: FOUNDED_BY
+  founder of: FOUNDED
+  co-founded by: FOUNDED_BY
+  
+  led by: LED_BY
+  leads: LEADS
+  leading: LEADS
+  
+  ceo: CEO_OF
+  ceo of: CEO_OF
+  chief executive of: CEO_OF
+  
+  owns: OWNS
+  owned by: OWNED_BY
+  has subsidiary: HAS_SUBSIDIARY
+  subsidiary of: SUBSIDIARY_OF
+  parent company of: PARENT_OF
+  part of: PART_OF
+  
+  works at: WORKS_AT
+  works for: WORKS_AT
+  employed by: EMPLOYED_BY
+  employee of: EMPLOYED_BY
+  
+  works on: WORKS_ON
+  working on: WORKS_ON
+  member of: MEMBER_OF
+  belongs to: MEMBER_OF
+  
+  reports to: REPORTS_TO
+  manages: MANAGES
+  managed by: MANAGED_BY
+  
+  speaks at: SPEAKS_AT
+  spoke at: SPEAKS_AT
+  speaker at: SPEAKS_AT
+  keynote at: KEYNOTE_AT
+  keynote speaker: KEYNOTE_AT
+  
+  moderates: MODERATES
+  moderated: MODERATED
+  moderator of: MODERATES
+  
+  authored: AUTHORED
+  author of: AUTHORED
+  wrote: AUTHORED
+  written by: AUTHORED_BY
+  co-authored: CO_AUTHORED
+  
+  affiliated with: AFFILIATED_WITH
+  affiliation: AFFILIATED_WITH
+  associated with: ASSOCIATED_WITH
+  
+  acquired: ACQUIRED
+  acquired by: ACQUIRED_BY
+  merged with: MERGED_WITH
+  
+  has ceo: HAS_CEO
+  has cfo: HAS_CFO
+  has cto: HAS_CTO
+  has coo: HAS_COO
+  has vp: HAS_VP
+  has department: HAS_DEPARTMENT
+  has regional president: HAS_REGIONAL_PRESIDENT
+  has joint venture: HAS_JOINT_VENTURE
+  
+  sponsors: SPONSORS
+  sponsored by: SPONSORED_BY
+  
+  located in: LOCATED_IN
+  headquartered in: HEADQUARTERED_IN
+  based in: BASED_IN
+  
+  takes place at: TAKES_PLACE_AT
+  held at: HELD_AT
+  
+  has theme: HAS_THEME
+  judged by: JUDGED_BY
+  
+  # Supplier relationship types
+  supplies to: SUPPLIES_TO
+  supplies: SUPPLIES_TO
+  provides to: SUPPLIES_TO
+  delivers to: SUPPLIES_TO
+  vendor for: SUPPLIES_TO
+  vendor of: SUPPLIES_TO
+  supplier of: SUPPLIES_TO
+  supplier for: SUPPLIES_TO
+  contracted to supply: SUPPLIES_TO
+  furnishes: SUPPLIES_TO
+  furnished by: SUPPLIES_TO

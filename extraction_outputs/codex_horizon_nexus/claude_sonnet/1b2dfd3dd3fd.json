@@ -1,0 +1,235 @@
+{
+  "document_id": "1b2dfd3dd3fd",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:39:44.392827",
+  "entities": [
+    {
+      "name": "Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Revenue",
+        "value": "$388M",
+        "period": "Q1 2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "source_excerpt": "Revenue: $388M",
+      "aliases": []
+    },
+    {
+      "name": "EBITDA Margin",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "EBITDA Margin",
+        "value": "23%",
+        "period": "Q1 2026",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "source_excerpt": "EBITDA Margin: 23%",
+      "aliases": []
+    },
+    {
+      "name": "Total Bookings",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Bookings",
+        "value": "$112M",
+        "period": "Q1 2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "source_excerpt": "Total Bookings: $112M",
+      "aliases": []
+    },
+    {
+      "name": "R&D Investment",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "R&D Investment",
+        "value": "$28M",
+        "period": "Q1 2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "source_excerpt": "R&D Investment: $28M",
+      "aliases": []
+    },
+    {
+      "name": "GridWave",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "name": "GridWave"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "source_excerpt": "GridWave outperformed plan led by Project Aurora milestone pull-ins",
+      "aliases": []
+    },
+    {
+      "name": "Project Aurora",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "Project Aurora",
+        "status": "milestone pull-ins"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "source_excerpt": "Project Aurora milestone pull-ins",
+      "aliases": []
+    },
+    {
+      "name": "TransitEdge",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "name": "TransitEdge"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "source_excerpt": "TransitEdge Titan Logistics Network backlog grew double digits",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics Network",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "name": "Titan Logistics Network",
+        "category": "logistics"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "source_excerpt": "TransitEdge Titan Logistics Network backlog grew double digits",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "Horizon Prime",
+        "status": "glidepath"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "source_excerpt": "Operating expenses tracked to Horizon Prime glidepath",
+      "aliases": []
+    },
+    {
+      "name": "EMEA",
+      "entity_type": "LOCATION",
+      "properties": {
+        "name": "EMEA",
+        "region": "Europe, Middle East, Africa"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "source_excerpt": "FX exposure tied to EMEA hydrogen pilots",
+      "aliases": []
+    },
+    {
+      "name": "EMEA hydrogen pilots",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "EMEA hydrogen pilots",
+        "status": "active"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "source_excerpt": "FX exposure tied to EMEA hydrogen pilots",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "name": "CoreMatrix",
+        "category": "components"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "source_excerpt": "Supply-chain timing for CoreMatrix components",
+      "aliases": []
+    },
+    {
+      "name": "Treasury",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "name": "Treasury",
+        "focus_areas": "cash planning"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "source_excerpt": "Refresh cash planning with Treasury",
+      "aliases": []
+    },
+    {
+      "name": "Titan Freight",
+      "entity_type": "SERVICE",
+      "properties": {
+        "name": "Titan Freight",
+        "description": "freight conversion service"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "source_excerpt": "Monitor Titan Freight conversion schedule",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Project Aurora",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "evidence": "GridWave outperformed plan led by Project Aurora milestone pull-ins"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Titan Logistics Network",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "evidence": "TransitEdge Titan Logistics Network backlog grew double digits"
+    },
+    {
+      "source_entity": "EMEA hydrogen pilots",
+      "source_type": "PROJECT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "EMEA",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "evidence": "FX exposure tied to EMEA hydrogen pilots"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Titan Freight",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "evidence": "Monitor Titan Freight conversion schedule - implied connection to TransitEdge logistics operations"
+    }
+  ],
+  "metadata": {
+    "filename": "financial_results_q1_2026.md",
+    "raw_entity_count": 14,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

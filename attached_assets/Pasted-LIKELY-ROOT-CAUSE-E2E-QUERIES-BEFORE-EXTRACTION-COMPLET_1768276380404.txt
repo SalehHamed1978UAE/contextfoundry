@@ -1,0 +1,88 @@
+LIKELY ROOT CAUSE: E2E QUERIES BEFORE EXTRACTION COMPLETES
+
+The UI works because extraction finished. E2E fails because it queries too soon.
+
+================================================================================
+VERIFY THE THEORY
+================================================================================
+
+1. CHECK E2E TEST FLOW
+```bash
+# Find the sequence: upload → extract → query
+grep -n "upload\|extract\|query\|wait\|sleep\|poll" scripts/e2e_lifecycle_test.py | head -40
+```
+
+2. LOOK FOR EXTRACTION WAIT LOGIC
+```bash
+# Is there any wait for extraction to complete?
+grep -B5 -A10 "extract\|wait\|complete\|status\|poll" scripts/e2e_lifecycle_test.py
+```
+
+3. CHECK EXTRACTION STATUS ENDPOINT
+```bash
+# How do we know extraction is done?
+grep -r "extraction.*status\|status.*extract\|is_complete\|processing" src/context_foundry/api/ --include="*.py" -A 3
+```
+
+================================================================================
+THE FIX
+================================================================================
+
+E2E test needs to WAIT for extraction to complete before querying.
+
+Options:
+
+A) Poll extraction status until complete:
+```python
+def wait_for_extraction(vault_id, timeout=300):
+    start = time.time()
+    while time.time() - start < timeout:
+        status = get_extraction_status(vault_id)
+        if status == 'complete':
+            return True
+        time.sleep(5)
+    return False
+```
+
+B) Check entity/relationship counts stabilize:
+```python
+def wait_for_extraction(vault_id, timeout=300):
+    start = time.time()
+    last_count = 0
+    stable_checks = 0
+    
+    while time.time() - start < timeout:
+        count = get_relationship_count(vault_id)
+        if count == last_count and count > 0:
+            stable_checks += 1
+            if stable_checks >= 3:  # Stable for 15 seconds
+                return True
+        else:
+            stable_checks = 0
+            last_count = count
+        time.sleep(5)
+    return False
+```
+
+C) Wait for specific expected data:
+```python
+def wait_for_compensation_data(vault_id, timeout=300):
+    start = time.time()
+    while time.time() - start < timeout:
+        # Check if compensation relationships exist
+        count = count_compensation_relationships(vault_id)
+        if count > 0:
+            return True
+        time.sleep(5)
+    return False
+```
+
+================================================================================
+IMMEDIATE TEST
+================================================================================
+
+1. Find current E2E wait logic (if any)
+2. Add proper extraction completion check
+3. Re-run E2E
+
+================================================================================

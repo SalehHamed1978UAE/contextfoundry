@@ -1,0 +1,206 @@
+{
+  "answer": "I cannot answer this query because the entity 'Payments Database Goes Down' does not exist in the knowledge graph. The system searched for 'Payments Database Goes Down' but found no matching entity. This could mean: (1) the entity name is misspelled, (2) the entity hasn't been ingested yet, or (3) the entity genuinely doesn't exist in your infrastructure. Please verify the entity name or add it to the knowledge graph if it should exist.",
+  "confidence": 0.1,
+  "confidence_level": "very_low",
+  "entity_not_found": true,
+  "target_entity": "Payments Database Goes Down",
+  "evidence_chain": [],
+  "uncertainty": {
+    "uncertain_facts": [
+      "Whether 'Payments Database Goes Down' exists or is named differently"
+    ],
+    "reasons": [
+      "Entity 'Payments Database Goes Down' not found in knowledge graph"
+    ],
+    "would_help": [
+      "Verify the exact name of 'Payments Database Goes Down'",
+      "Check if the entity has been ingested",
+      "Try alternative names or spellings"
+    ]
+  },
+  "rules_applied": [],
+  "caveats": [
+    "The entity 'Payments Database Goes Down' does not exist in the knowledge graph",
+    "No relationships or facts can be provided for non-existent entities"
+  ],
+  "bundle_id": "ed814e1f-8e56-4903-8599-16b74cf27572",
+  "query_text": "What services are affected if the Payments Database goes down?",
+  "validation": {
+    "passed": true,
+    "rules_checked": [
+      "Payment Service Dependency Check",
+      "On-Call Requirement",
+      "Cascade Impact Assessment",
+      "Database Owner Notification",
+      "Auth Service Required for API",
+      "Single Primary Database",
+      "SEV1 Escalation Rule",
+      "Escalation Chain Validation"
+    ],
+    "rules_passed": [
+      "Payment Service Dependency Check",
+      "On-Call Requirement",
+      "Cascade Impact Assessment",
+      "Database Owner Notification",
+      "Auth Service Required for API",
+      "Single Primary Database",
+      "SEV1 Escalation Rule",
+      "Escalation Chain Validation"
+    ],
+    "violations": [],
+    "warnings": []
+  },
+  "rules_checked": [
+    "Payment Service Dependency Check",
+    "On-Call Requirement",
+    "Cascade Impact Assessment",
+    "Database Owner Notification",
+    "Auth Service Required for API",
+    "Single Primary Database",
+    "SEV1 Escalation Rule",
+    "Escalation Chain Validation"
+  ],
+  "rules_passed": [
+    "Payment Service Dependency Check",
+    "On-Call Requirement",
+    "Cascade Impact Assessment",
+    "Database Owner Notification",
+    "Auth Service Required for API",
+    "Single Primary Database",
+    "SEV1 Escalation Rule",
+    "Escalation Chain Validation"
+  ],
+  "rules_violations": [],
+  "rules_warnings": [],
+  "query_log": {
+    "query_id": "7ab55858-5ada-443b-b7cf-6f85425ce061",
+    "query_text": "What services are affected if the Payments Database goes down?",
+    "start_time": "2025-12-02T16:34:50.906986",
+    "duration_seconds": 1.911729,
+    "events": [
+      {
+        "timestamp": "2025-12-02T16:34:50.906991",
+        "query_id": "7ab55858-5ada-443b-b7cf-6f85425ce061",
+        "event_type": "QUERY_START",
+        "data": {
+          "query": "What services are affected if the Payments Database goes down?"
+        }
+      },
+      {
+        "timestamp": "2025-12-02T16:34:50.908373",
+        "query_id": "7ab55858-5ada-443b-b7cf-6f85425ce061",
+        "event_type": "PIPELINE_START",
+        "data": {
+          "query": "What services are affected if the Payments Database goes down?"
+        }
+      },
+      {
+        "timestamp": "2025-12-02T16:34:51.028427",
+        "query_id": "7ab55858-5ada-443b-b7cf-6f85425ce061",
+        "event_type": "TARGET_ENTITY_CHECK",
+        "data": {
+          "target_entity": "Payments Database Goes Down",
+          "found": false,
+          "match": null
+        }
+      },
+      {
+        "timestamp": "2025-12-02T16:34:51.033488",
+        "query_id": "7ab55858-5ada-443b-b7cf-6f85425ce061",
+        "event_type": "RETRIEVAL_START",
+        "data": {
+          "keywords": [
+            "services",
+            "affected",
+            "Payments",
+            "Database",
+            "goes",
+            "down"
+          ],
+          "inferred_entity_types": [
+            "DATABASE",
+            "SERVICE"
+          ],
+          "target_entity": "Payments Database Goes Down",
+          "target_entity_found": false
+        }
+      },
+      {
+        "timestamp": "2025-12-02T16:34:52.415890",
+        "query_id": "7ab55858-5ada-443b-b7cf-6f85425ce061",
+        "event_type": "SEMANTIC_RETRIEVAL",
+        "data": {
+          "entities_count": 20,
+          "relationships_count": 31,
+          "entities": [
+            "Payments Database",
+            "Payments Database",
+            "Payments Database",
+            "Payments Database",
+            "Payments Database"
+          ],
+          "confidence": 0.9
+        }
+      },
+      {
+        "timestamp": "2025-12-02T16:34:52.515389",
+        "query_id": "7ab55858-5ada-443b-b7cf-6f85425ce061",
+        "event_type": "EPISODIC_RETRIEVAL",
+        "data": {
+          "documents_count": 5,
+          "top_similarity": 0.16321914243036456,
+          "avg_similarity": 0.10257317962763499
+        }
+      },
+      {
+        "timestamp": "2025-12-02T16:34:52.541706",
+        "query_id": "7ab55858-5ada-443b-b7cf-6f85425ce061",
+        "event_type": "SYMBOLIC_QUERY",
+        "data": {
+          "rules_found": 8,
+          "rule_names": [
+            "Payment Service Dependency Check",
+            "On-Call Requirement",
+            "Cascade Impact Assessment",
+            "Database Owner Notification",
+            "Auth Service Required for API",
+            "Single Primary Database",
+            "SEV1 Escalation Rule",
+            "Escalation Chain Validation"
+          ]
+        }
+      },
+      {
+        "timestamp": "2025-12-02T16:34:52.543941",
+        "query_id": "7ab55858-5ada-443b-b7cf-6f85425ce061",
+        "event_type": "CONTEXT_BUNDLE_BUILT",
+        "data": {
+          "semantic_items": 51,
+          "episodic_items": 5,
+          "rules_count": 8,
+          "overall_confidence": 0.1
+        }
+      },
+      {
+        "timestamp": "2025-12-02T16:34:52.739749",
+        "query_id": "7ab55858-5ada-443b-b7cf-6f85425ce061",
+        "event_type": "VALIDATION",
+        "data": {
+          "passed": true,
+          "issues": []
+        }
+      },
+      {
+        "timestamp": "2025-12-02T16:34:52.816936",
+        "query_id": "7ab55858-5ada-443b-b7cf-6f85425ce061",
+        "event_type": "QUERY_COMPLETE",
+        "data": {
+          "success": true,
+          "duration_seconds": 1.909942,
+          "final_confidence": 0.1,
+          "total_events": 9
+        }
+      }
+    ]
+  }
+}

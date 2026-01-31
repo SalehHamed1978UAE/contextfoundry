@@ -1,0 +1,75 @@
+{
+  "document_id": "8b3801207c8c",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/risk/horizon_prime_change_risk.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:30:17.265106",
+  "entities": [
+    {
+      "name": "Horizon Prime Change Risk",
+      "entity_type": "PROJECT",
+      "properties": {
+        "risk_types": "Cutover, legacy decommission",
+        "cadence": "Weekly",
+        "likelihood": "Medium",
+        "impact": "High"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/horizon_prime_change_risk.md",
+      "source_excerpt": "# Horizon Prime Change Risk",
+      "aliases": []
+    },
+    {
+      "name": "Victor Liao",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Risk Owner"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/horizon_prime_change_risk.md",
+      "source_excerpt": "**Owner:** Victor Liao",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime risk register",
+      "entity_type": "PROJECT",
+      "properties": {
+        "type": "Risk register"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/horizon_prime_change_risk.md",
+      "source_excerpt": "Track via Horizon Prime risk register",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Victor Liao",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Horizon Prime Change Risk",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/horizon_prime_change_risk.md",
+      "evidence": "**Owner:** Victor Liao"
+    },
+    {
+      "source_entity": "Horizon Prime Change Risk",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Horizon Prime risk register",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/horizon_prime_change_risk.md",
+      "evidence": "Track via Horizon Prime risk register"
+    }
+  ],
+  "metadata": {
+    "filename": "horizon_prime_change_risk.md",
+    "raw_entity_count": 3,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

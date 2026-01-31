@@ -1,0 +1,34 @@
+ Goal
+  Make the multi-model extraction pipeline automatically kick off whenever new files are uploaded to a
+  vault—no hardcoded corpora, no manual workflow edits.
+
+  Required Changes
+
+  1. Stop hardcoding corpus names/vault IDs.
+      - Remove “Manus Orion” (or any specific corpus) from workflow definitions or scripts.
+      - run_full_corpus_pipeline.py already accepts --corpus or --vault-id; always invoke it with
+        parameters instead of editing code.
+  2. Trigger extraction on upload, not vault creation.
+      - Upload flow: User creates vault → uploads files (takes up to a minute) → ingestion service should
+        automatically run the pipeline.
+      - Add a poller (every 10–15 seconds is fine) or an event hook that asks “which documents in this
+        vault haven’t been extracted yet?” and kicks off extraction as soon as uploads complete.
+  3. Parameterize the extraction worker.
+      - Extraction workers should accept a vault_id and pull whatever docs are pending, regardless of
+        corpus name.
+      - For UI uploads, once files are saved in storage, call something like
+        trigger_multi_model_extraction(vault_id); don’t rely on workflow templates with baked-in corpus
+        names.
+  4. Integrate the new pipeline into the ingestion service.
+      - Use the multi-model path (Dual LLM extraction → entity resolution → consensus → KG ingestion)
+        whenever MULTI_MODEL_EXTRACTION_ENABLED=true.
+      - Keep the legacy single-model extractor available behind the toggle for “fast mode,” but default
+        uploads should be thorough.
+  5. Workflow clean-up.
+      - Existing workflow entries should have commands like python -u scripts/run_full_corpus_pipeline.py
+        --corpus "$WORKFLOW_CORPUS" so you can pass the target corpus/vault when launching a run instead of
+        editing the workflow config.
+  6. Verification.
+      - After integrating the above, test by uploading a small corpus: confirm the ingestion service
+        detects the new files within ~15 seconds, runs the multi-model pipeline, and updates the KG without
+        manual intervention.

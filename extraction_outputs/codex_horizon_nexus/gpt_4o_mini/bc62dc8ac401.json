@@ -1,0 +1,107 @@
+{
+  "document_id": "bc62dc8ac401",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_leadership_sync_2026_01_18.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:57:59.679789",
+  "entities": [
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_leadership_sync_2026_01_18.md",
+      "source_excerpt": "Attendees - Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_leadership_sync_2026_01_18.md",
+      "source_excerpt": "Attendees - Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "GridWave",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Technology"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_leadership_sync_2026_01_18.md",
+      "source_excerpt": "GridWave Leadership Sync Meeting Notes",
+      "aliases": []
+    },
+    {
+      "name": "Project Aurora",
+      "entity_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_leadership_sync_2026_01_18.md",
+      "source_excerpt": "Topics: Project Aurora",
+      "aliases": []
+    },
+    {
+      "name": "Enceladus pilots",
+      "entity_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_leadership_sync_2026_01_18.md",
+      "source_excerpt": "Topics: Enceladus pilots",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.75,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_leadership_sync_2026_01_18.md",
+      "source_excerpt": "Reinforce Horizon Prime milestones",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "GridWave",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_leadership_sync_2026_01_18.md",
+      "evidence": "Attendees - Maya Serrano"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "GridWave",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_leadership_sync_2026_01_18.md",
+      "evidence": "Attendees - Dylan Kaur"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "GridWave",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.6,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_leadership_sync_2026_01_18.md",
+      "evidence": "Reinforce Horizon Prime milestones"
+    }
+  ],
+  "metadata": {
+    "filename": "gridwave_leadership_sync_2026_01_18.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

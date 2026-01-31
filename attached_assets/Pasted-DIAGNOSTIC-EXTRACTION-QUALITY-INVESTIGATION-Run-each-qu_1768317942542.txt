@@ -1,0 +1,158 @@
+DIAGNOSTIC: EXTRACTION QUALITY INVESTIGATION
+
+Run each query and paste the COMPLETE output.
+
+================================================================================
+QUERY 1: Morrison & Sterling — Thomas Bradley
+================================================================================
+```sql
+-- Does Thomas Bradley exist?
+SELECT id, name, entity_type 
+FROM entities 
+WHERE tenant_id = (SELECT id FROM platform.tenants WHERE name = 'Morrison & Sterling')
+  AND name ILIKE '%bradley%';
+```
+
+Paste output here:
+
+================================================================================
+QUERY 2: Morrison & Sterling — All CFO-related entities
+================================================================================
+```sql
+-- Any CFO entities?
+SELECT id, name, entity_type 
+FROM entities 
+WHERE tenant_id = (SELECT id FROM platform.tenants WHERE name = 'Morrison & Sterling')
+  AND (name ILIKE '%CFO%' OR entity_type ILIKE '%CFO%' OR name ILIKE '%chief financial%');
+```
+
+Paste output here:
+
+================================================================================
+QUERY 3: Morrison & Sterling — All HOLDS_POSITION relationships
+================================================================================
+```sql
+SELECT 
+    e1.name as person,
+    r.relationship_type,
+    e2.name as position
+FROM relationships r
+JOIN entities e1 ON r.source_id = e1.id
+JOIN entities e2 ON r.target_id = e2.id
+WHERE e1.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'Morrison & Sterling')
+  AND r.relationship_type = 'HOLDS_POSITION'
+ORDER BY e1.name;
+```
+
+Paste output here:
+
+================================================================================
+QUERY 4: Morrison & Sterling — All REPORTS_TO relationships
+================================================================================
+```sql
+SELECT 
+    e1.name as employee,
+    e2.name as manager
+FROM relationships r
+JOIN entities e1 ON r.source_id = e1.id
+JOIN entities e2 ON r.target_id = e2.id
+WHERE e1.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'Morrison & Sterling')
+  AND r.relationship_type = 'REPORTS_TO'
+ORDER BY e2.name, e1.name;
+```
+
+Paste output here:
+
+================================================================================
+QUERY 5: Launchpad — Dr. Rachel Green
+================================================================================
+```sql
+-- Does Dr. Rachel Green exist and what are her relationships?
+SELECT e.id, e.name, e.entity_type
+FROM entities e
+WHERE e.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'Launchpad Ventures')
+  AND e.name ILIKE '%rachel%green%';
+```
+
+Paste output here:
+
+================================================================================
+QUERY 6: Launchpad — Healthcare-related entities
+================================================================================
+```sql
+SELECT id, name, entity_type
+FROM entities
+WHERE tenant_id = (SELECT id FROM platform.tenants WHERE name = 'Launchpad Ventures')
+  AND (name ILIKE '%health%' OR entity_type ILIKE '%health%');
+```
+
+Paste output here:
+
+================================================================================
+QUERY 7: Launchpad — Does CloudAI exist?
+================================================================================
+```sql
+SELECT id, name, entity_type
+FROM entities
+WHERE tenant_id = (SELECT id FROM platform.tenants WHERE name = 'Launchpad Ventures')
+  AND name ILIKE '%cloudai%';
+```
+
+Paste output here:
+
+================================================================================
+QUERY 8: Launchpad — Does HealthBridge exist?
+================================================================================
+```sql
+SELECT id, name, entity_type
+FROM entities
+WHERE tenant_id = (SELECT id FROM platform.tenants WHERE name = 'Launchpad Ventures')
+  AND name ILIKE '%healthbridge%';
+```
+
+Paste output here:
+
+================================================================================
+QUERY 9: Relationship counts per vault
+================================================================================
+```sql
+SELECT 
+    t.name as vault,
+    COUNT(DISTINCT e.id) as entities,
+    COUNT(DISTINCT r.id) as relationships
+FROM platform.tenants t
+LEFT JOIN entities e ON e.tenant_id = t.id
+LEFT JOIN relationships r ON r.source_id = e.id
+WHERE t.name IN ('TechVentures', 'Morrison & Sterling', 'Riverside Medical Center', 'Titan Manufacturing', 'Launchpad Ventures')
+GROUP BY t.name
+ORDER BY t.name;
+```
+
+Paste output here:
+
+================================================================================
+QUERY 10: Relationship type distribution per vault
+================================================================================
+```sql
+SELECT 
+    t.name as vault,
+    r.relationship_type,
+    COUNT(*) as count
+FROM relationships r
+JOIN entities e ON r.source_id = e.id
+JOIN platform.tenants t ON e.tenant_id = t.id
+WHERE t.name IN ('TechVentures', 'Morrison & Sterling', 'Riverside Medical Center', 'Titan Manufacturing', 'Launchpad Ventures')
+GROUP BY t.name, r.relationship_type
+ORDER BY t.name, count DESC;
+```
+
+Paste output here:
+
+================================================================================
+AFTER PASTING ALL OUTPUTS
+================================================================================
+
+Do NOT interpret the results. Just paste the raw output for each query.
+I will analyze.
+
+================================================================================

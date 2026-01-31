@@ -1,0 +1,118 @@
+{
+  "document_id": "3a048e988423",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_concentration_risk.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:51:07.745051",
+  "entities": [
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Risk Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_concentration_risk.md",
+      "source_excerpt": "Owner: Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "risk_level": "High"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_concentration_risk.md",
+      "source_excerpt": "Risk Types: CoreMatrix, VectorTech",
+      "aliases": []
+    },
+    {
+      "name": "VectorTech",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "risk_level": "High"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_concentration_risk.md",
+      "source_excerpt": "Risk Types: CoreMatrix, VectorTech",
+      "aliases": []
+    },
+    {
+      "name": "Supplier Concentration Risk",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Active",
+        "timeline": "Monthly cadence",
+        "current_rating": "Medium likelihood, High impact"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_concentration_risk.md",
+      "source_excerpt": "Supplier Concentration Risk - Risk Types: CoreMatrix, VectorTech - Owner: Dylan Kaur - Cadence: Monthly",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Risk register system"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_concentration_risk.md",
+      "source_excerpt": "Track via Horizon Prime risk register",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Supplier Concentration Risk",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_concentration_risk.md",
+      "evidence": "Owner: Dylan Kaur"
+    },
+    {
+      "source_entity": "CoreMatrix",
+      "source_type": "SUPPLIER",
+      "relationship_type": "PART_OF",
+      "target_entity": "Supplier Concentration Risk",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_concentration_risk.md",
+      "evidence": "Risk Types: CoreMatrix, VectorTech"
+    },
+    {
+      "source_entity": "VectorTech",
+      "source_type": "SUPPLIER",
+      "relationship_type": "PART_OF",
+      "target_entity": "Supplier Concentration Risk",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_concentration_risk.md",
+      "evidence": "Risk Types: CoreMatrix, VectorTech"
+    },
+    {
+      "source_entity": "Supplier Concentration Risk",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_concentration_risk.md",
+      "evidence": "Track via Horizon Prime risk register"
+    }
+  ],
+  "metadata": {
+    "filename": "supplier_concentration_risk.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

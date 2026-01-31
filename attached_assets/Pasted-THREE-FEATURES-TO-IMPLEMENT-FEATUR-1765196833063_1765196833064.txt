@@ -1,0 +1,259 @@
+THREE FEATURES TO IMPLEMENT:
+
+═══════════════════════════════════════════════════════════════
+FEATURE 1: RETRACTABLE SIDEBAR (Do first)
+═══════════════════════════════════════════════════════════════
+
+Add toggle button to collapse/expand sidebar:
+
+1. Add toggle button in base_layout.html sidebar header:
+
+<button id="sidebar-toggle" class="sidebar-toggle" title="Toggle sidebar">
+    <span class="icon-collapse">«</span>
+    <span class="icon-expand">»</span>
+</button>
+
+2. CSS:
+
+.sidebar {
+    width: 250px;
+    transition: width 0.2s ease;
+}
+
+.sidebar-collapsed .sidebar {
+    width: 60px;
+}
+
+.sidebar-collapsed .sidebar .nav-text,
+.sidebar-collapsed .sidebar .section-label,
+.sidebar-collapsed .sidebar .user-name,
+.sidebar-collapsed .sidebar .system-label {
+    display: none;
+}
+
+.sidebar-collapsed .sidebar .nav-item {
+    justify-content: center;
+    padding: 12px;
+}
+
+.sidebar-collapsed .sidebar .nav-icon {
+    margin-right: 0;
+    font-size: 1.3rem;
+}
+
+.sidebar-collapsed .main-content {
+    margin-left: 60px;
+}
+
+.sidebar-toggle {
+    background: transparent;
+    border: 1px solid #374151;
+    color: #9ca3af;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 20px;
+}
+
+.sidebar-toggle:hover {
+    background: #374151;
+    color: white;
+}
+
+.icon-expand { display: none; }
+.sidebar-collapsed .icon-collapse { display: none; }
+.sidebar-collapsed .icon-expand { display: inline; }
+
+3. JavaScript:
+
+document.getElementById('sidebar-toggle').addEventListener('click', () => {
+    document.body.classList.toggle('sidebar-collapsed');
+    const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+    localStorage.setItem('sidebar-collapsed', isCollapsed);
+});
+
+// Restore state on page load
+if (localStorage.getItem('sidebar-collapsed') === 'true') {
+    document.body.classList.add('sidebar-collapsed');
+}
+
+4. Tooltip on hover when collapsed (shows full text)
+
+═══════════════════════════════════════════════════════════════
+FEATURE 2: CORPUS OVERVIEW STATS (Do second)
+═══════════════════════════════════════════════════════════════
+
+Add stats section at top of Documents page, above upload area:
+
+1. Add to Documents page in user_dashboard.html:
+
+<div class="corpus-stats">
+    <div class="stat-card">
+        <div class="stat-value" id="stat-documents">--</div>
+        <div class="stat-label">Documents</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="stat-entities">--</div>
+        <div class="stat-label">Entities</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="stat-relationships">--</div>
+        <div class="stat-label">Relationships</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="stat-processing">--</div>
+        <div class="stat-label">Processing</div>
+    </div>
+</div>
+
+2. CSS:
+
+.corpus-stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 16px 24px;
+    flex: 1;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #00d4ff;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #9ca3af;
+    margin-top: 4px;
+}
+
+3. API endpoint - add to web_app.py:
+
+@app.route('/api/corpus-stats')
+def corpus_stats():
+    tenant_id = session.get('tenant_id') or g.tenant_id
+    
+    doc_count = db.execute(
+        "SELECT COUNT(*) FROM platform.documents WHERE tenant_id = %s",
+        [tenant_id]
+    ).fetchone()[0]
+    
+    processing_count = db.execute(
+        "SELECT COUNT(*) FROM platform.documents WHERE tenant_id = %s AND status IN ('queued', 'processing')",
+        [tenant_id]
+    ).fetchone()[0]
+    
+    entity_count = db.execute(
+        "SELECT COUNT(*) FROM public.entities WHERE tenant_id = %s",
+        [tenant_id]
+    ).fetchone()[0]
+    
+    relationship_count = db.execute(
+        "SELECT COUNT(*) FROM public.relationships WHERE tenant_id = %s",
+        [tenant_id]
+    ).fetchone()[0]
+    
+    return jsonify({
+        'documents': doc_count,
+        'entities': entity_count,
+        'relationships': relationship_count,
+        'processing': processing_count
+    })
+
+4. JavaScript to load stats:
+
+async function loadCorpusStats() {
+    try {
+        const response = await fetch('/api/corpus-stats');
+        const data = await response.json();
+        document.getElementById('stat-documents').textContent = data.documents;
+        document.getElementById('stat-entities').textContent = data.entities;
+        document.getElementById('stat-relationships').textContent = data.relationships;
+        document.getElementById('stat-processing').textContent = data.processing;
+    } catch (e) {
+        console.error('Failed to load corpus stats', e);
+    }
+}
+
+// Call on page load and refresh with document list
+loadCorpusStats();
+
+═══════════════════════════════════════════════════════════════
+FEATURE 3: OCR FOR SCANNED PDFs (Do third)
+═══════════════════════════════════════════════════════════════
+
+Add OCR support using pytesseract:
+
+1. Install dependencies:
+   pip install pytesseract pdf2image pillow --break-system-packages
+   apt-get update && apt-get install -y tesseract-ocr poppler-utils
+
+2. Update extract_text_from_file() in brain/app.py:
+
+import pytesseract
+from pdf2image import convert_from_path
+
+def extract_text_from_pdf(file_path: str) -> str:
+    """Extract text from PDF, with OCR fallback for scanned docs."""
+    
+    # Try regular text extraction first
+    try:
+        from pypdf import PdfReader
+        reader = PdfReader(file_path)
+        text = ""
+        for page in reader.pages:
+            page_text = page.extract_text() or ""
+            text += page_text
+        
+        # If we got meaningful text, return it
+        if len(text.strip()) > 100:
+            return text
+    except Exception as e:
+        print(f"pypdf extraction failed: {e}")
+    
+    # Try pdfplumber
+    try:
+        import pdfplumber
+        with pdfplumber.open(file_path) as pdf:
+            text = ""
+            for page in pdf.pages:
+                page_text = page.extract_text() or ""
+                text += page_text
+            
+            if len(text.strip()) > 100:
+                return text
+    except Exception as e:
+        print(f"pdfplumber extraction failed: {e}")
+    
+    # OCR fallback for scanned PDFs
+    try:
+        print(f"Using OCR for scanned PDF: {file_path}")
+        images = convert_from_path(file_path, dpi=200, first_page=1, last_page=20)  # Limit pages for performance
+        text = ""
+        for i, image in enumerate(images):
+            page_text = pytesseract.image_to_string(image)
+            text += f"\n--- Page {i+1} ---\n{page_text}"
+        return text
+    except Exception as e:
+        print(f"OCR extraction failed: {e}")
+        return ""
+
+3. After implementing, re-queue the AI_Value_Blueprint_Strategy.pdf:
+   UPDATE platform.documents SET status = 'queued' WHERE name LIKE 'AI_Value%';
+
+4. Verify entities are now extracted from the scanned PDF
+
+═══════════════════════════════════════════════════════════════
+
+Execute in order: 1 → 2 → 3
+Show me results after each feature is complete.

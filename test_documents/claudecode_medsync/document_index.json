@@ -1,0 +1,218 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "total_documents": 100,
+    "company": "MedSync Health, Inc.",
+    "created": "January 2025",
+    "description": "Comprehensive stress test corpus for Context Foundry evaluation"
+  },
+  "statistics": {
+    "documents_by_category": {
+      "financial": 15,
+      "hr_people": 15,
+      "product": 15,
+      "sales_customer": 12,
+      "security_compliance": 12,
+      "legal": 8,
+      "strategy": 12,
+      "operations": 11
+    },
+    "qa_pairs": 200,
+    "ambiguous_cases": 20,
+    "unanswerable_questions": 5
+  },
+  "categories": {
+    "financial": {
+      "description": "Financial performance, budgets, investor communications",
+      "document_count": 15,
+      "documents": [
+        {"id": "FIN-001", "title": "Annual Report 2024", "file": "FIN-001_Annual_Report_2024.md", "classification": "Internal"},
+        {"id": "FIN-002", "title": "Budget FY2025", "file": "FIN-002_Budget_FY2025.md", "classification": "Confidential"},
+        {"id": "FIN-003", "title": "Investor Update Q4 2024", "file": "FIN-003_Investor_Update_Q4_2024.md", "classification": "Confidential"},
+        {"id": "FIN-004", "title": "Revenue Recognition Policy", "file": "FIN-004_Revenue_Recognition.md", "classification": "Internal"},
+        {"id": "FIN-005", "title": "Expense Policy", "file": "FIN-005_Expense_Policy.md", "classification": "Internal"},
+        {"id": "FIN-006", "title": "Financial Controls", "file": "FIN-006_Financial_Controls.md", "classification": "Confidential"},
+        {"id": "FIN-007", "title": "Procurement Policy", "file": "FIN-007_Procurement_Policy.md", "classification": "Internal"},
+        {"id": "FIN-008", "title": "Travel Policy", "file": "FIN-008_Travel_Policy.md", "classification": "Internal"},
+        {"id": "FIN-009", "title": "Pricing Strategy", "file": "FIN-009_Pricing_Strategy.md", "classification": "Confidential"},
+        {"id": "FIN-010", "title": "Unit Economics", "file": "FIN-010_Unit_Economics.md", "classification": "Confidential"},
+        {"id": "FIN-011", "title": "Accounts Receivable Process", "file": "FIN-011_AR_Process.md", "classification": "Internal"},
+        {"id": "FIN-012", "title": "Accounts Payable Process", "file": "FIN-012_AP_Process.md", "classification": "Internal"},
+        {"id": "FIN-013", "title": "Monthly Close Process", "file": "FIN-013_Monthly_Close.md", "classification": "Internal"},
+        {"id": "FIN-014", "title": "Tax Compliance", "file": "FIN-014_Tax_Compliance.md", "classification": "Confidential"},
+        {"id": "FIN-015", "title": "Insurance Coverage", "file": "FIN-015_Insurance_Coverage.md", "classification": "Confidential"}
+      ]
+    },
+    "hr_people": {
+      "description": "Human resources, organizational structure, culture",
+      "document_count": 15,
+      "documents": [
+        {"id": "HR-001", "title": "Organizational Chart", "file": "HR-001_Organizational_Chart.md", "classification": "Internal"},
+        {"id": "HR-002", "title": "Headcount Plan 2025", "file": "HR-002_Headcount_Plan_2025.md", "classification": "Confidential"},
+        {"id": "HR-003", "title": "Employee Engagement", "file": "HR-003_Employee_Engagement.md", "classification": "Internal"},
+        {"id": "HR-004", "title": "Benefits Guide", "file": "HR-004_Benefits_Guide.md", "classification": "Internal"},
+        {"id": "HR-005", "title": "Learning & Development", "file": "HR-005_Learning_Development.md", "classification": "Internal"},
+        {"id": "HR-006", "title": "Diversity & Inclusion", "file": "HR-006_Diversity_Inclusion.md", "classification": "Internal"},
+        {"id": "HR-007", "title": "Recruiting Process", "file": "HR-007_Recruiting_Process.md", "classification": "Internal"},
+        {"id": "HR-008", "title": "Compensation Philosophy", "file": "HR-008_Compensation_Philosophy.md", "classification": "Confidential"},
+        {"id": "HR-009", "title": "Performance Management", "file": "HR-009_Performance_Management.md", "classification": "Internal"},
+        {"id": "HR-010", "title": "Employee Handbook", "file": "HR-010_Employee_Handbook.md", "classification": "Internal"},
+        {"id": "HR-011", "title": "Onboarding Guide", "file": "HR-011_Onboarding_Guide.md", "classification": "Internal"},
+        {"id": "HR-012", "title": "Manager Training", "file": "HR-012_Manager_Training.md", "classification": "Internal"},
+        {"id": "HR-013", "title": "Remote Work Policy", "file": "HR-013_Remote_Work_Policy.md", "classification": "Internal"},
+        {"id": "HR-014", "title": "Exit Process", "file": "HR-014_Exit_Process.md", "classification": "Internal"},
+        {"id": "HR-015", "title": "HR Metrics Dashboard", "file": "HR-015_HR_Metrics.md", "classification": "Confidential"}
+      ]
+    },
+    "product": {
+      "description": "Product specifications, roadmap, technical documentation",
+      "document_count": 15,
+      "documents": [
+        {"id": "PROD-001", "title": "Product Overview", "file": "PROD-001_Product_Overview.md", "classification": "Internal"},
+        {"id": "PROD-002", "title": "Integration Catalog", "file": "PROD-002_Integration_Catalog.md", "classification": "Internal"},
+        {"id": "PROD-003", "title": "Product Roadmap", "file": "PROD-003_Product_Roadmap.md", "classification": "Confidential"},
+        {"id": "PROD-004", "title": "API Documentation", "file": "PROD-004_API_Documentation.md", "classification": "Public"},
+        {"id": "PROD-005", "title": "Technical Architecture", "file": "PROD-005_Technical_Architecture.md", "classification": "Confidential"},
+        {"id": "PROD-006", "title": "Feature Specifications", "file": "PROD-006_Feature_Specs.md", "classification": "Internal"},
+        {"id": "PROD-007", "title": "Release Notes", "file": "PROD-007_Release_Notes.md", "classification": "Public"},
+        {"id": "PROD-008", "title": "User Guide", "file": "PROD-008_User_Guide.md", "classification": "Public"},
+        {"id": "PROD-009", "title": "Admin Guide", "file": "PROD-009_Admin_Guide.md", "classification": "Customer"},
+        {"id": "PROD-010", "title": "Implementation Guide", "file": "PROD-010_Implementation_Guide.md", "classification": "Customer"},
+        {"id": "PROD-011", "title": "Data Model", "file": "PROD-011_Data_Model.md", "classification": "Confidential"},
+        {"id": "PROD-012", "title": "Performance Benchmarks", "file": "PROD-012_Performance_Benchmarks.md", "classification": "Internal"},
+        {"id": "PROD-013", "title": "Accessibility Guide", "file": "PROD-013_Accessibility.md", "classification": "Internal"},
+        {"id": "PROD-014", "title": "Localization Guide", "file": "PROD-014_Localization.md", "classification": "Internal"},
+        {"id": "PROD-015", "title": "Product Analytics", "file": "PROD-015_Product_Analytics.md", "classification": "Internal"}
+      ]
+    },
+    "sales_customer": {
+      "description": "Sales processes, customer success, account management",
+      "document_count": 12,
+      "documents": [
+        {"id": "SALES-001", "title": "Sales Overview", "file": "SALES-001_Sales_Overview.md", "classification": "Internal"},
+        {"id": "SALES-002", "title": "Customer Success", "file": "SALES-002_Customer_Success.md", "classification": "Internal"},
+        {"id": "SALES-003", "title": "Account Management", "file": "SALES-003_Account_Management.md", "classification": "Internal"},
+        {"id": "SALES-004", "title": "Sales Playbook", "file": "SALES-004_Sales_Playbook.md", "classification": "Confidential"},
+        {"id": "SALES-005", "title": "Competitive Battle Cards", "file": "SALES-005_Battle_Cards.md", "classification": "Confidential"},
+        {"id": "SALES-006", "title": "Demo Guide", "file": "SALES-006_Demo_Guide.md", "classification": "Internal"},
+        {"id": "SALES-007", "title": "Proposal Template", "file": "SALES-007_Proposal_Template.md", "classification": "Internal"},
+        {"id": "SALES-008", "title": "Territory Planning", "file": "SALES-008_Territory_Planning.md", "classification": "Confidential"},
+        {"id": "SALES-009", "title": "Partner Program", "file": "SALES-009_Partner_Program.md", "classification": "Internal"},
+        {"id": "SALES-010", "title": "Customer Onboarding", "file": "SALES-010_Customer_Onboarding.md", "classification": "Internal"},
+        {"id": "SALES-011", "title": "Renewal Process", "file": "SALES-011_Renewal_Process.md", "classification": "Internal"},
+        {"id": "SALES-012", "title": "Customer Advisory Board", "file": "SALES-012_Customer_Advisory_Board.md", "classification": "Internal"}
+      ]
+    },
+    "security_compliance": {
+      "description": "Security policies, compliance certifications, risk management",
+      "document_count": 12,
+      "documents": [
+        {"id": "SEC-001", "title": "Security Overview", "file": "SEC-001_Security_Overview.md", "classification": "Internal"},
+        {"id": "SEC-002", "title": "SOC 2 Report Summary", "file": "SEC-002_SOC2_Report_Summary.md", "classification": "Confidential"},
+        {"id": "SEC-003", "title": "HITRUST Certification", "file": "SEC-003_HITRUST_Certification.md", "classification": "Internal"},
+        {"id": "SEC-004", "title": "HIPAA Compliance", "file": "SEC-004_HIPAA_Compliance.md", "classification": "Internal"},
+        {"id": "SEC-005", "title": "Incident Response Plan", "file": "SEC-005_Incident_Response_Plan.md", "classification": "Confidential"},
+        {"id": "SEC-006", "title": "Access Control Policy", "file": "SEC-006_Access_Control_Policy.md", "classification": "Internal"},
+        {"id": "SEC-007", "title": "Penetration Test Report", "file": "SEC-007_Penetration_Test_Report.md", "classification": "Confidential"},
+        {"id": "SEC-008", "title": "Security Training Program", "file": "SEC-008_Security_Training_Program.md", "classification": "Internal"},
+        {"id": "SEC-009", "title": "Risk Assessment", "file": "SEC-009_Risk_Assessment.md", "classification": "Confidential"},
+        {"id": "SEC-010", "title": "Vendor Security Assessment", "file": "SEC-010_Vendor_Security_Assessment.md", "classification": "Internal"},
+        {"id": "SEC-011", "title": "Data Privacy Policy", "file": "SEC-011_Data_Privacy_Policy.md", "classification": "Internal"},
+        {"id": "SEC-012", "title": "Business Continuity Plan", "file": "SEC-012_Business_Continuity_Plan.md", "classification": "Confidential"}
+      ]
+    },
+    "legal": {
+      "description": "Legal agreements, corporate governance, compliance",
+      "document_count": 8,
+      "documents": [
+        {"id": "LEG-001", "title": "Master Services Agreement", "file": "LEG-001_Master_Services_Agreement.md", "classification": "Confidential"},
+        {"id": "LEG-002", "title": "Business Associate Agreement", "file": "LEG-002_Business_Associate_Agreement.md", "classification": "Internal"},
+        {"id": "LEG-003", "title": "Terms of Service", "file": "LEG-003_Terms_of_Service.md", "classification": "Public"},
+        {"id": "LEG-004", "title": "Data Processing Agreement", "file": "LEG-004_Data_Processing_Agreement.md", "classification": "Internal"},
+        {"id": "LEG-005", "title": "Intellectual Property Policy", "file": "LEG-005_Intellectual_Property_Policy.md", "classification": "Internal"},
+        {"id": "LEG-006", "title": "Employment Agreement Summary", "file": "LEG-006_Employment_Agreement_Summary.md", "classification": "Internal"},
+        {"id": "LEG-007", "title": "Vendor Agreement Template", "file": "LEG-007_Vendor_Agreement_Template.md", "classification": "Internal"},
+        {"id": "LEG-008", "title": "Corporate Governance", "file": "LEG-008_Corporate_Governance.md", "classification": "Confidential"}
+      ]
+    },
+    "strategy": {
+      "description": "Strategic planning, market analysis, competitive intelligence",
+      "document_count": 12,
+      "documents": [
+        {"id": "STRAT-001", "title": "Vision & Mission", "file": "STRAT-001_Vision_Mission.md", "classification": "Internal"},
+        {"id": "STRAT-002", "title": "Five Year Plan", "file": "STRAT-002_Five_Year_Plan.md", "classification": "Confidential"},
+        {"id": "STRAT-003", "title": "Annual Operating Plan 2025", "file": "STRAT-003_Annual_Operating_Plan_2025.md", "classification": "Confidential"},
+        {"id": "STRAT-004", "title": "Market Analysis", "file": "STRAT-004_Market_Analysis.md", "classification": "Confidential"},
+        {"id": "STRAT-005", "title": "Competitive Intelligence", "file": "STRAT-005_Competitive_Intelligence.md", "classification": "Confidential"},
+        {"id": "STRAT-006", "title": "GTM Strategy", "file": "STRAT-006_GTM_Strategy.md", "classification": "Confidential"},
+        {"id": "STRAT-007", "title": "International Expansion", "file": "STRAT-007_International_Expansion.md", "classification": "Confidential"},
+        {"id": "STRAT-008", "title": "Partnership Strategy", "file": "STRAT-008_Partnership_Strategy.md", "classification": "Internal"},
+        {"id": "STRAT-009", "title": "M&A Strategy", "file": "STRAT-009_MA_Strategy.md", "classification": "Confidential"},
+        {"id": "STRAT-010", "title": "Board Strategy Presentation", "file": "STRAT-010_Board_Strategy_Presentation.md", "classification": "Confidential"},
+        {"id": "STRAT-011", "title": "OKRs FY2025", "file": "STRAT-011_OKRs_FY2025.md", "classification": "Internal"},
+        {"id": "STRAT-012", "title": "SWOT Analysis", "file": "STRAT-012_SWOT_Analysis.md", "classification": "Confidential"}
+      ]
+    },
+    "operations": {
+      "description": "Infrastructure, support operations, vendor management",
+      "document_count": 11,
+      "documents": [
+        {"id": "OPS-001", "title": "Infrastructure Overview", "file": "OPS-001_Infrastructure_Overview.md", "classification": "Internal"},
+        {"id": "OPS-002", "title": "IT Operations", "file": "OPS-002_IT_Operations.md", "classification": "Internal"},
+        {"id": "OPS-003", "title": "DevOps Practices", "file": "OPS-003_DevOps_Practices.md", "classification": "Internal"},
+        {"id": "OPS-004", "title": "Support Operations", "file": "OPS-004_Support_Operations.md", "classification": "Internal"},
+        {"id": "OPS-005", "title": "Incident Management", "file": "OPS-005_Incident_Management.md", "classification": "Internal"},
+        {"id": "OPS-006", "title": "Capacity Planning", "file": "OPS-006_Capacity_Planning.md", "classification": "Internal"},
+        {"id": "OPS-007", "title": "Disaster Recovery", "file": "OPS-007_Disaster_Recovery.md", "classification": "Confidential"},
+        {"id": "OPS-008", "title": "Monitoring & Observability", "file": "OPS-008_Monitoring_Observability.md", "classification": "Internal"},
+        {"id": "OPS-009", "title": "Release Management", "file": "OPS-009_Release_Management.md", "classification": "Internal"},
+        {"id": "OPS-010", "title": "Office Operations", "file": "OPS-010_Office_Operations.md", "classification": "Internal"},
+        {"id": "OPS-011", "title": "Vendor Management", "file": "OPS-011_Vendor_Management.md", "classification": "Internal"}
+      ]
+    }
+  },
+  "key_entities": {
+    "company": {
+      "name": "MedSync Health, Inc.",
+      "founded": "March 2019",
+      "headquarters": "San Francisco, CA",
+      "industry": "Healthcare SaaS"
+    },
+    "financials": {
+      "fy2024_revenue": "$156.8M",
+      "arr": "$168.2M",
+      "gross_margin": "78%",
+      "cash_position": "$285M",
+      "valuation": "$2.4B"
+    },
+    "scale": {
+      "employees": 1200,
+      "customers": 589,
+      "patient_records": "85M",
+      "daily_transactions": "50M"
+    },
+    "leadership": [
+      {"name": "Sarah Chen", "title": "CEO"},
+      {"name": "David Park", "title": "CTO"},
+      {"name": "Michael Torres", "title": "CFO"},
+      {"name": "Robert Kim", "title": "CRO"},
+      {"name": "Rachel Green", "title": "VP People"},
+      {"name": "Amanda Chen", "title": "VP Customer Success"},
+      {"name": "James Morrison", "title": "CISO"}
+    ],
+    "products": [
+      {"name": "MedSync Core", "revenue_share": "50%"},
+      {"name": "MedSync Connect", "revenue_share": "28%"},
+      {"name": "MedSync Analytics", "revenue_share": "14%"},
+      {"name": "MedSync Payor", "revenue_share": "8%"}
+    ],
+    "certifications": ["SOC 2 Type II", "HITRUST CSF", "HIPAA Compliant"]
+  },
+  "cross_references": {
+    "revenue_mentions": ["FIN-001", "FIN-002", "FIN-003", "STRAT-002", "STRAT-003"],
+    "employee_count_mentions": ["HR-001", "HR-002", "OPS-010", "FIN-001"],
+    "customer_count_mentions": ["SALES-001", "FIN-001", "OPS-004", "OPS-006"],
+    "arr_mentions": ["FIN-001", "FIN-002", "FIN-003", "STRAT-002", "STRAT-003", "STRAT-011"],
+    "security_cert_mentions": ["SEC-001", "SEC-002", "SEC-003", "SEC-004", "PROD-001"]
+  }
+}

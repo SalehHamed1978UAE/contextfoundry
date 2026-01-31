@@ -1,0 +1,33 @@
+ Before making more code changes, debug why the wrong chunks are returned.                              
+                                                                                                         
+  Step 1: Check what chunks are retrieved for Q78                                                        
+                                                                                                         
+  Add logging to show exactly which chunks are passed to the LLM:                                        
+                                                                                                         
+  # In the synthesis/answer generation code, add:                                                        
+  logger.info(f"[DEBUG] Chunks passed to LLM for Q78:")                                                  
+  for chunk in chunks[:10]:                                                                              
+      logger.info(f"  - {chunk.get('content', '')[:200]}")                                               
+                                                                                                         
+  Step 2: Run Q78 manually and check logs                                                                
+                                                                                                         
+  # Query Q78 directly                                                                                   
+  curl -X POST http://localhost:5000/api/vault/chat \                                                    
+    -H "Content-Type: application/json" \                                                                
+    -d '{"vault_id": "1f3320cd-...", "query": "Who provides flight computers for Falcon X?"}'            
+                                                                                                         
+  Step 3: Check the logs                                                                                 
+                                                                                                         
+  Look for:                                                                                              
+  1. Is the "Key Suppliers" chunk (with Honeywell | Flight computers) in the retrieved chunks?           
+  2. If yes, why is the LLM ignoring it?                                                                 
+  3. If no, why isn't it being retrieved?                                                                
+                                                                                                         
+  Step 4: Report findings                                                                                
+                                                                                                         
+  Tell me:                                                                                               
+  1. Which chunks were passed to the LLM?                                                                
+  2. Was the Key Suppliers table chunk included?                                                         
+  3. What was the semantic search score for each chunk?                                                  
+                                                                                                         
+  Do NOT change code until you answer these questions.  

@@ -1,0 +1,147 @@
+{
+  "document_id": "1701f398095b",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:56:17.580260",
+  "entities": [
+    {
+      "name": "Synapse One Model Risk",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "Synapse One Model Risk",
+        "status": "Active",
+        "timeline": "Quarterly cadence"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "source_excerpt": "# Synapse One Model Risk",
+      "aliases": []
+    },
+    {
+      "name": "Eden Park",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Risk Owner"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "source_excerpt": "**Owner:** Eden Park",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Risk Management System"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "source_excerpt": "Track via Horizon Prime risk register",
+      "aliases": []
+    },
+    {
+      "name": "Medium likelihood",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Risk Likelihood",
+        "value": "Medium",
+        "type": "ASSESSMENT"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "source_excerpt": "Likelihood: Medium",
+      "aliases": []
+    },
+    {
+      "name": "High impact",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Risk Impact",
+        "value": "High",
+        "type": "ASSESSMENT"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "source_excerpt": "Impact: High",
+      "aliases": []
+    },
+    {
+      "name": "Supplier Diversification",
+      "entity_type": "POLICY",
+      "properties": {
+        "name": "Diversify suppliers",
+        "category": "Risk Mitigation"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "source_excerpt": "1. Diversify suppliers.",
+      "aliases": []
+    },
+    {
+      "name": "Compliance Automation",
+      "entity_type": "POLICY",
+      "properties": {
+        "name": "Strengthen compliance automation",
+        "category": "Risk Mitigation"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "source_excerpt": "2. Strengthen compliance automation.",
+      "aliases": []
+    },
+    {
+      "name": "Scenario Testing",
+      "entity_type": "POLICY",
+      "properties": {
+        "name": "Increase scenario testing",
+        "category": "Risk Mitigation"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "source_excerpt": "3. Increase scenario testing.",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Eden Park",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Synapse One Model Risk",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "evidence": "**Owner:** Eden Park"
+    },
+    {
+      "source_entity": "Eden Park",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Synapse One Model Risk",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "evidence": "Eden Park is listed as the owner of the risk project"
+    },
+    {
+      "source_entity": "Synapse One Model Risk",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "evidence": "Track via Horizon Prime risk register"
+    }
+  ],
+  "metadata": {
+    "filename": "synapse_one_model_risk.md",
+    "raw_entity_count": 8,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

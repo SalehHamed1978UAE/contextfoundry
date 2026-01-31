@@ -1,0 +1,202 @@
+{
+  "document_id": "1420fbf5e637",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:28:40.866326",
+  "entities": [
+    {
+      "name": "Breck Collins",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Executive Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "source_excerpt": "Executive Sponsor: Breck Collins",
+      "aliases": []
+    },
+    {
+      "name": "Federal Finance Network",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "public sector",
+        "type": "consortium"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "source_excerpt": "Federal Finance Network Account Brief, Customer Profile: Public sector consortium",
+      "aliases": []
+    },
+    {
+      "name": "SentinelShield",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "security product"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "source_excerpt": "Primary Products: SentinelShield, VaultSec",
+      "aliases": []
+    },
+    {
+      "name": "VaultSec",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "security product"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "source_excerpt": "Primary Products: SentinelShield, VaultSec",
+      "aliases": []
+    },
+    {
+      "name": "Aether Shield",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "security solutions"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "source_excerpt": "Owning BU: Aether Shield",
+      "aliases": []
+    },
+    {
+      "name": "$101M ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "ARR",
+        "value": "101000000",
+        "type": "CURRENCY",
+        "currency": "USD"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "source_excerpt": "ARR: $101M ARR",
+      "aliases": []
+    },
+    {
+      "name": "78%",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Deployment maturity",
+        "value": "78",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "source_excerpt": "Deployment maturity: 78%",
+      "aliases": []
+    },
+    {
+      "name": "3",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Expansion opportunities",
+        "value": "3",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "source_excerpt": "Expansion opportunities: 3",
+      "aliases": []
+    },
+    {
+      "name": "CMMC compliance",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "compliance framework",
+        "policy_ID": "CMMC"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "source_excerpt": "Current Objective: CMMC compliance",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "type": "roadmap/updates"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Breck Collins",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Federal Finance Network",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "evidence": "Breck Collins is the Executive Sponsor for Federal Finance Network account"
+    },
+    {
+      "source_entity": "Federal Finance Network",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Aether Shield",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "evidence": "Federal Finance Network is managed by Aether Shield business unit"
+    },
+    {
+      "source_entity": "Aether Shield",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "SentinelShield",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "evidence": "Aether Shield owns the Federal Finance Network account which uses SentinelShield"
+    },
+    {
+      "source_entity": "Aether Shield",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "VaultSec",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "evidence": "Aether Shield owns the Federal Finance Network account which uses VaultSec"
+    },
+    {
+      "source_entity": "Federal Finance Network",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "SentinelShield",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "evidence": "Primary Products: SentinelShield, VaultSec"
+    },
+    {
+      "source_entity": "Federal Finance Network",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "VaultSec",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "evidence": "Primary Products: SentinelShield, VaultSec"
+    }
+  ],
+  "metadata": {
+    "filename": "customer_dossier_federal_finance_network.md",
+    "raw_entity_count": 10,
+    "raw_relationship_count": 6,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

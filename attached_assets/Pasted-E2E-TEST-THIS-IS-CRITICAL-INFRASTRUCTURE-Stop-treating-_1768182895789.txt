@@ -1,0 +1,107 @@
+E2E TEST — THIS IS CRITICAL INFRASTRUCTURE
+
+Stop treating this as an afterthought. This test is what catches your bugs.
+
+================================================================================
+WHY THIS MATTERS
+================================================================================
+
+Today alone we found:
+- Cross-tenant data pollution (missing tenant_id filters)
+- "Director" matching "CTO" (bad substring matching)
+- Wrong tenant IDs in test config (tests running against wrong vaults)
+- HOLD_POSITION vs HOLDS_POSITION (inconsistent relationship types)
+- PostgreSQL array parsing dropping values
+
+Every one of these bugs shipped because there was no proper E2E test.
+
+The E2E test is not optional. It's not a nice-to-have. It's the thing that prevents broken code from reaching production.
+
+================================================================================
+REQUIREMENTS — NON-NEGOTIABLE
+================================================================================
+
+1. TEST MUST COMPLETE ALL 5 VAULTS
+   - No timeouts
+   - No "run in background" hacks
+   - Just runs and finishes
+
+2. TEST MUST TEST EVERYTHING
+   - Vault creation
+   - Document upload
+   - Extraction (yes, even if it takes 5 min per vault)
+   - Entity verification
+   - Relationship verification
+   - Query execution
+   - Cleanup
+
+3. TEST MUST BE RELIABLE
+   - Same results every time
+   - No flaky failures
+   - No "works sometimes"
+
+4. TEST MUST BE SIMPLE TO RUN
+   - One command: python scripts/e2e_lifecycle_test.py
+   - Runs to completion
+   - Outputs clear pass/fail
+
+================================================================================
+FIX THE TIMEOUT ISSUE PROPERLY
+================================================================================
+
+If the Replit environment has command timeouts, fix the environment, not the test.
+
+Options:
+1. Configure Replit to allow long-running commands
+2. Run from a different entry point that doesn't timeout
+3. Use Replit's background workers or deployment system
+
+Figure out what's causing the timeout and fix it. Don't work around it.
+
+================================================================================
+CURRENT STATUS
+================================================================================
+
+The test code works:
+- TechVentures: PASSED
+- LawFirm: PASSED
+- Hospital, TitanManufacturing, LaunchpadVentures: Not tested (timed out)
+
+The issue is the execution environment, not the test.
+
+================================================================================
+YOUR TASK
+================================================================================
+
+1. Fix whatever is causing the timeout
+2. Run the complete E2E test (all 5 vaults)
+3. Share the complete results
+
+Do not come back until all 5 vaults have been tested and you have a clear pass/fail for each.
+
+================================================================================
+EXPECTED OUTPUT
+================================================================================
+
+================================================================================
+E2E LIFECYCLE TEST - Context Foundry
+================================================================================
+Started: 2026-01-11 19:00:00
+Vaults: 5
+
+[... full output for all 5 vaults ...]
+
+================================================================================
+E2E TEST SUMMARY
+================================================================================
+  TechVentures: ✓ PASSED
+  LawFirm: ✓ PASSED
+  Hospital: ✓ PASSED
+  TitanManufacturing: ✓ PASSED
+  LaunchpadVentures: ✓ PASSED
+
+TOTAL: 5/5 vaults passed
+Total runtime: 27 minutes 43 seconds
+
+RESULT: ALL TESTS PASSED
+Exit code: 0

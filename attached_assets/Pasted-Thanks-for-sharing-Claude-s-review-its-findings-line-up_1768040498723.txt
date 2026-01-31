@@ -1,0 +1,49 @@
+Thanks for sharing Claude’s review—its findings line up with what I saw. To
+  move forward, I’d focus on a concrete cleanup plan:
+
+  High-Impact Fixes
+
+  - Stabilize RLS context: wrap all DB entrypoints (agents, workers, API) with a
+    helper that reasserts app.current_tenant_id after each commit/rollback;
+    track failures in TenantSession so we don’t silently fall back to full-table
+    scans.
+  - Extraction accuracy: adjust the prompt/schema mapping so salary data lands
+    in HAS_COMPENSATION (or the intended relation) and validate with a small
+    labeled set; this is critical for demo trust.
+  - Aggregation cache path: either implement the missing cache execution in
+    aggregation/executor.py:204 or gate the feature until it’s ready—right now
+    planner/service promise caching but hit NotImplementedError.
+
+  Testing & Verification
+
+  - Add targeted unit tests for Stage 3/4 agents (Learning Ticket,
+    GardenerLearningProcessor, EntityProfileGenerator, Sufficiency/Validation
+    agents) plus aggregation planner/executor and ontology_foundry workflows.
+    These are currently untested, so regressions would slip through.
+  - Run a full e2e smoke: ingest fresh docs → trigger Gardener promotion →
+    answer queries → log learning tickets → process them. Include a multi-tenant
+    scenario to ensure RLS holds, and flip on DTL to verify precedent routing
+    actually influences ContextFoundry.query.
+  - For DTL integration, create a lightweight integration test that mocks
+    precedent hits and ensures RLM tier routing respects them.
+
+  Refactoring / Tech Debt
+
+  - Break down retrieval.py and web_app.py into smaller modules (e.g., separate
+    aggregation-handling, property query LLM logic, context bundle assembly) to
+    improve maintainability.
+  - Spin off highly specific functionality (e.g., conversation store, learning
+    tickets) into dedicated packages if they’ll evolve independently.
+
+  Recommended Sequence
+
+  1. Fix extraction relation mapping + RLS helper (quick wins, unblock
+     correctness).
+  2. Implement or disable aggregation caching to remove runtime NotImplemented.
+  3. Add the missing unit tests around Stage 3/4 and aggregation; wire them into
+     CI.
+  4. Run the end-to-end multi-tenant + DTL validation to sign off MVP readiness.
+  5. Tackle refactors (retrieval/web_app) once the system is green.
+
+  Happy to help execute any of these steps—let me know which priority you want
+  to start with.

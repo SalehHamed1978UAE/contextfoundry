@@ -1,0 +1,157 @@
+AUTONOMOUS 100-QUESTION EVALUATION
+
+Run ALL 100 queries from the A/B evaluation bank through Context Foundry.
+For each query, assess whether the response is ACCURATE or HALLUCINATING.
+Generate a comprehensive final report.
+
+DO NOT ASK FOR CONFIRMATION. RUN THIS FULLY. TAKE AS LONG AS NEEDED.
+
+═══════════════════════════════════════════════════════════════════════════════
+STEP 1: LOAD THE 100 QUERIES
+═══════════════════════════════════════════════════════════════════════════════
+
+Load queries from: src/context_foundry/evaluation/query_set.py
+These include: Impact, Escalation, Ownership, Dependencies, Incidents, Expertise
+
+═══════════════════════════════════════════════════════════════════════════════
+STEP 2: FOR EACH QUERY, RUN AND ASSESS
+═══════════════════════════════════════════════════════════════════════════════
+
+For each of the 100 queries:
+
+1. Run the query against /api/query endpoint
+2. Capture: answer, confidence, target_entity, evidence
+
+3. VERIFY AGAINST DATABASE:
+   - Extract all entity names mentioned in the response
+   - For each entity claim, check if it exists in the entities table
+   - For each relationship claim (X depends on Y), check if it exists in relationships table
+   - For each ownership claim (Team X owns Y), verify against OWNS relationships
+   - For each person claim (Person X is expert), verify person exists
+
+4. CATEGORIZE THE RESPONSE:
+   - ACCURATE: All claims verified in database
+   - PARTIAL: Some claims verified, some unverified (but not fabricated)
+   - HALLUCINATED: Contains claims about entities/relationships that don't exist
+   - NOT_FOUND: Correctly returned "entity not found" for non-existent entity
+   - ERROR: Query failed or returned error
+
+5. LOG DETAILS:
+   - Query ID, Query text
+   - Response answer (first 500 chars)
+   - Confidence score
+   - Category (ACCURATE/PARTIAL/HALLUCINATED/NOT_FOUND/ERROR)
+   - Specific issues found (list any hallucinated claims)
+   - Entities mentioned vs entities verified
+
+═══════════════════════════════════════════════════════════════════════════════
+STEP 3: VERIFICATION QUERIES
+═══════════════════════════════════════════════════════════════════════════════
+
+Use these SQL patterns to verify claims:
+
+-- Check if entity exists
+SELECT COUNT(*) FROM entities WHERE name ILIKE '%{entity_name}%' AND lifecycle_state = 'TRUSTED';
+
+-- Check if relationship exists
+SELECT COUNT(*) FROM relationships r
+JOIN entities s ON r.source_id = s.id
+JOIN entities t ON r.target_id = t.id
+WHERE s.name ILIKE '%{source}%' AND t.name ILIKE '%{target}%' 
+AND r.relationship_type = '{type}' AND r.lifecycle_state = 'TRUSTED';
+
+-- Check ownership
+SELECT COUNT(*) FROM relationships r
+JOIN entities s ON r.source_id = s.id
+JOIN entities t ON r.target_id = t.id
+WHERE r.relationship_type = 'OWNS' AND t.name ILIKE '%{service}%';
+
+-- Check if person exists
+SELECT COUNT(*) FROM entities WHERE name ILIKE '%{person_name}%' AND entity_type = 'PERSON';
+
+═══════════════════════════════════════════════════════════════════════════════
+STEP 4: GENERATE FINAL REPORT
+═══════════════════════════════════════════════════════════════════════════════
+
+Save to: /mnt/user-data/outputs/CF_100_Query_Evaluation_Report.md
+
+Include:
+
+## Executive Summary
+- Total queries: 100
+- ACCURATE: X (X%)
+- PARTIAL: X (X%)
+- HALLUCINATED: X (X%) ← THIS IS THE KEY METRIC
+- NOT_FOUND: X (X%)
+- ERROR: X (X%)
+
+## Hallucination Analysis
+For each HALLUCINATED response:
+- Query ID and text
+- The specific hallucinated claims
+- What the database actually contains
+- Severity (minor/major)
+
+## Category Breakdown
+### Impact Queries (X total)
+- Accurate: X
+- Hallucinated: X
+- Details...
+
+### Ownership Queries (X total)
+...
+
+### Dependency Queries (X total)
+...
+
+### Escalation Queries (X total)
+...
+
+### Incident Queries (X total)
+...
+
+### Expertise Queries (X total)
+...
+
+## Confidence Calibration
+- Average confidence for ACCURATE responses: X%
+- Average confidence for HALLUCINATED responses: X%
+- Is confidence correlated with accuracy?
+
+## Entity Existence Guard
+- How many queries triggered "entity not found"?
+- Were these correct (entity truly doesn't exist)?
+
+## Recommendations
+Based on the results:
+- What query types are most problematic?
+- What patterns lead to hallucination?
+- What should be fixed next?
+
+## Full Results Table
+| # | Query | Category | Confidence | Issues |
+|---|-------|----------|------------|--------|
+| 1 | ...   | ACCURATE | 0.75       | None   |
+| 2 | ...   | HALLUCINATED | 0.65 | Claimed X depends on Y, not in DB |
+...
+
+═══════════════════════════════════════════════════════════════════════════════
+IMPORTANT INSTRUCTIONS
+═══════════════════════════════════════════════════════════════════════════════
+
+1. DO NOT STOP AND ASK FOR CONFIRMATION
+2. Run all 100 queries even if some fail
+3. Take your time - quality over speed
+4. If a query takes too long (>60s), mark as TIMEOUT and continue
+5. Save progress periodically in case of interruption
+6. The final report should be comprehensive enough for Saleh to review tomorrow
+
+═══════════════════════════════════════════════════════════════════════════════
+OUTPUT FILES
+═══════════════════════════════════════════════════════════════════════════════
+
+1. /mnt/user-data/outputs/CF_100_Query_Evaluation_Report.md (main report)
+2. /tmp/evaluation_raw_results.json (raw data for debugging)
+3. /tmp/evaluation_progress.log (progress tracking)
+
+START NOW. DO NOT ASK QUESTIONS. RUN UNTIL COMPLETE.

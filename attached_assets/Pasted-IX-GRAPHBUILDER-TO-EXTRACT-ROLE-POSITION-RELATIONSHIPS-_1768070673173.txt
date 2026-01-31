@@ -1,0 +1,127 @@
+IX GRAPHBUILDER TO EXTRACT ROLE/POSITION RELATIONSHIPS
+
+================================================================================
+PROBLEM
+================================================================================
+
+Current extraction creates Person entities but doesn't link them to their roles.
+
+Document says: "Sarah Chen, Chief Executive Officer of TechVentures"
+Current output:
+  - Entity: Sarah Chen (PERSON)
+  - Entity: TechVentures (ORGANIZATION)
+  - Relationship: Sarah Chen -[WORKS_AT]-> TechVentures
+
+Missing:
+  - Sarah Chen's role (CEO) is not captured as a queryable relationship
+
+================================================================================
+REQUIRED BEHAVIOR
+================================================================================
+
+When extraction encounters patterns like:
+- "Sarah Chen, Chief Executive Officer"
+- "Marcus Williams was promoted to CTO"
+- "James O'Brien serves as CFO"
+- "Dr. Amira Hassan, Chief Data Officer"
+
+Create:
+1. Person entity
+2. Organization entity (if mentioned)
+3. HOLDS_POSITION relationship with role as property
+
+Schema:
+Person -[HOLDS_POSITION {title: "CEO", full_title: "Chief Executive Officer"}]-> Organization
+
+Example:
+Sarah Chen -[HOLDS_POSITION {title: "CEO", full_title: "Chief Executive Officer"}]-> TechVentures
+Marcus Williams -[HOLDS_POSITION {title: "CTO", full_title: "Chief Technology Officer"}]-> TechVentures
+
+================================================================================
+FILE TO MODIFY
+================================================================================
+
+src/context_foundry/agents/graph_builder.py
+
+Find the extraction prompt and add explicit instructions:
+ROLE/POSITION EXTRACTION:
+When a person is mentioned with a job title or role:
+
+Create a PERSON entity for the individual
+Create an ORGANIZATION entity if the company is mentioned
+Create a HOLDS_POSITION relationship between person and organization
+Include the role/title as a property on the relationship
+
+Examples:
+
+"Sarah Chen, CEO of TechVentures" →
+Entity: Sarah Chen (PERSON)
+Entity: TechVentures (ORGANIZATION)
+Relationship: Sarah Chen -[HOLDS_POSITION {title: "CEO"}]-> TechVentures
+"Marcus Williams was promoted to Chief Technology Officer" →
+Relationship: Marcus Williams -[HOLDS_POSITION {title: "CTO", full_title: "Chief Technology Officer"}]-> [inferred org from context]
+
+Common titles to recognize:
+
+CEO, CTO, CFO, COO, CDO (and full forms)
+President, Vice President, SVP, EVP
+Director, Managing Director
+Founder, Co-founder
+Partner, Managing Partner
+Board Member, Chairman
+
+
+================================================================================
+ALSO UPDATE: Relationship Types Schema
+================================================================================
+
+Ensure HOLDS_POSITION is a valid relationship type in the schema.
+
+Check: src/context_foundry/models/schema.py or wherever relationship types are defined.
+
+Add if missing:
+```python
+RELATIONSHIP_TYPES = [
+    # ... existing types ...
+    "HOLDS_POSITION",  # Person holds role at organization
+]
+```
+
+================================================================================
+AFTER FIX
+================================================================================
+
+1. Re-extract TechVentures documents (all 4 files)
+2. Verify relationships exist:
+```sql
+SELECT e1.name as person, r.relationship_type, r.properties, e2.name as org
+FROM relationships r
+JOIN entities e1 ON r.source_entity_id = e1.id
+JOIN entities e2 ON r.target_entity_id = e2.id
+WHERE r.relationship_type = 'HOLDS_POSITION'
+AND r.tenant_id = '<techventures_tenant_id>';
+```
+
+Expected output:
+| person | relationship_type | properties | org |
+|--------|------------------|------------|-----|
+| Sarah Chen | HOLDS_POSITION | {title: "CEO"} | TechVentures |
+| Marcus Williams | HOLDS_POSITION | {title: "CTO"} | TechVentures |
+| James O'Brien | HOLDS_POSITION | {title: "CFO"} | TechVentures |
+
+================================================================================
+TEST QUERIES (after re-extraction)
+================================================================================
+
+These should now work via KG lookup:
+- "Who is the CEO of TechVentures?" → Sarah Chen
+- "What role does Marcus Williams hold?" → CTO
+- "List all executives at TechVentures" → Sarah Chen, Marcus Williams, James O'Brien
+
+================================================================================
+SUCCESS CRITERIA
+================================================================================
+
+1. HOLDS_POSITION relationships exist in KG for all executives
+2. Relationships include title property (CEO, CTO, etc.)
+3. KG query can resolve "CEO" → "Sarah Chen"

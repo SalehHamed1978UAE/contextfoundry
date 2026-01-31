@@ -1,0 +1,142 @@
+{
+  "document_id": "36a042b13e69",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:42:44.861033",
+  "entities": [
+    {
+      "name": "Nia Carver",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "GM/VP",
+        "role": "General Manager/Vice President"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
+      "source_excerpt": "Nia Carver",
+      "aliases": []
+    },
+    {
+      "name": "Synapse One",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Federal",
+        "industry": "Technology"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
+      "source_excerpt": "Synapse One Federal FY26 Roadmap",
+      "aliases": []
+    },
+    {
+      "name": "Project Helix",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "Project Helix",
+        "description": "overlays",
+        "budget": null,
+        "timeline": null,
+        "status": null
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
+      "source_excerpt": "Project Helix overlays",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "data lake"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
+      "source_excerpt": "integration with Horizon Prime data lake",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Annual Recurring Revenue",
+        "value": 92000000,
+        "period": "FY26",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
+      "source_excerpt": "ARR: $92M",
+      "aliases": []
+    },
+    {
+      "name": "ATO Renewals",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Authorization to Operate Renewals",
+        "value": "5/5",
+        "period": "FY26",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
+      "source_excerpt": "ATO Renewals: 5/5",
+      "aliases": []
+    },
+    {
+      "name": "Avg Deal",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Average Deal Size",
+        "value": 18000000,
+        "period": "FY26",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
+      "source_excerpt": "Avg Deal: $18M",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Nia Carver",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Synapse One",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
+      "evidence": "Nia Carver, GM/VP"
+    },
+    {
+      "source_entity": "Synapse One",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Project Helix",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
+      "evidence": "Project Helix overlays"
+    },
+    {
+      "source_entity": "Synapse One",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
+      "evidence": "integration with Horizon Prime data lake"
+    }
+  ],
+  "metadata": {
+    "filename": "synapse_one_federal_roadmap.md",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

@@ -1,0 +1,222 @@
+## Phase 0 – Ontology Definition (Entity & Relationship Schema)
+
+  Goal: Define the canonical schema before any extraction.
+
+  1. Entity Types
+      - PERSON (name, title, role, department)
+      - ORGANIZATION (name, type, industry)
+      - BUSINESS_UNIT (name, focus areas, industries)
+      - PROJECT (name, budget, timeline, status, location, capacity)
+      - PRODUCT/SERVICE (name, description)
+      - CUSTOMER (name, industry, region)
+      - SUPPLIER/PARTNER (name, capability, risk)
+      - FINANCIAL_METRIC (metric_name, value, value_type, period)
+      - LOCATION (city, region, country)
+      - DOCUMENT (source metadata)
+  2. Relationship Types (directed)
+      - OWNS / OWNED_BY (BU → Project, Org → Org)
+      - FOCUSES_ON (BU → Concept/Domain)
+      - CUSTOMER_OF / SUPPLIER_OF / PARTNER_OF (Org ↔ Org/Project)
+      - LEADS / MANAGES (Person → Org/BU/Project)
+      - WORKS_FOR / REPORTS_TO (Person → Org / Person → Person)
+      - FUNDED_BY (Project → Org)
+      - DEPENDS_ON / RELATED_TO (Project ↔ Project)
+      - MENTIONED_IN (Entity → Document for provenance)
+  3. Schema File
+      - Create src/context_foundry/ontology/schema.py with enums and Pydantic models for entities,
+        relationships, and properties.
+      - This file defines allowed types, not concrete instances.
+
+  Guardrail: No hardcoded business facts. Only definitions.
+
+  ———
+
+  ## Phase 1 – Multi-Model Extraction (Redundant Passes)
+
+  Goal: Run multiple independent extraction passes for each document.
+
+  1. Models: Configure at least two different LLMs (e.g., GPT-4, Claude, Gemini). If third is too costly,
+     start with two but design pipeline for N models. Use same ontology prompt with each model.
+  2. Extractor Structure (src/context_foundry/extraction/multi_extractor.py)
+      - Input: Document text + metadata
+      - Output: extraction_output_{document_id}_{model_name}.json with:
+
+        {
+          "entities": [
+            {"name": "...", "type": "...", "properties": {...}, "source": "doc", "confidence": 0.8}
+          ],
+          "relationships": [
+            {"source": "...", "target": "...", "type": "...", "evidence": "...", "confidence": 0.7}
+          ]
+        }
+      - Each model writes to its own file; no merging yet.
+  3. Batch Runner
+      - Script to run all documents through all models.
+      - Store outputs under extraction_outputs/{vault_id}/{model}/doc.json.
+
+  Guardrail: Extraction outputs are stored as raw data; no KG writes yet.
+
+  ———
+
+  ## Phase 2 – Entity Resolution & Relationship Normalization
+
+  Goal: Merge extraction outputs into canonical entities/relationships.
+
+  1. Entity Resolver (src/context_foundry/integration/entity_resolver.py)
+      - Inputs: multiple extraction outputs.
+      - Steps:
+          - Candidate clustering using embeddings + string similarity.
+          - LLM-based confirmation (“Do these refer to the same entity?”).
+          - Merge properties and aliases.
+      - Output: canonical entity records with alias list, aggregated properties, provenance.
+  2. Relationship Normalizer (src/context_foundry/integration/relationship_normalizer.py)
+      - Map raw relationship text to canonical relationship types (customer_of, owns, etc.) using LLM +
+        schema.
+      - Align sources/targets to canonical entities (after resolution).
+      - Keep all provenance (doc, model, confidence).
+  3. Consensus Builder
+      - For each fact (entity property or relationship), aggregate contributions:
+          - Agreement count (# models).
+          - Combined confidence (e.g., average or weighted).
+          - Provenance list.
+  4. Intermediate Storage
+      - Store canonical facts in integration_outputs/{vault_id}/facts.json before KG load.
+
+  Guardrail: Still no KG changes; this stage produces normalized fact sets with provenance.
+
+  ———
+
+  ## Phase 3 – Validation & Conflict Resolution
+
+  Goal: Confirm each fact against the corpus and resolve conflicting values.
+
+  1. Fact Validator (src/context_foundry/validation/fact_validator.py)
+      - For each fact, re-open source excerpts and ask an independent LLM to confirm (“Does this doc
+        support the claim X?”).
+      - Mark facts as validated (yes/no with reasoning).
+  2. Conflict Resolver
+      - When multiple values exist (e.g., budget $850M vs $800M), use:
+          - Authority ranking (strategic plan > status update > meeting notes).
+          - Recency (newer docs preferred).
+          - Specificity (exact figure > approximate).
+          - LLM reasoning if still ambiguous; log reasoning.
+  3. Confidence Scoring
+      - Final confidence should consider:
+          - Model agreement.
+          - Validation result.
+          - Source authority.
+      - Store alternative values for reference.
+  4. Output: validated_facts.json with:
+
+     {
+       "entity": "Project Helios",
+       "fact": "budget",
+       "value": "$850M",
+       "confidence": 0.85,
+       "alternatives": [
+         {"value": "$800M", "source": "...", "reason": "older doc"}
+       ],
+       "validation": {"status": "confirmed", "validator_reason": "..."}
+     }
+
+  ———
+
+  ## Phase 4 – Ontology-Enforced KG Ingestion
+
+  Goal: Load validated facts into the knowledge graph with full provenance.
+
+  1. Loader (src/context_foundry/ingestion/kg_loader.py)
+      - Read validated_facts.json.
+      - Insert or update entities/relationships via ORM or API.
+      - Preserve provenance (sources, models, validation status).
+      - Enforce schema:
+          - entity types exist in ontology
+          - relationship types valid
+          - properties conform to schema (numbers as numbers, etc.)
+  2. Lifecycle Tags
+      - e.g., TRUSTED, ARCHIVED, FLAGGED.
+      - Facts failing validation can be flagged but not ingested.
+
+  Guardrail: No direct linking from raw extraction to KG; only validated facts go in.
+
+  ———
+
+  ## Phase 5 – Gap Analysis & Targeted Re-extraction
+
+  Goal: Identify missing information tied to test questions and fill them.
+
+  1. Gap Analyzer (src/context_foundry/analysis/gap_analyzer.py)
+      - Run test questions (106Q) through the KG.
+      - For each failure, determine missing data (e.g., missing CUSTOMER_OF relationship).
+      - Generate a gap report grouping by fact type (roles, projects, customers, financials).
+  2. Targeted Extractor (src/context_foundry/extraction/targeted_extractor.py)
+      - For each gap, re-read relevant documents with specialized prompts (“Only extract customer
+        relationships from this doc”).
+      - Feed the new extractions back through the integration/validation pipeline.
+  3. Iteration
+      - Repeat gap analysis after each ingestion cycle until:
+          - No critical gaps remain.
+          - Accuracy target met.
+          - Or a maximum iteration count to avoid infinite loops.
+
+  Guardrail: Gap filling still uses the same structured extraction → validation → ingestion flow; no manual
+  patches.
+
+  ———
+
+  ## Phase 6 – Observability & Validation Scripts
+
+  1. Trace Logging
+      - Ensure queries log the entire flow: intent, routing path, KG/doc hits, evaluator reason.
+      - Save traces per query run under traces/{run_id}/.
+  2. Corpus Validation Script
+      - A script to check that expected answers (from orion_verified_106q.json) exist somewhere in the
+        corpus before tests.
+      - Run nightly and before test runs.
+  3. Test Harness
+      - Add a command to run the full pipeline end-to-end (extraction through gap analysis).
+      - Example CLI command:
+        python -m context_foundry.pipeline.multi_pass_ingest --vault ManusOrion --questions
+        orion_verified_106q.json
+
+  ———
+
+  ## Phase 7 – Execution Plan & Responsibilities
+
+  1. Initial Backfill
+      - Run entire multi-pass pipeline on existing Orion documents to backfill the KG.
+      - Expect 2–3 iterations (gap analysis + targeted extraction) to reach 85–90% accuracy.
+  2. Ongoing Ingestion
+      - Set up schedule/job to run extraction for new documents with same multi-model pipeline.
+      - Validation/gap analysis runs nightly or on demand.
+  3. Monitoring
+      - Dashboards showing:
+          - Extraction coverage (% documents processed).
+          - Fact confidence distribution.
+          - Gap counts (by question or fact type).
+          - Test suite accuracy trend.
+
+  ———
+
+  ## Guardrails & Guidelines
+
+  - No hardcoded facts or maps. All knowledge must come from documents via extraction.
+  - Everything is configuration-driven. Prompts, authority rankings, thresholds are in config files.
+  - Every fact must have provenance. Source docs, model, validation status recorded.
+  - LLM involvement everywhere semantics matter. Entity classification, relationship mapping, conflict
+    resolution, validation—all rely on LLM prompts, not manual dictionaries.
+  - Iterate until quality target met. Expect multiple cycles; call out blocking gaps if data is missing
+    entirely.
+
+  ———
+
+  ## Deliverables Summary
+
+  1. ontology/schema.py – entity/relationship definitions.
+  2. extraction/multi_extractor.py – orchestrates model A/B/C extraction.
+  3. integration/entity_resolver.py, integration/relationship_normalizer.py, integration/consensus.py.
+  4. validation/fact_validator.py, validation/conflict_resolver.py.
+  5. ingestion/kg_loader.py – schema-enforced KG load.
+  6. analysis/gap_analyzer.py, extraction/targeted_extractor.py.
+  7. Scripts/config for observability, validation, and nightly runs.
+  8. Documentation for running the full multi-pass pipeline and interpreting reports.

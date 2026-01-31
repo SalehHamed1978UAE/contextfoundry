@@ -1,0 +1,133 @@
+{
+  "document_id": "a4a6af6b350d",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:28:53.162054",
+  "entities": [
+    {
+      "name": "Simone Ocampo",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Executive Sponsor",
+        "role": "Executive Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
+      "source_excerpt": "Executive Sponsor: Simone Ocampo",
+      "aliases": []
+    },
+    {
+      "name": "SkyPath Integrations",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Systems integrator",
+        "industry": "Integration Services"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
+      "source_excerpt": "Customer Profile: Systems integrator",
+      "aliases": []
+    },
+    {
+      "name": "Corporate",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Corporate functions"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
+      "source_excerpt": "Owning BU: Corporate",
+      "aliases": []
+    },
+    {
+      "name": "Implementation services",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Services related to implementation"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
+      "source_excerpt": "Primary Products: Implementation services",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Annual Recurring Revenue",
+        "value": 44000000,
+        "period": "annual",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
+      "source_excerpt": "ARR: $44M ARR",
+      "aliases": []
+    },
+    {
+      "name": "GTM synergies",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "GTM synergies",
+        "status": "current objective"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
+      "source_excerpt": "Current Objective: GTM synergies",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Simone Ocampo",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "SkyPath Integrations",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
+      "evidence": "Executive Sponsor: Simone Ocampo"
+    },
+    {
+      "source_entity": "Corporate",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "SkyPath Integrations",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
+      "evidence": "Owning BU: Corporate"
+    },
+    {
+      "source_entity": "SkyPath Integrations",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Implementation services",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
+      "evidence": "Primary Products: Implementation services"
+    },
+    {
+      "source_entity": "GTM synergies",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "SkyPath Integrations",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
+      "evidence": "Current Objective: GTM synergies"
+    }
+  ],
+  "metadata": {
+    "filename": "customer_dossier_skypath_integrations.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

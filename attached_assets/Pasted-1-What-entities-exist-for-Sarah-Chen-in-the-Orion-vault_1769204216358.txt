@@ -1,0 +1,26 @@
+1. What entities exist for "Sarah Chen" in the Orion vault?                                            
+  SELECT name, entity_type, properties FROM entities                                                     
+  WHERE tenant_id = 'aab0ec76...' AND name ILIKE '%sarah chen%'                                          
+  2. What HOLDS_POSITION relationships exist for Sarah Chen in Orion?                                    
+  SELECT * FROM relationships                                                                            
+  WHERE tenant_id = 'aab0ec76...' AND source_id IN (SELECT id FROM entities WHERE name ILIKE '%sarah     
+  chen%')                                                                                                
+  3. Why does Marcus Webb resolve but Sarah Chen doesn't?
+
+  1. False positive in name extraction: "Logistics System" detected as person name (side issue)          
+  2. Main issue - Sarah Chen resolution fails:                                                           
+    - PRE-PROCESSING found HOLDS_POSITION(1) for Sarah Chen                                              
+    - But resolve_entities("Sarah Chen") in the tool loop returned null                                  
+    - Different code paths have different entity matching logic                                          
+                                                                                                         
+  The pre-processing finds her, but the tool loop doesn't. Ask Replit:                                   
+                                                                                                         
+  Why does pre-processing find Sarah Chen but resolve_entities() doesn't?                                
+                                                                                                         
+  They might be using different:                                                                         
+  - Entity matching logic (exact vs fuzzy)                                                               
+  - Tenant context                                                                                       
+  - Query methods                                                                                        
+                                                                                                         
+  The fix for the false positive blocklist is good, but the main Sarah Chen issue is the entity          
+  resolution mismatch between pre-processing and tool execution.

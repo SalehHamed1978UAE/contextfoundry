@@ -1,0 +1,121 @@
+{
+  "document_id": "941bf123fe0e",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:39:45.794777",
+  "entities": [
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$42M",
+        "timeline": "Q4 2026",
+        "status": "ongoing"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "source_excerpt": "Internal transformation to unify the company data stack and modernize GTM motions.",
+      "aliases": []
+    },
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Executive",
+        "role": "Staff Leader"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "source_excerpt": "Launch executive analytics cockpit for Maya Serrano's staff",
+      "aliases": []
+    },
+    {
+      "name": "BluePeak",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Hosting Provider",
+        "industry": "Technology"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "source_excerpt": "Consolidate supplier portals under BluePeak hosting",
+      "aliases": []
+    },
+    {
+      "name": "Citadel",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Deployment Partner",
+        "industry": "Technology"
+      },
+      "confidence": 0.75,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "source_excerpt": "Embed compliance by design for Citadel deployments",
+      "aliases": []
+    },
+    {
+      "name": "Board",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Governing Body"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "source_excerpt": "Board sponsors reaffirmed appetite for disciplined growth.",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Board",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "evidence": "Funding model assumes continued Series F covenant compliance."
+    },
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "evidence": "Launch executive analytics cockpit for Maya Serrano's staff"
+    },
+    {
+      "source_entity": "BluePeak",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "evidence": "Consolidate supplier portals under BluePeak hosting"
+    },
+    {
+      "source_entity": "Citadel",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.75,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transformation_program_horizon_prime.md",
+      "evidence": "Embed compliance by design for Citadel deployments"
+    }
+  ],
+  "metadata": {
+    "filename": "transformation_program_horizon_prime.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

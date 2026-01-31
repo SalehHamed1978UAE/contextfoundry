@@ -1,0 +1,194 @@
+{
+  "document_id": "822e4b28a3b2",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/engineering/transitedge_control_tower_ux.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:35:10.314666",
+  "entities": [
+    {
+      "name": "TransitEdge",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "transit operations"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/transitedge_control_tower_ux.md",
+      "source_excerpt": "Business Unit: TransitEdge",
+      "aliases": []
+    },
+    {
+      "name": "Control Tower",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "operator workflow system",
+        "category": "UX module"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/transitedge_control_tower_ux.md",
+      "source_excerpt": "Product/Module: Control Tower",
+      "aliases": []
+    },
+    {
+      "name": "Marcus Nguyen",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Design Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/transitedge_control_tower_ux.md",
+      "source_excerpt": "Design Owner: Marcus Nguyen",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "platform with Confluence interface documentation"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/transitedge_control_tower_ux.md",
+      "source_excerpt": "Interfaces documented via Horizon Prime Confluence",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "firmware system"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/transitedge_control_tower_ux.md",
+      "source_excerpt": "Dependencies on CoreMatrix firmware versions",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "dashboard for performance KPIs"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/transitedge_control_tower_ux.md",
+      "source_excerpt": "Performance KPIs stored in PulseOps dashboard",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "industry": "logistics"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/transitedge_control_tower_ux.md",
+      "source_excerpt": "Align telemetry schema with Titan Logistics requirements",
+      "aliases": []
+    },
+    {
+      "name": "Security",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "security and encryption"
+      },
+      "confidence": 0.75,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/transitedge_control_tower_ux.md",
+      "source_excerpt": "Validate encryption module with Security",
+      "aliases": []
+    },
+    {
+      "name": "VectorTech",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "supply readiness"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/transitedge_control_tower_ux.md",
+      "source_excerpt": "Confirm supply readiness with VectorTech",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Control Tower",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/transitedge_control_tower_ux.md",
+      "evidence": "TransitEdge business unit owns the Control Tower product/module"
+    },
+    {
+      "source_entity": "Marcus Nguyen",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Control Tower",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/transitedge_control_tower_ux.md",
+      "evidence": "Marcus Nguyen is listed as Design Owner of Control Tower"
+    },
+    {
+      "source_entity": "Control Tower",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/transitedge_control_tower_ux.md",
+      "evidence": "Interfaces documented via Horizon Prime Confluence"
+    },
+    {
+      "source_entity": "Control Tower",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "CoreMatrix",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/transitedge_control_tower_ux.md",
+      "evidence": "Dependencies on CoreMatrix firmware versions"
+    },
+    {
+      "source_entity": "Control Tower",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "PulseOps",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/transitedge_control_tower_ux.md",
+      "evidence": "Performance KPIs stored in PulseOps dashboard"
+    },
+    {
+      "source_entity": "Titan Logistics",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "TransitEdge",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.75,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/transitedge_control_tower_ux.md",
+      "evidence": "Need to align telemetry schema with Titan Logistics requirements"
+    },
+    {
+      "source_entity": "VectorTech",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "TransitEdge",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/transitedge_control_tower_ux.md",
+      "evidence": "Need to confirm supply readiness with VectorTech"
+    }
+  ],
+  "metadata": {
+    "filename": "transitedge_control_tower_ux.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 7,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

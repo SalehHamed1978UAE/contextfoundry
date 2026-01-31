@@ -1,0 +1,60 @@
+THREE REAL BUGS TO INVESTIGATE
+
+E2E is now reliable. These are confirmed failures:
+
+================================================================================
+BUG 1: PORTFOLIO COMPANIES (TechVentures)
+================================================================================
+
+Only SecureNode returned. CloudMatrix and HealthSync missing.
+
+```sql
+-- Do the entities exist?
+SELECT name, entity_type 
+FROM entities 
+WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures')
+  AND (name ILIKE '%cloudmatrix%' OR name ILIKE '%healthsync%' OR name ILIKE '%securenode%');
+
+-- Do INVESTED_IN relationships exist?
+SELECT e1.name as investor, e2.name as company, r.relationship_type
+FROM relationships r
+JOIN entities e1 ON r.source_entity_id = e1.id  
+JOIN entities e2 ON r.target_entity_id = e2.id
+WHERE r.tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures')
+  AND r.relationship_type IN ('INVESTED_IN', 'HAS_PORTFOLIO_COMPANY', 'PORTFOLIO_COMPANY');
+================================================================================
+BUG 2: LAUNCHPAD COMPENSATION
+Managing Partner and David Park compensation "does not provide".
+TechVentures compensation works. What's different?
+-- Check if Launchpad has HAS_COMPENSATION relationships
+SELECT e1.name, r.relationship_type, e2.name, r.properties
+FROM relationships r
+JOIN entities e1 ON r.source_entity_id = e1.id
+JOIN entities e2 ON r.target_entity_id = e2.id
+WHERE r.tenant_id = (SELECT id FROM vaults WHERE name = 'Launchpad Ventures')
+  AND r.relationship_type ILIKE '%compens%';
+
+-- Check Launchpad compensation document content
+SELECT LEFT(c.content, 2000)
+FROM chunks c
+JOIN documents d ON c.document_id = d.id
+WHERE d.tenant_id = (SELECT id FROM vaults WHERE name = 'Launchpad Ventures')
+  AND d.name ILIKE '%compensation%';
+================================================================================
+BUG 3: REPORTS_TO INCOMPLETE
+Only finds 2 of 4+ people who report to CEO.
+-- How many REPORTS_TO relationships for TechVentures?
+SELECT e1.name as employee, e2.name as manager
+FROM relationships r
+JOIN entities e1 ON r.source_entity_id = e1.id
+JOIN entities e2 ON r.target_entity_id = e2.id
+WHERE r.tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures')
+  AND r.relationship_type = 'REPORTS_TO';
+================================================================================
+REPORT FINDINGS
+For each bug:
+Does the data exist in the database?
+If yes → retrieval issue
+If no → extraction issue
+================================================================================
+---

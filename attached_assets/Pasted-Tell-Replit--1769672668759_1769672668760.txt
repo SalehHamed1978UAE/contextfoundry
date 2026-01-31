@@ -1,0 +1,27 @@
+Tell Replit:                                                                                           
+                                                                                                         
+  ---                                                                                                    
+  Fix the caching problem permanently. Don't just delete files - add a --force flag.                     
+                                                                                                         
+  1. Find ALL cache locations:                                                                           
+  # Search for where results are cached                                                                  
+  grep -r "progress" src/test_runner/ --include="*.py"                                                   
+  grep -r "cache" src/test_runner/ --include="*.py"                                                      
+  grep -r "resume" src/test_runner/ --include="*.py"                                                     
+                                                                                                         
+  2. Add a --force or --no-cache flag to the test runner:                                                
+  # In runner.py argument parser:                                                                        
+  parser.add_argument('--force', action='store_true',                                                    
+                      help='Ignore cached results and run fresh')                                        
+                                                                                                         
+  # In the run logic:                                                                                    
+  if args.force:                                                                                         
+      # Delete any existing progress/cache files for this vault                                          
+      clear_cache(vault_id)                                                                              
+                                                                                                         
+  3. Or add cache invalidation based on code changes:                                                    
+  # Hash the relevant source files                                                                       
+  # If hash changed since last run, invalidate cache                                                     
+                                                                                                         
+  The test runner should have a reliable way to force fresh execution. Don't make us manually hunt for   
+  cache files every time.     

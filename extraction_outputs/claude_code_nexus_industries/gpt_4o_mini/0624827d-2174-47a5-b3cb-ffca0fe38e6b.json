@@ -1,0 +1,253 @@
+{
+  "document_id": "0624827d-2174-47a5-b3cb-ffca0fe38e6b",
+  "document_path": "04_toyota_partnership_announcement.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T15:54:32.343750",
+  "entities": [
+    {
+      "name": "Nexus Industries, Inc.",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Public Company",
+        "industry": "Technology and Advanced Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "Nexus Industries, Inc. (NYSE: NEXS)",
+      "aliases": []
+    },
+    {
+      "name": "Toyota Motor Corporation",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Public Company",
+        "industry": "Automotive"
+      },
+      "confidence": 0.95,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "Toyota Motor Corporation (NYSE: TM)",
+      "aliases": []
+    },
+    {
+      "name": "NextGen Battery Technologies LLC",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Joint Venture"
+      },
+      "confidence": 0.9,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "the formation of NextGen Battery Technologies LLC",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "said Dr. Victoria Chen, CEO of Nexus Industries",
+      "aliases": []
+    },
+    {
+      "name": "Koji Sato",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "said Koji Sato, CEO of Toyota Motor Corporation",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Robert Martinez",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "Dr. Robert Martinez, currently Nexus's BatteryTech Program Director, has been named CEO of NextGen Battery Technologies",
+      "aliases": []
+    },
+    {
+      "name": "Hiroshi Tanaka",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "EVP of Battery Technology",
+        "role": "Chief Operating Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "Hiroshi Tanaka, Toyota's EVP of Battery Technology, will serve as COO",
+      "aliases": []
+    },
+    {
+      "name": "$312 million",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Total Investment",
+        "value": 312000000,
+        "period": "2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "Total Investment | $312 million",
+      "aliases": []
+    },
+    {
+      "name": "$159 million",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Nexus Contribution",
+        "value": 159000000,
+        "period": "2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "Nexus Industries will contribute $159 million",
+      "aliases": []
+    },
+    {
+      "name": "$153 million",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Toyota Contribution",
+        "value": 153000000,
+        "period": "2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "Toyota will contribute $153 million in cash",
+      "aliases": []
+    },
+    {
+      "name": "$2 billion",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Total Contract Value",
+        "value": 2000000000,
+        "period": "5 years",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "with total contract value expected to exceed $2 billion",
+      "aliases": []
+    },
+    {
+      "name": "San Antonio, Texas",
+      "entity_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "The joint venture will be headquartered in San Antonio, Texas",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Nexus Industries, Inc.",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Toyota Motor Corporation",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "evidence": "Nexus Industries and Toyota Motor Corporation today announced the formation of NextGen Battery Technologies LLC"
+    },
+    {
+      "source_entity": "NextGen Battery Technologies LLC",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries, Inc.",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "evidence": "Ownership | 51% Nexus Industries / 49% Toyota"
+    },
+    {
+      "source_entity": "NextGen Battery Technologies LLC",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Toyota Motor Corporation",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "evidence": "Ownership | 51% Nexus Industries / 49% Toyota"
+    },
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "NextGen Battery Technologies LLC",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "evidence": "Dr. Robert Martinez, currently Nexus's BatteryTech Program Director, has been named CEO of NextGen Battery Technologies"
+    },
+    {
+      "source_entity": "Hiroshi Tanaka",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "NextGen Battery Technologies LLC",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "evidence": "Hiroshi Tanaka, Toyota's EVP of Battery Technology, will serve as COO"
+    },
+    {
+      "source_entity": "Dr. Robert Martinez",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "NextGen Battery Technologies LLC",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "evidence": "Dr. Robert Martinez, currently Nexus's BatteryTech Program Director, has been named CEO of NextGen Battery Technologies"
+    },
+    {
+      "source_entity": "Nexus Industries, Inc.",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "San Antonio, Texas",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "evidence": "The joint venture will be headquartered in San Antonio, Texas"
+    },
+    {
+      "source_entity": "Toyota Motor Corporation",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "San Antonio, Texas",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "evidence": "The joint venture will be headquartered in San Antonio, Texas"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 12,
+    "raw_relationship_count": 8,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

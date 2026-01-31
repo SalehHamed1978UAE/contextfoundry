@@ -1,0 +1,42 @@
+### 1. Retrieval Robustness
+
+  - Adaptive top-K: make max_documents scale with corpus size or question type (e.g. 5 for short factual
+    queries, 30 for program descriptions). Use the question classification already in CF (entity vs. stat
+    vs. long-form) to drive this.
+  - Keyword + semantic fusion: when semantic scores come back weak (<0.4), fall back to keyword boosting
+    for exact project names (“Project Helios”, “UrbanMesh”) and business-unit strings. This ensures
+    canonical paragraphs (strategy docs, program briefs) make it into the rerank set.
+  - Folder weighting: apply priors (e.g., strategy/ for program ownership, finances/ for budgets) so
+    contradictory numbers from ad-hoc notes don’t outrank the master source.
+
+  ### 2. Answer Canonicalization
+
+  - Source hierarchy: define primary doc types per fact (e.g., project ownership → strategy/
+    strategic_plan_2025_2027.md). Store this mapping with the question set so the retriever and evaluator
+    both know which doc carries authority.
+  - Numeric reconciliation: when multiple numeric answers appear, choose via:
+      1. Highest-ranked authoritative doc (per mapping above)
+      2. Majority voting (same value appearing in >N docs)
+      3. Range tolerance (treat $45M vs $45 million USD as equal).
+
+  ### 3. Evaluator Improvements
+
+  - Partial credit reason tracking: Tag mismatches as “alternate source” vs. “not found”. Right now
+    everything shows no_match, masking the cases where we retrieved text but latched to a different number.
+  - Entity alias support: map “Global Defense Systems” <-> “Defense business unit” so we don’t miss correct
+    but differently phrased answers.
+
+  ### 4. Corpus Hygiene
+
+  - Domain profile doc: for each corpus, add an admissible “Corporate Overview” under the relevant folder
+    so headline facts (leaders, business units) never live only in README or metadata.
+  - Metadata sync: ensure question-set authoring references the same canonical docs; maintain a script that
+    flags questions whose expected answers can’t be located in the allowed folders before we even ingest.
+
+  ### 5. Observability
+
+  - Per-question trace: log which files each question pulled, semantic scores, and which evaluator rule
+    fired. Makes debugging on future corpora faster.
+  - Auto-diff for conflicting facts: when different docs disagree, produce a warning file so humans can
+    reconcile the source corpus rather than silently returning inconsistent data.
+

@@ -1,0 +1,206 @@
+{
+  "document_id": "58d5156d2113",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/arcshield_microgrid_controller_v4_design.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:41:43.359777",
+  "entities": [
+    {
+      "name": "GridWave",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "microgrid control systems"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/arcshield_microgrid_controller_v4_design.md",
+      "source_excerpt": "Business Unit: GridWave",
+      "aliases": []
+    },
+    {
+      "name": "ArcShield",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Microgrid Controller v4",
+        "category": "control systems"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/arcshield_microgrid_controller_v4_design.md",
+      "source_excerpt": "Product/Module: ArcShield",
+      "aliases": []
+    },
+    {
+      "name": "Priya Thakur",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Design Owner"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/arcshield_microgrid_controller_v4_design.md",
+      "source_excerpt": "Design Owner: Priya Thakur",
+      "aliases": []
+    },
+    {
+      "name": "ArcShield Microgrid Controller v4",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Hydrogen-ready control firmware",
+        "status": "in development"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/arcshield_microgrid_controller_v4_design.md",
+      "source_excerpt": "ArcShield Microgrid Controller v4 Design",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime Confluence",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "documentation platform for interfaces"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/arcshield_microgrid_controller_v4_design.md",
+      "source_excerpt": "Interfaces documented via Horizon Prime Confluence",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix firmware",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "firmware dependency"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/arcshield_microgrid_controller_v4_design.md",
+      "source_excerpt": "Dependencies on CoreMatrix firmware versions",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps dashboard",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "performance monitoring system"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/arcshield_microgrid_controller_v4_design.md",
+      "source_excerpt": "Performance KPIs stored in PulseOps dashboard",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "logistics company"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/arcshield_microgrid_controller_v4_design.md",
+      "source_excerpt": "Align telemetry schema with Titan Logistics requirements",
+      "aliases": []
+    },
+    {
+      "name": "Security",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "encryption and security validation"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/arcshield_microgrid_controller_v4_design.md",
+      "source_excerpt": "Validate encryption module with Security",
+      "aliases": []
+    },
+    {
+      "name": "VectorTech",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "supply readiness"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/arcshield_microgrid_controller_v4_design.md",
+      "source_excerpt": "Confirm supply readiness with VectorTech",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "ArcShield",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/arcshield_microgrid_controller_v4_design.md",
+      "evidence": "Business Unit: GridWave, Product/Module: ArcShield"
+    },
+    {
+      "source_entity": "Priya Thakur",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "ArcShield Microgrid Controller v4",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/arcshield_microgrid_controller_v4_design.md",
+      "evidence": "Design Owner: Priya Thakur"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "ArcShield Microgrid Controller v4",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/arcshield_microgrid_controller_v4_design.md",
+      "evidence": "Business Unit: GridWave owns the ArcShield product development"
+    },
+    {
+      "source_entity": "ArcShield Microgrid Controller v4",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime Confluence",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/arcshield_microgrid_controller_v4_design.md",
+      "evidence": "Interfaces documented via Horizon Prime Confluence"
+    },
+    {
+      "source_entity": "ArcShield Microgrid Controller v4",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "CoreMatrix firmware",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/arcshield_microgrid_controller_v4_design.md",
+      "evidence": "Dependencies on CoreMatrix firmware versions"
+    },
+    {
+      "source_entity": "ArcShield Microgrid Controller v4",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "PulseOps dashboard",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/arcshield_microgrid_controller_v4_design.md",
+      "evidence": "Performance KPIs stored in PulseOps dashboard"
+    },
+    {
+      "source_entity": "VectorTech",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "GridWave",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/arcshield_microgrid_controller_v4_design.md",
+      "evidence": "Confirm supply readiness with VectorTech"
+    }
+  ],
+  "metadata": {
+    "filename": "arcshield_microgrid_controller_v4_design.md",
+    "raw_entity_count": 10,
+    "raw_relationship_count": 7,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

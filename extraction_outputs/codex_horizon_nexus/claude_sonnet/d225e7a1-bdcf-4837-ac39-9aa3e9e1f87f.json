@@ -1,0 +1,73 @@
+{
+  "document_id": "e9ce40581ce7",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/risk/enterprise_risk_dashboard.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:55:53.667516",
+  "entities": [
+    {
+      "name": "Enterprise Risk Dashboard",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "active",
+        "cadence": "Quarterly"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/enterprise_risk_dashboard.md",
+      "source_excerpt": "Enterprise Risk Dashboard - Cadence: Quarterly",
+      "aliases": []
+    },
+    {
+      "name": "Victor Liao",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Owner"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/enterprise_risk_dashboard.md",
+      "source_excerpt": "Owner: Victor Liao",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime risk register",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Risk tracking system"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/enterprise_risk_dashboard.md",
+      "source_excerpt": "Track via Horizon Prime risk register",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Victor Liao",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Enterprise Risk Dashboard",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/enterprise_risk_dashboard.md",
+      "evidence": "Owner: Victor Liao"
+    },
+    {
+      "source_entity": "Enterprise Risk Dashboard",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime risk register",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/enterprise_risk_dashboard.md",
+      "evidence": "Track via Horizon Prime risk register"
+    }
+  ],
+  "metadata": {
+    "filename": "enterprise_risk_dashboard.md",
+    "raw_entity_count": 3,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

@@ -1,0 +1,1238 @@
+"""
+Test Runner API Blueprint
+
+Provides REST API endpoints for the Test Runner Dashboard:
+- Question Sets management (upload, list, get, delete)
+- Test Control (start, status, stop)
+- History & Results
+- Corpus folders listing
+"""
+
+import json
+import os
+import subprocess
+import signal
+from datetime import datetime, timezone
+from pathlib import Path
+from uuid import UUID
+
+from flask import Blueprint, request, jsonify, session
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
+from functools import wraps
+
+from .persistence import (
+    reset_test_run_for_resume,
+    recover_file_test_to_db,
+    HEARTBEAT_TIMEOUT_SECONDS,
+    get_db_session as persistence_get_db_session
+)
+from .state_machine import (
+    create_test_run,
+    transition_to,
+    get_running_test,
+    get_test_run,
+    cleanup_stale_tests,
+    refresh_heartbeat,
+    TestRunStatus,
+    ACTIVE_STATUSES
+)
+
+test_runner_api = Blueprint('test_runner_api', __name__, url_prefix='/api/test-runner')
+
+# Define constants first (before startup_cleanup uses them)
+STATUS_FILE_PATH = Path('data/test-runner/status.json')
+CORPUS_FOLDERS_PATH = Path('test documents')
+
+
+def startup_cleanup():
+    """Mark ONLY stale running tests as interrupted on server startup.
+    
+    Checks if processes are actually alive before preserving 'running' tests.
+    Called when the blueprint is registered.
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    def is_process_alive(pid):
+        if not pid:
+            return False
+        try:
+            os.kill(pid, 0)  # Signal 0 just checks if process exists
+            return True
+        except (ProcessLookupError, OSError):
+            return False
+    
+    try:
+        count = cleanup_stale_tests()
+        if count > 0:
+            logger.info(f"[Startup Cleanup] Marked {count} stale tests as interrupted")
+        
+        db = persistence_get_db_session()
+        try:
+            # Get active tests with their PIDs
+            active_result = db.execute(text("""
+                SELECT id, pid FROM test_runs 
+                WHERE status IN ('creating_vault', 'uploading', 'extracting', 'running_qa')
+            """))
+            active_rows = active_result.fetchall()
+            
+            dead_tests = []
+            alive_tests = []
+            
+            for row in active_rows:
+                test_id, pid = row[0], row[1]
+                if pid and is_process_alive(pid):
+                    alive_tests.append(test_id)
+                    logger.info(f"  - Test run {test_id} still running (PID {pid} alive)")
+                else:
+                    dead_tests.append(str(test_id))
+                    logger.info(f"  - Test run {test_id} has dead process (PID {pid}), marking interrupted")
+            
+            # Mark dead tests as interrupted
+            if dead_tests:
+                db.execute(text("""
+                    UPDATE test_runs 
+                    SET status = 'interrupted', 
+                        error_message = 'Process died during server restart',
+                        completed_at = NOW()
+                    WHERE id = ANY(:ids::uuid[])
+                """), {'ids': dead_tests})
+                db.commit()
+                logger.info(f"[Startup Cleanup] Marked {len(dead_tests)} dead tests as interrupted")
+            
+            if alive_tests:
+                logger.info(f"[Startup Cleanup] Preserved {len(alive_tests)} tests with live processes")
+        finally:
+            db.close()
+    except Exception as e:
+        logger.warning(f"[Startup Cleanup] Failed to cleanup running tests: {e}")
+
+
+# Run startup cleanup when module is imported
+startup_cleanup()
+
+
+def require_auth(f):
+    """Decorator to require authentication for API endpoints."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('user_id'):
+            return jsonify({'error': 'Authentication required'}), 401
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def get_db_session():
+    """Get database session."""
+    database_url = os.environ.get('DATABASE_URL')
+    if not database_url:
+        raise RuntimeError("DATABASE_URL not configured")
+    engine = create_engine(database_url)
+    Session = sessionmaker(bind=engine)
+    return Session()
+
+
+def read_status_file():
+    """Read the current test status from status file."""
+    if not STATUS_FILE_PATH.exists():
+        return None
+    try:
+        with open(STATUS_FILE_PATH) as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError):
+        return None
+
+
+def write_status_file(status: dict):
+    """Write status to status file."""
+    STATUS_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(STATUS_FILE_PATH, 'w') as f:
+        json.dump(status, f, indent=2, default=str)
+
+
+def clear_status_file():
+    """Clear the status file."""
+    if STATUS_FILE_PATH.exists():
+        STATUS_FILE_PATH.unlink()
+
+
+import re
+
+def parse_markdown_questions(content: str) -> list:
+    """Parse questions from markdown format. Supports multiple formats:
+    
+    Format 1 (Q/A numbered):
+        **Q1:** What is the question?
+        **A1:** The answer
+        **Source:** optional_source.md
+        
+    Format 2 (Question/Answer labeled):
+        ### Q1
+        **Question:** What is the question?
+        **Answer:** The answer
+    """
+    questions = []
+    
+    # Format 1: **Q1:** ... **A1:** ...
+    qa_pattern = re.compile(
+        r'\*\*Q(\d+):\*\*\s*(.+?)\s*\n'
+        r'\*\*A\1:\*\*\s*(.+?)\s*\n'
+        r'(?:\*\*Source:\*\*\s*(.+?)\s*\n)?'
+        r'(?:\*\*Type:\*\*\s*(.+?)\s*(?:\n|$))?',
+        re.MULTILINE
+    )
+    
+    for match in qa_pattern.finditer(content):
+        q_num, question, answer, source, q_type = match.groups()
+        q_obj = {
+            'question': question.strip(),
+            'expected_answer': answer.strip()
+        }
+        if source:
+            q_obj['source'] = source.strip()
+        if q_type:
+            q_obj['type'] = q_type.strip()
+        questions.append(q_obj)
+    
+    # If format 1 found questions, return them
+    if questions:
+        return questions
+    
+    # Format 2: ### Q1 \n **Question:** ... **Answer:** ...
+    question_pattern = re.compile(
+        r'###\s*Q(\d+)\s*\n'
+        r'\*\*Question:\*\*\s*(.+?)\s*\n'
+        r'\*\*Answer:\*\*\s*(.+?)\s*\n'
+        r'(?:\*\*Source:\*\*\s*(.+?)\s*\n)?'
+        r'(?:\*\*Type:\*\*\s*(.+?)\s*\n)?'
+        r'(?:\*\*Difficulty:\*\*\s*(.+?)\s*(?:\n|$))?',
+        re.MULTILINE | re.DOTALL
+    )
+    
+    for match in question_pattern.finditer(content):
+        q_num, question, answer, source, q_type, difficulty = match.groups()
+        q_obj = {
+            'question': question.strip(),
+            'expected_answer': answer.strip()
+        }
+        if source:
+            q_obj['source'] = source.strip()
+        if q_type:
+            q_obj['type'] = q_type.strip()
+        if difficulty:
+            q_obj['difficulty'] = difficulty.strip()
+        questions.append(q_obj)
+    
+    return questions
+
+
+@test_runner_api.route('/question-sets/upload', methods=['POST'])
+@require_auth
+def upload_question_set():
+    """Upload a question set for a specific vault."""
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    logger.info(f"[Upload] Request files: {list(request.files.keys())}")
+    logger.info(f"[Upload] Request form: {dict(request.form)}")
+    
+    if 'file' not in request.files:
+        logger.error("[Upload] No file in request")
+        return jsonify({'error': 'No file provided'}), 400
+    
+    vault_id = request.form.get('vault_id')
+    if not vault_id:
+        logger.error("[Upload] No vault_id in form")
+        return jsonify({'error': 'vault_id is required'}), 400
+    
+    file = request.files['file']
+    logger.info(f"[Upload] Filename: {file.filename}")
+    if not file.filename:
+        logger.error("[Upload] No filename")
+        return jsonify({'error': 'No file selected'}), 400
+    
+    if not file.filename.endswith(('.json', '.jsonl', '.md')):
+        logger.error(f"[Upload] Invalid extension: {file.filename}")
+        return jsonify({'error': 'File must be .json, .jsonl, or .md'}), 400
+    
+    name = request.form.get('name') or Path(file.filename).stem
+    logger.info(f"[Upload] Name: {name}")
+    
+    try:
+        content = file.read().decode('utf-8')
+        logger.info(f"[Upload] Content length: {len(content)} chars")
+        
+        if file.filename.endswith('.md'):
+            questions = parse_markdown_questions(content)
+            logger.info(f"[Upload] Parsed {len(questions)} questions from markdown")
+            if not questions:
+                logger.error(f"[Upload] No questions found in markdown. Content preview: {content[:500]}")
+                return jsonify({'error': 'No questions found in markdown file. Expected format: ### Q1\\n**Question:** ...\\n**Answer:** ...'}), 400
+        elif file.filename.endswith('.jsonl'):
+            questions = []
+            for line in content.strip().split('\n'):
+                if line.strip():
+                    questions.append(json.loads(line))
+        else:
+            data = json.loads(content)
+            if isinstance(data, list):
+                questions = data
+            elif 'questions' in data:
+                questions = data['questions']
+            else:
+                questions = [data]
+        
+        question_count = len(questions)
+        
+        session = get_db_session()
+        try:
+            result = session.execute(text("""
+                INSERT INTO question_sets (vault_id, name, question_count, questions, uploaded_by)
+                VALUES (:vault_id, :name, :count, :questions, :uploaded_by)
+                ON CONFLICT (vault_id, name) DO UPDATE SET
+                    question_count = EXCLUDED.question_count,
+                    questions = EXCLUDED.questions,
+                    uploaded_by = EXCLUDED.uploaded_by
+                RETURNING id
+            """), {
+                'vault_id': vault_id,
+                'name': name,
+                'count': question_count,
+                'questions': json.dumps(questions),
+                'uploaded_by': 'api'
+            })
+            question_set_id = result.fetchone()[0]
+            session.commit()
+            
+            return jsonify({
+                'id': str(question_set_id),
+                'vault_id': vault_id,
+                'name': name,
+                'question_count': question_count,
+                'message': f'Uploaded {question_count} questions successfully'
+            }), 201
+        finally:
+            session.close()
+    except json.JSONDecodeError as e:
+        return jsonify({'error': f'Invalid JSON: {str(e)}'}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@test_runner_api.route('/question-sets', methods=['GET'])
+@require_auth
+def list_question_sets():
+    """List question sets for a specific vault."""
+    vault_id = request.args.get('vault_id')
+    if not vault_id:
+        return jsonify({'error': 'vault_id query parameter is required'}), 400
+    
+    session = get_db_session()
+    try:
+        result = session.execute(text("""
+            SELECT id, name, question_count, uploaded_at, uploaded_by
+            FROM question_sets
+            WHERE vault_id = :vault_id
+            ORDER BY uploaded_at DESC
+        """), {'vault_id': vault_id})
+        
+        question_sets = []
+        for row in result:
+            question_sets.append({
+                'id': str(row[0]),
+                'name': row[1],
+                'question_count': row[2],
+                'uploaded_at': row[3].isoformat() if row[3] else None,
+                'uploaded_by': row[4]
+            })
+        
+        return jsonify({'question_sets': question_sets})
+    finally:
+        session.close()
+
+
+@test_runner_api.route('/question-sets/<uuid:question_set_id>', methods=['GET'])
+@require_auth
+def get_question_set(question_set_id: UUID):
+    """Get a question set with its questions. Requires vault_id query param for ownership validation."""
+    vault_id = request.args.get('vault_id')
+    if not vault_id:
+        return jsonify({'error': 'vault_id query parameter is required'}), 400
+    
+    session = get_db_session()
+    try:
+        result = session.execute(text("""
+            SELECT id, name, question_count, questions, uploaded_at, uploaded_by
+            FROM question_sets
+            WHERE id = :id AND vault_id = :vault_id
+        """), {'id': str(question_set_id), 'vault_id': vault_id})
+        
+        row = result.fetchone()
+        if not row:
+            return jsonify({'error': 'Question set not found'}), 404
+        
+        return jsonify({
+            'id': str(row[0]),
+            'name': row[1],
+            'question_count': row[2],
+            'questions': row[3],
+            'uploaded_at': row[4].isoformat() if row[4] else None,
+            'uploaded_by': row[5]
+        })
+    finally:
+        session.close()
+
+
+@test_runner_api.route('/question-sets/<uuid:question_set_id>', methods=['DELETE'])
+@require_auth
+def delete_question_set(question_set_id: UUID):
+    """Delete a question set. Requires vault_id query param for ownership validation."""
+    vault_id = request.args.get('vault_id')
+    if not vault_id:
+        return jsonify({'error': 'vault_id query parameter is required'}), 400
+    
+    session = get_db_session()
+    try:
+        result = session.execute(text("""
+            DELETE FROM question_sets WHERE id = :id AND vault_id = :vault_id RETURNING id
+        """), {'id': str(question_set_id), 'vault_id': vault_id})
+        
+        if not result.fetchone():
+            return jsonify({'error': 'Question set not found'}), 404
+        
+        session.commit()
+        return jsonify({'message': 'Question set deleted successfully'})
+    finally:
+        session.close()
+
+
+@test_runner_api.route('/start', methods=['POST'])
+@require_auth
+def start_test():
+    """Start a new test run.
+    
+    Request body:
+        vault_id: UUID of the vault to test against (required)
+        question_set_id: UUID of the question set to use (required)
+        mode: 'auto' or 'fresh' (default: 'auto')
+            - auto: Use existing vault, run Q&A against it
+            - fresh: Delete vault, upload from corpus_folder, extract, then run Q&A
+        corpus_folder: Path to corpus folder (required for fresh mode)
+        resume_run_id: UUID of a previous run to resume (optional)
+    """
+    running_test = get_running_test()
+    if running_test and running_test.get('status') in ACTIVE_STATUSES:
+        return jsonify({
+            'error': 'A test is already running',
+            'current_test': running_test
+        }), 409
+    
+    data = request.get_json() or {}
+    vault_id = data.get('vault_id')
+    question_set_id = data.get('question_set_id')
+    mode = data.get('mode', 'auto')
+    corpus_folder = data.get('corpus_folder')
+    resume_run_id = data.get('resume_run_id')
+    
+    if not vault_id:
+        return jsonify({'error': 'vault_id is required'}), 400
+    
+    if not question_set_id:
+        return jsonify({'error': 'question_set_id is required'}), 400
+    
+    if mode not in ('auto', 'fresh'):
+        return jsonify({'error': 'mode must be "auto" or "fresh"'}), 400
+    
+    if mode == 'fresh' and not corpus_folder:
+        return jsonify({'error': 'corpus_folder is required for fresh mode'}), 400
+    
+    db_session = get_db_session()
+    try:
+        result = db_session.execute(text("""
+            SELECT qs.id, qs.name, t.name as vault_name
+            FROM question_sets qs
+            LEFT JOIN platform.tenants t ON t.id = qs.vault_id
+            WHERE qs.id = :qs_id AND qs.vault_id = :vault_id
+        """), {'qs_id': question_set_id, 'vault_id': vault_id})
+        row = result.fetchone()
+        if not row:
+            return jsonify({'error': 'Question set not found or does not belong to this vault'}), 400
+        question_set_name = row[1]
+        vault_name = row[2] or 'Unknown'
+    finally:
+        db_session.close()
+    
+    if resume_run_id:
+        db_session = get_db_session()
+        try:
+            verify_result = db_session.execute(text("""
+                SELECT vault_id, question_set_id, status 
+                FROM test_runs WHERE id = :id
+            """), {'id': resume_run_id})
+            row = verify_result.fetchone()
+            if not row:
+                return jsonify({'error': 'Resume run not found'}), 404
+            if str(row[0]) != vault_id or str(row[1]) != question_set_id:
+                return jsonify({'error': 'Resume run does not match vault/question set'}), 400
+            if row[2] != 'interrupted':
+                return jsonify({'error': f'Cannot resume a {row[2]} test. Start a new test instead.'}), 400
+        finally:
+            db_session.close()
+        
+        test_run_id = resume_run_id
+        reset_test_run_for_resume(test_run_id)
+    else:
+        test_run_id = create_test_run(
+            mode=mode,
+            vault_id=vault_id if mode == 'auto' else None,
+            vault_name=vault_name,
+            question_set_id=question_set_id,
+            question_set_name=question_set_name,
+            questions_total=0
+        )
+    
+    cmd = ['python', '-m', 'src.test_runner.runner', 
+           '--question-set-id', question_set_id,
+           '--mode', mode,
+           '--test-run-id', test_run_id]
+    
+    if mode == 'auto' and vault_id:
+        cmd.extend(['--vault-id', vault_id])
+    
+    if corpus_folder:
+        cmd.extend(['--corpus-folder', corpus_folder])
+    
+    initial_stages = {
+        'delete': {'status': 'pending' if mode == 'fresh' else 'skipped'},
+        'create': {'status': 'pending' if mode == 'fresh' else 'skipped'},
+        'upload': {'status': 'pending' if mode == 'fresh' else 'skipped'},
+        'extract': {'status': 'pending' if mode == 'fresh' else 'skipped'},
+        'qa': {'status': 'pending'}
+    }
+    
+    initial_status = {
+        'status': 'starting',
+        'vault_id': vault_id,
+        'question_set_id': question_set_id,
+        'test_run_id': test_run_id,
+        'mode': mode,
+        'corpus_folder': corpus_folder,
+        'started_at': datetime.now().isoformat(),
+        'pid': None,
+        'stages': initial_stages,
+        'qa_progress': {
+            'total': 0,
+            'answered': 0,
+            'passed': 0,
+            'failed': 0,
+            'accuracy_percent': 0
+        },
+        'current_question': None
+    }
+    write_status_file(initial_status)
+    
+    try:
+        log_dir = Path('test_results')
+        log_dir.mkdir(exist_ok=True)
+        log_file = log_dir / f'test_run_{test_run_id}.log'
+        
+        with open(log_file, 'w') as log_f:
+            log_f.write(f"Starting test run: {test_run_id}\n")
+            log_f.write(f"Command: {' '.join(cmd)}\n")
+            log_f.write(f"Time: {datetime.now().isoformat()}\n")
+            log_f.write("-" * 50 + "\n")
+        
+        log_handle = open(log_file, 'a')
+        
+        env = os.environ.copy()
+        env['PYTHONUNBUFFERED'] = '1'
+        
+        process = subprocess.Popen(
+            cmd,
+            stdout=log_handle,
+            stderr=subprocess.STDOUT,
+            start_new_session=True,
+            env=env,
+            cwd=os.getcwd()
+        )
+        
+        initial_status['status'] = 'running'
+        initial_status['pid'] = process.pid
+        write_status_file(initial_status)
+        
+        # Store PID in database for reliable cleanup
+        db_session = persistence_get_db_session()
+        try:
+            db_session.execute(text("UPDATE test_runs SET pid = :pid WHERE id = :id"), 
+                              {'pid': process.pid, 'id': test_run_id})
+            db_session.commit()
+        finally:
+            db_session.close()
+        
+        return jsonify({
+            'message': 'Test started',
+            'pid': process.pid,
+            'vault_id': vault_id,
+            'test_run_id': test_run_id,
+            'mode': mode,
+            'command': ' '.join(cmd)
+        }), 202
+    except Exception as e:
+        transition_to(test_run_id, TestRunStatus.FAILED, error_message=str(e))
+        initial_status['status'] = 'failed'
+        initial_status['error'] = str(e)
+        write_status_file(initial_status)
+        return jsonify({'error': f'Failed to start test: {str(e)}'}), 500
+
+
+def derive_pipeline_stages(db_status: str, mode: str) -> dict:
+    """Derive pipeline stages from the database status field.
+    
+    Maps TestRunStatus values to pipeline stage visualization.
+    This ensures UI shows correct progress even when status.json is missing.
+    """
+    is_fresh = mode == 'fresh'
+    
+    status_to_stage = {
+        'creating_vault': 'create',
+        'uploading': 'upload',
+        'extracting': 'extract',
+        'running_qa': 'qa',
+        'complete': 'complete',
+        'failed': 'failed',
+        'interrupted': 'interrupted',
+    }
+    
+    current_stage = status_to_stage.get(db_status, 'qa')
+    stage_order = ['delete', 'create', 'upload', 'extract', 'qa']
+    current_stage_idx = stage_order.index(current_stage) if current_stage in stage_order else len(stage_order)
+    
+    stages = {}
+    for i, stage in enumerate(stage_order):
+        if stage in ['delete', 'create', 'upload', 'extract'] and not is_fresh:
+            stages[stage] = {'status': 'skipped'}
+        elif db_status in ('complete', 'failed', 'interrupted'):
+            stages[stage] = {'status': 'complete' if stage != 'qa' else db_status}
+        elif i < current_stage_idx:
+            stages[stage] = {'status': 'complete'}
+        elif i == current_stage_idx:
+            stages[stage] = {'status': 'running'}
+        else:
+            stages[stage] = {'status': 'pending'}
+    
+    return stages
+
+
+def format_timestamp(dt) -> str:
+    """Format datetime as DD/MM/YYYY HH:MM.
+    
+    Accepts datetime object or ISO format string.
+    """
+    if dt is None:
+        return '-'
+    if isinstance(dt, str):
+        try:
+            dt = datetime.fromisoformat(dt.replace('Z', '+00:00'))
+        except (ValueError, AttributeError):
+            return dt  # Return as-is if can't parse
+    return dt.strftime('%d/%m/%Y %H:%M')
+
+
+@test_runner_api.route('/status', methods=['GET'])
+@require_auth
+def get_test_status():
+    """Get current test status.
+    
+    DATABASE IS THE SINGLE SOURCE OF TRUTH.
+    status.json is only used for real-time stage details during active runs.
+    NO PID-BASED INFERENCE - status is explicitly set in DB.
+    """
+    db_test = get_running_test()
+    file_status = read_status_file()
+    
+    # DB is authoritative - check it first
+    if db_test:
+        status = db_test['status']  # 'running' or 'interrupted' (set by heartbeat check)
+        
+        response = {
+            'status': status,
+            'test_run_id': db_test['id'],
+            'vault_id': db_test['vault_id'],
+            'vault_name': db_test['vault_name'],
+            'question_set_id': db_test['question_set_id'],
+            'question_set_name': db_test['question_set_name'],
+            'stage': db_test['stage'],
+            'started_at': format_timestamp(db_test.get('started_at')),
+            'qa_progress': {
+                'total': db_test['questions_total'],
+                'answered': db_test['questions_answered'],
+                'passed': db_test['questions_passed'],
+                'failed': db_test['questions_failed'],
+                'accuracy_percent': round(100 * db_test['questions_passed'] / max(db_test['questions_answered'], 1), 1)
+            },
+            'checkpoint': db_test['checkpoint']
+        }
+        
+        # Add real-time stage details from status.json if available, otherwise derive from DB
+        if file_status and file_status.get('stages'):
+            response['stages'] = file_status['stages']
+        else:
+            # Derive stages from DB stage field
+            response['stages'] = derive_pipeline_stages(db_test['stage'], db_test.get('mode', 'auto'))
+        
+        if file_status and file_status.get('current_question'):
+            response['current_question'] = file_status['current_question']
+        
+        if status == 'interrupted':
+            response['message'] = f"Test interrupted at {db_test['questions_answered']}/{db_test['questions_total']} questions. Click Resume to continue."
+        
+        return jsonify(response)
+    
+    # No running/interrupted test in DB - check if file has stale data
+    if file_status:
+        # Status file exists but no matching DB record - likely completed or stale
+        if file_status.get('status') in ('finished', 'complete', 'failed'):
+            return jsonify(file_status)
+        # Otherwise it's stale - delete it
+        clear_status_file()
+    
+    return jsonify({
+        'status': 'idle',
+        'message': 'No test is currently running'
+    })
+
+
+@test_runner_api.route('/stop', methods=['POST'])
+@require_auth
+def stop_test():
+    """Stop the currently running test.
+    
+    Gets PID from database (reliable) or file (fallback), kills process, updates DB.
+    """
+    db_test = get_running_test()
+    file_status = read_status_file()
+    
+    if not db_test:
+        return jsonify({'error': 'No test is currently running'}), 400
+    
+    test_run_id = db_test['id']
+    
+    # Get PID from database first (reliable), then fall back to file
+    pid = db_test.get('pid')
+    if not pid and file_status:
+        pid = file_status.get('pid')
+    
+    try:
+        # Kill process if PID available
+        if pid:
+            try:
+                os.killpg(os.getpgid(pid), signal.SIGTERM)
+            except (ProcessLookupError, OSError):
+                pass  # Process already dead
+        
+        # EXPLICITLY set status in DB - this is the single source of truth
+        transition_to(test_run_id, TestRunStatus.INTERRUPTED, error_message='Manually stopped by user')
+        
+        # Clean up ephemeral status file
+        clear_status_file()
+        
+        return jsonify({
+            'message': 'Test stopped',
+            'test_run_id': test_run_id,
+            'status': 'interrupted'
+        })
+    except Exception as e:
+        return jsonify({'error': f'Failed to stop test: {str(e)}'}), 500
+
+
+@test_runner_api.route('/health', methods=['GET'])
+def health_check():
+    """Health check endpoint - no auth required.
+    
+    Returns ready status and any running test info.
+    """
+    try:
+        db = persistence_get_db_session()
+        try:
+            db.execute(text("SELECT 1"))
+        finally:
+            db.close()
+        
+        db_test = get_running_test()
+        
+        return jsonify({
+            'status': 'ready',
+            'database': 'connected',
+            'running_test': db_test['id'] if db_test else None,
+            'test_status': db_test['status'] if db_test else 'idle'
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'unhealthy',
+            'error': str(e)
+        }), 503
+
+
+@test_runner_api.route('/force-clear', methods=['POST'])
+@require_auth
+def force_clear_state():
+    """Force clear all running/stuck tests.
+    
+    Use this to manually reset stuck state when the normal stop doesn't work.
+    Marks all running tests as interrupted.
+    """
+    db = persistence_get_db_session()
+    try:
+        result = db.execute(text("""
+            UPDATE test_runs 
+            SET status = 'interrupted', 
+                error_message = 'Force cleared by user',
+                completed_at = NOW()
+            WHERE status = 'running'
+            RETURNING id
+        """))
+        db.commit()
+        
+        rows = result.fetchall()
+        cleared_ids = [str(row[0]) for row in rows]
+    finally:
+        db.close()
+    
+    # Delete status file
+    clear_status_file()
+    
+    return jsonify({
+        'message': f'Cleared {len(cleared_ids)} running tests',
+        'cleared_test_ids': cleared_ids
+    })
+
+
+@test_runner_api.route('/reset', methods=['POST'])
+@require_auth
+def reset_test_state():
+    """Reset all test state for a fresh start.
+    
+    This DELETES:
+    - All running/interrupted test run records from the database
+    - status.json file
+    - Progress files (log files for deleted tests)
+    
+    Use with caution - this is a destructive operation.
+    """
+    data = request.get_json() or {}
+    clear_all_results = data.get('clear_all_results', False)
+    
+    db = persistence_get_db_session()
+    deleted_ids = []
+    try:
+        # Get IDs and vault_ids of tests to delete (all active/stuck statuses including legacy 'running')
+        result = db.execute(text("""
+            SELECT id, vault_id FROM test_runs 
+            WHERE status IN ('creating_vault', 'uploading', 'extracting', 'running_qa', 'running', 'interrupted')
+        """))
+        rows = result.fetchall()
+        deleted_ids = [str(row[0]) for row in rows]
+        vault_ids = [str(row[1])[:8] if row[1] else None for row in rows]
+        
+        # Delete test results for these tests
+        if deleted_ids:
+            db.execute(text("""
+                DELETE FROM test_results 
+                WHERE test_run_id = ANY(:ids)
+            """), {'ids': deleted_ids})
+            
+            # Delete the test runs themselves
+            db.execute(text("""
+                DELETE FROM test_runs 
+                WHERE status IN ('creating_vault', 'uploading', 'extracting', 'running_qa', 'running', 'interrupted')
+            """))
+        
+        db.commit()
+    finally:
+        db.close()
+    
+    # Delete status file
+    clear_status_file()
+    
+    # Delete progress/log files for deleted tests
+    files_deleted = 0
+    results_dir = Path('test_results')
+    if results_dir.exists():
+        for i, test_id in enumerate(deleted_ids):
+            vault_prefix = vault_ids[i] if i < len(vault_ids) and vault_ids[i] else None
+            
+            # Delete log files by test_run_id
+            for f in results_dir.glob(f'test_run_{test_id}*'):
+                try:
+                    f.unlink()
+                    files_deleted += 1
+                except Exception:
+                    pass
+            
+            # Delete vault-based progress/results files (e.g., vault_48abba58_*.jsonl)
+            if vault_prefix:
+                for f in results_dir.glob(f'vault_{vault_prefix}*'):
+                    try:
+                        f.unlink()
+                        files_deleted += 1
+                    except Exception:
+                        pass
+                for f in results_dir.glob(f'*_{vault_prefix}_*'):
+                    try:
+                        f.unlink()
+                        files_deleted += 1
+                    except Exception:
+                        pass
+        
+        # If clear_all_results, delete all progress files
+        if clear_all_results:
+            for f in results_dir.glob('*.jsonl'):
+                try:
+                    f.unlink()
+                    files_deleted += 1
+                except Exception:
+                    pass
+            for f in results_dir.glob('*.log'):
+                try:
+                    f.unlink()
+                    files_deleted += 1
+                except Exception:
+                    pass
+    
+    return jsonify({
+        'message': f'Reset complete: {len(deleted_ids)} test(s) deleted',
+        'deleted_test_ids': deleted_ids,
+        'files_deleted': files_deleted,
+        'status': 'idle'
+    })
+
+
+@test_runner_api.route('/history', methods=['GET'])
+@require_auth
+def get_test_history():
+    """Get test run history."""
+    limit = request.args.get('limit', 50, type=int)
+    offset = request.args.get('offset', 0, type=int)
+    
+    session = get_db_session()
+    try:
+        result = session.execute(text("""
+            SELECT 
+                id, vault_id, vault_name, question_set_id, question_set_name,
+                mode, corpus_folder, status, stage, started_at, completed_at,
+                questions_total, questions_answered, questions_passed, questions_failed,
+                error_message, results_file
+            FROM test_runs
+            ORDER BY COALESCE(started_at, created_at) DESC
+            LIMIT :limit OFFSET :offset
+        """), {'limit': limit, 'offset': offset})
+        
+        runs = []
+        for row in result:
+            runs.append({
+                'id': str(row[0]),
+                'vault_id': str(row[1]) if row[1] else None,
+                'vault_name': row[2],
+                'question_set_id': str(row[3]) if row[3] else None,
+                'question_set_name': row[4],
+                'mode': row[5],
+                'corpus_folder': row[6],
+                'status': row[7],
+                'stage': row[8],
+                'started_at': format_timestamp(row[9]),
+                'completed_at': format_timestamp(row[10]),
+                'questions_total': row[11],
+                'questions_answered': row[12],
+                'questions_passed': row[13],
+                'questions_failed': row[14],
+                'error_message': row[15],
+                'results_file': row[16]
+            })
+        
+        count_result = session.execute(text("SELECT COUNT(*) FROM test_runs"))
+        total = count_result.fetchone()[0]
+        
+        return jsonify({
+            'runs': runs,
+            'total': total,
+            'limit': limit,
+            'offset': offset
+        })
+    finally:
+        session.close()
+
+
+@test_runner_api.route('/results/<uuid:test_id>', methods=['GET'])
+@require_auth
+def get_test_results(test_id: UUID):
+    """Get detailed results for a specific test run."""
+    session = get_db_session()
+    try:
+        run_result = session.execute(text("""
+            SELECT 
+                id, vault_id, vault_name, question_set_id, question_set_name,
+                mode, corpus_folder, status, stage, started_at, completed_at,
+                questions_total, questions_answered, questions_passed, questions_failed,
+                checkpoint, error_message
+            FROM test_runs
+            WHERE id = :id
+        """), {'id': str(test_id)})
+        
+        run_row = run_result.fetchone()
+        if not run_row:
+            return jsonify({'error': 'Test run not found'}), 404
+        
+        results_result = session.execute(text("""
+            SELECT 
+                id, question_id, question_text, expected_answer, actual_answer,
+                category, passed, failure_reason, duration_ms, answered_at
+            FROM test_results
+            WHERE test_run_id = :test_id
+            ORDER BY answered_at
+        """), {'test_id': str(test_id)})
+        
+        results = []
+        for row in results_result:
+            results.append({
+                'id': str(row[0]),
+                'question_id': row[1],
+                'question_text': row[2],
+                'expected_answer': row[3],
+                'actual_answer': row[4],
+                'category': row[5],
+                'passed': row[6],
+                'failure_reason': row[7],
+                'duration_ms': row[8],
+                'answered_at': row[9].isoformat() if row[9] else None
+            })
+        
+        # Compute failure breakdown by category
+        # Use 'unknown' for failures without a specific reason
+        failure_breakdown = {}
+        for r in results:
+            if not r['passed']:
+                reason = r['failure_reason'] if r['failure_reason'] else 'unknown'
+                failure_breakdown[reason] = failure_breakdown.get(reason, 0) + 1
+        
+        return jsonify({
+            'run': {
+                'id': str(run_row[0]),
+                'vault_id': str(run_row[1]) if run_row[1] else None,
+                'vault_name': run_row[2],
+                'question_set_id': str(run_row[3]) if run_row[3] else None,
+                'question_set_name': run_row[4],
+                'mode': run_row[5],
+                'corpus_folder': run_row[6],
+                'status': run_row[7],
+                'stage': run_row[8],
+                'started_at': run_row[9].isoformat() if run_row[9] else None,
+                'completed_at': run_row[10].isoformat() if run_row[10] else None,
+                'questions_total': run_row[11],
+                'questions_answered': run_row[12],
+                'questions_passed': run_row[13],
+                'questions_failed': run_row[14],
+                'checkpoint': run_row[15],
+                'error_message': run_row[16]
+            },
+            'results': results,
+            'failure_breakdown': failure_breakdown
+        })
+    finally:
+        session.close()
+
+
+@test_runner_api.route('/results-files', methods=['GET'])
+@require_auth
+def list_results_files():
+    """List available results files from the test_results directory."""
+    results_dir = Path('test_results').resolve()
+    files = []
+    
+    if results_dir.exists():
+        for item in sorted(results_dir.iterdir(), key=lambda x: x.stat().st_mtime, reverse=True):
+            if item.is_file() and (item.suffix == '.jsonl' or item.suffix == '.json'):
+                files.append({
+                    'name': item.name,
+                    'size': item.stat().st_size,
+                    'modified': datetime.fromtimestamp(item.stat().st_mtime).isoformat()
+                })
+    
+    return jsonify({'results_files': files})
+
+
+@test_runner_api.route('/results-files/<filename>', methods=['GET'])
+@require_auth
+def download_results_file(filename: str):
+    """Download a results file. Only allows basenames, no path traversal."""
+    from flask import send_file
+    from urllib.parse import unquote
+    import re
+    
+    filename = unquote(filename)
+    
+    if not filename or not re.match(r'^[\w\-\.]+$', filename):
+        return jsonify({'error': 'Invalid filename'}), 400
+    
+    if '..' in filename or '/' in filename or '\\' in filename:
+        return jsonify({'error': 'Invalid filename'}), 400
+    
+    results_dir = Path('test_results').resolve()
+    file_path = (results_dir / filename).resolve()
+    
+    if not str(file_path).startswith(str(results_dir)):
+        return jsonify({'error': 'Invalid filename'}), 400
+    
+    if not file_path.exists() or not file_path.is_file():
+        return jsonify({'error': 'Results file not found'}), 404
+    
+    download = request.args.get('download', 'false').lower() == 'true'
+    
+    if download:
+        return send_file(file_path, as_attachment=True, download_name=filename)
+    else:
+        try:
+            content = file_path.read_text()
+            if file_path.suffix == '.jsonl':
+                lines = [json.loads(line) for line in content.strip().split('\n') if line.strip()]
+                return jsonify({'filename': filename, 'results': lines, 'count': len(lines)})
+            else:
+                return jsonify({'filename': filename, 'content': json.loads(content)})
+        except Exception as e:
+            return jsonify({'error': f'Failed to parse results: {str(e)}'}), 500
+
+
+@test_runner_api.route('/corpus-folders', methods=['GET'])
+@require_auth
+def list_corpus_folders():
+    """List available corpus folders from test documents directory (auto-discovery)."""
+    from .config import TestConfig
+    folders = []
+    config = TestConfig()
+    
+    valid_extensions = {'.md', '.txt', '.pdf', '.docx', '.xlsx', '.xls', '.csv', '.html', '.json'}
+    exclude_files = {'README.md', 'readme.md', 'CORPUS_STATS.txt', 'qa_master.md', 'qa_master.jsonl'}
+    exclude_folders = {'question_sets', '.git', '__pycache__'}
+    
+    if CORPUS_FOLDERS_PATH.exists():
+        for item in sorted(CORPUS_FOLDERS_PATH.iterdir()):
+            if item.is_dir() and not item.name.startswith('.'):
+                # Count all valid document files across all subfolders
+                doc_count = 0
+                for f in item.rglob('*'):
+                    if f.is_file() and f.suffix.lower() in valid_extensions:
+                        if f.name not in exclude_files:
+                            # Skip files in excluded folders
+                            if not any(part in exclude_folders for part in f.parts):
+                                doc_count += 1
+                
+                # Check if this corpus has a matching question file
+                questions_dir = Path('test_questions')
+                question_file = None
+                question_count = 0
+                
+                # Check config for question file
+                corpus_config = config.get_corpus(item.name)
+                if corpus_config and corpus_config.get('questions_file'):
+                    qf = questions_dir / corpus_config['questions_file']
+                    if qf.exists():
+                        question_file = corpus_config['questions_file']
+                        try:
+                            import json
+                            with open(qf) as f:
+                                data = json.load(f)
+                                question_count = len(data) if isinstance(data, list) else 0
+                        except:
+                            pass
+                
+                # Also check for auto-detected question files
+                if not question_file:
+                    # Look for question files matching corpus name
+                    corpus_name_lower = item.name.lower().replace(' ', '_')
+                    for qf in questions_dir.glob('*.json'):
+                        if corpus_name_lower in qf.stem.lower():
+                            question_file = qf.name
+                            try:
+                                import json
+                                with open(qf) as f:
+                                    data = json.load(f)
+                                    question_count = len(data) if isinstance(data, list) else 0
+                            except:
+                                pass
+                            break
+                
+                # Check for question files inside the corpus folder
+                if not question_file:
+                    qs_folder = item / 'question_sets'
+                    if qs_folder.exists():
+                        for qf in qs_folder.glob('*.jsonl'):
+                            question_file = f"{item.name}/question_sets/{qf.name}"
+                            try:
+                                question_count = sum(1 for line in open(qf) if line.strip())
+                            except:
+                                pass
+                            break
+                        for qf in qs_folder.glob('*.json'):
+                            if not question_file:
+                                question_file = f"{item.name}/question_sets/{qf.name}"
+                                try:
+                                    import json
+                                    with open(qf) as f:
+                                        data = json.load(f)
+                                        question_count = len(data) if isinstance(data, list) else 0
+                                except:
+                                    pass
+                                break
+                
+                folders.append({
+                    'name': item.name,
+                    'path': str(item),
+                    'document_count': doc_count,
+                    'question_file': question_file,
+                    'question_count': question_count,
+                    'configured': corpus_config is not None
+                })
+    
+    return jsonify({'corpus_folders': folders})
+
+
+@test_runner_api.route('/vaults', methods=['GET'])
+@require_auth
+def list_vaults():
+    """List all vaults the user has access to with entity count and last updated."""
+    try:
+        from uuid import UUID as UUIDType
+        from platform_foundation.src.tenant_service import TenantService
+        
+        tenant_svc = TenantService()
+        vaults = tenant_svc.list_user_vaults(UUIDType(session['user_id']))
+        
+        db_session = get_db_session()
+        result = []
+        try:
+            for v in vaults:
+                vault_id = str(v['id'])
+                
+                entity_count = 0
+                try:
+                    entity_result = db_session.execute(text("""
+                        SELECT COUNT(*) FROM entities WHERE tenant_id = :tenant_id
+                    """), {'tenant_id': vault_id})
+                    row = entity_result.fetchone()
+                    if row:
+                        entity_count = row[0]
+                except Exception:
+                    pass
+                
+                result.append({
+                    'id': vault_id,
+                    'name': v['name'],
+                    'entity_count': entity_count,
+                    'last_updated': v['updated_at'].isoformat() if v.get('updated_at') else None
+                })
+        finally:
+            db_session.close()
+        
+        return jsonify({'vaults': result})
+    except Exception as e:
+        return jsonify({'error': f'Failed to list vaults: {str(e)}'}), 500

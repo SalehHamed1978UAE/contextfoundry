@@ -1,0 +1,458 @@
+{
+  "document_id": "60ee8106-0948-45cf-b233-652ef3fe7bd9",
+  "document_path": "03_nexusconnect_api_specification.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T15:42:36.057469",
+  "entities": [
+    {
+      "name": "Dr. Alan Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Engineering",
+        "role": "Vice President of Engineering"
+      },
+      "confidence": 0.95,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "Owner: Dr. Alan Chen, VP Engineering",
+      "aliases": []
+    },
+    {
+      "name": "NexusConnect IoT Platform",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Enterprise IoT platform for device management, data ingestion, analytics, and edge computing",
+        "category": "IoT Platform"
+      },
+      "confidence": 0.95,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "NexusConnect is an enterprise IoT platform that enables device management, data ingestion, analytics, and edge computing across industrial environments",
+      "aliases": []
+    },
+    {
+      "name": "NexusConnect API",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "REST + WebSocket API with JSON data format, OAuth 2.0 + API Keys authentication"
+      },
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "Architecture: REST + WebSocket, Data Format: JSON, Authentication: OAuth 2.0 + API Keys",
+      "aliases": []
+    },
+    {
+      "name": "Temperature Sensor 1",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "IoT temperature sensor device",
+        "category": "sensor",
+        "manufacturer": "Nexus",
+        "model": "TMP-100",
+        "firmware": "2.4.1"
+      },
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "Temperature Sensor 1, type: sensor, manufacturer: Nexus, model: TMP-100, firmware: 2.4.1",
+      "aliases": []
+    },
+    {
+      "name": "Vibration Sensor 1",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "IoT vibration sensor device",
+        "category": "sensor",
+        "manufacturer": "Nexus",
+        "model": "VIB-200"
+      },
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "Vibration Sensor 1, type: sensor, manufacturer: Nexus, model: VIB-200",
+      "aliases": []
+    },
+    {
+      "name": "Nexus",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Manufacturer",
+        "industry": "IoT Hardware"
+      },
+      "confidence": 0.8,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "manufacturer: Nexus",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Industrial IoT"
+      },
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "ops@nexus-industries.com, ops.nexus-industries.com",
+      "aliases": []
+    },
+    {
+      "name": "OAuth 2.0",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Authentication protocol for API access"
+      },
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "Authentication: OAuth 2.0 + API Keys",
+      "aliases": []
+    },
+    {
+      "name": "WebSocket",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Real-time communication protocol for streaming telemetry"
+      },
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "Architecture: REST + WebSocket",
+      "aliases": []
+    },
+    {
+      "name": "TensorFlow Lite",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Machine learning framework for edge computing"
+      },
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "framework: tensorflow_lite",
+      "aliases": []
+    },
+    {
+      "name": "Device Management Service",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "API service for creating, reading, updating, and deleting IoT devices"
+      },
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "Device Management API with CRUD operations",
+      "aliases": []
+    },
+    {
+      "name": "Telemetry Service",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "API service for sending and querying device telemetry data"
+      },
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "Telemetry API for data ingestion and querying",
+      "aliases": []
+    },
+    {
+      "name": "Commands Service",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "API service for sending commands to IoT devices"
+      },
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "Commands API for device control",
+      "aliases": []
+    },
+    {
+      "name": "Alerts Service",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "API service for creating and managing alert rules and notifications"
+      },
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "Alerts API for rule management and notifications",
+      "aliases": []
+    },
+    {
+      "name": "Edge AI Service",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "API service for deploying machine learning models to edge devices"
+      },
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "Edge AI API for model deployment and inference",
+      "aliases": []
+    },
+    {
+      "name": "Anomaly Detection Model",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Machine learning model for detecting anomalies",
+        "category": "AI Model",
+        "version": "2.3.0",
+        "framework": "tensorflow_lite"
+      },
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "Anomaly Detection v2, type: anomaly_detection, version: 2.3.0, framework: tensorflow_lite",
+      "aliases": []
+    },
+    {
+      "name": "Factory A",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Manufacturing Facility"
+      },
+      "confidence": 0.8,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "tags: factory-a",
+      "aliases": []
+    },
+    {
+      "name": "Building A Floor 2",
+      "entity_type": "LOCATION",
+      "properties": {
+        "description": "Device location within facility"
+      },
+      "confidence": 0.8,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "location: Building A, Floor 2",
+      "aliases": []
+    },
+    {
+      "name": "Motor Bay 3",
+      "entity_type": "LOCATION",
+      "properties": {
+        "description": "Equipment location within facility"
+      },
+      "confidence": 0.8,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "location: Motor Bay 3",
+      "aliases": []
+    },
+    {
+      "name": "Motor Bay 4",
+      "entity_type": "LOCATION",
+      "properties": {
+        "description": "Equipment location within facility"
+      },
+      "confidence": 0.8,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "location: Motor Bay 4",
+      "aliases": []
+    },
+    {
+      "name": "10 requests/sec",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Rate Limit",
+        "value": "10",
+        "type": "COUNT",
+        "tier": "Starter"
+      },
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "Starter tier: 10 requests/sec",
+      "aliases": []
+    },
+    {
+      "name": "100 requests/sec",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Rate Limit",
+        "value": "100",
+        "type": "COUNT",
+        "tier": "Professional"
+      },
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "Professional tier: 100 requests/sec",
+      "aliases": []
+    },
+    {
+      "name": "1000 requests/sec",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Rate Limit",
+        "value": "1000",
+        "type": "COUNT",
+        "tier": "Enterprise"
+      },
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "Enterprise tier: 1,000 requests/sec",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Alan Chen",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "NexusConnect IoT Platform API Specification",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "Owner: Dr. Alan Chen, VP Engineering"
+    },
+    {
+      "source_entity": "NexusConnect IoT Platform",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "NexusConnect API",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "NexusConnect platform uses REST + WebSocket API architecture"
+    },
+    {
+      "source_entity": "NexusConnect API",
+      "source_type": "TECHNOLOGY",
+      "relationship_type": "USES",
+      "target_entity": "OAuth 2.0",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "Authentication: OAuth 2.0 + API Keys"
+    },
+    {
+      "source_entity": "NexusConnect API",
+      "source_type": "TECHNOLOGY",
+      "relationship_type": "USES",
+      "target_entity": "WebSocket",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "Architecture: REST + WebSocket"
+    },
+    {
+      "source_entity": "Nexus",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Temperature Sensor 1",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "manufacturer: Nexus, model: TMP-100"
+    },
+    {
+      "source_entity": "Nexus",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Vibration Sensor 1",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "manufacturer: Nexus, model: VIB-200"
+    },
+    {
+      "source_entity": "Temperature Sensor 1",
+      "source_type": "PRODUCT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Building A Floor 2",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "location: Building A, Floor 2"
+    },
+    {
+      "source_entity": "Vibration Sensor 1",
+      "source_type": "PRODUCT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Motor Bay 3",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "location: Motor Bay 3"
+    },
+    {
+      "source_entity": "Temperature Sensor 1",
+      "source_type": "PRODUCT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Factory A",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "tags: factory-a, production-line-1"
+    },
+    {
+      "source_entity": "Anomaly Detection Model",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "TensorFlow Lite",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "framework: tensorflow_lite"
+    },
+    {
+      "source_entity": "NexusConnect IoT Platform",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Device Management Service",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "Platform provides Device Management API"
+    },
+    {
+      "source_entity": "NexusConnect IoT Platform",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Telemetry Service",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "Platform provides Telemetry API"
+    },
+    {
+      "source_entity": "NexusConnect IoT Platform",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Commands Service",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "Platform provides Commands API"
+    },
+    {
+      "source_entity": "NexusConnect IoT Platform",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Alerts Service",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "Platform provides Alerts API"
+    },
+    {
+      "source_entity": "NexusConnect IoT Platform",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Edge AI Service",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "Platform provides Edge AI API"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 23,
+    "raw_relationship_count": 15,
+    "used_partial_parse": false,
+    "truncated": true
+  }
+}

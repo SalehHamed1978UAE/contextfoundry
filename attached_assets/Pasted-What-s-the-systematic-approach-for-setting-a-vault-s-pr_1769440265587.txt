@@ -1,0 +1,32 @@
+What's the systematic approach for setting a vault's primary organization?                             
+                                                                                                         
+  Options:                                                                                               
+  1. Manual config - Admin sets it when creating vault (not scalable)                                    
+  2. Auto-detect on first extraction - Find the most-referenced organization entity and set as primary   
+  3. Infer from document patterns - Organization mentioned in 80%+ of docs becomes primary               
+  4. Graph centrality - Entity with most relationships becomes anchor                                    
+                                                                                                         
+  Which are you implementing? We need this to work automatically for ANY vault, not just Nexus.          
+                                                                                                         
+  The systematic solution should be:                                                                     
+                                                                                                         
+  def determine_primary_organization(vault_id: str) -> Entity:                                           
+      """                                                                                                
+      Automatically determine vault's primary organization.                                              
+      Run after extraction completes.                                                                    
+      """                                                                                                
+      # Option 1: Most connected organization entity                                                     
+      org = query("""                                                                                    
+          SELECT e.id, e.name, COUNT(r.id) as connection_count                                           
+          FROM entities e                                                                                
+          JOIN relationships r ON e.id = r.from_entity_id OR e.id = r.to_entity_id                       
+          WHERE e.tenant_id = :vault_id                                                                  
+          AND e.type = 'ORGANIZATION'                                                                    
+          GROUP BY e.id                                                                                  
+          ORDER BY connection_count DESC                                                                 
+          LIMIT 1                                                                                        
+      """, vault_id=vault_id)                                                                            
+                                                                                                         
+      return org                                                                                         
+                                                                                                         
+  This way every vault automatically gets an anchor without manual configuration. 

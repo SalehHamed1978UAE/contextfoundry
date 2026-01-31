@@ -1,0 +1,124 @@
+{
+  "document_id": "8f052c3e3c8b",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T09:12:40.626471",
+  "entities": [
+    {
+      "name": "Leona Varga",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "GM/VP",
+        "role": "General Manager/Vice President"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "source_excerpt": "GM/VP: Leona Varga",
+      "aliases": []
+    },
+    {
+      "name": "GridWave",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Energy"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "source_excerpt": "GridWave - EMEA FY26 Roadmap",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "data lake"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "source_excerpt": "Deepen integration with Horizon Prime data lake",
+      "aliases": []
+    },
+    {
+      "name": "Enceladus Energy",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership type": "collaboration"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "source_excerpt": "Enceladus Energy partnership",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "value": 188000000,
+        "period": "FY26",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "source_excerpt": "ARR: $188M",
+      "aliases": []
+    },
+    {
+      "name": "Backlog",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "value": 212000000,
+        "period": "FY26",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "source_excerpt": "Backlog: $212M",
+      "aliases": []
+    },
+    {
+      "name": "Gross Margin",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "value": 55,
+        "period": "FY26",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "source_excerpt": "Gross Margin: 55%",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Leona Varga",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "GridWave",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "evidence": "GM/VP: Leona Varga"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Enceladus Energy",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "evidence": "Enceladus Energy partnership"
+    }
+  ],
+  "metadata": {
+    "filename": "gridwave_emea_roadmap.md",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

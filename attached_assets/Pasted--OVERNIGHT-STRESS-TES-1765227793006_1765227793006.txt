@@ -1,0 +1,89 @@
+═══════════════════════════════════════════════════════════════════════════════
+OVERNIGHT STRESS TEST - 8 HOURS - GO HARD
+═══════════════════════════════════════════════════════════════════════════════
+
+TARGETS:
+- 1,000+ documents generated and ingested
+- 10,000+ entities extracted
+- 50,000+ relationships mapped
+- 10,000+ queries executed
+- Every failure logged, every edge case explored
+
+RULES:
+1. DO NOT FIX ANYTHING - log and continue
+2. Use LLMs to generate everything - documents, queries, test scenarios
+3. Be adversarial - try to break it
+4. Log to /home/claude/overnight_results/ with timestamps
+5. Create summary statistics every hour
+6. Think like you're trying to find every bug before production
+
+YOU DECIDE:
+- How to generate documents (use OpenAI, vary prompts, vary domains)
+- How to structure tests (sequential, parallel, random)
+- What edge cases to explore
+- How to measure success/failure
+- What metrics matter
+
+AREAS TO STRESS:
+
+1. VOLUME
+   - How many documents can it handle?
+   - How many entities before performance degrades?
+   - How large can a single document be?
+   - How many concurrent extractions?
+
+2. VARIETY  
+   - Every industry ADQ touches (50+ portfolio companies worth of domains)
+   - Every entity type in the schema
+   - Every relationship type
+   - Every query pattern we built
+   - Languages? Formats? Structures?
+
+3. VELOCITY
+   - Extraction speed over time - does it slow down?
+   - Query latency under load
+   - Memory usage trends
+   - Database growth
+
+4. VALIDITY
+   - Are extractions accurate?
+   - Are relationships correct?
+   - Does confidence calibration hold at scale?
+   - Does hallucination refusal work under pressure?
+
+5. BREAKING POINTS
+   - Malformed documents
+   - Contradictory information across documents
+   - Circular relationships
+   - Duplicate entities with different attributes
+   - Queries designed to confuse
+   - Empty documents, huge documents, weird characters
+   - SQL injection attempts in queries (log if blocked)
+   - Prompt injection in documents (log if handled)
+
+OUTPUT:
+
+Create /home/claude/overnight_results/SUMMARY.md with:
+- Total documents attempted / succeeded / failed
+- Total entities extracted
+- Total relationships extracted  
+- Total queries run
+- Query success rate by type
+- Average latencies (extraction, query)
+- Top 10 failure modes
+- Top 10 slowest operations
+- Hourly stats showing trends
+- Recommendations for morning review
+
+Also create detailed logs:
+- /home/claude/overnight_results/documents_log.jsonl
+- /home/claude/overnight_results/extractions_log.jsonl
+- /home/claude/overnight_results/queries_log.jsonl
+- /home/claude/overnight_results/errors_log.jsonl
+
+YOU HAVE 8 HOURS. FILL THEM. 
+
+When Saleh wakes up, he should have thousands of data points to review,
+not dozens. Show him what Context Foundry can handle - and where it breaks.
+
+GO.

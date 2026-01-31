@@ -1,0 +1,185 @@
+schema_version: "1.0"
+domain: "Fiction & Literature"
+description: "Schema for extracting narrative elements from fiction: characters, locations, objects, creatures, and their relationships."
+
+example_queries:
+  - "Who does Alice meet in Wonderland?"
+  - "What locations does Alice visit?"
+  - "What creatures does Alice encounter?"
+  - "Who is the Queen of Hearts?"
+  - "What happens at the Mad Tea Party?"
+  - "What magical objects appear in the story?"
+
+entity_types:
+  - name: CHARACTER
+    description: "A person or anthropomorphized being in the story"
+    keywords:
+      - character
+      - person
+      - protagonist
+      - antagonist
+      - hero
+      - villain
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - description
+      - role
+      - traits
+      - age
+
+  - name: CREATURE
+    description: "An animal or fantastical creature"
+    keywords:
+      - creature
+      - animal
+      - beast
+      - monster
+      - pet
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - species
+      - description
+      - abilities
+
+  - name: LOCATION
+    description: "A place or setting in the story"
+    keywords:
+      - location
+      - place
+      - setting
+      - world
+      - kingdom
+      - land
+      - room
+      - garden
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - description
+      - location_type
+      - parent_location
+
+  - name: OBJECT
+    description: "A notable item, artifact, or prop"
+    keywords:
+      - object
+      - item
+      - artifact
+      - tool
+      - weapon
+      - potion
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - description
+      - properties
+      - magical
+
+  - name: EVENT
+    description: "A significant happening or action"
+    keywords:
+      - event
+      - party
+      - trial
+      - meeting
+      - adventure
+      - journey
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - description
+      - participants
+      - outcome
+
+relationship_types:
+  - name: INTERACTS_WITH
+    description: "Character/Creature interacts with another Character/Creature"
+    source_types:
+      - CHARACTER
+      - CREATURE
+    target_types:
+      - CHARACTER
+      - CREATURE
+    cardinality: many-to-many
+
+  - name: LOCATED_IN
+    description: "Character/Creature/Object is found in a Location"
+    source_types:
+      - CHARACTER
+      - CREATURE
+      - OBJECT
+    target_types:
+      - LOCATION
+    cardinality: many-to-many
+
+  - name: TRAVELS_TO
+    description: "Character/Creature travels to a Location"
+    source_types:
+      - CHARACTER
+      - CREATURE
+    target_types:
+      - LOCATION
+    cardinality: many-to-many
+
+  - name: POSSESSES
+    description: "Character/Creature owns or carries an Object"
+    source_types:
+      - CHARACTER
+      - CREATURE
+    target_types:
+      - OBJECT
+    cardinality: many-to-many
+
+  - name: TRANSFORMS_INTO
+    description: "Character/Creature/Object changes into something else"
+    source_types:
+      - CHARACTER
+      - CREATURE
+      - OBJECT
+    target_types:
+      - CHARACTER
+      - CREATURE
+      - OBJECT
+    cardinality: many-to-one
+
+  - name: PARTICIPATES_IN
+    description: "Character/Creature participates in an Event"
+    source_types:
+      - CHARACTER
+      - CREATURE
+    target_types:
+      - EVENT
+    cardinality: many-to-many
+
+  - name: CAUSES
+    description: "Event or action causes another Event"
+    source_types:
+      - EVENT
+      - CHARACTER
+    target_types:
+      - EVENT
+    cardinality: many-to-many
+
+  - name: RELATED_TO
+    description: "Character is related to another Character (family)"
+    source_types:
+      - CHARACTER
+    target_types:
+      - CHARACTER
+    cardinality: many-to-many
+
+  - name: CONTAINS
+    description: "Location contains another Location (nesting)"
+    source_types:
+      - LOCATION
+    target_types:
+      - LOCATION
+    cardinality: one-to-many
+
+validation_rules:
+  - name: character_must_have_name
+    description: "All characters must have a canonical name"
+    applies_to: CHARACTER
+    requires: "canonical_name is not null"

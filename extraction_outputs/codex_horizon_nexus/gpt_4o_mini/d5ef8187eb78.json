@@ -1,0 +1,208 @@
+{
+  "document_id": "d5ef8187eb78",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/autorail_orchestrator_telemetry_spec.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:54:21.022724",
+  "entities": [
+    {
+      "name": "TransitEdge",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Transit"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/autorail_orchestrator_telemetry_spec.md",
+      "source_excerpt": "Business Unit: TransitEdge",
+      "aliases": []
+    },
+    {
+      "name": "AutoRail",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Telemetry schema for freight",
+        "category": "Module"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/autorail_orchestrator_telemetry_spec.md",
+      "source_excerpt": "Product/Module: AutoRail",
+      "aliases": []
+    },
+    {
+      "name": "Marcus Nguyen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Design Owner",
+        "role": "Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/autorail_orchestrator_telemetry_spec.md",
+      "source_excerpt": "Design Owner: Marcus Nguyen",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Documentation Platform",
+        "industry": "Software"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/autorail_orchestrator_telemetry_spec.md",
+      "source_excerpt": "Interfaces documented via Horizon Prime Confluence.",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Firmware versions"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/autorail_orchestrator_telemetry_spec.md",
+      "source_excerpt": "Dependencies on CoreMatrix firmware versions.",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Dashboard for performance KPIs"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/autorail_orchestrator_telemetry_spec.md",
+      "source_excerpt": "Performance KPIs stored in PulseOps dashboard.",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Logistics"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/autorail_orchestrator_telemetry_spec.md",
+      "source_excerpt": "Align telemetry schema with Titan Logistics requirements.",
+      "aliases": []
+    },
+    {
+      "name": "VectorTech",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Supply readiness",
+        "risk level": "Medium"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/autorail_orchestrator_telemetry_spec.md",
+      "source_excerpt": "Confirm supply readiness with VectorTech.",
+      "aliases": []
+    },
+    {
+      "name": "Security",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Encryption"
+      },
+      "confidence": 0.6,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/autorail_orchestrator_telemetry_spec.md",
+      "source_excerpt": "Validate encryption module with Security.",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Marcus Nguyen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "TransitEdge",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/autorail_orchestrator_telemetry_spec.md",
+      "evidence": "Design Owner: Marcus Nguyen"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "AutoRail",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/autorail_orchestrator_telemetry_spec.md",
+      "evidence": "Business Unit: TransitEdge"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "TransitEdge",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/autorail_orchestrator_telemetry_spec.md",
+      "evidence": "Interfaces documented via Horizon Prime Confluence."
+    },
+    {
+      "source_entity": "CoreMatrix",
+      "source_type": "TECHNOLOGY",
+      "relationship_type": "USES",
+      "target_entity": "AutoRail",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/autorail_orchestrator_telemetry_spec.md",
+      "evidence": "Dependencies on CoreMatrix firmware versions."
+    },
+    {
+      "source_entity": "PulseOps",
+      "source_type": "TECHNOLOGY",
+      "relationship_type": "USES",
+      "target_entity": "TransitEdge",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/autorail_orchestrator_telemetry_spec.md",
+      "evidence": "Performance KPIs stored in PulseOps dashboard."
+    },
+    {
+      "source_entity": "Titan Logistics",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "TransitEdge",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/autorail_orchestrator_telemetry_spec.md",
+      "evidence": "Align telemetry schema with Titan Logistics requirements."
+    },
+    {
+      "source_entity": "VectorTech",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "TransitEdge",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/autorail_orchestrator_telemetry_spec.md",
+      "evidence": "Confirm supply readiness with VectorTech."
+    },
+    {
+      "source_entity": "Security",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "TransitEdge",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.6,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/autorail_orchestrator_telemetry_spec.md",
+      "evidence": "Validate encryption module with Security."
+    }
+  ],
+  "metadata": {
+    "filename": "autorail_orchestrator_telemetry_spec.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 8,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}
