@@ -1,0 +1,44 @@
+STOP. Replit has been debugging in circles for hours.                                                  
+                                                                                                         
+  Let me cut through this:                                                                               
+                                                                                                         
+  ---                                                                                                    
+  The Issue                                                                                              
+                                                                                                         
+  Earlier investigation showed:                                                                          
+  - Dr. Robert Martinez EXISTS in KG (id: 728264db, TRUSTED)                                             
+  - Relationships EXIST: HOLDS_POSITION, LEADS to NextGen Battery Technologies                           
+                                                                                                         
+  But now Replit says "Dr. Robert Martinez doesn't exist in the knowledge graph"                         
+                                                                                                         
+  ---                                                                                                    
+  This is a Tenant/Data Consistency Issue                                                                
+                                                                                                         
+  Replit has been testing with DIFFERENT tenant IDs:                                                     
+  - Test tenant: 1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91                                                    
+  - Some queries used: 04aeb03b-... (wrong tenant)                                                       
+                                                                                                         
+  ---                                                                                                    
+  REPLIT: Run This ONE Query to Confirm State                                                            
+                                                                                                         
+  -- Check if Dr. Robert Martinez exists with relationships to NextGen in the TEST tenant                
+  SELECT                                                                                                 
+      p.id as person_id,                                                                                 
+      p.name as person_name,                                                                             
+      p.lifecycle_state as person_state,                                                                 
+      r.relationship_type,                                                                               
+      e.name as target_name,                                                                             
+      e.lifecycle_state as target_state                                                                  
+  FROM entities p                                                                                        
+  JOIN relationships r ON p.id = r.source_id                                                             
+  JOIN entities e ON r.target_id = e.id                                                                  
+  WHERE p.tenant_id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'                                             
+  AND p.name ILIKE '%robert martinez%'                                                                   
+  AND e.name ILIKE '%nextgen%'                                                                           
+  AND r.lifecycle_state IN ('TRUSTED', 'STAGING')                                                        
+  AND p.lifecycle_state IN ('TRUSTED', 'STAGING')                                                        
+  AND e.lifecycle_state IN ('TRUSTED', 'STAGING');                                                       
+                                                                                                         
+  Report the EXACT output. If zero rows, the data doesn't exist in TRUSTED/STAGING state. If rows exist, 
+  the retrieval code is wrong.                                                                           
+                                   
