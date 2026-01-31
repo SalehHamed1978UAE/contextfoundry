@@ -1,5 +1,5 @@
 {
-  "run_timestamp": "2026-01-31T22:58:43.772907",
+  "run_timestamp": "2026-01-31T23:54:46.430652",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
@@ -10,9 +10,9 @@
     },
     "evaluator_rule_distribution": {
       "exact_match": 49,
-      "component_match": 27,
+      "component_match": 29,
       "no_data": 3,
-      "no_match": 11,
+      "no_match": 9,
       "number_match": 7,
       "percentage_match": 1,
       "entity_match": 1,
@@ -505,16 +505,6 @@
         ]
       },
       {
-        "q_id": 36,
-        "question": "Which division has the highest safety incident rate (TRIR)?",
-        "expected": "Nexus Advanced Materials (1.24 TRIR)",
-        "actual": "The division with the highest safety inc",
-        "files_retrieved": [
-          "05_safety_committee_meeting.md",
-          "07_environmental_health_safety.md"
-        ]
-      },
-      {
         "q_id": 45,
         "question": "When was Dr. Victoria Chen appointed CEO?",
         "expected": "2019",
@@ -547,17 +537,6 @@
           "06_market_expansion_asia.md",
           "02_aerospace_division_strategy.md",
           "01_corporate_strategy_2026_2030.md"
-        ]
-      },
-      {
-        "q_id": 83,
-        "question": "Who is the primary customer for the SmartGrid Controller?",
-        "expected": "Pacific Power (pilot customer)",
-        "actual": "The primary customers for the SmartGrid ",
-        "files_retrieved": [
-          "07_smartgrid_controller_specification.md",
-          "08_pacific_power_utility.md",
-          "08_smartgrid_controller.md"
         ]
       },
       {
