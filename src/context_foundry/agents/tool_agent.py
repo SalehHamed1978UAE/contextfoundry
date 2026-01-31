@@ -502,7 +502,27 @@ Which one would you like to know more about? Please specify by name."""
             logger.info(f"[AGENT] Pipeline: strategy={pipeline_result.strategy_used}, has_data={pipeline_result.has_data}")
         except Exception as e:
             logger.warning(f"[AGENT] Pipeline pre-processing failed (continuing without): {e}")
-        
+
+        # CRITICAL: Handle scoped role queries that failed to find the role at the specified entity
+        # Return "I don't know" instead of falling through to anchor org resolution (which gives wrong answer)
+        if pipeline_result and pipeline_result.strategy_used == "SCOPED_NOT_FOUND":
+            ambiguity = pipeline_result.ambiguity
+            scoped_term = ambiguity.query_term if ambiguity else "this information"
+            logger.info(f"[AGENT] Scoped query not found: '{scoped_term}' - returning 'I don't know'")
+
+            return build_response(
+                answer=f"I couldn't find information about {scoped_term} in the knowledge base. "
+                       f"This specific relationship may not have been documented or extracted yet.",
+                confidence=0.0,
+                qa_verdict={"status": "NOT_FOUND", "reason": f"Scoped entity role not found: {scoped_term}"},
+                evidence=build_qa_evidence(retrieval_result=pipeline_result),
+                iterations=0,
+                time_ms=int((time.time() - start_time) * 1000),
+                success=True,
+                pipeline_result=pipeline_result,
+                extra={"scoped_not_found": True, "scoped_term": scoped_term}
+            )
+
         if pipeline_result and pipeline_result.needs_disambiguation and pipeline_result.ambiguity:
             logger.info(f"[AGENT] Ambiguity detected ({pipeline_result.ambiguity.ambiguity_type}) - using disambiguation reasoner")
             return self._build_disambiguation_response(question, pipeline_result, start_time, vault_context=vault_context)

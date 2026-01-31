@@ -155,7 +155,210 @@ class RoleResolver:
                 break
         
         return list(set(variations))
-    
+
+    # Patterns to detect scoped role queries like "Who is the CEO of NextGen Battery?"
+    SCOPED_ROLE_PATTERNS = [
+        # "Who is the CEO of NextGen Battery?"
+        re.compile(r"(?:who is|who's|name of)\s+(?:the\s+)?(.+?)\s+(?:of|for|at)\s+(.+?)[\?\.]?$", re.IGNORECASE),
+        # "CEO of NextGen Battery" - direct pattern
+        re.compile(r"^(?:the\s+)?(.+?)\s+(?:of|for|at)\s+(.+?)[\?\.]?$", re.IGNORECASE),
+    ]
+
+    def extract_scoped_query(self, query: str) -> Optional[Dict[str, str]]:
+        """
+        Detect if query asks for a role at a specific entity.
+
+        Examples:
+            "Who is the CEO of NextGen Battery?" → {"role": "CEO", "entity": "NextGen Battery"}
+            "Who will be the CEO of the Toyota JV?" → {"role": "CEO", "entity": "Toyota JV"}
+
+        Returns:
+            Dict with 'role' and 'entity' if scoped query detected, None otherwise
+        """
+        logger.info(f"[SCOPED_EXTRACT] Input query: {query}")
+
+        for pattern in self.SCOPED_ROLE_PATTERNS:
+            match = pattern.search(query.strip())
+            if match:
+                role = match.group(1).strip()
+                entity = match.group(2).strip()
+
+                logger.info(f"[SCOPED_EXTRACT] Pattern matched: role='{role}', entity='{entity}'")
+
+                # Skip if "role" is actually a common question word
+                if role.lower() in ('who', 'what', 'the', 'name', 'a'):
+                    logger.info(f"[SCOPED_EXTRACT] Skipping - role is question word: '{role}'")
+                    continue
+
+                # Check if the role is actually a known role type
+                normalized_role = self._normalize_role(role)
+                role_keywords = ['ceo', 'cto', 'cfo', 'coo', 'cmo', 'cio', 'cdo', 'president',
+                                'director', 'manager', 'head', 'lead', 'vp', 'svp', 'evp',
+                                'chief', 'officer', 'engineer', 'project']
+
+                is_role = (
+                    normalized_role in self.ROLE_NORMALIZATIONS.values() or
+                    role.lower() in self.ROLE_EXPANSIONS or
+                    any(kw in role.lower() for kw in role_keywords)
+                )
+
+                if is_role:
+                    logger.info(f"[SCOPED_EXTRACT] SUCCESS - Detected scoped query: role='{role}' entity='{entity}'")
+                    return {"role": role, "entity": entity}
+                else:
+                    logger.info(f"[SCOPED_EXTRACT] Not a recognized role: '{role}'")
+
+        logger.info(f"[SCOPED_EXTRACT] No scoped pattern matched for query")
+        return None
+
+    def resolve_for_entity(self, role: str, entity_name: str) -> RoleResolution:
+        """
+        Resolve a role specifically for a given entity.
+
+        This is used for scoped queries like "Who is the CEO of NextGen Battery?"
+        Unlike resolve_all, this ONLY searches for the role at the specified entity.
+
+        Args:
+            role: The role to find (e.g., "CEO", "Director")
+            entity_name: The entity to search within (e.g., "NextGen Battery Technologies")
+
+        Returns:
+            RoleResolution - if not found, resolution_method will be "scoped_entity_not_found"
+        """
+        logger.info(f"[SCOPED_RESOLVE] Resolving '{role}' specifically for entity '{entity_name}'")
+
+        role_variations = self._get_role_variations(role)
+        logger.info(f"[SCOPED_RESOLVE] Role variations: {role_variations}")
+
+        # Step 1: Find the entity by name (fuzzy match)
+        entity_query = text("""
+            SELECT id, name, entity_type
+            FROM entities
+            WHERE tenant_id = :tenant_id
+            AND lifecycle_state IN ('TRUSTED', 'STAGING')
+            AND (
+                LOWER(name) LIKE LOWER(:entity_pattern)
+                OR name ILIKE :entity_pattern
+            )
+            ORDER BY
+                CASE WHEN LOWER(name) = LOWER(:exact_name) THEN 0 ELSE 1 END,
+                confidence DESC
+            LIMIT 5
+        """)
+
+        try:
+            entity_results = self.session.execute(entity_query, {
+                "tenant_id": self.tenant_id,
+                "entity_pattern": f"%{entity_name}%",
+                "exact_name": entity_name
+            }).fetchall()
+
+            if not entity_results:
+                logger.info(f"[SCOPED_RESOLVE] Entity '{entity_name}' not found in KG")
+                return RoleResolution(
+                    role=role,
+                    resolution_method="scoped_entity_not_found"
+                )
+
+            entity_ids = [str(r.id) for r in entity_results]
+            entity_names = [r.name for r in entity_results]
+            logger.info(f"[SCOPED_RESOLVE] Found entity candidates: {entity_names}")
+
+            # Step 2: Find person with role who has relationship to this entity
+            role_edge_types = ['HOLDS_POSITION', 'MANAGES', 'LEADS', 'DIRECTS', 'CHAIRS',
+                              'CEO_OF', 'CTO_OF', 'CFO_OF', 'HEAD_OF', 'WORKS_AT', 'EMPLOYED_BY']
+
+            role_clauses, role_params = self._build_role_field_clauses(role_variations, "person")
+            type_placeholders = ", ".join([f":edge_type{i}" for i in range(len(role_edge_types))])
+            entity_placeholders = ", ".join([f":entity_id{i}" for i in range(len(entity_ids))])
+
+            person_query = text(f"""
+                SELECT DISTINCT
+                    person.id as person_id,
+                    person.name as person_name,
+                    person.properties as props,
+                    r.relationship_type,
+                    target.name as target_name
+                FROM entities person
+                JOIN relationships r ON (r.source_id = person.id OR r.target_id = person.id)
+                JOIN entities target ON (
+                    CASE WHEN r.source_id = person.id THEN r.target_id ELSE r.source_id END = target.id
+                )
+                WHERE person.tenant_id = :tenant_id
+                AND person.entity_type = 'PERSON'
+                AND person.lifecycle_state IN ('TRUSTED', 'STAGING')
+                AND r.lifecycle_state IN ('TRUSTED', 'STAGING')
+                AND target.id IN ({entity_placeholders})
+                AND (
+                    r.relationship_type IN ({type_placeholders})
+                    OR ({role_clauses})
+                )
+                ORDER BY person.confidence DESC
+                LIMIT 10
+            """)
+
+            params = {
+                "tenant_id": self.tenant_id,
+                **role_params
+            }
+            for i, eid in enumerate(entity_ids):
+                params[f"entity_id{i}"] = eid
+            for i, edge_type in enumerate(role_edge_types):
+                params[f"edge_type{i}"] = edge_type
+
+            person_results = self.session.execute(person_query, params).fetchall()
+            logger.info(f"[SCOPED_RESOLVE] Found {len(person_results)} person candidates")
+
+            if person_results:
+                for row in person_results:
+                    props = row.props or {}
+                    person_role = (props.get('position') or props.get('role') or
+                                   props.get('title') or '').lower()
+
+                    logger.info(f"[SCOPED_RESOLVE] Checking {row.person_name}: role='{person_role}', rel_type='{row.relationship_type}'")
+
+                    # Check if person's role matches any variation
+                    role_match = any(var in person_role for var in role_variations)
+
+                    if role_match:
+                        logger.info(f"[SCOPED_RESOLVE] SUCCESS - Found '{role}' of '{entity_name}': {row.person_name}")
+                        return RoleResolution(
+                            role=role,
+                            resolved_name=row.person_name,
+                            resolved_entity_id=str(row.person_id),
+                            confidence=0.85,
+                            resolution_method="scoped_entity_match"
+                        )
+
+                # Check relationship type as fallback
+                for row in person_results:
+                    rel_type = row.relationship_type.upper() if row.relationship_type else ''
+                    normalized = self._normalize_role(role)
+
+                    if normalized in rel_type or role.upper() in rel_type:
+                        logger.info(f"[SCOPED_RESOLVE] SUCCESS via relationship type - Found '{role}' of '{entity_name}': {row.person_name}")
+                        return RoleResolution(
+                            role=role,
+                            resolved_name=row.person_name,
+                            resolved_entity_id=str(row.person_id),
+                            confidence=0.80,
+                            resolution_method="scoped_relationship_match"
+                        )
+
+            # Not found - return explicit "not found for this entity" status
+            logger.info(f"[SCOPED_RESOLVE] FAILED - Could not find '{role}' for entity '{entity_name}'")
+            return RoleResolution(
+                role=role,
+                resolution_method="scoped_entity_not_found"
+            )
+
+        except Exception as e:
+            logger.error(f"[SCOPED_RESOLVE] Exception: {e}")
+            return RoleResolution(
+                role=role,
+                resolution_method="scoped_entity_not_found"
+            )
+
     def _build_role_field_clauses(self, role_variations: List[str], entity_alias: str = "e") -> tuple:
         """
         Build SQL clauses for matching roles in specific JSON fields with word boundaries.

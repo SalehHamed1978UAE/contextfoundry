@@ -488,13 +488,49 @@ class QueryPipeline:
             RetrievalResult with all retrieved data
         """
         logger.info(f"[PIPELINE] Processing query: '{query}' (vault_context={vault_context})")
-        
+
         classification = self.classifier.classify(query)
-        
+
         intent = self.intent_detector.detect(query, resolved_entity=None)
-        
-        role_resolution = None
-        if classification.has_role_reference and classification.role_referenced:
+
+        # CRITICAL: Check for scoped role queries FIRST (e.g., "Who is the CEO of NextGen Battery?")
+        # These must be resolved specifically for the named entity, NOT the vault anchor org
+        scoped_query = self.role_resolver.extract_scoped_query(query)
+        if scoped_query:
+            scoped_role = scoped_query["role"]
+            scoped_entity = scoped_query["entity"]
+            logger.info(f"[PIPELINE] Scoped query detected: '{scoped_role}' of '{scoped_entity}'")
+
+            # Resolve role specifically for this entity
+            scoped_resolution = self.role_resolver.resolve_for_entity(scoped_role, scoped_entity)
+
+            if scoped_resolution.resolution_method == "scoped_entity_not_found":
+                # CRITICAL: Return "I don't know" instead of falling through to anchor org
+                logger.info(f"[PIPELINE] Scoped resolution failed - returning 'not found' response")
+                return RetrievalResult(
+                    entities=[],
+                    relationships=[],
+                    chunks=[],
+                    strategy_used="SCOPED_NOT_FOUND",
+                    query=query,
+                    classification=classification,
+                    role_resolution=scoped_resolution,
+                    intent=intent,
+                    # Signal to answer synthesis that this is an explicit "not found"
+                    ambiguity=AmbiguityResult(
+                        ambiguity_type="scoped_not_found",
+                        query_term=f"{scoped_role} of {scoped_entity}",
+                        matches=[]  # Explicitly empty - nothing found
+                    )
+                )
+            elif scoped_resolution.is_resolved:
+                # Success - we found the role for this specific entity
+                logger.info(f"[PIPELINE] Scoped resolution success: {scoped_resolution.resolved_name}")
+                # Continue with normal flow using resolved person
+                role_resolution = scoped_resolution
+
+        role_resolution = role_resolution if scoped_query else None  # Keep scoped result if we have it
+        if classification.has_role_reference and classification.role_referenced and not role_resolution:
             role_resolution = self.role_resolver.resolve_all(classification.role_referenced, vault_context=vault_context)
             
             should_chain = (
