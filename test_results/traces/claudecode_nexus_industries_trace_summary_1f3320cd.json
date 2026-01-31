@@ -1,24 +1,25 @@
 {
-  "run_timestamp": "2026-01-31T21:33:57.278674",
+  "run_timestamp": "2026-01-31T22:14:07.774303",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 2.9599999999999986,
-    "avg_semantic_score": 0.07517599999999998,
+    "avg_chunks_retrieved": 2.92,
+    "avg_semantic_score": 0.07097600000000003,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
       "exact_match": 48,
-      "component_match": 27,
-      "no_data": 3,
+      "component_match": 25,
+      "no_data": 4,
+      "timeout": 1,
       "no_match": 12,
       "number_match": 7,
       "percentage_match": 1,
       "entity_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 88
+    "low_score_queries": 89
   },
   "low_score_questions": [
     {
@@ -387,6 +388,11 @@
       "avg_score": 0.0
     },
     {
+      "q_id": 83,
+      "question": "Who is the primary customer for the SmartGrid Controller?",
+      "avg_score": 0.0
+    },
+    {
       "q_id": 84,
       "question": "What is the cybersecurity incident response investment?",
       "avg_score": 0.0
@@ -488,6 +494,22 @@
           "02_business_divisions.md",
           "05_fedramp_announcement.md"
         ]
+      },
+      {
+        "q_id": 83,
+        "question": "Who is the primary customer for the SmartGrid Controller?",
+        "expected": "Pacific Power (pilot customer)",
+        "actual": "The primary customer for the SmartGrid C",
+        "files_retrieved": []
+      }
+    ],
+    "timeout": [
+      {
+        "q_id": 17,
+        "question": "Who supplied the electrolyzers for the GreenHydrogen facilit",
+        "expected": "Nel Hydrogen",
+        "actual": "",
+        "files_retrieved": []
       }
     ],
     "no_match": [
@@ -532,6 +554,16 @@
         "files_retrieved": []
       },
       {
+        "q_id": 36,
+        "question": "Which division has the highest safety incident rate (TRIR)?",
+        "expected": "Nexus Advanced Materials (1.24 TRIR)",
+        "actual": "The division with the highest safety inc",
+        "files_retrieved": [
+          "05_safety_committee_meeting.md",
+          "07_environmental_health_safety.md"
+        ]
+      },
+      {
         "q_id": 45,
         "question": "When was Dr. Victoria Chen appointed CEO?",
         "expected": "2019",
@@ -571,17 +603,6 @@
           "02_aerospace_division_strategy.md",
           "01_corporate_strategy_2026_2030.md",
           "06_market_expansion_asia.md"
-        ]
-      },
-      {
-        "q_id": 83,
-        "question": "Who is the primary customer for the SmartGrid Controller?",
-        "expected": "Pacific Power (pilot customer)",
-        "actual": "The primary customer for the SmartGrid C",
-        "files_retrieved": [
-          "10_first_solar_supplier.md",
-          "08_quantum_computing_services.md",
-          "02_airbus_customer_profile.md"
         ]
       },
       {
