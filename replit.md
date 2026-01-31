@@ -11,6 +11,14 @@ Context Foundry is a Cognitive Operating System for the Enterprise designed to b
 - Provide human review workflow for conflicts and duplicates
 - Ensure resilient database error handling with session rollback
 
+## CORE PRINCIPLE: No Band-Aids, No Hardcoding
+**We do NOT manually insert data to pass tests. We fix the SYSTEM to be capable of passing tests.**
+- Never add hardcoded relationships or entities to "pass" a specific question
+- Instead: Improve the extraction pipeline, ontology, or prompts so the system extracts correctly
+- The goal is a smart, generalizable system - not test-passing hacks
+- If data is missing: Check if it's a corpus gap (data doesn't exist) vs extraction gap (data exists but wasn't captured)
+- For extraction gaps: Fix the extractor. For corpus gaps: Flag as data limitation.
+
 ## System Architecture
 Context Foundry is built around a **Tri-Memory System** (Semantic, Episodic, Symbolic Memory) and a **Fact Lifecycle** (STAGING, TRUSTED, ARCHIVED) with metadata such as `_layer`, `_confidence`, `_sources`, and `_lifecycle`. A core principle is **Context-Attached Knowledge**, enriching relationships with temporal validity and provenance. The system assembles a **Context Bundle** for AI applications, packaging focal entities, relationships, rules, and a confidence summary.
 
