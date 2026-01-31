@@ -1,0 +1,113 @@
+Collect Evidence for Each Pattern                                                              
+                                                                                                         
+  Pattern 1: Scoping/Context (Q32, Q37, Q68, Q83)                                                        
+                                                                                                         
+  For each question, trace the KG traversal:                                                             
+                                                                                                         
+  # Q32: "Who is the CEO of the Toyota JV?"                                                              
+  # Expected: Dr. Robert Martinez                                                                        
+  # Got: Victoria Chen                                                                                   
+                                                                                                         
+  # Trace what entities/relationships are being queried                                                  
+  # Show which anchor org or project scope is applied (or missing)                                       
+                                                                                                         
+  from src.context_foundry.core import ContextFoundry                                                    
+  cf = ContextFoundry(vault_id='1f3320cd-...')                                                           
+                                                                                                         
+  # Enable detailed logging                                                                              
+  import logging                                                                                         
+  logging.getLogger('context_foundry').setLevel(logging.DEBUG)                                           
+                                                                                                         
+  response = cf.query("Who is the CEO of the Toyota joint venture?")                                     
+  # Capture the full trace showing:                                                                      
+  # - Which entities were resolved                                                                       
+  # - Which relationships were traversed                                                                 
+  # - Why Victoria Chen was returned instead of Robert Martinez                                          
+                                                                                                         
+  Deliverable: For each of Q32, Q37, Q68, Q83 - show the KG path taken and where scoping failed.         
+                                                                                                         
+  ---                                                                                                    
+  Pattern 2: Retrieval Recall (Q16, Q31, Q82)                                                            
+                                                                                                         
+  Check if data exists in corpus and chunks:                                                             
+                                                                                                         
+  # Q16: Toyota solid-state battery partner                                                              
+  grep -ri "toyota" /path/to/corpus/ | grep -i "battery\|solid.state\|partner"                           
+                                                                                                         
+  # Q31: Toyota JV 51% ownership                                                                         
+  grep -ri "51%" /path/to/corpus/ | grep -i "toyota\|ownership\|joint.venture"                           
+                                                                                                         
+  # Q82: Nexus founded 1985                                                                              
+  grep -ri "1985" /path/to/corpus/ | grep -i "founded\|established\|nexus"                               
+                                                                                                         
+  Then check if chunks exist in vector DB:                                                               
+                                                                                                         
+  SELECT id, text, document_id                                                                           
+  FROM document_chunks                                                                                   
+  WHERE tenant_id = '1f3320cd-...'                                                                       
+  AND (text ILIKE '%toyota%' AND text ILIKE '%solid%state%');                                            
+                                                                                                         
+  Deliverable: For each of Q16, Q31, Q82 - show whether chunk exists and if embedding retrieval returns  
+  it.                                                                                                    
+                                                                                                         
+  ---                                                                                                    
+  Pattern 3: Ranking/Aggregation (Q19, Q36, Q100)                                                        
+                                                                                                         
+  Query the KG directly for the values:                                                                  
+                                                                                                         
+  -- Q19: Largest aerospace customer                                                                     
+  SELECT e.name, e.properties->>'contract_value' as value                                                
+  FROM entities e                                                                                        
+  WHERE tenant_id = '1f3320cd-...'                                                                       
+  AND (e.entity_type = 'CUSTOMER' OR e.properties->>'relationship_type' = 'customer')                    
+  ORDER BY (e.properties->>'contract_value')::numeric DESC                                               
+  LIMIT 10;                                                                                              
+                                                                                                         
+  -- Q36: TRIR by division                                                                               
+  SELECT e.name, e.properties->>'TRIR' as trir                                                           
+  FROM entities e                                                                                        
+  WHERE tenant_id = '1f3320cd-...'                                                                       
+  AND e.entity_type = 'DIVISION';                                                                        
+                                                                                                         
+  -- Q100: Top 3 customer values                                                                         
+  -- Show what values exist for customer contracts                                                       
+                                                                                                         
+  Deliverable: Table showing what values the KG currently has for these metrics.                         
+                                                                                                         
+  ---                                                                                                    
+  Pattern 4: Temporal/Phase (Q24, Q45, Q61)                                                              
+                                                                                                         
+  Check if temporal metadata exists:                                                                     
+                                                                                                         
+  -- Q24: GreenHydrogen Phase 1 capacity                                                                 
+  SELECT e.name, e.properties                                                                            
+  FROM entities e                                                                                        
+  WHERE tenant_id = '1f3320cd-...'                                                                       
+  AND e.name ILIKE '%greenhydrogen%' OR e.name ILIKE '%capacity%';                                       
+                                                                                                         
+  -- Q45: When Victoria Chen became CEO                                                                  
+  SELECT e.name, e.properties->>'start_date', e.properties->>'appointed_date'                            
+  FROM entities e                                                                                        
+  WHERE tenant_id = '1f3320cd-...'                                                                       
+  AND e.name ILIKE '%victoria%chen%';                                                                    
+                                                                                                         
+  -- Q61: Thomas Anderson succession                                                                     
+  SELECT e.name, r.relationship_type, e2.name                                                            
+  FROM entities e                                                                                        
+  JOIN relationships r ON e.id = r.source_id OR e.id = r.target_id                                       
+  JOIN entities e2 ON (r.source_id = e2.id OR r.target_id = e2.id) AND e2.id != e.id                     
+  WHERE e.tenant_id = '1f3320cd-...'                                                                     
+  AND e.name ILIKE '%thomas anderson%';                                                                  
+                                                                                                         
+  Deliverable: Description of what temporal fields exist (or don't exist) in the current schema.         
+                                                                                                         
+  ---                                                                                                    
+  Expected Output from Replit                                                                            
+                                                                                                         
+  A report with 4 sections:                                                                              
+  1. Scoping failures - Trace logs showing wrong entity resolution                                       
+  2. Retrieval gaps - Chunk existence vs embedding retrieval results                                     
+  3. Ranking data - Table of current KG values for customer/TRIR/backlog                                 
+  4. Temporal schema - What date fields exist and what's missing                                         
+                                                                                                         
+  Once we have this evidence, we can prioritize the highest-impact fix
