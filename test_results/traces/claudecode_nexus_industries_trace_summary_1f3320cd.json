@@ -1,18 +1,18 @@
 {
-  "run_timestamp": "2026-01-31T22:29:26.758748",
+  "run_timestamp": "2026-01-31T22:58:43.772907",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
     "avg_chunks_retrieved": 3.060000000000001,
-    "avg_semantic_score": 0.107309,
+    "avg_semantic_score": 0.108403,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
       "exact_match": 49,
-      "component_match": 29,
+      "component_match": 27,
       "no_data": 3,
-      "no_match": 9,
+      "no_match": 11,
       "number_match": 7,
       "percentage_match": 1,
       "entity_match": 1,
@@ -464,8 +464,8 @@
         "expected": "1985",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "05_fedramp_announcement.md",
           "04_toyota_partnership_announcement.md",
+          "08_global_locations.md",
           "03_press_release_fy2025.md"
         ]
       }
@@ -477,9 +477,9 @@
         "expected": "Boeing ($730 million)",
         "actual": "The largest aerospace customer of Nexus ",
         "files_retrieved": [
-          "07_ma_strategy.md",
+          "12_supplier_performance_review.md",
           "03_ge_aerospace_customer.md",
-          "02_airbus_customer_profile.md"
+          "07_ma_strategy.md"
         ]
       },
       {
@@ -488,8 +488,8 @@
         "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
         "actual": "The GreenHydrogen facility in El Paso, T",
         "files_retrieved": [
-          "09_greenhydrogen_milestone.md",
           "02_greenhydrogen_process_specification.md",
+          "09_greenhydrogen_milestone.md",
           "04_greenhydrogen_initiative.md"
         ]
       },
@@ -499,9 +499,9 @@
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "05_talent_strategy.md",
-          "03_desert_sun_solar_farm.md",
-          "05_fedramp_announcement.md"
+          "05_fedramp_announcement.md",
+          "04_toyota_partnership_announcement.md",
+          "08_global_locations.md"
         ]
       },
       {
@@ -534,8 +534,8 @@
         "expected": "$680 million",
         "actual": "The FY2026 capital expenditure plan for ",
         "files_retrieved": [
-          "01_corporate_strategy_2026_2030.md",
-          "07_capital_allocation_plan.md"
+          "07_capital_allocation_plan.md",
+          "01_corporate_strategy_2026_2030.md"
         ]
       },
       {
@@ -545,8 +545,19 @@
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
           "06_market_expansion_asia.md",
-          "01_corporate_strategy_2026_2030.md",
-          "02_aerospace_division_strategy.md"
+          "02_aerospace_division_strategy.md",
+          "01_corporate_strategy_2026_2030.md"
+        ]
+      },
+      {
+        "q_id": 83,
+        "question": "Who is the primary customer for the SmartGrid Controller?",
+        "expected": "Pacific Power (pilot customer)",
+        "actual": "The primary customers for the SmartGrid ",
+        "files_retrieved": [
+          "07_smartgrid_controller_specification.md",
+          "08_pacific_power_utility.md",
+          "08_smartgrid_controller.md"
         ]
       },
       {
@@ -555,6 +566,17 @@
         "expected": "Owns the Export Control Policy (per POL-",
         "actual": "The VP of Nexus Industries is VP Trade C",
         "files_retrieved": []
+      },
+      {
+        "q_id": 100,
+        "question": "What is the total value of top 3 customer relationships?",
+        "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
+        "actual": "The total value of the top 3 customer re",
+        "files_retrieved": [
+          "05_siemens_healthineers_customer.md",
+          "07_spacex_customer.md",
+          "11_microsoft_customer.md"
+        ]
       }
     ]
   }
