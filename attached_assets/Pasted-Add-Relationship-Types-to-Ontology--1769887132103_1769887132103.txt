@@ -1,0 +1,61 @@
+Add Relationship Types to Ontology                                                             
+                                                                                                         
+  Step 1: Add Missing Relationship Types                                                                 
+                                                                                                         
+  INSERT INTO ontology_relations (tenant_id, name, source_type, target_type, description, examples)      
+  VALUES                                                                                                 
+  -- Organizational leadership                                                                           
+  ('1f3320cd-...', 'CEO_OF', 'PERSON', 'ORGANIZATION',                                                   
+   'Person serves as CEO of an organization, subsidiary, or joint venture',                              
+   '["Dr. Martinez is CEO of NextGen Battery Technologies", "appointed CEO of the JV"]'),                
+                                                                                                         
+  ('1f3320cd-...', 'DIRECTS', 'PERSON', 'PROJECT',                                                       
+   'Person directs or leads a project',                                                                  
+   '["Jennifer Walsh, Project Director", "directs the GreenHydrogen initiative"]'),                      
+                                                                                                         
+  ('1f3320cd-...', 'CHAIRS', 'PERSON', 'TEAM',                                                           
+   'Person chairs a committee or board',                                                                 
+   '["chairs the Export Control Committee", "Committee Chair: Col. Foster"]'),                           
+                                                                                                         
+  ('1f3320cd-...', 'LEADS', 'PERSON', 'ORGANIZATION',                                                    
+   'Person leads an organization, team, or division',                                                    
+   '["leads the Advanced Materials division", "team lead for Project X"]'),                              
+                                                                                                         
+  ('1f3320cd-...', 'CUSTOMER_OF', 'ORGANIZATION', 'PRODUCT',                                             
+   'Organization is a customer for a product or service',                                                
+   '["Pacific Power is a customer for SmartGrid Controller", "pilot customer"]'),                        
+                                                                                                         
+  ('1f3320cd-...', 'PROJECT_DIRECTOR_OF', 'PERSON', 'PROJECT',                                           
+   'Person is the project director',                                                                     
+   '["Project Director: Jennifer Walsh", "serves as Project Director for"]');                            
+                                                                                                         
+  Step 2: Verify Ontology Updated                                                                        
+                                                                                                         
+  SELECT name, source_type, target_type, description                                                     
+  FROM ontology_relations                                                                                
+  WHERE tenant_id = '1f3320cd-...'                                                                       
+  AND name IN ('CEO_OF', 'DIRECTS', 'CHAIRS', 'LEADS', 'CUSTOMER_OF', 'PROJECT_DIRECTOR_OF');            
+                                                                                                         
+  Step 3: Re-extract Documents Containing Evidence                                                       
+                                                                                                         
+  Identify and re-extract:                                                                               
+  - Toyota partnership announcement (Q32 - CEO_OF)                                                       
+  - GreenHydrogen docs (Q37 - DIRECTS)                                                                   
+  - SmartGrid customer docs (Q83 - CUSTOMER_OF)                                                          
+                                                                                                         
+  Step 4: Verify Relationships Extracted                                                                 
+                                                                                                         
+  SELECT e1.name as source, r.relationship_type, e2.name as target                                       
+  FROM relationships r                                                                                   
+  JOIN entities e1 ON r.source_id = e1.id                                                                
+  JOIN entities e2 ON r.target_id = e2.id                                                                
+  WHERE r.tenant_id = '1f3320cd-...'                                                                     
+  AND r.relationship_type IN ('CEO_OF', 'DIRECTS', 'CHAIRS', 'CUSTOMER_OF');                             
+                                                                                                         
+  Step 5: Run Regression Test                                                                            
+                                                                                                         
+  python -m src.test_runner.runner --vault-id "1f3320cd-..." --questions                                 
+  "src/test_questions/nexus_100q.json" --force                                                           
+                                                                                                         
+  ---                                                                                                    
+  Proceed with Step 1. Report when ontology is updated.
