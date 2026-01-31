@@ -30,6 +30,8 @@ class QueryClassification:
     expects_list: bool           # Does query expect multiple results?
     confidence: float
     reasoning: str
+    has_ranking_intent: bool = False  # Does query ask for largest/smallest/top N ranking?
+    ranking_type: Optional[str] = None  # "largest", "smallest", "top_n", etc.
     
     def to_dict(self) -> dict:
         return {
@@ -40,7 +42,9 @@ class QueryClassification:
             "role_referenced": self.role_referenced,
             "expects_list": self.expects_list,
             "confidence": self.confidence,
-            "reasoning": self.reasoning
+            "reasoning": self.reasoning,
+            "has_ranking_intent": self.has_ranking_intent,
+            "ranking_type": self.ranking_type
         }
 
 
@@ -60,6 +64,22 @@ class QueryClassifier:
         'portfolio companies', 'companies', 'who reports', 'reports to',
         'list all', 'what are the', 'which teams', 'how many',
         'employees', 'members', 'executives', 'investments'
+    }
+    
+    RANKING_KEYWORDS = {
+        'largest': 'largest',
+        'biggest': 'largest', 
+        'smallest': 'smallest',
+        'highest': 'largest',
+        'lowest': 'smallest',
+        'most': 'largest',
+        'least': 'smallest',
+        'best': 'largest',
+        'worst': 'smallest',
+        'top': 'top_n',
+        'rank': 'ranking',
+        'ranking': 'ranking',
+        'compare': 'comparison',
     }
     
     def __init__(self, llm_model: str = "gpt-4o-mini"):
@@ -108,6 +128,28 @@ class QueryClassifier:
             if indicator in query_lower:
                 return True
         return False
+    
+    def _quick_ranking_check(self, query: str) -> tuple:
+        """Fast check for ranking/comparison intent.
+        
+        Returns:
+            tuple: (has_ranking_intent: bool, ranking_type: Optional[str])
+        """
+        import re
+        query_lower = query.lower()
+        
+        for keyword, ranking_type in self.RANKING_KEYWORDS.items():
+            if keyword in query_lower:
+                if keyword == 'top':
+                    top_n_match = re.search(r'top\s*(\d+)', query_lower)
+                    if top_n_match:
+                        logger.debug(f"[RANKING_CHECK] MATCH: query='{query}' matched 'top {top_n_match.group(1)}'")
+                        return True, f"top_{top_n_match.group(1)}"
+                logger.debug(f"[RANKING_CHECK] MATCH: query='{query}' matched keyword='{keyword}' type='{ranking_type}'")
+                return True, ranking_type
+        
+        logger.debug(f"[RANKING_CHECK] NO MATCH: query='{query}'")
+        return False, None
     
     def _is_proper_name(self, text: str) -> bool:
         """Check if text looks like a proper name (First Last format with capitalization)."""
@@ -159,6 +201,7 @@ class QueryClassifier:
         
         has_role, role_name = self._quick_role_check(query)
         expects_list = self._quick_list_check(query)
+        has_ranking, ranking_type = self._quick_ranking_check(query)
         
         prompt = f"""Classify this query for a knowledge retrieval system.
 
@@ -249,8 +292,13 @@ RESPOND WITH JSON ONLY:
                 role_referenced=role_name or llm_role,
                 expects_list=final_expects_list,
                 confidence=result.get("confidence", 0.5),
-                reasoning=result.get("reasoning", "")
+                reasoning=result.get("reasoning", ""),
+                has_ranking_intent=has_ranking,
+                ranking_type=ranking_type
             )
+            
+            if has_ranking:
+                logger.info(f"[CLASSIFIER] Ranking query detected: type={ranking_type}")
             
             logger.info(f"[CLASSIFIER] Query: '{query[:50]}...' if len(query) > 50 else '{query}'")
             logger.info(f"[CLASSIFIER] Type: {classification.query_type}, Strategy: {classification.retrieval_strategy}")
@@ -268,7 +316,9 @@ RESPOND WITH JSON ONLY:
                 role_referenced=role_name,
                 expects_list=expects_list,
                 confidence=0.0,
-                reasoning=f"Classification failed: {e}"
+                reasoning=f"Classification failed: {e}",
+                has_ranking_intent=has_ranking,
+                ranking_type=ranking_type
             )
 
 
