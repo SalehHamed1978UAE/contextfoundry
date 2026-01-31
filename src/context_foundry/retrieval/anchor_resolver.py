@@ -278,6 +278,9 @@ class RelationshipFirstRetriever:
         'EMPLOYS',
         'HAS_EMPLOYEE',
         'HAS_ROLE',
+        'MANAGES',
+        'DIRECTS',
+        'CHAIRS',
     ]
     
     REVERSE_EDGE_TYPES = [
@@ -287,6 +290,11 @@ class RelationshipFirstRetriever:
         'LEADS',
         'MEMBER_OF',
         'HOLDS_POSITION',  # Person HOLDS_POSITION at Organization
+        'MANAGES',  # Person MANAGES project/initiative
+        'DIRECTS',  # Person DIRECTS project
+        'CHAIRS',   # Person CHAIRS committee
+        'CEO_OF',   # Person CEO_OF organization
+        'PROJECT_DIRECTOR_OF',  # Person PROJECT_DIRECTOR_OF project
     ]
     
     ROLE_NORMALIZATIONS = {
@@ -463,6 +471,15 @@ class RelationshipFirstRetriever:
             logger.error(f"[REL_FIRST] _get_connected_people failed: {e}")
             return []
     
+    EDGE_TYPE_TO_ROLES = {
+        'LEADS': ['ceo', 'chief executive officer', 'president', 'director', 'head', 'leader'],
+        'MANAGES': ['manager', 'director', 'head', 'project director', 'project manager'],
+        'CHAIRS': ['chair', 'chairman', 'chairwoman', 'chairperson'],
+        'DIRECTS': ['director', 'project director', 'head'],
+        'CEO_OF': ['ceo', 'chief executive officer'],
+        'PROJECT_DIRECTOR_OF': ['project director', 'director'],
+    }
+    
     def _matches_role(self, person: Dict[str, Any], target_role: str) -> bool:
         """
         Check if a person matches the target role.
@@ -470,8 +487,9 @@ class RelationshipFirstRetriever:
         Checks:
         1. Properties: position, role, title, job_title
         2. Normalized role matching (CFO = Chief Financial Officer)
+        3. Edge type inference (LEADS → CEO, MANAGES → Manager, CHAIRS → Chair)
         
-        Does NOT match if person has no role information.
+        Does NOT match if person has no role information AND no matching edge type.
         """
         target_lower = target_role.lower().strip()
         target_normalized = self.ROLE_NORMALIZATIONS.get(target_lower, target_lower)
@@ -494,6 +512,19 @@ class RelationshipFirstRetriever:
                 value_lower = value.lower()
                 for target in targets:
                     if target in value_lower or value_lower in target:
+                        return True
+        
+        all_edge_types = person.get('all_edge_types', [])
+        if not all_edge_types:
+            edge_type = person.get('edge_type', '')
+            all_edge_types = [edge_type] if edge_type else []
+        
+        for edge_type in all_edge_types:
+            if edge_type and edge_type in self.EDGE_TYPE_TO_ROLES:
+                implied_roles = self.EDGE_TYPE_TO_ROLES[edge_type]
+                for target in targets:
+                    if any(target in implied_role or implied_role in target for implied_role in implied_roles):
+                        logger.debug(f"[REL_FIRST] Edge type {edge_type} matches role '{target_role}'")
                         return True
         
         return False
@@ -585,6 +616,254 @@ class RelationshipFirstRetriever:
             
         except Exception as e:
             logger.error(f"[REL_FIRST] resolve_by_department failed: {e}")
+            return []
+
+
+    def resolve_role_for_scoped_entity(
+        self,
+        role: str,
+        target_entity_name: str
+    ) -> Dict[str, Any]:
+        """
+        Resolve a role scoped to a SPECIFIC target entity (not the anchor org).
+        
+        For queries like "Who is the CEO of NextGen Battery Technologies?" or
+        "Who is the Project Director of GreenHydrogen?", we need to traverse
+        relationships TO the named entity, not the anchor org.
+        
+        Args:
+            role: The role to find (e.g., "CEO", "Project Director")
+            target_entity_name: The entity name from the query (e.g., "NextGen Battery Technologies")
+            
+        Returns:
+            Dict with 'entities', 'confidence', 'method', 'target_entity'
+        """
+        logger.info(f"[REL_FIRST] Resolving scoped role '{role}' for entity '{target_entity_name}'")
+        
+        target_entity = self._find_entity_by_name(target_entity_name)
+        if not target_entity:
+            logger.info(f"[REL_FIRST] Target entity '{target_entity_name}' not found")
+            return {
+                "entities": [],
+                "confidence": "none",
+                "method": "scoped_entity_not_found",
+                "target_entity": None
+            }
+        
+        logger.info(f"[REL_FIRST] Found target entity: {target_entity['name']} (id={target_entity['id']}, type={target_entity['entity_type']})")
+        
+        connected_people = self._get_people_connected_to_entity(target_entity['id'])
+        logger.info(f"[REL_FIRST] Found {len(connected_people)} people connected to {target_entity['name']}")
+        
+        matches = []
+        for person in connected_people:
+            if self._matches_role(person, role):
+                matches.append(person)
+                edge_info = f"[edge_rank={person.get('edge_rank', 9)}, {person.get('edge_type', 'unknown')}]"
+                logger.info(f"[REL_FIRST] Scoped role match: {person['name']} - {person.get('role_from_props', 'via relationship')} {edge_info}")
+        
+        if matches:
+            matches.sort(key=lambda x: x.get('edge_rank', 9))
+            logger.info(f"[REL_FIRST] Scoped resolution SUCCESS: '{role}' of '{target_entity_name}' → {matches[0]['name']}")
+            
+            return {
+                "entities": matches,
+                "confidence": "high",
+                "method": "scoped_entity_traversal",
+                "target_entity": target_entity
+            }
+        
+        logger.info(f"[REL_FIRST] No scoped role matches for '{role}' from entity '{target_entity_name}'")
+        return {
+            "entities": [],
+            "confidence": "none",
+            "method": "scoped_entity_traversal",
+            "target_entity": target_entity
+        }
+    
+    def _find_entity_by_name(self, entity_name: str, prefer_with_relationships: bool = True) -> Optional[Dict[str, Any]]:
+        """
+        Find an entity by name (fuzzy match).
+        
+        When prefer_with_relationships=True, prioritizes entities that have 
+        actual relationships attached (for role queries where we need connected entities).
+        """
+        if prefer_with_relationships:
+            query = text("""
+                WITH matching_entities AS (
+                    SELECT e.id, e.name, e.entity_type, e.properties::jsonb as props,
+                        (SELECT COUNT(*) FROM relationships r 
+                         WHERE r.target_id = e.id 
+                         AND r.tenant_id = :tenant_id
+                         AND r.lifecycle_state IN ('TRUSTED', 'STAGING')) as rel_count
+                    FROM entities e
+                    WHERE e.tenant_id = :tenant_id
+                    AND LOWER(e.name) ILIKE :name_pattern
+                    AND e.lifecycle_state IN ('TRUSTED', 'STAGING')
+                )
+                SELECT id, name, entity_type, props, rel_count
+                FROM matching_entities
+                ORDER BY 
+                    rel_count DESC,
+                    CASE WHEN LOWER(name) = LOWER(:exact_name) THEN 0 ELSE 1 END,
+                    LENGTH(name) ASC
+                LIMIT 1
+            """)
+        else:
+            query = text("""
+                SELECT id, name, entity_type, properties::jsonb as props
+                FROM entities
+                WHERE tenant_id = :tenant_id
+                AND LOWER(name) ILIKE :name_pattern
+                AND lifecycle_state IN ('TRUSTED', 'STAGING')
+                ORDER BY 
+                    CASE WHEN LOWER(name) = LOWER(:exact_name) THEN 0 ELSE 1 END,
+                    LENGTH(name) ASC
+                LIMIT 1
+            """)
+        
+        try:
+            result = self.session.execute(query, {
+                "tenant_id": self.tenant_id,
+                "name_pattern": f"%{entity_name.lower()}%",
+                "exact_name": entity_name
+            }).fetchone()
+            
+            if result:
+                return {
+                    "id": str(result.id),
+                    "name": result.name,
+                    "entity_type": result.entity_type,
+                    "properties": result.props or {}
+                }
+            return None
+        except Exception as e:
+            logger.error(f"[REL_FIRST] _find_entity_by_name failed: {e}")
+            return None
+    
+    def _get_people_connected_to_entity(self, entity_id: str) -> List[Dict[str, Any]]:
+        """
+        Get all PERSON entities connected to a target entity via role-related edges.
+        
+        Similar to _get_connected_people but works for any entity, not just anchor.
+        """
+        outgoing_types = ", ".join([f"'{t}'" for t in self.ROLE_EDGE_TYPES])
+        incoming_types = ", ".join([f"'{t}'" for t in self.REVERSE_EDGE_TYPES])
+        
+        query = text(f"""
+            WITH connected AS (
+                -- Outgoing from target entity (e.g., JV LEADS person)
+                SELECT 
+                    target.id as person_id,
+                    target.name as person_name,
+                    target.properties::jsonb as props,
+                    r.relationship_type as edge_type,
+                    'outgoing' as direction,
+                    CASE 
+                        WHEN r.relationship_type = 'HOLDS_POSITION' THEN 1
+                        WHEN r.relationship_type IN ('CEO_OF', 'PROJECT_DIRECTOR_OF') THEN 1
+                        WHEN r.relationship_type = 'LEADS' THEN 2
+                        WHEN r.relationship_type = 'MANAGES' THEN 2
+                        WHEN r.relationship_type = 'DIRECTS' THEN 2
+                        WHEN r.relationship_type = 'CHAIRS' THEN 2
+                        WHEN r.relationship_type IN ('HAS_EXECUTIVE', 'HAS_OFFICER') THEN 2
+                        WHEN r.relationship_type = 'WORKS_FOR' THEN 3
+                        ELSE 4
+                    END as edge_rank
+                FROM relationships r
+                JOIN entities target ON r.target_id = target.id
+                WHERE r.source_id = :entity_id
+                AND r.tenant_id = :tenant_id
+                AND target.entity_type = 'PERSON'
+                AND r.relationship_type IN ({outgoing_types})
+                AND r.lifecycle_state IN ('TRUSTED', 'STAGING')
+                AND target.lifecycle_state IN ('TRUSTED', 'STAGING')
+                
+                UNION ALL
+                
+                -- Incoming to target entity (e.g., person HOLDS_POSITION at JV)
+                SELECT 
+                    source.id as person_id,
+                    source.name as person_name,
+                    source.properties::jsonb as props,
+                    r.relationship_type as edge_type,
+                    'incoming' as direction,
+                    CASE 
+                        WHEN r.relationship_type = 'HOLDS_POSITION' THEN 1
+                        WHEN r.relationship_type IN ('CEO_OF', 'PROJECT_DIRECTOR_OF') THEN 1
+                        WHEN r.relationship_type = 'LEADS' THEN 2
+                        WHEN r.relationship_type = 'MANAGES' THEN 2
+                        WHEN r.relationship_type = 'DIRECTS' THEN 2
+                        WHEN r.relationship_type = 'CHAIRS' THEN 2
+                        WHEN r.relationship_type IN ('HAS_EXECUTIVE', 'HAS_OFFICER') THEN 2
+                        WHEN r.relationship_type = 'WORKS_FOR' THEN 3
+                        ELSE 4
+                    END as edge_rank
+                FROM relationships r
+                JOIN entities source ON r.source_id = source.id
+                WHERE r.target_id = :entity_id
+                AND r.tenant_id = :tenant_id
+                AND source.entity_type = 'PERSON'
+                AND r.relationship_type IN ({incoming_types})
+                AND r.lifecycle_state IN ('TRUSTED', 'STAGING')
+                AND source.lifecycle_state IN ('TRUSTED', 'STAGING')
+            ),
+            aggregated AS (
+                -- Aggregate all edge types per person
+                SELECT 
+                    person_id,
+                    person_name,
+                    props,
+                    MIN(edge_rank) as best_edge_rank,
+                    ARRAY_AGG(DISTINCT edge_type) as all_edge_types,
+                    MAX(direction) as direction
+                FROM connected
+                GROUP BY person_id, person_name, props
+            )
+            SELECT 
+                person_id,
+                person_name,
+                props,
+                all_edge_types,
+                direction,
+                best_edge_rank as edge_rank
+            FROM aggregated
+            ORDER BY best_edge_rank ASC
+        """)
+        
+        try:
+            results = self.session.execute(query, {
+                "entity_id": entity_id,
+                "tenant_id": self.tenant_id
+            }).fetchall()
+            
+            people = []
+            for row in results:
+                props = row.props or {}
+                role_from_props = (
+                    props.get('position') or 
+                    props.get('role') or 
+                    props.get('title') or 
+                    props.get('job_title')
+                )
+                
+                all_edge_types = list(row.all_edge_types) if row.all_edge_types else []
+                
+                people.append({
+                    "id": str(row.person_id),
+                    "name": row.person_name,
+                    "properties": props,
+                    "edge_type": all_edge_types[0] if all_edge_types else None,
+                    "all_edge_types": all_edge_types,
+                    "direction": row.direction,
+                    "edge_rank": row.edge_rank,
+                    "role_from_props": role_from_props
+                })
+            
+            return people
+            
+        except Exception as e:
+            logger.error(f"[REL_FIRST] _get_people_connected_to_entity failed: {e}")
             return []
 
 

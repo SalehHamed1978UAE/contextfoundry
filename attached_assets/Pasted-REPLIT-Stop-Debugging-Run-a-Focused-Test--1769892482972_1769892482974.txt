@@ -1,0 +1,44 @@
+REPLIT: Stop Debugging, Run a Focused Test                                                             
+                                                                                                         
+  You've identified the issues. Now test them directly:                                                  
+                                                                                                         
+  Test 1: Does Scoped Detection Work?                                                                    
+                                                                                                         
+  # In Python console on the server                                                                      
+  from src.context_foundry.agents.role_resolver import RoleResolver                                      
+                                                                                                         
+  # Test pattern extraction                                                                              
+  query = "Who will be the CEO of the Toyota JV (NextGen Battery Technologies)?"                         
+  role, entity = RoleResolver._extract_scoped_entity_from_query(query)                                   
+  print(f"Role: {role}, Entity: {entity}")                                                               
+  # Expected: Role: CEO, Entity: NextGen Battery Technologies                                            
+                                                                                                         
+  Test 2: Does Entity Lookup Work?                                                                       
+                                                                                                         
+  from src.context_foundry.agents.anchor_resolver import RelationshipFirstRetriever                      
+  from sqlalchemy import create_engine                                                                   
+  from sqlalchemy.orm import Session                                                                     
+                                                                                                         
+  engine = create_engine("postgresql://...")                                                             
+  with Session(engine) as session:                                                                       
+      retriever = RelationshipFirstRetriever(session, "1f3320cd-...")                                    
+      entity = retriever._find_entity_by_name("NextGen Battery Technologies")                            
+      print(f"Found entity: {entity}")                                                                   
+                                                                                                         
+  Test 3: Does Scoped Role Resolution Work End-to-End?                                                   
+                                                                                                         
+  from src.context_foundry.agents.role_resolver import RoleResolver                                      
+  from sqlalchemy.orm import Session                                                                     
+                                                                                                         
+  with Session(engine) as session:                                                                       
+      resolver = RoleResolver(session, "1f3320cd-...")                                                   
+      result = resolver.resolve(                                                                         
+          role="CEO",                                                                                    
+          organization="Nexus Industries",                                                               
+          query="Who will be the CEO of the Toyota JV (NextGen Battery Technologies)?"                   
+      )                                                                                                  
+      print(f"Result: {result}")                                                                         
+                                                                                                         
+  ---                                                                                                    
+  Run these 3 tests and report EXACTLY what each returns. Don't debug further until you know which step  
+  fails.                  
