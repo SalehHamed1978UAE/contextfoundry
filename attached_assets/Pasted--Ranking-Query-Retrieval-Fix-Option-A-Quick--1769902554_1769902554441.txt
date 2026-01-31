@@ -1,0 +1,36 @@
+ Ranking Query Retrieval Fix (Option A - Quick)                                                         
+                                                                                                         
+  1. Detect ranking/comparison intent                                                                    
+                                                                                                         
+  Update the query classifier to set has_ranking_intent = True when query contains:                      
+  - "largest", "biggest", "smallest", "highest", "lowest"                                                
+  - "top 3", "top 5", "top N"                                                                            
+  - "most", "least", "best", "worst"                                                                     
+  - "rank", "ranking", "compare"                                                                         
+                                                                                                         
+  2. Prioritize table chunks                                                                             
+                                                                                                         
+  When has_ranking_intent is true, in retrieval_router:                                                  
+                                                                                                         
+  # Search for table chunks with totals                                                                  
+  if classification.has_ranking_intent:                                                                  
+      # Target chunks with "Total" + currency patterns                                                   
+      table_chunks = search_for_pattern(                                                                 
+          patterns=["Total.*\\$\\d+", "\\$\\d+.*Total"],                                                 
+          boost_score=2.0                                                                                
+      )                                                                                                  
+                                                                                                         
+      # Extract number-entity pairs from table rows                                                      
+      # e.g., "Boeing | Total | $730M" → ("Boeing", 730)                                                 
+      ranked_pairs = extract_and_rank_values(table_chunks)                                               
+                                                                                                         
+  3. Return ranked result                                                                                
+                                                                                                         
+  Construct answer directly from extracted table data:                                                   
+  - Q19 "largest aerospace customer?" → "Boeing ($730M)"                                                 
+  - Q100 "top 3 customer value?" → "Boeing ($730M), DoD ($680M), Airbus ($565M)"                         
+                                                                                                         
+  ---                                                                                                    
+  This fixes Q19 + Q100 immediately. Option B (extraction enhancement) can proceed in parallel for       
+  long-term fix.                                                                                         
+                        
