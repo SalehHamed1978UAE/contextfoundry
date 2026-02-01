@@ -496,12 +496,12 @@ class RetrievalRouter:
 
         try:
             sql = text("""
-                SELECT c.id, c.content as text, d.name as doc_name, d.folder_path
-                FROM chunks c
-                JOIN documents d ON c.document_id = d.id
+                SELECT c.id, c.text, d.name as doc_name, d.folder_path
+                FROM document_chunks c
+                JOIN platform.documents d ON c.document_id = d.id
                 WHERE c.tenant_id = :tid
                 AND (
-                    d.name ILIKE '%_customer%'
+                    d.name ILIKE '%customer%'
                     OR d.name ILIKE '%customer_profile%'
                     OR d.folder_path ILIKE '%customers%'
                     OR d.folder_path ILIKE '%stakeholders%'
@@ -542,7 +542,128 @@ class RetrievalRouter:
         ]
         query_lower = query.lower()
         return any(keyword in query_lower for keyword in customer_keywords)
-    
+
+    def _is_jv_partnership_query(self, query: str) -> bool:
+        """Detect if query is asking about joint ventures or partnerships."""
+        jv_keywords = [
+            'joint venture', 'jv ', ' jv', 'partnering with', 'partnered with',
+            'partnership', 'ownership percentage', 'ownership stake',
+            'solid-state battery', 'solid-state batteries', 'solidstate',
+            'battery joint venture', 'battery jv'
+        ]
+        query_lower = query.lower()
+        return any(keyword in query_lower for keyword in jv_keywords)
+
+    def _fetch_jv_partnership_documents(self) -> list:
+        """Fetch documents about joint ventures and partnerships."""
+        from src.context_foundry.models.schema import set_tenant_context
+        set_tenant_context(self.session, self.tenant_id)
+
+        try:
+            sql = text("""
+                SELECT c.id, c.text, d.name as doc_name, d.folder_path
+                FROM document_chunks c
+                JOIN platform.documents d ON c.document_id = d.id
+                WHERE c.tenant_id = :tid
+                AND (
+                    d.name ILIKE '%jv%'
+                    OR d.name ILIKE '%joint%venture%'
+                    OR d.name ILIKE '%partner%'
+                    OR d.name ILIKE '%toyota%'
+                    OR d.name ILIKE '%battery%'
+                    OR d.folder_path ILIKE '%meetings%'
+                    OR d.folder_path ILIKE '%stakeholders%'
+                )
+                ORDER BY
+                    CASE
+                        WHEN d.name ILIKE '%jv%' OR d.name ILIKE '%joint%' THEN 1
+                        WHEN d.name ILIKE '%toyota%' THEN 2
+                        WHEN d.name ILIKE '%partner%' THEN 3
+                        ELSE 4
+                    END,
+                    d.name
+                LIMIT 30
+            """)
+
+            results = self.session.execute(sql, {'tid': self.tenant_id}).fetchall()
+
+            chunks = []
+            for r in results:
+                chunks.append({
+                    "id": str(r.id),
+                    "text": r.text[:3000] if r.text else "",
+                    "document_name": r.doc_name or "Unknown JV doc",
+                    "folder_path": r.folder_path or "",
+                    "similarity": 0.90,
+                    "_jv_partnership": True
+                })
+
+            logger.info(f"[ROUTER] Fetched {len(chunks)} JV/partnership document chunks")
+            return chunks
+
+        except Exception as e:
+            logger.error(f"[ROUTER] Failed to fetch JV/partnership documents: {e}")
+            return []
+
+    def _is_company_overview_query(self, query: str) -> bool:
+        """Detect if query is asking about company overview/founding info."""
+        overview_keywords = [
+            'founded', 'when was', 'established', 'founding',
+            'company overview', 'history', 'how old is',
+            'headquarters', 'started', 'incorporated'
+        ]
+        query_lower = query.lower()
+        return any(keyword in query_lower for keyword in overview_keywords)
+
+    def _fetch_company_overview_documents(self) -> list:
+        """Fetch documents about company overview - investor presentations, annual reports."""
+        from src.context_foundry.models.schema import set_tenant_context
+        set_tenant_context(self.session, self.tenant_id)
+
+        try:
+            sql = text("""
+                SELECT c.id, c.text, d.name as doc_name, d.folder_path
+                FROM document_chunks c
+                JOIN platform.documents d ON c.document_id = d.id
+                WHERE c.tenant_id = :tid
+                AND (
+                    d.name ILIKE '%investor%presentation%'
+                    OR d.name ILIKE '%annual%report%'
+                    OR d.name ILIKE '%company%overview%'
+                    OR d.name ILIKE '%corporate%profile%'
+                    OR d.folder_path ILIKE '%financials%'
+                    OR d.folder_path ILIKE '%reports%'
+                )
+                ORDER BY
+                    CASE
+                        WHEN d.name ILIKE '%investor%presentation%' THEN 1
+                        WHEN d.name ILIKE '%overview%' THEN 2
+                        ELSE 3
+                    END,
+                    d.name
+                LIMIT 20
+            """)
+
+            results = self.session.execute(sql, {'tid': self.tenant_id}).fetchall()
+
+            chunks = []
+            for r in results:
+                chunks.append({
+                    "id": str(r.id),
+                    "text": r.text[:3000] if r.text else "",
+                    "document_name": r.doc_name or "Unknown overview doc",
+                    "folder_path": r.folder_path or "",
+                    "similarity": 0.90,
+                    "_company_overview": True
+                })
+
+            logger.info(f"[ROUTER] Fetched {len(chunks)} company overview document chunks")
+            return chunks
+
+        except Exception as e:
+            logger.error(f"[ROUTER] Failed to fetch company overview documents: {e}")
+            return []
+
     def _lookup_customers_for_product(
         self,
         query: str,
@@ -2324,7 +2445,33 @@ class QueryPipeline:
                 result.strategy_used = f"HYBRID+CUSTOMER ({result.strategy_used})"
                 logger.info(f"[PIPELINE] Complete (customer): strategy={result.strategy_used}, has_data={result.has_data}")
                 return result
-        
+
+        # JV/Partnership query detection - for Toyota JV, battery partnerships, etc.
+        if self.router._is_jv_partnership_query(query):
+            logger.info(f"[PIPELINE] Detected JV/partnership query, fetching JV documents")
+            jv_chunks = self.router._fetch_jv_partnership_documents()
+            if jv_chunks:
+                logger.info(f"[PIPELINE] JV/partnership: fetched {len(jv_chunks)} document chunks")
+                result = self.router.route(query, classification, role_resolution, intent, classified_query)
+                # Add JV/partnership chunks to the result
+                result.chunks = jv_chunks + (result.chunks or [])
+                result.strategy_used = f"JV_PARTNERSHIP ({result.strategy_used})"
+                logger.info(f"[PIPELINE] Complete (jv_partnership): strategy={result.strategy_used}")
+                return result
+
+        # Company overview query detection - for founding date, headquarters, etc.
+        if self.router._is_company_overview_query(query):
+            logger.info(f"[PIPELINE] Detected company overview query, fetching overview documents")
+            overview_chunks = self.router._fetch_company_overview_documents()
+            if overview_chunks:
+                logger.info(f"[PIPELINE] Company overview: fetched {len(overview_chunks)} document chunks")
+                result = self.router.route(query, classification, role_resolution, intent, classified_query)
+                # Add company overview chunks to the result
+                result.chunks = overview_chunks + (result.chunks or [])
+                result.strategy_used = f"COMPANY_OVERVIEW ({result.strategy_used})"
+                logger.info(f"[PIPELINE] Complete (company_overview): strategy={result.strategy_used}")
+                return result
+
         if self.router._is_offtake_query(query):
             logger.info(f"[PIPELINE] Detected offtake/agreement query, using specialized lookup")
             offtake_entities, offtake_relationships = self.router._lookup_offtake_agreements(query)
