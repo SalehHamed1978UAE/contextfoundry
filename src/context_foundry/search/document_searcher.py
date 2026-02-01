@@ -72,6 +72,14 @@ class DocumentSearcher:
         r'\b(fy\d{4}|fiscal year)\s+(results|performance|backlog)',
     ]
     
+    CUSTOMER_RANKING_PATTERNS = [
+        r'\b(largest|biggest|top|highest|greatest|most valuable|best|primary)\s+\w*\s*customer',
+        r'\bcustomer.*(largest|biggest|top|highest|greatest|most|best)',
+        r'\b(rank|ranking|compare|comparison)\s+\w*\s*customer',
+        r'\bwho is (the|our)\s+(largest|biggest|top|best)\s+.*customer',
+        r'\b(customer|client).*(revenue|value|relationship|sales|business)',
+    ]
+    
     CUSTOMER_PROFILE_PATTERNS = [
         r'_customer\.md$',
         r'_customer_profile\.md$',
@@ -123,13 +131,32 @@ class DocumentSearcher:
         chunks = []
         
         is_company_metric_query = self._is_company_metric_query(query)
+        is_customer_ranking_query = self._is_customer_ranking_query(query)
         
         if use_vector:
-            chunks = self._vector_search(query, limit + offset)
+            search_limit = limit + offset
+            if is_customer_ranking_query:
+                search_limit = max(search_limit * 3, 20)
+                logger.info(f"[SEARCHER] Customer ranking query detected, increasing search limit to {search_limit}")
+            
+            chunks = self._vector_search(query, search_limit)
             if chunks:
-                if is_company_metric_query:
+                if is_company_metric_query and not is_customer_ranking_query:
                     chunks = self._filter_customer_documents(chunks)
                     logger.info(f"[SEARCHER] Company metric query detected, filtered customer docs: {len(chunks)} chunks remain")
+                
+                if is_customer_ranking_query:
+                    chunks = self._boost_customer_profiles(chunks, boost_factor=0.35)
+                    
+                    direct_profiles = self._fetch_all_customer_profiles(limit=10)
+                    if direct_profiles:
+                        existing_ids = {c.get('id') for c in chunks}
+                        for profile in direct_profiles:
+                            if profile.get('id') not in existing_ids:
+                                chunks.append(profile)
+                        chunks.sort(key=lambda x: x.get('similarity', 0), reverse=True)
+                    
+                    logger.info(f"[SEARCHER] Customer ranking query: boosted profiles + merged {len(direct_profiles)} direct fetches")
                 
                 avg_score = sum(c.get('_base_similarity', c.get('similarity', 0)) for c in chunks[:3]) / min(3, len(chunks)) if chunks else 0
                 
@@ -137,7 +164,7 @@ class DocumentSearcher:
                     logger.info(f"[SEARCHER] Low semantic scores (avg={avg_score:.3f}), applying canonical term boosting")
                     chunks = self._apply_canonical_boost(query, chunks, limit + offset, self.corpus_name)
                 
-                if apply_folder_weighting:
+                if apply_folder_weighting and not is_customer_ranking_query:
                     chunks = self._apply_folder_weighting(chunks)
                 
                 logger.info(f"[SEARCHER] Vector search found {len(chunks)} chunks")
@@ -494,6 +521,95 @@ class DocumentSearcher:
             if re.search(pattern, query_lower):
                 return True
         return False
+    
+    def _is_customer_ranking_query(self, query: str) -> bool:
+        """Check if query is asking about ranking/comparing customers (largest, biggest, etc.)."""
+        query_lower = query.lower()
+        for pattern in self.CUSTOMER_RANKING_PATTERNS:
+            if re.search(pattern, query_lower):
+                return True
+        return False
+    
+    def _boost_customer_profiles(self, chunks: List[Dict], boost_factor: float = 0.35) -> List[Dict]:
+        """Boost customer profile documents for customer ranking queries.
+        
+        This is the inverse of _filter_customer_documents - instead of filtering them out,
+        we boost them significantly to ensure all customer profiles appear in results.
+        """
+        boosted_chunks = []
+        boosted_count = 0
+        
+        for chunk in chunks:
+            new_chunk = dict(chunk)
+            doc_name = chunk.get('document_name', '').lower()
+            text_content = (chunk.get("text", chunk.get("content", "")) or "").lower()
+            
+            is_customer_doc = False
+            for pattern in self.CUSTOMER_PROFILE_PATTERNS:
+                if re.search(pattern, doc_name):
+                    is_customer_doc = True
+                    break
+            
+            if not is_customer_doc:
+                if 'customer profile' in text_content or 'relationship value' in text_content:
+                    is_customer_doc = True
+            
+            if is_customer_doc:
+                current_score = chunk.get('similarity', 0)
+                new_chunk['similarity'] = min(current_score + boost_factor, 1.0)
+                new_chunk['_customer_boost'] = boost_factor
+                boosted_count += 1
+            
+            boosted_chunks.append(new_chunk)
+        
+        boosted_chunks.sort(key=lambda x: x.get('similarity', 0), reverse=True)
+        
+        if boosted_count > 0:
+            logger.info(f"[SEARCHER] Customer profile boost: {boosted_count} chunks boosted by {boost_factor}")
+        
+        return boosted_chunks
+    
+    def _fetch_all_customer_profiles(self, limit: int = 10) -> List[Dict[str, Any]]:
+        """Directly fetch customer profile chunks from the database.
+        
+        This is used as a fallback/supplement for customer ranking queries to ensure
+        we have all customer profiles available for comparison.
+        """
+        try:
+            sql = text("""
+                SELECT dc.id, dc.text, d.title as doc_title
+                FROM document_chunks dc
+                LEFT JOIN platform.documents d ON dc.document_id = d.id
+                WHERE dc.tenant_id = :tenant_id
+                AND (
+                    LOWER(dc.text) LIKE '%customer profile%'
+                    OR LOWER(dc.text) LIKE '%relationship value%'
+                    OR LOWER(dc.text) LIKE '%total%' AND LOWER(dc.text) LIKE '%revenue%'
+                )
+                AND dc.text LIKE '%FY20%'
+                ORDER BY LENGTH(dc.text) DESC
+                LIMIT :limit
+            """)
+            
+            results = self.session.execute(sql, {"tenant_id": self.tenant_id, "limit": limit}).fetchall()
+            
+            chunks = []
+            for r in results:
+                chunks.append({
+                    "id": str(r.id),
+                    "text": r.text[:2500] if r.text else "",
+                    "document_name": r.doc_title or "Customer Profile",
+                    "similarity": 0.85,
+                    "_source": "direct_customer_fetch"
+                })
+            
+            if chunks:
+                logger.info(f"[SEARCHER] Direct customer profile fetch: found {len(chunks)} chunks")
+            
+            return chunks
+        except Exception as e:
+            logger.warning(f"[SEARCHER] Direct customer profile fetch failed: {e}")
+            return []
     
     def _filter_customer_documents(self, chunks: List[Dict]) -> List[Dict]:
         """Filter out customer profile documents from results."""

@@ -452,6 +452,28 @@ class RetrievalRouter:
         query_lower = query.lower()
         return any(keyword in query_lower for keyword in supplier_keywords)
     
+    def _is_customer_ranking_query(self, query: str) -> bool:
+        """Detect if query is asking about ranking/comparing customers (largest, biggest, top, etc.).
+        
+        These queries need to fetch ALL customer profile documents to compare values,
+        not just look up CUSTOMER_OF relationships.
+        """
+        import re
+        query_lower = query.lower()
+        ranking_patterns = [
+            r'\b(largest|biggest|top|highest|greatest|most valuable|best|primary)\s+\w*\s*customer',
+            r'\bcustomer.*(largest|biggest|top|highest|greatest|most|best)',
+            r'\b(rank|ranking|compare|comparison)\s+\w*\s*customer',
+            r'\bwho is (the|our)\s+(largest|biggest|top|best)\s+.*customer',
+            r'\b(customer|client).*(revenue|value|relationship|sales|business)\s+value',
+            r'\btotal.*(customer|client).*value',
+            r'\btop\s+\d+\s+customer',
+        ]
+        for pattern in ranking_patterns:
+            if re.search(pattern, query_lower):
+                return True
+        return False
+    
     def _is_customer_query(self, query: str) -> bool:
         """Detect if query is asking about customers/clients for a product."""
         customer_keywords = [
@@ -1033,6 +1055,60 @@ class RetrievalRouter:
             logger.error(f"[SUPPLIER_LOOKUP] Failed: {e}")
         
         return entities, relationships
+    
+    def _fetch_customer_profile_chunks(self, limit: int = 10) -> List[Dict[str, Any]]:
+        """Fetch all customer profile document chunks for customer ranking queries.
+        
+        This is used when comparing customers by value/revenue, where we need
+        ALL customer profiles to find the largest/best/top customer.
+        
+        Returns:
+            List of chunks from customer profile documents with financial data
+        """
+        from sqlalchemy import text as sql_text
+        
+        try:
+            sql = sql_text("""
+                SELECT dc.id, dc.text, d.name as doc_name
+                FROM document_chunks dc
+                LEFT JOIN platform.documents d ON dc.document_id = d.id
+                WHERE dc.tenant_id = :tid
+                AND (
+                    LOWER(d.name) LIKE '%customer%'
+                    OR LOWER(dc.text) LIKE '%customer profile%'
+                    OR LOWER(dc.text) LIKE '%relationship value%'
+                )
+                AND (
+                    LOWER(dc.text) LIKE '%total%'
+                    OR LOWER(dc.text) LIKE '%revenue%'
+                    OR LOWER(dc.text) LIKE '%million%'
+                    OR LOWER(dc.text) LIKE '%fy20%'
+                )
+                ORDER BY LENGTH(dc.text) DESC
+                LIMIT :lim
+            """)
+            
+            results = self.session.execute(sql, {"tid": self.tenant_id, "lim": limit}).fetchall()
+            
+            chunks = []
+            for r in results:
+                chunks.append({
+                    "id": str(r.id),
+                    "text": r.text[:2500] if r.text else "",
+                    "document": r.doc_name or "Customer Profile",
+                    "similarity": 0.90,
+                    "_source": "customer_ranking_fetch"
+                })
+            
+            logger.info(f"[ROUTER] Customer profile fetch: found {len(chunks)} chunks for ranking")
+            return chunks
+        except Exception as e:
+            logger.error(f"[ROUTER] Customer profile fetch failed: {e}")
+            try:
+                self.session.rollback()
+            except:
+                pass
+            return []
     
     def _is_offtake_query(self, query: str) -> bool:
         """Detect if query is asking about offtake agreements, funding, or partnerships."""
@@ -2163,6 +2239,17 @@ class QueryPipeline:
                 result.relationships = supplier_relationships + result.relationships
                 result.strategy_used = f"HYBRID+SUPPLIER ({result.strategy_used})"
                 logger.info(f"[PIPELINE] Complete (supplier): strategy={result.strategy_used}, has_data={result.has_data}")
+                return result
+        
+        if self.router._is_customer_ranking_query(query):
+            logger.info(f"[PIPELINE] Detected customer RANKING query, fetching all customer profiles")
+            customer_chunks = self.router._fetch_customer_profile_chunks(limit=15)
+            if customer_chunks:
+                logger.info(f"[PIPELINE] Customer ranking fetch: {len(customer_chunks)} profile chunks found")
+                result = self.router.route(query, classification, role_resolution, intent, classified_query)
+                result.chunks = customer_chunks + result.chunks
+                result.strategy_used = f"CUSTOMER_RANKING ({result.strategy_used})"
+                logger.info(f"[PIPELINE] Complete (customer ranking): strategy={result.strategy_used}, chunks={len(result.chunks)}")
                 return result
         
         if self.router._is_customer_query(query):
