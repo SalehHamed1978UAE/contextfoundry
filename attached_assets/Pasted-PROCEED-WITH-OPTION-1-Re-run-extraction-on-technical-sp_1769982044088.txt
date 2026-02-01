@@ -1,0 +1,30 @@
+PROCEED WITH OPTION 1: Re-run extraction on technical-spec documents                                   
+                                                                                                         
+  STEPS:                                                                                                 
+                                                                                                         
+  1. IDENTIFY the documents to re-extract:                                                               
+     - Battery/solid-state specs document (for Q25, Q67, Q93)                                            
+     - GreenHydrogen specs document (for Q24)                                                            
+     - Any other technical specification documents                                                       
+                                                                                                         
+  2. RE-RUN EXTRACTION on those documents only                                                           
+     - This should populate new SPECIFICATION entities                                                   
+     - Don't touch the rest of the corpus                                                                
+                                                                                                         
+  3. VERIFY extraction worked:                                                                           
+     SQL: SELECT canonical_name, properties                                                              
+          FROM entities                                                                                  
+          WHERE entity_type = 'SPECIFICATION';                                                           
+                                                                                                         
+     Expected: Energy density, temperature range, capacity specs should appear                           
+                                                                                                         
+  4. RUN TESTS:                                                                                          
+     - Smoke test: Q24, Q25, Q67, Q93                                                                    
+     - Full suite with --force                                                                           
+     - Compare to 82-84% baseline                                                                        
+                                                                                                         
+  FALLBACK:                                                                                              
+  If re-extraction stalls or isn't feasible, fall back to Option 3                                       
+  (direct chunk retrieval) as temporary workaround.                                                      
+                                                                                                         
+  Share before/after results when complete. 
