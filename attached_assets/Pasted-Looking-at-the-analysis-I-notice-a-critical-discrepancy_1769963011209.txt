@@ -1,0 +1,36 @@
+Looking at the analysis, I notice a critical discrepancy:                                              
+                                                                                                         
+  Manual Test vs Automated Test                                                                          
+  ┌──────────────────────┬───────────────────────────────┬───────────────────────────┐                   
+  │       Question       │ Manual Test (you ran earlier) │ Automated Test (this run) │                   
+  ├──────────────────────┼───────────────────────────────┼───────────────────────────┤                   
+  │ Q16 (Toyota partner) │ ✅ "Toyota Motor Corporation" │ ❌ "NextGen Battery"      │                   
+  ├──────────────────────┼───────────────────────────────┼───────────────────────────┤                   
+  │ Q31 (51% ownership)  │ ✅ "51%"                      │ ?                         │                   
+  ├──────────────────────┼───────────────────────────────┼───────────────────────────┤                   
+  │ Q82 (founded 1985)   │ ✅ "1985"                     │ ?                         │                   
+  └──────────────────────┴───────────────────────────────┴───────────────────────────┘                   
+  The manual test you ran showed correct answers, but the automated test shows failures.                 
+                                                                                                         
+  Possible Explanations                                                                                  
+                                                                                                         
+  1. Different vault IDs                                                                                 
+    - Manual test: e7c8b55c-... (mentioned in earlier context)                                           
+    - This test: b6601a5f-...                                                                            
+    - These are different vaults - the inference validation changes may not affect extraction/indexing   
+  2. Inference validation runs at query time, not extraction time                                        
+    - My changes validate answers during queries                                                         
+    - But if the underlying data in vault b6601a5f was extracted BEFORE the fixes, the data itself is    
+  wrong                                                                                                  
+    - The test runner may be using cached/pre-extracted data                                             
+  3. Replit may not have pulled the latest code                                                          
+    - The inference validation layer was pushed, but Replit needs to pull it                             
+                                                                                                         
+  Key Question                                                                                           
+                                                                                                         
+  Is vault b6601a5f a fresh extraction with the latest code, or was it extracted before the fixes were   
+  pushed?                                                                                                
+                                                                                                         
+  The regressions Replit noted (Q17, Q18, Q40 were passing before, now failing) suggest either:          
+  - The corpus/expected answers changed                                                                  
+  - Or the vault was re-extracted with different code 

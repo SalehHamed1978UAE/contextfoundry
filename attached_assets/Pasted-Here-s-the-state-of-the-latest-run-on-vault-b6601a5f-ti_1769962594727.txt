@@ -1,0 +1,56 @@
+Here’s the state of the latest run on vault b6601a5f (timestamp 2026‑02‑01 16:10 UTC) and what to do
+  next:
+
+  1. Score: 82/100 (no improvement). Failures are still Q16, Q17, Q18, Q25, Q29, Q38, Q40, Q45, Q46, Q48,
+     Q53, Q60, Q66, Q67, Q71, Q79, Q91, Q93.
+  2. Evidence that fixes aren’t deployed:
+      - Q16: still “NextGen Battery” instead of Toyota
+      - Q17: still lists Honeywell/Boeing/Lockheed/Northrop (supplier logic not in place)
+      - Q18/Q25/Q53/Q67: still “no data” for Toyota JV + Shell offtake + energy density/temperature,
+        meaning the section-aware retrieval changes never landed
+  3. Failure categories:
+      - 14 “no_match” (wrong answer)
+        -I’ve reviewed the full test report for vault b6601a5f (run timestamp 2026‑02‑01 16:10:43). Here’s
+        the status and what to tell Replit:
+
+  ———
+
+  ### Current Baseline
+
+  - Score: 82/100 (82%)
+  - Misses (18 total) fall into two groups:
+      1. Known pattern/routing gaps: Q16, Q17, Q18, Q25, Q31, Q40, Q45, Q46, Q53, Q67, Q71, Q79, Q91, Q93,
+         Q29, Q38, Q60.
+         Symptoms: “no_data” or wrong entities because section-aware detection and customer profile search
+         were never deployed.
+      2. Residual ranking/date questions: Q17 (supplier), Q19 vs Q100 (still inconsistent), etc.
+
+  The log proves the pending retrieval fixes (JV/partnership detection, company overview detection,
+  customer profile search) aren’t in production—those questions still behave exactly as before.
+
+  ———
+
+  ### Instructions for Replit
+
+  1. Finalize and deploy the retrieval routing improvements that were drafted last week:
+      - JV/partnership detection and Toyota-JV query handling (fix Q16, Q31, Q53, Q67, Q93).
+      - Company overview / founding-date routing (fix Q82, Q45).
+      - Supplier-specific retrieval path (Q17, Q46, Q71).
+      - Customer profile SQL and ranking logic (Q19, Q48, Q79, Q100).
+        These changes already exist in draft form—merge them into the running build.
+  2. Re-run the full 235-question suite with --force once those fixes are in.
+      - Confirm that the new vault shows the expected improvements (especially Q16/Q31/Q82).
+  3. After the fixes are verified, move on to the verification loop concept we discussed.
+      - For each extracted entity/relationship, send the supporting sentences plus the proposed fact to an
+        LLM (“Based on this evidence, is the fact correct?”).
+      - Store the LLM’s yes/no verdict and only promote facts marked verified = true.
+      - If the LLM says “no,” log what additional evidence to fetch and mark the fact as
+        inference_needs_validation.
+  4. Surface verification status during answer generation.
+      - Answers should include metadata like basis = verified_extraction or basis =
+        inference_needs_validation, so we never silently deliver unverified claims.
+  5. Once the baseline is solid, prototype the PageIndex-style tree retrieval on the hard failures (Q24,
+     Q66, Q79, etc.) to see if structured navigation improves the remaining gaps.
+
+  Let’s get Step 1 done first; share the next test run once the retrieval fixes are merged so we can
+  confirm the improvements.
