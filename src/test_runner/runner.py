@@ -502,8 +502,8 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
     
     # FRESH PATH: Full run from scratch
     else:
-        # If --fresh, delete existing checkpoint first
-        if fresh:
+        # If not resuming, delete existing checkpoint first
+        if not resume:
             delete_checkpoint(config.results_dir, corpus_name)
         
         if not root_path.exists():
