@@ -217,3 +217,17 @@ def display_response(response: dict):
         console.print("\n[bold red]Rule Violations:[/bold red]")
         for violation in response["rules_violations"]:
             console.print(f"  ! {violation}")
+
+    # Display inference validation results
+    if response.get("inference_validated") is not None:
+        if response.get("inference_validated"):
+            if response.get("inference_correction_reason"):
+                console.print(f"\n[bold cyan]Inference Validation:[/bold cyan] [green]CORRECTED[/green]")
+                console.print(f"  Reason: {response.get('inference_correction_reason')}")
+            else:
+                conf = response.get("inference_confidence", 0)
+                console.print(f"\n[bold cyan]Inference Validation:[/bold cyan] [green]CONFIRMED[/green] ({conf:.0%})")
+        else:
+            console.print(f"\n[bold cyan]Inference Validation:[/bold cyan] [yellow]UNCERTAIN[/yellow]")
+            if response.get("inference_suggested_search"):
+                console.print(f"  Suggested: {response.get('inference_suggested_search')}")
