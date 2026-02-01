@@ -123,6 +123,14 @@ class DocumentSearcher:
         r'partnership.*announcement',
         r'investor.*relations',
     ]
+
+    # Patterns for compliance/export control queries
+    COMPLIANCE_QUERY_PATTERNS = [
+        r'\b(itar|export control|compliance|empowered official)',
+        r'\b(chair|head|lead)\s+(of\s+)?(the\s+)?(export|compliance|trade)',
+        r'\bwho\s+(is|was)\s+(the\s+)?(empowered|compliance)',
+        r'\b(export|trade)\s+(control|compliance)\s+(committee|officer)',
+    ]
     
     CANONICAL_TERMS = {
         'project_names': [
@@ -171,6 +179,7 @@ class DocumentSearcher:
         is_customer_ranking = self._is_customer_ranking_query(query)
         is_company_overview = self._is_company_overview_query(query)
         is_partnership = self._is_partnership_query(query)
+        is_compliance = self._is_compliance_query(query)
 
         if use_vector:
             chunks = self._vector_search(query, limit + offset)
@@ -205,6 +214,16 @@ class DocumentSearcher:
                         if pc.get('id') not in existing_ids:
                             chunks.append(pc)
                     logger.info(f"[SEARCHER] Partnership query - added {len(partnership_chunks)} partnership/JV chunks")
+
+            # For compliance/export control queries (e.g., ITAR Empowered Official), fetch compliance docs
+            if is_compliance:
+                compliance_chunks = self._fetch_compliance_chunks(limit=10)
+                if compliance_chunks:
+                    existing_ids = {c.get('id') for c in chunks if c.get('id')}
+                    for cc in compliance_chunks:
+                        if cc.get('id') not in existing_ids:
+                            chunks.append(cc)
+                    logger.info(f"[SEARCHER] Compliance query - added {len(compliance_chunks)} compliance/export control chunks")
 
             if chunks:
                 # For customer ranking queries, boost customer profile documents
@@ -607,6 +626,15 @@ class DocumentSearcher:
                 return True
         return False
 
+    def _is_compliance_query(self, query: str) -> bool:
+        """Check if query is asking about ITAR, export control, or compliance."""
+        query_lower = query.lower()
+        for pattern in self.COMPLIANCE_QUERY_PATTERNS:
+            if re.search(pattern, query_lower):
+                logger.info(f"[SEARCHER] Compliance query detected: matched pattern '{pattern}'")
+                return True
+        return False
+
     def _boost_customer_documents(self, chunks: List[Dict], boost_factor: float = 1.5) -> List[Dict]:
         """Boost customer profile documents to the top of results."""
         boosted = []
@@ -666,6 +694,46 @@ class DocumentSearcher:
 
         except Exception as e:
             logger.error(f"[SEARCHER] Failed to fetch customer profile chunks: {e}")
+            return []
+
+    def _fetch_compliance_chunks(self, limit: int = 10) -> List[Dict]:
+        """Directly fetch chunks from ITAR, export control, and compliance documents."""
+        try:
+            query = text("""
+                SELECT c.id, c.content as text, d.name as doc_name
+                FROM chunks c
+                JOIN documents d ON c.document_id = d.id
+                WHERE c.tenant_id = :tid
+                AND (
+                    d.name ILIKE '%export%control%'
+                    OR d.name ILIKE '%itar%'
+                    OR d.name ILIKE '%compliance%'
+                    OR d.name ILIKE '%trade%compliance%'
+                    OR d.name ILIKE '%empowered%'
+                    OR d.folder_path ILIKE '%policies%'
+                    OR d.folder_path ILIKE '%compliance%'
+                )
+                ORDER BY d.name
+                LIMIT :limit
+            """)
+
+            results = self.session.execute(query, {'tid': self.tenant_id, 'limit': limit}).fetchall()
+
+            chunks = []
+            for r in results:
+                chunks.append({
+                    "id": str(r.id),
+                    "text": r.text[:2500] if r.text else "",
+                    "document_name": r.doc_name or "Unknown compliance doc",
+                    "similarity": 0.85,
+                    "_compliance_doc": True
+                })
+
+            logger.info(f"[SEARCHER] Fetched {len(chunks)} compliance/export control chunks directly from DB")
+            return chunks
+
+        except Exception as e:
+            logger.error(f"[SEARCHER] Failed to fetch compliance chunks: {e}")
             return []
 
     def _fetch_partnership_chunks(self, limit: int = 10) -> List[Dict]:
