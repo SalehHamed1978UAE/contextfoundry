@@ -78,6 +78,16 @@ class DocumentSearcher:
         r'customer_profile',
         r'^customers/',
     ]
+
+    # Patterns for detecting customer ranking/comparison queries
+    CUSTOMER_RANKING_PATTERNS = [
+        r'\b(largest|biggest|top|major|key|primary|main)\s+(aerospace\s+)?customer',
+        r'\bcustomer.{0,30}(largest|biggest|most|highest|top)',
+        r'\b(who|which|what)\s+(is|are)\s+the\s+(largest|biggest|top|main|major)',
+        r'\btop\s*\d*\s*customer',
+        r'\bcustomer\s+(relationship|value|revenue)',
+        r'\blargest\s+(aerospace|defense|commercial)\s+customer',
+    ]
     
     CANONICAL_TERMS = {
         'project_names': [
@@ -121,13 +131,31 @@ class DocumentSearcher:
             List of chunk dicts with id, text, document_name, similarity
         """
         chunks = []
-        
+
         is_company_metric_query = self._is_company_metric_query(query)
-        
+        is_customer_ranking = self._is_customer_ranking_query(query)
+
         if use_vector:
             chunks = self._vector_search(query, limit + offset)
+
+            # For customer ranking queries, always fetch and include customer profile documents
+            if is_customer_ranking:
+                customer_chunks = self._fetch_customer_profile_chunks(limit=10)
+                if customer_chunks:
+                    # Merge customer chunks with vector results, avoiding duplicates
+                    existing_ids = {c.get('id') for c in chunks if c.get('id')}
+                    for cc in customer_chunks:
+                        if cc.get('id') not in existing_ids:
+                            chunks.append(cc)
+                    logger.info(f"[SEARCHER] Customer ranking query - added {len(customer_chunks)} customer profile chunks")
+
             if chunks:
-                if is_company_metric_query:
+                # For customer ranking queries, boost customer profile documents
+                if is_customer_ranking:
+                    chunks = self._boost_customer_documents(chunks)
+                    logger.info(f"[SEARCHER] Customer ranking query - boosted customer docs: {len(chunks)} chunks")
+                # For company metric queries, filter OUT customer docs (prevents Boeing in Nexus backlog queries)
+                elif is_company_metric_query:
                     chunks = self._filter_customer_documents(chunks)
                     logger.info(f"[SEARCHER] Company metric query detected, filtered customer docs: {len(chunks)} chunks remain")
                 
@@ -494,7 +522,77 @@ class DocumentSearcher:
             if re.search(pattern, query_lower):
                 return True
         return False
-    
+
+    def _is_customer_ranking_query(self, query: str) -> bool:
+        """Check if query is asking about customer comparisons/rankings."""
+        query_lower = query.lower()
+        for pattern in self.CUSTOMER_RANKING_PATTERNS:
+            if re.search(pattern, query_lower):
+                logger.info(f"[SEARCHER] Customer ranking query detected: matched pattern '{pattern}'")
+                return True
+        return False
+
+    def _boost_customer_documents(self, chunks: List[Dict], boost_factor: float = 1.5) -> List[Dict]:
+        """Boost customer profile documents to the top of results."""
+        boosted = []
+        others = []
+
+        for chunk in chunks:
+            doc_name = chunk.get('document_name', '').lower()
+            is_customer_doc = False
+            for pattern in self.CUSTOMER_PROFILE_PATTERNS:
+                if re.search(pattern, doc_name):
+                    is_customer_doc = True
+                    break
+
+            if is_customer_doc:
+                # Boost the similarity score
+                chunk['similarity'] = chunk.get('similarity', 0.5) * boost_factor
+                chunk['_boosted'] = True
+                boosted.append(chunk)
+                logger.info(f"[SEARCHER] Boosted customer doc: {doc_name}")
+            else:
+                others.append(chunk)
+
+        # Put customer docs first, then others
+        return boosted + others
+
+    def _fetch_customer_profile_chunks(self, limit: int = 10) -> List[Dict]:
+        """Directly fetch chunks from customer profile documents."""
+        try:
+            query = text("""
+                SELECT c.id, c.content as text, d.name as doc_name
+                FROM chunks c
+                JOIN documents d ON c.document_id = d.id
+                WHERE c.tenant_id = :tid
+                AND (
+                    d.name LIKE '%_customer.md'
+                    OR d.name LIKE '%customer_profile%'
+                    OR d.folder_path LIKE '%customers%'
+                )
+                ORDER BY d.name
+                LIMIT :limit
+            """)
+
+            results = self.session.execute(query, {'tid': self.tenant_id, 'limit': limit}).fetchall()
+
+            chunks = []
+            for r in results:
+                chunks.append({
+                    "id": str(r.id),
+                    "text": r.text[:2500] if r.text else "",
+                    "document_name": r.doc_name or "Unknown customer doc",
+                    "similarity": 0.85,  # High similarity for direct fetch
+                    "_customer_profile": True
+                })
+
+            logger.info(f"[SEARCHER] Fetched {len(chunks)} customer profile chunks directly from DB")
+            return chunks
+
+        except Exception as e:
+            logger.error(f"[SEARCHER] Failed to fetch customer profile chunks: {e}")
+            return []
+
     def _filter_customer_documents(self, chunks: List[Dict]) -> List[Dict]:
         """Filter out customer profile documents from results."""
         filtered = []
