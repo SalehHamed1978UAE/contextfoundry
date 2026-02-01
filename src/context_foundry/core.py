@@ -26,6 +26,7 @@ from .rlm.executor import RLMExecutor, RLMResult
 from .rlm.schemas import RLMConfig
 from .agents.financial_query_handler import FinancialQueryHandler
 from .pipeline.precedence_pipeline import apply_precedence
+from .validation.inference_validator import InferenceValidator, ValidationResult
 
 try:
     from src.decision_trace_layer.decision_orchestrator import (
@@ -271,9 +272,50 @@ class ContextFoundry:
                 display_context_bundle(bundle.to_dict())
             
             response = self.reasoning.reason(bundle, query_logger=query_logger)
-            
-            # Apply precedence pipeline (Symbolic > Semantic > Episodic)
+
+            # INFERENCE VALIDATION LOOP - Systematic answer verification
+            # This replaces hardcoded patterns with LLM-based validation
             current_answer = response.get("answer", "")
+            try:
+                inference_validator = InferenceValidator()
+                evidence = self._collect_validation_evidence(bundle)
+
+                if evidence and current_answer and len(current_answer) > 10:
+                    validation = inference_validator.validate(
+                        question=query_text,
+                        answer=current_answer,
+                        evidence=evidence,
+                        context={"target_entity": bundle.target_entity_name}
+                    )
+
+                    query_logger.log_event("INFERENCE_VALIDATION", {
+                        "result": validation.result.value,
+                        "original_answer": validation.original_answer[:100],
+                        "validated_answer": validation.validated_answer[:100],
+                        "confidence": validation.confidence,
+                        "needs_human_review": validation.needs_human_review
+                    })
+
+                    # If validation corrected the answer, use the corrected version
+                    if validation.result == ValidationResult.CORRECTED:
+                        logger.info(f"[INFERENCE_VALIDATOR] Corrected answer: "
+                                   f"'{current_answer[:50]}...' -> '{validation.validated_answer[:50]}...'")
+                        current_answer = validation.validated_answer
+                        response["answer"] = validation.validated_answer
+                        response["inference_validated"] = True
+                        response["inference_correction_reason"] = validation.correction_reason
+                    elif validation.result == ValidationResult.CONFIRMED:
+                        response["inference_validated"] = True
+                        response["inference_confidence"] = validation.confidence
+                    elif validation.result in [ValidationResult.UNCERTAIN, ValidationResult.CONTRADICTED]:
+                        response["inference_validated"] = False
+                        response["inference_needs_review"] = True
+                        response["inference_suggested_search"] = validation.suggested_search
+            except Exception as e:
+                logger.warning(f"Inference validation failed (non-fatal): {e}")
+                response["inference_validated"] = False
+
+            # Apply precedence pipeline (Symbolic > Semantic > Episodic)
             final_answer, answer_source, prec_confidence = apply_precedence(
                 session=self.session,
                 tenant_id=self.tenant_id,
@@ -1003,3 +1045,50 @@ class ContextFoundry:
         except Exception as e:
             logger.warning(f"Failed to find similar entities: {e}")
             return []
+
+    def _collect_validation_evidence(self, bundle: ContextBundle) -> list:
+        """
+        Collect evidence from context bundle for inference validation.
+
+        Gathers episodic documents and semantic entities to provide
+        the validation LLM with the full context for verifying answers.
+
+        Args:
+            bundle: The context bundle with retrieved data
+
+        Returns:
+            List of evidence dicts with 'content' and 'source' keys
+        """
+        evidence = []
+
+        # Collect episodic documents (chunks)
+        if bundle.episodic_documents:
+            for doc in bundle.episodic_documents[:5]:  # Limit to top 5
+                content = doc.get('content') or doc.get('text') or doc.get('chunk_text', '')
+                source = doc.get('source') or doc.get('doc_name') or 'episodic'
+                if content:
+                    evidence.append({
+                        'content': content,
+                        'source': source,
+                        'type': 'episodic'
+                    })
+
+        # Collect semantic entities and their relationships
+        if bundle.semantic_entities:
+            for entity in bundle.semantic_entities[:10]:  # Limit to top 10
+                entity_text = f"Entity: {entity.get('name', 'Unknown')}"
+                if entity.get('properties'):
+                    props = entity.get('properties', {})
+                    if props:
+                        entity_text += f" (Properties: {props})"
+                if entity.get('relationships'):
+                    rels = entity.get('relationships', [])
+                    for rel in rels[:3]:
+                        entity_text += f"\n  - {rel.get('type', 'related')}: {rel.get('target', 'unknown')}"
+                evidence.append({
+                    'content': entity_text,
+                    'source': 'knowledge_graph',
+                    'type': 'semantic'
+                })
+
+        return evidence
