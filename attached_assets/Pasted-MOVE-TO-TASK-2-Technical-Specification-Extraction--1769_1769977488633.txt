@@ -1,0 +1,34 @@
+MOVE TO TASK 2: Technical Specification Extraction                                                     
+                                                                                                         
+  Baseline accepted: 82-84% (variance exists, stop chasing 1%)                                           
+                                                                                                         
+  TARGET QUESTIONS: Q24, Q25, Q67, Q93                                                                   
+  ROOT CAUSE: Data not extracted from documents                                                          
+                                                                                                         
+  WHAT TO DO:                                                                                            
+                                                                                                         
+  1. Add spec extraction patterns to post_processor.py:                                                  
+     - Energy density (Wh/kg)                                                                            
+     - Temperature ranges (-30°C to 60°C)                                                                
+     - Capacity values (kg/hr, GWh)                                                                      
+     - Material specifications (LLZO, electrolyte types)                                                 
+                                                                                                         
+  2. For GreenHydrogen: Extract BOTH Phase 1 AND full capacity                                           
+     - Store as capacity_phase1 and capacity_full on entity                                              
+     - Router should prefer Phase 1 when query mentions "Phase 1" or "initial"                           
+                                                                                                         
+  3. Re-run extraction on the tech spec documents                                                        
+                                                                                                         
+  GO/NO-GO CHECK (before implementing):                                                                  
+  - Would patterns capture "Efficiency: 95%" in a different doc? YES                                     
+  - Would patterns capture specs for a different product? YES                                            
+  - Am I adding "400 Wh/kg" as a hardcoded value? NO                                                     
+                                                                                                         
+  VALIDATION:                                                                                            
+  - SQL: SELECT COUNT(*) FROM entities WHERE entity_type='SPECIFICATION'                                 
+  - Expected: 50+ specs extracted                                                                        
+  - Run Q24, Q25, Q67, Q93 single-query tests                                                            
+  - Run full suite, compare to 82-84% baseline                                                           
+                                                                                                         
+  This is EXTRACTION improvement, not retrieval tweaking.                                                
+  The data doesn't exist - we need to extract it.  
