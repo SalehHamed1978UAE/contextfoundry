@@ -1,24 +1,24 @@
 {
-  "run_timestamp": "2026-02-01T20:06:26.389036",
+  "run_timestamp": "2026-02-01T20:45:48.712770",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.45,
-    "avg_semantic_score": 0.059688,
+    "avg_chunks_retrieved": 3.46,
+    "avg_semantic_score": 0.05017599999999997,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
       "exact_match": 44,
-      "component_match": 27,
-      "number_match": 8,
-      "no_match": 15,
+      "component_match": 29,
+      "no_match": 16,
       "no_data": 2,
+      "number_match": 6,
       "percentage_match": 1,
-      "entity_match": 2,
+      "entity_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 92
+    "low_score_queries": 93
   },
   "low_score_questions": [
     {
@@ -480,6 +480,11 @@
       "q_id": 99,
       "question": "How does Nexus's operating margin compare to target?",
       "avg_score": 0.0
+    },
+    {
+      "q_id": 100,
+      "question": "What is the total value of top 3 customer relationships?",
+      "avg_score": 0.0
     }
   ],
   "failures_by_type": {
@@ -491,8 +496,8 @@
         "actual": "The GreenHydrogen facility in El Paso, T",
         "files_retrieved": [
           "02_greenhydrogen_process_specification.md",
-          "04_greenhydrogen_initiative.md",
-          "08_global_locations.md"
+          "09_greenhydrogen_milestone.md",
+          "04_greenhydrogen_initiative.md"
         ]
       },
       {
@@ -501,9 +506,9 @@
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "05_digital_division_structure.md",
-          "08_hr_talent_review.md",
-          "02_organizational_announcement.md"
+          "01_executive_team.md",
+          "05_fedramp_announcement.md",
+          "02_business_divisions.md"
         ]
       },
       {
@@ -541,9 +546,9 @@
         "expected": "Siemens Healthineers ($65 million)",
         "actual": "The primary customer for HTS superconduc",
         "files_retrieved": [
+          "02_airbus_customer_profile.md",
           "05_siemens_healthineers_customer.md",
-          "Unknown",
-          "02_airbus_customer_profile.md"
+          "Unknown"
         ]
       },
       {
@@ -552,9 +557,9 @@
         "expected": "December 12, 2025 at 02:47 UTC",
         "actual": "The retrieved information does not menti",
         "files_retrieved": [
+          "10_cybersecurity_incident_response.md",
           "08_cybersecurity_advisory.md",
-          "Unknown",
-          "10_cybersecurity_incident_response.md"
+          "Unknown"
         ]
       },
       {
@@ -589,10 +594,10 @@
         "q_id": 71,
         "question": "Who is the mining automation partner?",
         "expected": "Caterpillar",
-        "actual": "The mining automation partner is **Sieme",
+        "actual": "The mining automation partner is **Rio T",
         "files_retrieved": [
-          "09_competitive_intelligence.md",
-          "04_toyota_partnership_announcement.md"
+          "04_toyota_partnership_announcement.md",
+          "09_competitive_intelligence.md"
         ]
       },
       {
@@ -613,8 +618,8 @@
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
           "02_aerospace_division_strategy.md",
-          "01_corporate_strategy_2026_2030.md",
-          "06_market_expansion_asia.md"
+          "06_market_expansion_asia.md",
+          "01_corporate_strategy_2026_2030.md"
         ]
       },
       {
@@ -634,6 +639,17 @@
           "04_toyota_partnership_announcement.md",
           "Unknown"
         ]
+      },
+      {
+        "q_id": 100,
+        "question": "What is the total value of top 3 customer relationships?",
+        "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
+        "actual": "I currently do not have sufficient data ",
+        "files_retrieved": [
+          "02_airbus_customer_profile.md",
+          "Unknown",
+          "05_siemens_healthineers_customer.md"
+        ]
       }
     ],
     "no_data": [
@@ -643,8 +659,8 @@
         "expected": "400 Wh/kg",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "06_toyota_partner_profile.md",
-          "11_batterytech_solid_state.md",
+          "06_solid_state_battery_design.md",
+          "Unknown",
           "04_toyota_partnership_announcement.md"
         ]
       },
@@ -654,8 +670,8 @@
         "expected": "-30\u00b0C to 60\u00b0C",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "01_ceo_all_hands_memo.md",
-          "11_batterytech_solid_state.md",
+          "06_solid_state_battery_design.md",
+          "Unknown",
           "04_toyota_partnership_announcement.md"
         ]
       }
