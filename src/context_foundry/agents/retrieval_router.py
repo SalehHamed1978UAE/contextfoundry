@@ -453,27 +453,84 @@ class RetrievalRouter:
         return any(keyword in query_lower for keyword in supplier_keywords)
     
     def _is_customer_ranking_query(self, query: str) -> bool:
-        """Detect if query is asking about ranking/comparing customers (largest, biggest, top, etc.).
+        """Detect if query is asking to RANK or COMPARE customers by value/size.
         
         These queries need to fetch ALL customer profile documents to compare values,
         not just look up CUSTOMER_OF relationships.
         """
         import re
         query_lower = query.lower()
-        ranking_patterns = [
+
+        # Must mention customer AND a ranking/comparison term
+        has_customer = 'customer' in query_lower or 'client' in query_lower
+
+        # Keyword-based patterns
+        keyword_patterns = [
+            'largest', 'biggest', 'top', 'major', 'key', 'primary', 'main',
+            'most valuable', 'highest value', 'biggest contract',
+            'top 3', 'top three', 'top 5', 'top five', 'top 10',
+            'total value of', 'combined value', 'relationship value'
+        ]
+        has_ranking = any(p in query_lower for p in keyword_patterns)
+
+        # Regex-based patterns for more complex matching
+        regex_patterns = [
             r'\b(largest|biggest|top|highest|greatest|most valuable|best|primary)\s+\w*\s*customer',
             r'\bcustomer.*(largest|biggest|top|highest|greatest|most|best)',
             r'\b(rank|ranking|compare|comparison)\s+\w*\s*customer',
             r'\bwho is (the|our)\s+(largest|biggest|top|best)\s+.*customer',
             r'\b(customer|client).*(revenue|value|relationship|sales|business)\s+value',
-            r'\btotal.*(customer|client).*value',
             r'\btop\s+\d+\s+customer',
         ]
-        for pattern in ranking_patterns:
-            if re.search(pattern, query_lower):
-                return True
+        has_regex_match = any(re.search(p, query_lower) for p in regex_patterns)
+
+        if (has_customer and has_ranking) or has_regex_match:
+            logger.info(f"[ROUTER] Customer RANKING query detected: '{query[:60]}...'")
+            return True
         return False
-    
+
+    def _fetch_all_customer_profiles(self) -> list:
+        """Fetch ALL customer profile documents for ranking/comparison queries."""
+        from src.context_foundry.models.schema import set_tenant_context
+        set_tenant_context(self.session, self.tenant_id)
+
+        try:
+            sql = text("""
+                SELECT c.id, c.content as text, d.name as doc_name, d.folder_path
+                FROM chunks c
+                JOIN documents d ON c.document_id = d.id
+                WHERE c.tenant_id = :tid
+                AND (
+                    d.name ILIKE '%_customer%'
+                    OR d.name ILIKE '%customer_profile%'
+                    OR d.folder_path ILIKE '%customers%'
+                    OR d.folder_path ILIKE '%stakeholders%'
+                )
+                ORDER BY d.name
+                LIMIT 30
+            """)
+
+            results = self.session.execute(sql, {'tid': self.tenant_id}).fetchall()
+
+            chunks = []
+            for r in results:
+                chunks.append({
+                    "id": str(r.id),
+                    "text": r.text[:3000] if r.text else "",
+                    "document_name": r.doc_name or "Unknown customer doc",
+                    "folder_path": r.folder_path or "",
+                    "similarity": 0.90,
+                    "_customer_profile": True
+                })
+
+            logger.info(f"[ROUTER] Fetched {len(chunks)} customer profile chunks for ranking")
+            return chunks
+
+        except Exception as e:
+            logger.error(f"[ROUTER] Failed to fetch customer profiles: {e}")
+            return []
+
+
     def _is_customer_query(self, query: str) -> bool:
         """Detect if query is asking about customers/clients for a product."""
         customer_keywords = [
@@ -2241,17 +2298,21 @@ class QueryPipeline:
                 logger.info(f"[PIPELINE] Complete (supplier): strategy={result.strategy_used}, has_data={result.has_data}")
                 return result
         
+        # IMPORTANT: Check for customer RANKING queries FIRST (before general customer queries)
+        # These need ALL customer profiles for comparison, not just KG relationship lookups
         if self.router._is_customer_ranking_query(query):
             logger.info(f"[PIPELINE] Detected customer RANKING query, fetching all customer profiles")
-            customer_chunks = self.router._fetch_customer_profile_chunks(limit=15)
+            customer_chunks = self.router._fetch_all_customer_profiles()
             if customer_chunks:
-                logger.info(f"[PIPELINE] Customer ranking fetch: {len(customer_chunks)} profile chunks found")
+                logger.info(f"[PIPELINE] Customer ranking: fetched {len(customer_chunks)} profile chunks")
                 result = self.router.route(query, classification, role_resolution, intent, classified_query)
-                result.chunks = customer_chunks + result.chunks
+                # Add customer profile chunks to the result
+                result.chunks = customer_chunks + (result.chunks or [])
                 result.strategy_used = f"CUSTOMER_RANKING ({result.strategy_used})"
-                logger.info(f"[PIPELINE] Complete (customer ranking): strategy={result.strategy_used}, chunks={len(result.chunks)}")
+                logger.info(f"[PIPELINE] Complete (customer_ranking): strategy={result.strategy_used}")
                 return result
-        
+
+
         if self.router._is_customer_query(query):
             logger.info(f"[PIPELINE] Detected customer query, using specialized lookup")
             customer_entities, customer_relationships = self.router._lookup_customers_for_product(query)

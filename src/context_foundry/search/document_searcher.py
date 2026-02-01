@@ -72,12 +72,21 @@ class DocumentSearcher:
         r'\b(fy\d{4}|fiscal year)\s+(results|performance|backlog)',
     ]
     
+    # Consolidated patterns for detecting customer ranking/comparison queries
     CUSTOMER_RANKING_PATTERNS = [
+        # Original patterns
         r'\b(largest|biggest|top|highest|greatest|most valuable|best|primary)\s+\w*\s*customer',
         r'\bcustomer.*(largest|biggest|top|highest|greatest|most|best)',
         r'\b(rank|ranking|compare|comparison)\s+\w*\s*customer',
         r'\bwho is (the|our)\s+(largest|biggest|top|best)\s+.*customer',
         r'\b(customer|client).*(revenue|value|relationship|sales|business)',
+        # Additional patterns for aerospace/industry-specific queries
+        r'\b(largest|biggest|top|major|key|primary|main)\s+(aerospace\s+)?customer',
+        r'\bcustomer.{0,30}(largest|biggest|most|highest|top)',
+        r'\b(who|which|what)\s+(is|are)\s+the\s+(largest|biggest|top|main|major)',
+        r'\btop\s*\d*\s*customer',
+        r'\bcustomer\s+(relationship|value|revenue)',
+        r'\blargest\s+(aerospace|defense|commercial)\s+customer',
     ]
     
     CUSTOMER_PROFILE_PATTERNS = [
@@ -85,6 +94,49 @@ class DocumentSearcher:
         r'_customer_profile\.md$',
         r'customer_profile',
         r'^customers/',
+    ]
+
+    # Patterns for company overview/profile queries (founding date, headquarters, etc.)
+    COMPANY_OVERVIEW_PATTERNS = [
+        r'\b(when|what year)\s+was\s+.+\s+(founded|established|incorporated)',
+        r'\b(founding|founded|established|incorporated)\s+(date|year)',
+        r'\bwhere\s+is\s+.+\s+headquartered',
+        r'\b(headquarters|hq)\s+(location|address)',
+        r'\bcompany\s+(history|overview|profile|background)',
+    ]
+
+    # Document patterns to boost for company overview queries
+    INVESTOR_PRESENTATION_PATTERNS = [
+        r'investor.*presentation',
+        r'company.*overview',
+        r'company.*profile',
+        r'corporate.*profile',
+        r'quarterly.*newsletter',
+    ]
+
+    # Patterns for partnership/JV queries (e.g., Toyota solid-state battery partnership)
+    PARTNERSHIP_QUERY_PATTERNS = [
+        r'\b(partner|partnering|partnership)\s+(with|for)',
+        r'\bjoint\s+venture',
+        r'\b(jv|j\.v\.)\s+(with|for|ownership)',
+        r'\b(ownership|stake|equity)\s+(in|percentage)',
+        r'\b(collaborate|collaborating|collaboration)\s+(with|on)',
+    ]
+
+    # Document patterns for partnership documents
+    PARTNERSHIP_DOC_PATTERNS = [
+        r'partner.*profile',
+        r'jv.*negotiation',
+        r'partnership.*announcement',
+        r'investor.*relations',
+    ]
+
+    # Patterns for compliance/export control queries
+    COMPLIANCE_QUERY_PATTERNS = [
+        r'\b(itar|export control|compliance|empowered official)',
+        r'\b(chair|head|lead)\s+(of\s+)?(the\s+)?(export|compliance|trade)',
+        r'\bwho\s+(is|was)\s+(the\s+)?(empowered|compliance)',
+        r'\b(export|trade)\s+(control|compliance)\s+(committee|officer)',
     ]
     
     CANONICAL_TERMS = {
@@ -129,25 +181,69 @@ class DocumentSearcher:
             List of chunk dicts with id, text, document_name, similarity
         """
         chunks = []
-        
+
         is_company_metric_query = self._is_company_metric_query(query)
-        is_customer_ranking_query = self._is_customer_ranking_query(query)
-        
+        is_customer_ranking = self._is_customer_ranking_query(query)
+        is_company_overview = self._is_company_overview_query(query)
+        is_partnership = self._is_partnership_query(query)
+        is_compliance = self._is_compliance_query(query)
+
         if use_vector:
+            # For customer ranking queries, expand search limit to get more candidates
             search_limit = limit + offset
-            if is_customer_ranking_query:
+            if is_customer_ranking:
                 search_limit = max(search_limit * 3, 20)
                 logger.info(f"[SEARCHER] Customer ranking query detected, increasing search limit to {search_limit}")
             
             chunks = self._vector_search(query, search_limit)
+
+            # For customer ranking queries, always fetch and include customer profile documents
+            if is_customer_ranking:
+                customer_chunks = self._fetch_customer_profile_chunks(limit=10)
+                if customer_chunks:
+                    # Merge customer chunks with vector results, avoiding duplicates
+                    existing_ids = {c.get('id') for c in chunks if c.get('id')}
+                    for cc in customer_chunks:
+                        if cc.get('id') not in existing_ids:
+                            chunks.append(cc)
+                    logger.info(f"[SEARCHER] Customer ranking query - added {len(customer_chunks)} customer profile chunks")
+
+            # For company overview queries (founding date, HQ, etc.), fetch investor presentation docs
+            if is_company_overview:
+                investor_chunks = self._fetch_investor_presentation_chunks(limit=5)
+                if investor_chunks:
+                    existing_ids = {c.get('id') for c in chunks if c.get('id')}
+                    for ic in investor_chunks:
+                        if ic.get('id') not in existing_ids:
+                            chunks.append(ic)
+                    logger.info(f"[SEARCHER] Company overview query - added {len(investor_chunks)} investor/overview chunks")
+
+            # For partnership/JV queries (e.g., Toyota partnership), fetch partnership docs
+            if is_partnership:
+                partnership_chunks = self._fetch_partnership_chunks(limit=10)
+                if partnership_chunks:
+                    existing_ids = {c.get('id') for c in chunks if c.get('id')}
+                    for pc in partnership_chunks:
+                        if pc.get('id') not in existing_ids:
+                            chunks.append(pc)
+                    logger.info(f"[SEARCHER] Partnership query - added {len(partnership_chunks)} partnership/JV chunks")
+
+            # For compliance/export control queries (e.g., ITAR Empowered Official), fetch compliance docs
+            if is_compliance:
+                compliance_chunks = self._fetch_compliance_chunks(limit=10)
+                if compliance_chunks:
+                    existing_ids = {c.get('id') for c in chunks if c.get('id')}
+                    for cc in compliance_chunks:
+                        if cc.get('id') not in existing_ids:
+                            chunks.append(cc)
+                    logger.info(f"[SEARCHER] Compliance query - added {len(compliance_chunks)} compliance/export control chunks")
+
             if chunks:
-                if is_company_metric_query and not is_customer_ranking_query:
-                    chunks = self._filter_customer_documents(chunks)
-                    logger.info(f"[SEARCHER] Company metric query detected, filtered customer docs: {len(chunks)} chunks remain")
-                
-                if is_customer_ranking_query:
+                # For customer ranking queries, boost customer profile documents
+                if is_customer_ranking:
+                    chunks = self._boost_customer_documents(chunks)
+                    # Also do additional profile boost and direct fetch
                     chunks = self._boost_customer_profiles(chunks, boost_factor=0.35)
-                    
                     direct_profiles = self._fetch_all_customer_profiles(limit=10)
                     if direct_profiles:
                         existing_ids = {c.get('id') for c in chunks}
@@ -155,8 +251,11 @@ class DocumentSearcher:
                             if profile.get('id') not in existing_ids:
                                 chunks.append(profile)
                         chunks.sort(key=lambda x: x.get('similarity', 0), reverse=True)
-                    
-                    logger.info(f"[SEARCHER] Customer ranking query: boosted profiles + merged {len(direct_profiles)} direct fetches")
+                    logger.info(f"[SEARCHER] Customer ranking query - boosted and merged: {len(chunks)} chunks total")
+                # For company metric queries, filter OUT customer docs (prevents Boeing in Nexus backlog queries)
+                elif is_company_metric_query:
+                    chunks = self._filter_customer_documents(chunks)
+                    logger.info(f"[SEARCHER] Company metric query detected, filtered customer docs: {len(chunks)} chunks remain")
                 
                 avg_score = sum(c.get('_base_similarity', c.get('similarity', 0)) for c in chunks[:3]) / min(3, len(chunks)) if chunks else 0
                 
@@ -164,7 +263,7 @@ class DocumentSearcher:
                     logger.info(f"[SEARCHER] Low semantic scores (avg={avg_score:.3f}), applying canonical term boosting")
                     chunks = self._apply_canonical_boost(query, chunks, limit + offset, self.corpus_name)
                 
-                if apply_folder_weighting and not is_customer_ranking_query:
+                if apply_folder_weighting and not is_customer_ranking:
                     chunks = self._apply_folder_weighting(chunks)
                 
                 logger.info(f"[SEARCHER] Vector search found {len(chunks)} chunks")
@@ -521,20 +620,73 @@ class DocumentSearcher:
             if re.search(pattern, query_lower):
                 return True
         return False
-    
+
     def _is_customer_ranking_query(self, query: str) -> bool:
-        """Check if query is asking about ranking/comparing customers (largest, biggest, etc.)."""
+        """Check if query is asking about customer comparisons/rankings."""
         query_lower = query.lower()
         for pattern in self.CUSTOMER_RANKING_PATTERNS:
             if re.search(pattern, query_lower):
+                logger.info(f"[SEARCHER] Customer ranking query detected: matched pattern '{pattern}'")
                 return True
         return False
-    
+
+    def _is_company_overview_query(self, query: str) -> bool:
+        """Check if query is asking about company overview info (founding date, HQ, etc.)."""
+        query_lower = query.lower()
+        for pattern in self.COMPANY_OVERVIEW_PATTERNS:
+            if re.search(pattern, query_lower):
+                logger.info(f"[SEARCHER] Company overview query detected: matched pattern '{pattern}'")
+                return True
+        return False
+
+    def _is_partnership_query(self, query: str) -> bool:
+        """Check if query is asking about partnerships, JVs, or collaboration."""
+        query_lower = query.lower()
+        for pattern in self.PARTNERSHIP_QUERY_PATTERNS:
+            if re.search(pattern, query_lower):
+                logger.info(f"[SEARCHER] Partnership query detected: matched pattern '{pattern}'")
+                return True
+        return False
+
+    def _is_compliance_query(self, query: str) -> bool:
+        """Check if query is asking about ITAR, export control, or compliance."""
+        query_lower = query.lower()
+        for pattern in self.COMPLIANCE_QUERY_PATTERNS:
+            if re.search(pattern, query_lower):
+                logger.info(f"[SEARCHER] Compliance query detected: matched pattern '{pattern}'")
+                return True
+        return False
+
+    def _boost_customer_documents(self, chunks: List[Dict], boost_factor: float = 1.5) -> List[Dict]:
+        """Boost customer profile documents to the top of results."""
+        boosted = []
+        others = []
+
+        for chunk in chunks:
+            doc_name = chunk.get('document_name', '').lower()
+            is_customer_doc = False
+            for pattern in self.CUSTOMER_PROFILE_PATTERNS:
+                if re.search(pattern, doc_name):
+                    is_customer_doc = True
+                    break
+
+            if is_customer_doc:
+                # Boost the similarity score
+                chunk['similarity'] = chunk.get('similarity', 0.5) * boost_factor
+                chunk['_boosted'] = True
+                boosted.append(chunk)
+                logger.info(f"[SEARCHER] Boosted customer doc: {doc_name}")
+            else:
+                others.append(chunk)
+
+        # Put customer docs first, then others
+        return boosted + others
+
     def _boost_customer_profiles(self, chunks: List[Dict], boost_factor: float = 0.35) -> List[Dict]:
-        """Boost customer profile documents for customer ranking queries.
+        """Boost customer profile documents by adding to similarity scores.
         
-        This is the inverse of _filter_customer_documents - instead of filtering them out,
-        we boost them significantly to ensure all customer profiles appear in results.
+        This is complementary to _boost_customer_documents - adds boost_factor to similarity
+        scores for customer profile documents and also checks text content.
         """
         boosted_chunks = []
         boosted_count = 0
@@ -568,9 +720,45 @@ class DocumentSearcher:
             logger.info(f"[SEARCHER] Customer profile boost: {boosted_count} chunks boosted by {boost_factor}")
         
         return boosted_chunks
-    
+
+    def _fetch_customer_profile_chunks(self, limit: int = 10) -> List[Dict]:
+        """Directly fetch chunks from customer profile documents."""
+        try:
+            query = text("""
+                SELECT c.id, c.content as text, d.name as doc_name
+                FROM chunks c
+                JOIN documents d ON c.document_id = d.id
+                WHERE c.tenant_id = :tid
+                AND (
+                    d.name LIKE '%_customer.md'
+                    OR d.name LIKE '%customer_profile%'
+                    OR d.folder_path LIKE '%customers%'
+                )
+                ORDER BY d.name
+                LIMIT :limit
+            """)
+
+            results = self.session.execute(query, {'tid': self.tenant_id, 'limit': limit}).fetchall()
+
+            chunks = []
+            for r in results:
+                chunks.append({
+                    "id": str(r.id),
+                    "text": r.text[:2500] if r.text else "",
+                    "document_name": r.doc_name or "Unknown customer doc",
+                    "similarity": 0.85,
+                    "_customer_profile": True
+                })
+
+            logger.info(f"[SEARCHER] Fetched {len(chunks)} customer profile chunks directly from DB")
+            return chunks
+
+        except Exception as e:
+            logger.error(f"[SEARCHER] Failed to fetch customer profile chunks: {e}")
+            return []
+
     def _fetch_all_customer_profiles(self, limit: int = 10) -> List[Dict[str, Any]]:
-        """Directly fetch customer profile chunks from the database.
+        """Directly fetch customer profile chunks from the database using text patterns.
         
         This is used as a fallback/supplement for customer ranking queries to ensure
         we have all customer profiles available for comparison.
@@ -610,7 +798,125 @@ class DocumentSearcher:
         except Exception as e:
             logger.warning(f"[SEARCHER] Direct customer profile fetch failed: {e}")
             return []
-    
+
+    def _fetch_compliance_chunks(self, limit: int = 10) -> List[Dict]:
+        """Directly fetch chunks from ITAR, export control, and compliance documents."""
+        try:
+            query = text("""
+                SELECT c.id, c.content as text, d.name as doc_name
+                FROM chunks c
+                JOIN documents d ON c.document_id = d.id
+                WHERE c.tenant_id = :tid
+                AND (
+                    d.name ILIKE '%export%control%'
+                    OR d.name ILIKE '%itar%'
+                    OR d.name ILIKE '%compliance%'
+                    OR d.name ILIKE '%trade%compliance%'
+                    OR d.name ILIKE '%empowered%'
+                    OR d.folder_path ILIKE '%policies%'
+                    OR d.folder_path ILIKE '%compliance%'
+                )
+                ORDER BY d.name
+                LIMIT :limit
+            """)
+
+            results = self.session.execute(query, {'tid': self.tenant_id, 'limit': limit}).fetchall()
+
+            chunks = []
+            for r in results:
+                chunks.append({
+                    "id": str(r.id),
+                    "text": r.text[:2500] if r.text else "",
+                    "document_name": r.doc_name or "Unknown compliance doc",
+                    "similarity": 0.85,
+                    "_compliance_doc": True
+                })
+
+            logger.info(f"[SEARCHER] Fetched {len(chunks)} compliance/export control chunks directly from DB")
+            return chunks
+
+        except Exception as e:
+            logger.error(f"[SEARCHER] Failed to fetch compliance chunks: {e}")
+            return []
+
+    def _fetch_partnership_chunks(self, limit: int = 10) -> List[Dict]:
+        """Directly fetch chunks from partnership, JV, and collaboration documents."""
+        try:
+            query = text("""
+                SELECT c.id, c.content as text, d.name as doc_name
+                FROM chunks c
+                JOIN documents d ON c.document_id = d.id
+                WHERE c.tenant_id = :tid
+                AND (
+                    d.name ILIKE '%partner%profile%'
+                    OR d.name ILIKE '%partner%'
+                    OR d.name ILIKE '%jv%'
+                    OR d.name ILIKE '%joint%venture%'
+                    OR d.name ILIKE '%partnership%'
+                    OR d.folder_path ILIKE '%stakeholders%'
+                    OR d.folder_path ILIKE '%meetings%'
+                    OR d.folder_path ILIKE '%communications%'
+                )
+                ORDER BY d.name
+                LIMIT :limit
+            """)
+
+            results = self.session.execute(query, {'tid': self.tenant_id, 'limit': limit}).fetchall()
+
+            chunks = []
+            for r in results:
+                chunks.append({
+                    "id": str(r.id),
+                    "text": r.text[:2500] if r.text else "",
+                    "document_name": r.doc_name or "Unknown partnership doc",
+                    "similarity": 0.82,
+                    "_partnership_doc": True
+                })
+
+            logger.info(f"[SEARCHER] Fetched {len(chunks)} partnership/JV chunks directly from DB")
+            return chunks
+
+        except Exception as e:
+            logger.error(f"[SEARCHER] Failed to fetch partnership chunks: {e}")
+            return []
+
+    def _fetch_investor_presentation_chunks(self, limit: int = 5) -> List[Dict]:
+        """Directly fetch chunks from investor presentation and company overview documents."""
+        try:
+            query = text("""
+                SELECT c.id, c.content as text, d.name as doc_name
+                FROM chunks c
+                JOIN documents d ON c.document_id = d.id
+                WHERE c.tenant_id = :tid
+                AND (
+                    d.name ILIKE '%investor%presentation%'
+                    OR d.name ILIKE '%company%overview%'
+                    OR d.name ILIKE '%quarterly%newsletter%'
+                    OR d.name ILIKE '%corporate%profile%'
+                )
+                ORDER BY d.name
+                LIMIT :limit
+            """)
+
+            results = self.session.execute(query, {'tid': self.tenant_id, 'limit': limit}).fetchall()
+
+            chunks = []
+            for r in results:
+                chunks.append({
+                    "id": str(r.id),
+                    "text": r.text[:2500] if r.text else "",
+                    "document_name": r.doc_name or "Unknown overview doc",
+                    "similarity": 0.85,
+                    "_investor_doc": True
+                })
+
+            logger.info(f"[SEARCHER] Fetched {len(chunks)} investor/overview chunks directly from DB")
+            return chunks
+
+        except Exception as e:
+            logger.error(f"[SEARCHER] Failed to fetch investor presentation chunks: {e}")
+            return []
+
     def _filter_customer_documents(self, chunks: List[Dict]) -> List[Dict]:
         """Filter out customer profile documents from results."""
         filtered = []

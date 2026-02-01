@@ -1,26 +1,24 @@
 {
-  "run_timestamp": "2026-02-01T00:25:19.484349",
+  "run_timestamp": "2026-02-01T00:42:43.961427",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 2.9599999999999995,
-    "avg_semantic_score": 0.089979,
+    "avg_chunks_retrieved": 3.08,
+    "avg_semantic_score": 0.10715799999999999,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
       "exact_match": 49,
-      "number_match": 8,
       "component_match": 26,
-      "no_data": 4,
-      "no_match": 7,
-      "timeout": 1,
-      "error": 2,
+      "no_data": 3,
+      "no_match": 12,
+      "number_match": 7,
       "percentage_match": 1,
       "entity_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 88
+    "low_score_queries": 85
   },
   "low_score_questions": [
     {
@@ -101,7 +99,7 @@
     {
       "q_id": 20,
       "question": "Which supplier is rated Red and at risk?",
-      "avg_score": 0.3251
+      "avg_score": 0.3252
     },
     {
       "q_id": 21,
@@ -171,11 +169,6 @@
     {
       "q_id": 36,
       "question": "Which division has the highest safety incident rate (TRIR)?",
-      "avg_score": 0.0
-    },
-    {
-      "q_id": 37,
-      "question": "Who is the Project Director for the GreenHydrogen Initiative?",
       "avg_score": 0.0
     },
     {
@@ -334,11 +327,6 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 71,
-      "question": "Who is the mining automation partner?",
-      "avg_score": 0.0
-    },
-    {
       "q_id": 72,
       "question": "What is the fast charge time for the solid-state battery (10-80%)?",
       "avg_score": 0.0
@@ -457,11 +445,6 @@
       "q_id": 99,
       "question": "How does Nexus's operating margin compare to target?",
       "avg_score": 0.0
-    },
-    {
-      "q_id": 100,
-      "question": "What is the total value of top 3 customer relationships?",
-      "avg_score": 0.0
     }
   ],
   "failures_by_type": {
@@ -486,20 +469,9 @@
         "expected": "1985",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "03_press_release_fy2025.md",
-          "08_global_locations.md",
-          "04_toyota_partnership_announcement.md"
-        ]
-      },
-      {
-        "q_id": 100,
-        "question": "What is the total value of top 3 customer relationships?",
-        "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
-        "actual": "I could not find specific values for the",
-        "files_retrieved": [
-          "01_boeing_customer_profile.md",
-          "11_microsoft_customer.md",
-          "05_siemens_healthineers_customer.md"
+          "04_toyota_partnership_announcement.md",
+          "05_fedramp_announcement.md",
+          "03_press_release_fy2025.md"
         ]
       }
     ],
@@ -510,9 +482,20 @@
         "expected": "Boeing ($730 million)",
         "actual": "The largest aerospace customer of Nexus ",
         "files_retrieved": [
-          "12_supplier_performance_review.md",
-          "03_ge_aerospace_customer.md",
-          "07_ma_strategy.md"
+          "12_rio_tinto_customer.md",
+          "07_spacex_customer.md",
+          "02_airbus_customer_profile.md"
+        ]
+      },
+      {
+        "q_id": 24,
+        "question": "What is the hydrogen production capacity of the GreenHydroge",
+        "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
+        "actual": "The GreenHydrogen facility in El Paso, T",
+        "files_retrieved": [
+          "04_greenhydrogen_initiative.md",
+          "09_greenhydrogen_milestone.md",
+          "08_global_locations.md"
         ]
       },
       {
@@ -521,17 +504,38 @@
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "05_fedramp_announcement.md",
+          "01_corporate_strategy_2026_2030.md",
           "04_toyota_partnership_announcement.md",
-          "08_global_locations.md"
+          "05_fedramp_announcement.md"
+        ]
+      },
+      {
+        "q_id": 36,
+        "question": "Which division has the highest safety incident rate (TRIR)?",
+        "expected": "Nexus Advanced Materials (1.24 TRIR)",
+        "actual": "The division with the highest safety inc",
+        "files_retrieved": [
+          "07_environmental_health_safety.md",
+          "05_safety_committee_meeting.md"
         ]
       },
       {
         "q_id": 45,
         "question": "When was Dr. Victoria Chen appointed CEO?",
         "expected": "2019",
-        "actual": "I found multiple people with the CTO rol",
+        "actual": "The CEO of Nexus Industries is Dr. Victo",
         "files_retrieved": []
+      },
+      {
+        "q_id": 48,
+        "question": "Who is the primary customer for HTS superconducting wire?",
+        "expected": "Siemens Healthineers ($65 million)",
+        "actual": "The primary customers for HTS supercondu",
+        "files_retrieved": [
+          "05_hts_wire_manufacturing_spec.md",
+          "12_rio_tinto_customer.md",
+          "07_spacex_customer.md"
+        ]
       },
       {
         "q_id": 61,
@@ -557,8 +561,19 @@
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
           "06_market_expansion_asia.md",
-          "02_aerospace_division_strategy.md",
-          "01_corporate_strategy_2026_2030.md"
+          "01_corporate_strategy_2026_2030.md",
+          "02_aerospace_division_strategy.md"
+        ]
+      },
+      {
+        "q_id": 83,
+        "question": "Who is the primary customer for the SmartGrid Controller?",
+        "expected": "Pacific Power (pilot customer)",
+        "actual": "The primary customers for the SmartGrid ",
+        "files_retrieved": [
+          "08_smartgrid_controller.md",
+          "07_smartgrid_controller_specification.md",
+          "08_pacific_power_utility.md"
         ]
       },
       {
@@ -567,31 +582,17 @@
         "expected": "Owns the Export Control Policy (per POL-",
         "actual": "The VP of Nexus Industries is VP Trade C",
         "files_retrieved": []
-      }
-    ],
-    "timeout": [
-      {
-        "q_id": 24,
-        "question": "What is the hydrogen production capacity of the GreenHydroge",
-        "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
-        "actual": "",
-        "files_retrieved": []
-      }
-    ],
-    "error": [
-      {
-        "q_id": 36,
-        "question": "Which division has the highest safety incident rate (TRIR)?",
-        "expected": "Nexus Advanced Materials (1.24 TRIR)",
-        "actual": "",
-        "files_retrieved": []
       },
       {
-        "q_id": 37,
-        "question": "Who is the Project Director for the GreenHydrogen Initiative",
-        "expected": "Jennifer Walsh",
-        "actual": "",
-        "files_retrieved": []
+        "q_id": 100,
+        "question": "What is the total value of top 3 customer relationships?",
+        "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
+        "actual": "The total value of the top three custome",
+        "files_retrieved": [
+          "08_quantum_computing_services.md",
+          "12_rio_tinto_customer.md",
+          "07_spacex_customer.md"
+        ]
       }
     ]
   }
