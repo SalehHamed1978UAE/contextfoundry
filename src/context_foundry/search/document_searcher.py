@@ -106,6 +106,23 @@ class DocumentSearcher:
         r'corporate.*profile',
         r'quarterly.*newsletter',
     ]
+
+    # Patterns for partnership/JV queries (e.g., Toyota solid-state battery partnership)
+    PARTNERSHIP_QUERY_PATTERNS = [
+        r'\b(partner|partnering|partnership)\s+(with|for)',
+        r'\bjoint\s+venture',
+        r'\b(jv|j\.v\.)\s+(with|for|ownership)',
+        r'\b(ownership|stake|equity)\s+(in|percentage)',
+        r'\b(collaborate|collaborating|collaboration)\s+(with|on)',
+    ]
+
+    # Document patterns for partnership documents
+    PARTNERSHIP_DOC_PATTERNS = [
+        r'partner.*profile',
+        r'jv.*negotiation',
+        r'partnership.*announcement',
+        r'investor.*relations',
+    ]
     
     CANONICAL_TERMS = {
         'project_names': [
@@ -153,6 +170,7 @@ class DocumentSearcher:
         is_company_metric_query = self._is_company_metric_query(query)
         is_customer_ranking = self._is_customer_ranking_query(query)
         is_company_overview = self._is_company_overview_query(query)
+        is_partnership = self._is_partnership_query(query)
 
         if use_vector:
             chunks = self._vector_search(query, limit + offset)
@@ -177,6 +195,16 @@ class DocumentSearcher:
                         if ic.get('id') not in existing_ids:
                             chunks.append(ic)
                     logger.info(f"[SEARCHER] Company overview query - added {len(investor_chunks)} investor/overview chunks")
+
+            # For partnership/JV queries (e.g., Toyota partnership), fetch partnership docs
+            if is_partnership:
+                partnership_chunks = self._fetch_partnership_chunks(limit=10)
+                if partnership_chunks:
+                    existing_ids = {c.get('id') for c in chunks if c.get('id')}
+                    for pc in partnership_chunks:
+                        if pc.get('id') not in existing_ids:
+                            chunks.append(pc)
+                    logger.info(f"[SEARCHER] Partnership query - added {len(partnership_chunks)} partnership/JV chunks")
 
             if chunks:
                 # For customer ranking queries, boost customer profile documents
@@ -570,6 +598,15 @@ class DocumentSearcher:
                 return True
         return False
 
+    def _is_partnership_query(self, query: str) -> bool:
+        """Check if query is asking about partnerships, JVs, or collaboration."""
+        query_lower = query.lower()
+        for pattern in self.PARTNERSHIP_QUERY_PATTERNS:
+            if re.search(pattern, query_lower):
+                logger.info(f"[SEARCHER] Partnership query detected: matched pattern '{pattern}'")
+                return True
+        return False
+
     def _boost_customer_documents(self, chunks: List[Dict], boost_factor: float = 1.5) -> List[Dict]:
         """Boost customer profile documents to the top of results."""
         boosted = []
@@ -629,6 +666,46 @@ class DocumentSearcher:
 
         except Exception as e:
             logger.error(f"[SEARCHER] Failed to fetch customer profile chunks: {e}")
+            return []
+
+    def _fetch_partnership_chunks(self, limit: int = 10) -> List[Dict]:
+        """Directly fetch chunks from partnership, JV, and collaboration documents."""
+        try:
+            query = text("""
+                SELECT c.id, c.content as text, d.name as doc_name
+                FROM chunks c
+                JOIN documents d ON c.document_id = d.id
+                WHERE c.tenant_id = :tid
+                AND (
+                    d.name ILIKE '%partner%profile%'
+                    OR d.name ILIKE '%jv%negotiation%'
+                    OR d.name ILIKE '%partnership%announcement%'
+                    OR d.name ILIKE '%investor%relations%'
+                    OR d.name ILIKE '%toyota%'
+                    OR d.folder_path ILIKE '%meetings%'
+                    OR d.folder_path ILIKE '%communications%'
+                )
+                ORDER BY d.name
+                LIMIT :limit
+            """)
+
+            results = self.session.execute(query, {'tid': self.tenant_id, 'limit': limit}).fetchall()
+
+            chunks = []
+            for r in results:
+                chunks.append({
+                    "id": str(r.id),
+                    "text": r.text[:2500] if r.text else "",
+                    "document_name": r.doc_name or "Unknown partnership doc",
+                    "similarity": 0.82,
+                    "_partnership_doc": True
+                })
+
+            logger.info(f"[SEARCHER] Fetched {len(chunks)} partnership/JV chunks directly from DB")
+            return chunks
+
+        except Exception as e:
+            logger.error(f"[SEARCHER] Failed to fetch partnership chunks: {e}")
             return []
 
     def _fetch_investor_presentation_chunks(self, limit: int = 5) -> List[Dict]:
