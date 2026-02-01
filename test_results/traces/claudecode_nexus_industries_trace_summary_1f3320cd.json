@@ -1,19 +1,19 @@
 {
-  "run_timestamp": "2026-02-01T21:58:31.746465",
+  "run_timestamp": "2026-02-01T23:23:44.330442",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.44,
-    "avg_semantic_score": 0.05087700000000001,
+    "avg_chunks_retrieved": 3.48,
+    "avg_semantic_score": 0.05087799999999998,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "exact_match": 46,
+      "exact_match": 45,
+      "number_match": 8,
       "component_match": 26,
       "no_match": 14,
       "no_data": 4,
-      "number_match": 7,
       "percentage_match": 1,
       "entity_match": 1,
       "semantic_match": 1
@@ -658,7 +658,7 @@
         "q_id": 60,
         "question": "When was the phishing incident detected?",
         "expected": "December 12, 2025 at 02:47 UTC",
-        "actual": "The retrieved information does not provi",
+        "actual": "The retrieved information does not menti",
         "files_retrieved": [
           "10_cybersecurity_incident_response.md",
           "08_cybersecurity_advisory.md",
