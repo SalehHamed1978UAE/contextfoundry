@@ -1,24 +1,24 @@
 {
-  "run_timestamp": "2026-02-01T01:00:52.679663",
+  "run_timestamp": "2026-02-01T01:20:55.474294",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 2.9800000000000004,
-    "avg_semantic_score": 0.103873,
+    "avg_chunks_retrieved": 3.0099999999999993,
+    "avg_semantic_score": 0.13072099999999998,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "exact_match": 48,
-      "no_data": 5,
+      "exact_match": 49,
       "number_match": 8,
-      "component_match": 26,
+      "component_match": 27,
+      "no_data": 3,
       "no_match": 10,
       "percentage_match": 1,
-      "entity_match": 1,
-      "semantic_match": 1
+      "semantic_match": 1,
+      "entity_match": 1
     },
-    "low_score_queries": 86
+    "low_score_queries": 83
   },
   "low_score_questions": [
     {
@@ -44,11 +44,6 @@
     {
       "q_id": 8,
       "question": "What is the budget for the Falcon X UAV program?",
-      "avg_score": 0.0
-    },
-    {
-      "q_id": 9,
-      "question": "What is the total investment in the Toyota joint venture?",
       "avg_score": 0.0
     },
     {
@@ -219,11 +214,6 @@
     {
       "q_id": 47,
       "question": "Which university is a research partner for quantum computing?",
-      "avg_score": 0.0
-    },
-    {
-      "q_id": 48,
-      "question": "Who is the primary customer for HTS superconducting wire?",
       "avg_score": 0.0
     },
     {
@@ -445,26 +435,10 @@
       "q_id": 99,
       "question": "How does Nexus's operating margin compare to target?",
       "avg_score": 0.0
-    },
-    {
-      "q_id": 100,
-      "question": "What is the total value of top 3 customer relationships?",
-      "avg_score": 0.0
     }
   ],
   "failures_by_type": {
     "no_data": [
-      {
-        "q_id": 9,
-        "question": "What is the total investment in the Toyota joint venture?",
-        "expected": "$312 million",
-        "actual": "I could not find specific information re",
-        "files_retrieved": [
-          "04_toyota_partnership_announcement.md",
-          "06_toyota_partner_profile.md",
-          "06_toyota_jv_negotiation_summary.md"
-        ]
-      },
       {
         "q_id": 16,
         "question": "What company is Nexus partnering with for solid-state batter",
@@ -480,20 +454,13 @@
         "files_retrieved": []
       },
       {
-        "q_id": 48,
-        "question": "Who is the primary customer for HTS superconducting wire?",
-        "expected": "Siemens Healthineers ($65 million)",
-        "actual": "The primary customer for HTS (High-Tempe",
-        "files_retrieved": []
-      },
-      {
         "q_id": 82,
         "question": "When was Nexus Industries founded?",
         "expected": "1985",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "08_global_locations.md",
-          "04_toyota_partnership_announcement.md",
+          "05_fedramp_announcement.md",
+          "02_business_divisions.md",
           "03_press_release_fy2025.md"
         ]
       }
@@ -505,9 +472,9 @@
         "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
         "actual": "The GreenHydrogen facility in El Paso, T",
         "files_retrieved": [
-          "04_greenhydrogen_initiative.md",
-          "08_global_locations.md",
-          "02_greenhydrogen_process_specification.md"
+          "02_greenhydrogen_process_specification.md",
+          "09_greenhydrogen_milestone.md",
+          "08_global_locations.md"
         ]
       },
       {
@@ -516,8 +483,8 @@
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "05_talent_strategy.md",
-          "08_hr_talent_review.md",
+          "05_digital_division_structure.md",
+          "05_fedramp_announcement.md",
           "09_investor_presentation_q4.md"
         ]
       },
@@ -535,7 +502,7 @@
         "q_id": 45,
         "question": "When was Dr. Victoria Chen appointed CEO?",
         "expected": "2019",
-        "actual": "The CEO of Nexus Industries is Dr. Victo",
+        "actual": "I found multiple people with the CTO rol",
         "files_retrieved": []
       },
       {
@@ -556,14 +523,25 @@
         ]
       },
       {
+        "q_id": 77,
+        "question": "What is the location of the BatteryTech JV facility?",
+        "expected": "San Antonio, Texas",
+        "actual": "The BatteryTech joint venture (JV) facil",
+        "files_retrieved": [
+          "06_toyota_jv_negotiation_summary.md",
+          "11_batterytech_solid_state.md",
+          "06_solid_state_battery_design.md"
+        ]
+      },
+      {
         "q_id": 79,
         "question": "What is the 2030 revenue target in the corporate strategy?",
         "expected": "$15 billion",
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
-          "02_aerospace_division_strategy.md",
+          "06_market_expansion_asia.md",
           "01_corporate_strategy_2026_2030.md",
-          "06_market_expansion_asia.md"
+          "02_aerospace_division_strategy.md"
         ]
       },
       {
@@ -572,9 +550,8 @@
         "expected": "Pacific Power (pilot customer)",
         "actual": "The primary customer for the SmartGrid C",
         "files_retrieved": [
-          "08_pacific_power_utility.md",
-          "07_smartgrid_controller_specification.md",
-          "11_microsoft_customer.md"
+          "01_boeing_customer_profile.md",
+          "02_airbus_customer_profile.md"
         ]
       },
       {
@@ -582,13 +559,6 @@
         "question": "Who is the VP Trade Compliance?",
         "expected": "Owns the Export Control Policy (per POL-",
         "actual": "The VP of Nexus Industries is VP Trade C",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 100,
-        "question": "What is the total value of top 3 customer relationships?",
-        "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
-        "actual": "There is insufficient data available to ",
         "files_retrieved": []
       }
     ]
