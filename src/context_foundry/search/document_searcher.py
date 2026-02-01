@@ -116,11 +116,13 @@ class DocumentSearcher:
 
     # Patterns for partnership/JV queries (e.g., Toyota solid-state battery partnership)
     PARTNERSHIP_QUERY_PATTERNS = [
-        r'\b(partner|partnering|partnership)\s+(with|for)',
+        r'\b(partner|partnering|partnership)',  # Any mention of partner/partnership
         r'\bjoint\s+venture',
-        r'\b(jv|j\.v\.)\s+(with|for|ownership)',
-        r'\b(ownership|stake|equity)\s+(in|percentage)',
-        r'\b(collaborate|collaborating|collaboration)\s+(with|on)',
+        r'\bjv\b',  # Just "JV" alone
+        r'\b(ownership|stake|equity)\s+(percentage|in|of)',
+        r'\b(collaborate|collaborating|collaboration)',
+        r'\bsolid.state\s+batter',  # solid-state battery queries
+        r'\btoyota\b',  # Toyota-specific queries
     ]
 
     # Document patterns for partnership documents
