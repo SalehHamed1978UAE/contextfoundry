@@ -1,0 +1,64 @@
+there must be a way When we look at how we've extracted entities and relationships, there must be
+    a way to have a second loop of verification. For example, we extract things from whatever
+    knowledge base we have. Then we take it. Because we have those relationships embedded, like we
+    know where they came from in documents, and paragraphs and sentences. We can take those sentences.
+    Take what we've inferred or what we think is the situation and send it to an LLM and say: "We've
+    decided that this is the case. Confirm that our logic is correct." Then there can be a quick
+    discussion between our system and an LLM where the LLM would say: "No" or "Yes, this is a correct
+    implication." If it isn't, the LLM can…we can have a prompt in the prompt and say "If it says:
+    'No, this is not a correct implication', we can say 'What should we be looking for? What can we
+    find from the documents?'" 90% I think of a high proportion of the information that we will
+    extract will be straightforward. But we should have a case that validates it immediately that the
+    logic is accurate and that we've made a good decision. If we're not sure, we should use an LLM to
+    help us figure out what we should do. We should say, "Look, this is what I have; I have access to
+    these documents, and the LLM says to look for this or that." Then, when we give an answer at the
+    end, we should say, "This answer was not based on extraction; this is based on inference. It is a
+    response that requires validation."
+
+
+• You’re exactly right—there’s a missing “LLM sanity-check” between raw extraction and final answers.
+  Here’s how we can wire that up so every inferred fact gets validated before it reaches the user:
+
+  ———
+
+  ### 1. Add a Verification Loop After Extraction
+
+  - Every time the extractor creates an entity or relationship (e.g., “Dr. Martinez is CEO of NextGen
+    Battery”), we already know the exact sentences/chunks that supported it.
+  - Take that supporting evidence + the proposed triple and send it to an LLM with a prompt like:
+
+    Evidence: <sentences from the document>
+    Proposed fact: "Dr. Robert Martinez is CEO of NextGen Battery Technologies"
+
+    Question: Based on ONLY the evidence above, is the fact correct? Answer “yes” or “no” and explain
+  briefly.
+  - Tag the fact as verified = true/false, store the explanation, and mark the provenance (doc + sentence
+    IDs) in the Evidence Layer.
+
+  ### 2. Use the LLM’s Feedback When It Says “No”
+
+  - If the LLM flags the inference as incorrect or uncertain, immediately ask:
+
+    What should we look for in the documents to confirm or fix this fact?
+  - Log that guidance and feed it into a follow-up retrieval step (e.g., search for a more precise
+    sentence). If confirmation still fails, mark the fact as “unverified” so downstream stages know not to
+    rely on it.
+
+  ### 3. Surface Verification Status at Answer Time
+
+  - When answering queries, include the verification status in the response metadata:
+      - basis = "verified_extraction" for facts that passed the LLM check.
+      - basis = "inference_needs_validation" when the LLM couldn’t confirm it.
+  - This way the UI (or API clients) can distinguish hard evidence from best-effort inference and warn the
+    user when validation is pending.
+
+  ### 4. Keep It Lightweight
+
+  - 90% of relationships (titles, direct org links) will pass instantly. For the 10% that fail, the
+    feedback loop pushes us to find better supporting text before the fact ever pollutes the knowledge
+    graph.
+
+  ———
+
+  If you’re okay with this approach, I can draft the prompt templates and the small orchestration hook that
+  runs post-extraction and logs verification results.
