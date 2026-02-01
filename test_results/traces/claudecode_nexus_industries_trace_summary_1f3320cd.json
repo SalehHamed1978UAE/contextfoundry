@@ -1,19 +1,19 @@
 {
-  "run_timestamp": "2026-01-31T23:54:46.430652",
+  "run_timestamp": "2026-02-01T00:08:08.599519",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
     "avg_chunks_retrieved": 3.060000000000001,
-    "avg_semantic_score": 0.108403,
+    "avg_semantic_score": 0.10730499999999998,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "exact_match": 49,
-      "component_match": 29,
+      "exact_match": 48,
+      "component_match": 31,
       "no_data": 3,
       "no_match": 9,
-      "number_match": 7,
+      "number_match": 6,
       "percentage_match": 1,
       "entity_match": 1,
       "semantic_match": 1
@@ -550,11 +550,11 @@
         "q_id": 100,
         "question": "What is the total value of top 3 customer relationships?",
         "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
-        "actual": "The total value of the top 3 customer re",
+        "actual": "The total value of the top three custome",
         "files_retrieved": [
+          "10_aeromaterials_composites.md",
           "05_siemens_healthineers_customer.md",
-          "07_spacex_customer.md",
-          "11_microsoft_customer.md"
+          "07_spacex_customer.md"
         ]
       }
     ]

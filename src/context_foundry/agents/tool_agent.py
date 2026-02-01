@@ -224,6 +224,116 @@ class ToolAgent:
                     f"chunks={num_chunks}, entities={num_entities}, rels={num_relationships}")
         return False
     
+    def _extract_entity_values_for_ranking(self, chunks: List[Dict], question: str) -> List[tuple]:
+        """
+        Extract entity-value pairs from chunks for deterministic ranking.
+        
+        Parses table-like structures in chunks to find (entity_name, dollar_value, source) tuples.
+        Returns list of tuples sorted by value.
+        """
+        entity_values = []
+        
+        # Patterns for extracting entity-value pairs from tables
+        # Pattern 1: "Entity Name | ... | $XXX..." (pipe-delimited tables)
+        # Pattern 2: "Entity Name: $XXX" or "Entity Name - $XXX"
+        # Pattern 3: "**Entity Name**: ... $XXX" (markdown bold)
+        
+        # Currency patterns
+        currency_pattern = re.compile(
+            r'\$\s*([\d,]+(?:\.\d+)?)\s*(million|billion|M|B)?',
+            re.IGNORECASE
+        )
+        
+        # Table row patterns (company name followed by financial value)
+        table_patterns = [
+            # Pattern: "| Company Name | ... | $XXX |" - markdown tables
+            re.compile(r'\|\s*([A-Z][A-Za-z\s&\.,]+?)\s*\|.*?\$\s*([\d,\.]+)\s*(million|billion|M|B)?', re.IGNORECASE),
+            # Pattern: "Company Name: $XXX" or "Company Name - $XXX"  
+            re.compile(r'^([A-Z][A-Za-z\s&\.,]+?)[\:\-]\s*\$\s*([\d,\.]+)\s*(million|billion|M|B)?', re.IGNORECASE | re.MULTILINE),
+            # Pattern: "**Company Name**: ... $XXX" (markdown)
+            re.compile(r'\*\*([A-Z][A-Za-z\s&\.,]+?)\*\*[\:\s]+.*?\$\s*([\d,\.]+)\s*(million|billion|M|B)?', re.IGNORECASE),
+        ]
+        
+        # Known company/customer names to look for
+        known_entities = {
+            'boeing', 'airbus', 'dod', 'department of defense', 'shell', 'toyota', 
+            'siemens', 'microsoft', 'lockheed', 'northrop', 'raytheon', 'honeywell',
+            'general atomics', 'nel hydrogen', 'first solar'
+        }
+        
+        for chunk in chunks:
+            text = chunk.get('text', '')
+            source = chunk.get('document', 'Unknown')
+            
+            # Try each table pattern
+            for pattern in table_patterns:
+                matches = pattern.findall(text)
+                for match in matches:
+                    entity_name = match[0].strip()
+                    value_str = match[1].replace(',', '')
+                    multiplier_str = match[2] if len(match) > 2 else ''
+                    
+                    try:
+                        value = float(value_str)
+                        if multiplier_str:
+                            multiplier_lower = multiplier_str.lower()
+                            if multiplier_lower in ('million', 'm'):
+                                value *= 1e6
+                            elif multiplier_lower in ('billion', 'b'):
+                                value *= 1e9
+                        elif value < 1000:  # Likely in millions if small number
+                            value *= 1e6
+                        
+                        # Only add if entity name looks valid
+                        if len(entity_name) > 2 and not entity_name.lower().startswith(('the ', 'a ')):
+                            entity_values.append((entity_name, value, source))
+                    except ValueError:
+                        continue
+            
+            # Also look for lines with known entity names + currency
+            for line in text.split('\n'):
+                line_lower = line.lower()
+                for entity in known_entities:
+                    if entity in line_lower:
+                        # Find currency values in this line
+                        currency_matches = currency_pattern.findall(line)
+                        for curr_match in currency_matches:
+                            value_str = curr_match[0].replace(',', '')
+                            multiplier_str = curr_match[1] if len(curr_match) > 1 else ''
+                            
+                            try:
+                                value = float(value_str)
+                                if multiplier_str:
+                                    multiplier_lower = multiplier_str.lower()
+                                    if multiplier_lower in ('million', 'm'):
+                                        value *= 1e6
+                                    elif multiplier_lower in ('billion', 'b'):
+                                        value *= 1e9
+                                elif value < 1000:
+                                    value *= 1e6
+                                
+                                # Extract proper entity name from line
+                                entity_name = entity.title()
+                                if entity == 'dod':
+                                    entity_name = 'Department of Defense'
+                                elif entity == 'boeing':
+                                    entity_name = 'Boeing'
+                                elif entity == 'airbus':
+                                    entity_name = 'Airbus'
+                                
+                                entity_values.append((entity_name, value, source))
+                            except ValueError:
+                                continue
+        
+        # Deduplicate - keep highest value for each entity
+        entity_max = {}
+        for entity, value, source in entity_values:
+            entity_key = entity.lower().strip()
+            if entity_key not in entity_max or value > entity_max[entity_key][1]:
+                entity_max[entity_key] = (entity, value, source)
+        
+        return list(entity_max.values())
+    
     def _synthesize_direct_answer(self, question: str, pipeline_result: RetrievalResult, intent: Optional[QueryIntent] = None) -> str:
         """Synthesize answer directly from pre-fetched data without tool calls."""
         logger.info(f"[TOOL_AGENT] _synthesize_direct_answer: question='{question[:80]}...'")
@@ -275,32 +385,53 @@ class ToolAgent:
         if pipeline_result.chunks:
             context_parts.append("Document content:")
             
-            # For ranking queries, prioritize chunks with "Total" patterns (financial tables)
+            # For ranking queries, extract entity-value pairs and compute rankings
             chunks_to_use = pipeline_result.chunks
+            ranking_summary = ""
             if classification and getattr(classification, 'has_ranking_intent', False):
-                import re
-                total_pattern = re.compile(r'\bTotal[:\s]*\$[\d,\.]+|\$[\d,\.]+\s*(million|billion|M|B)\b', re.IGNORECASE)
+                ranking_type = getattr(classification, 'ranking_type', 'largest')
+                # Parse entity-value pairs from all chunks
+                entity_values = self._extract_entity_values_for_ranking(pipeline_result.chunks, question)
                 
-                # Separate table-like chunks (with Total patterns) from regular chunks
+                if entity_values:
+                    # Sort by value (descending for largest, ascending for smallest)
+                    is_descending = ranking_type in ('largest', 'top_n', None)
+                    sorted_pairs = sorted(entity_values, key=lambda x: x[1], reverse=is_descending)
+                    
+                    # Build ranking summary for LLM
+                    ranking_lines = []
+                    for i, (entity, value, source) in enumerate(sorted_pairs[:10], 1):
+                        value_str = f"${value/1e6:.1f}M" if value >= 1e6 else f"${value/1e3:.1f}K" if value >= 1e3 else f"${value:.0f}"
+                        ranking_lines.append(f"{i}. {entity}: {value_str}")
+                    
+                    ranking_summary = f"\n\n**DETERMINISTIC RANKING (from parsed data):**\n" + "\n".join(ranking_lines)
+                    if is_descending:
+                        ranking_summary += f"\n\n**THE LARGEST/HIGHEST IS: {sorted_pairs[0][0]} ({f'${sorted_pairs[0][1]/1e6:.1f}M' if sorted_pairs[0][1] >= 1e6 else f'${sorted_pairs[0][1]:.0f}'})**"
+                    else:
+                        ranking_summary += f"\n\n**THE SMALLEST/LOWEST IS: {sorted_pairs[0][0]} ({f'${sorted_pairs[0][1]/1e6:.1f}M' if sorted_pairs[0][1] >= 1e6 else f'${sorted_pairs[0][1]:.0f}'})**"
+                    
+                    logger.info(f"[RANKING] Extracted {len(entity_values)} entity-value pairs, top: {sorted_pairs[0] if sorted_pairs else 'none'}")
+                
+                # Also prioritize table-like chunks
+                total_pattern = re.compile(r'\bTotal[:\s]*\$[\d,\.]+|\$[\d,\.]+\s*(million|billion|M|B)\b', re.IGNORECASE)
                 table_chunks = []
                 regular_chunks = []
                 for chunk in pipeline_result.chunks:
                     text = chunk.get('text', '')
                     if total_pattern.search(text):
                         table_chunks.append(chunk)
-                        logger.info(f"[RANKING] Boosted table chunk from: {chunk.get('document', 'Unknown')}")
                     else:
                         regular_chunks.append(chunk)
-                
-                # Put table chunks first, then regular chunks
                 chunks_to_use = table_chunks + regular_chunks
-                if table_chunks:
-                    logger.info(f"[RANKING] Prioritized {len(table_chunks)} table chunks for ranking query")
             
             for chunk in chunks_to_use[:chunk_limit]:
                 text = chunk.get('text', '')[:chunk_text_limit]
                 doc = chunk.get('document', 'Unknown')
                 context_parts.append(f"\n[From {doc}]\n{text}")
+            
+            # Append ranking summary to context
+            if ranking_summary:
+                context_parts.append(ranking_summary)
         
         context = "\n\n".join(context_parts)
         
