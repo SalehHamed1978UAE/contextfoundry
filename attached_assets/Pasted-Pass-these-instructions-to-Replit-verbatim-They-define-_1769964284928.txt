@@ -1,0 +1,114 @@
+Pass these instructions to Replit verbatim. They define the outcomes, tests, and guardrails so we improve
+  the system—no hardcoding.
+
+  ———
+
+  ### 0. Go/No-Go Gate (must run before and after any change)
+
+  - Command:
+
+    python -m src.test_runner.runner \
+      --vault-id "1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91" \
+      --questions "src/test_questions/nexus_100q.json" \
+      --force
+  - Log the resulting JSON (accuracy, per-question status).
+  - No change may be merged unless the post-change run is part of the CR and shows the intended
+    improvements. This prevents silent hardcoding.
+
+  ———
+
+  ### 1. Scoped Role & Date Resolution (Q29, Q45, Q61, Q91)
+
+  Outcome: Role queries resolve to the correct person and appointment date using structured data—no
+  fallback to generic answers.
+
+  Steps:
+
+  1. Finish Stage –1 scoped role resolution in role_resolver.py:
+      - Detect “<role> of <entity>” patterns.
+      - Resolve against relationships linked to the scoped entity (CEO_OF, HOLDS_POSITION, REPLACED).
+      - On success, return immediately (don’t fall back to anchor org).
+  2. Add date extraction for appointments (appointed_date, start_date) and include it in the answer when
+     the query asks “when.”
+  3. Validation:
+      - Run targeted checks:
+
+        python scripts/run_single_query.py --vault 1f3320cd --qno 29
+        python scripts/run_single_query.py --vault 1f3320cd --qno 45
+        python scripts/run_single_query.py --vault 1f3320cd --qno 61
+        python scripts/run_single_query.py --vault 1f3320cd --qno 91
+      - Expected: each query returns the correct person and date (where applicable) with
+        basis=verified_extraction.
+  4. Rerun the go/no-go test above.
+
+  ———
+
+  ### 2. Solid-State & GreenHydrogen Specs (Q24, Q25, Q67, Q93)
+
+  Outcome: Technical specs come from the correct section of the document so both Phase 1 and full values
+  are in the KG.
+
+  Steps:
+
+  1. Re-run extraction for the battery specs and GreenHydrogen spec documents:
+      - Use the tree section covering technical tables.
+      - Ensure the extractor writes both Phase 1 and full capacity to the project entity (e.g.,
+        capacity_phase1, capacity_full).
+      - Capture energy_density_target, operating_temp_range, electrolyte_material.
+  2. Update retrieval router to:
+      - Prefer Phase 1 values when the query mentions “Phase 1,” “initial,” or kg/hour.
+      - Route temperature/energy-density/electrolyte queries to the battery-spec entity.
+  3. Validation:
+      - Run single-query tests: Q24, Q25, Q67, Q93.
+      - Confirm the KG entries exist via SQL:
+
+        SELECT properties FROM entities WHERE canonical_name ILIKE 'GreenHydrogen%';
+        SELECT properties FROM entities WHERE canonical_name ILIKE 'Solid-State Battery%';
+  4. Rerun the go/no-go test.
+
+  ———
+
+  ### 3. Customer Relationship Values (Q34, Q79, Q83, Q100)
+
+  Outcome: CUSTOMER_OF relationships contain $730M, $680M, $565M, etc., so ranking queries use structured
+  data.
+
+  Steps:
+
+  1. Re-extract the customer profile documents with an explicit prompt for “Total relationship value” and
+     store it on the CUSTOMER_OF edge (relationship_value).
+  2. Enhance ranking intent detection so “largest/top/biggest customer” queries pull from those
+     relationship values before falling back to LLM summaries.
+  3. Validation:
+      - SQL check:
+
+        SELECT e1.canonical_name, r.relationship_value
+        FROM relationships r
+        JOIN entities e1 ON r.source_id = e1.id
+        WHERE r.relationship_type='CUSTOMER_OF'
+          AND e1.canonical_name IN ('The Boeing Company','U.S. Department of Defense','Airbus SE');
+      - Run single-query tests: Q34, Q79, Q100, Q83.
+  4. Rerun the go/no-go test.
+
+  ———
+
+  ### Guardrails (No Hardcoding)
+
+  - Do not add answer-specific templates or string matches. The tests above plus the --force run are
+    designed to catch any attempt to hardcode.
+  - Every fix must be backed by either:
+      - New structured data in the KG/Evidence Layer, or
+      - Improved retrieval/routing logic that works for all similar queries.
+  - Include before/after test logs in each PR so reviewers can verify the improvement and confirm no other
+    answers regressed.
+
+  ———
+
+  Deliverables per task:
+
+  1. Code changes + SQL evidence (if data updated).
+  2. Targeted single-query outputs showing the fix.
+  3. Full --force test report (JSON) showing accuracy ≥ current baseline and the specific questions now
+     passing.
+
+  Follow this sequence and we’ll raise accuracy without resorting to test-specific hacks.
