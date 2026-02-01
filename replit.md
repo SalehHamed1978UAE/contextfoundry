@@ -105,9 +105,13 @@ Include test output in your response to prove it passed.
 - **Deployment:** Gunicorn
 - **Authentication:** Magic Link, API Keys, JWT Sessions, Google OAuth
 
-## Phase 1 Status (2026-01-30)
+## Phase 1 Status (2026-02-01)
 
-**PHASE 1 COMPLETE** - All 8 acceptance criteria questions pass:
+**Current Score:** 83/100 (83%)
+**Baseline:** 84/100 (vault 1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91, Jan 28 extraction)
+**Vault Stats:** 501 chunks, 7,323 entities, 2,836 relationships
+
+### Phase 1 Core Acceptance Questions (PASSING):
 - Q2: PASS - CFO identification (Michael Chang)
 - Q15: PASS - Reporting structure (Michael Chang reports to Dr. Victoria Chen)
 - Q17: PASS - Electrolyzer supplier (Nel Hydrogen)
@@ -117,8 +121,24 @@ Include test output in your response to prove it passed.
 - Q78: PASS - Flight computer supplier (Honeywell) - via SUPPLIES graph traversal
 - Q95: PASS - SAR radar supplier (Raytheon) - via SUPPLIES graph traversal
 
-**Overall Score:** 83% (83/100 questions)
-**Integration Tests:** 22/24 passed, 2 skipped
+### Task 1: Role Resolver Improvements (2026-02-01)
+**Status:** Patterns added, integration incomplete
+
+Changes made:
+1. Added `ROLE_DATE_PATTERNS` - 4 regex patterns for extracting dates from queries
+2. Added `SUCCESSION_PATTERNS` - 4 regex patterns for succession/replacement queries
+3. Added `is_temporal_query()` method - detects "when/date/appointed" queries
+4. Added `is_succession_query()` method - detects "who replaced/succeeded" queries
+5. Added `vp trade compliance` to ROLE_EXPANSIONS and ROLE_TO_DEPARTMENT
+6. Added `RoleResolution.metadata` field for temporal/succession context
+
+**Architect Review Finding:** Patterns are only applied in Stage -1 (scoped role resolution). Need to integrate into Stage 0/1/2 for Q45 (appointment dates) and Q61 (succession queries) to take effect.
+
+### Remaining Failing Questions (17 total):
+- **Technical Specs (Q24, Q25, Q67, Q93):** Phase 1 values not being retrieved correctly
+- **Role Resolution (Q29, Q32, Q45, Q61, Q75, Q91):** Temporal/succession patterns need full integration
+- **Customer Relationships (Q34, Q48, Q71, Q79, Q83, Q100):** Value extraction and ranking queries
+- **Other (Q60, Q66):** Various retrieval issues
 
 ### Component-Supplier Query Routing (2026-01-30):
 **Key Improvement**: Replaced hardcoded static context with systematic KG graph traversal:
