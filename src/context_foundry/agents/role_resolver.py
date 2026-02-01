@@ -95,7 +95,7 @@ class RoleResolution:
         alternatives: Optional[List[Dict[str, Any]]] = None,
         resolution_method: str = "none",
         all_matches: Optional[List[Dict[str, Any]]] = None,
-        metadata: Optional[Dict] = None
+        metadata: Optional[Dict[str, Any]] = None
     ):
         self.role = role
         self.resolved_name = resolved_name
@@ -104,7 +104,7 @@ class RoleResolution:
         self.alternatives = alternatives or []
         self.resolution_method = resolution_method
         self.all_matches = all_matches or []
-        self.metadata = metadata
+        self.metadata = metadata or {}
     
     @property
     def is_resolved(self) -> bool:
@@ -200,20 +200,6 @@ class RoleResolver:
         'director': ['director'],
         'vp trade compliance': ['vp trade compliance', 'vice president trade compliance', 'trade compliance vp'],
     }
-    
-    ROLE_DATE_PATTERNS = [
-        re.compile(r'appointed\s+(?:in\s+)?(\w+\s+\d{4}|\d{4})', re.IGNORECASE),
-        re.compile(r'since\s+(\w+\s+\d{4}|\d{4})', re.IGNORECASE),
-        re.compile(r'effective\s+(\w+\s+\d{1,2},?\s+\d{4})', re.IGNORECASE),
-        re.compile(r'(?:joined|started)\s+(?:in\s+)?(\w+\s+\d{4}|\d{4})', re.IGNORECASE),
-    ]
-    
-    SUCCESSION_PATTERNS = [
-        re.compile(r'who\s+(?:replaced|succeeded)\s+(.+?)(?:\s+as\s+(.+?))?(?:\?|$)', re.IGNORECASE),
-        re.compile(r'successor\s+(?:to|of)\s+(.+?)(?:\s+as\s+(.+?))?(?:\?|$)', re.IGNORECASE),
-        re.compile(r'predecessor\s+(?:to|of)\s+(.+?)(?:\s+as\s+(.+?))?(?:\?|$)', re.IGNORECASE),
-        re.compile(r'who\s+took\s+over\s+from\s+(.+?)(?:\s+as\s+(.+?))?(?:\?|$)', re.IGNORECASE),
-    ]
     
     HEALTHCARE_ROLE_ALIASES = {
         'cmo': 'chief medical officer',
@@ -376,20 +362,61 @@ class RoleResolver:
                     else:
                         logger.info(f"[ROLE_RESOLVER] Stage 0: Partial match for '{role}' → '{person['name']}' (role='{person_role}'), falling through to validate")
                 else:
-                    # Multiple matches - check if first match has significantly better edge_rank
-                    # Matches are already sorted by edge_rank (HOLDS_POSITION=1 > LEADS=2 > WORKS_FOR=3)
+                    ROLE_STOPWORDS = {'vp', 'vice', 'president', 'director', 'manager', 'chief', 'head', 'of', 'the', 'for', 'and', 'senior', 'executive', 'officer'}
+                    role_lower = role.lower().strip()
+                    role_tokens = set(role_lower.split()) - ROLE_STOPWORDS
+                    
+                    def calc_role_score(person_role: str) -> int:
+                        if not person_role:
+                            return 0
+                        person_tokens = set(person_role.lower().split()) - ROLE_STOPWORDS
+                        return len(role_tokens & person_tokens)
+                    
+                    scored_entities = []
+                    original_count = len(entities)
+                    for e in entities:
+                        person_role = e.get('role_from_props', '')
+                        score = calc_role_score(person_role)
+                        if score > 0:
+                            scored_entities.append((score, e))
+                    
+                    if scored_entities:
+                        scored_entities.sort(key=lambda x: -x[0])
+                        best_score = scored_entities[0][0]
+                        top_matches = [e for score, e in scored_entities if score == best_score]
+                        
+                        if len(top_matches) == 1:
+                            matched = top_matches[0]
+                            logger.info(f"[ROLE_RESOLVER] Stage 0: Token match to single result: '{matched['name']}' (role='{matched.get('role_from_props', '')}', tokens={role_tokens})")
+                            return RoleResolution(
+                                role=role,
+                                resolved_name=matched['name'],
+                                resolved_entity_id=matched['id'],
+                                confidence=0.92,
+                                resolution_method="stage0_graph_traversal_role_filtered",
+                                all_matches=[{
+                                    "name": p['name'],
+                                    "entity_id": p['id'],
+                                    "role": p.get('role_from_props', role),
+                                    "organization": anchor['name'],
+                                    "edge_rank": p.get('edge_rank', 9)
+                                } for p in entities]
+                            )
+                        else:
+                            entities = top_matches
+                            logger.info(f"[ROLE_RESOLVER] Stage 0: Token filter reduced {original_count} to {len(entities)} (tokens={role_tokens})")
+                    
                     best_match = entities[0]
                     best_rank = best_match.get('edge_rank', 9)
                     second_rank = entities[1].get('edge_rank', 9) if len(entities) > 1 else 9
                     
-                    # If best match has HOLDS_POSITION (rank=1) and second doesn't, use the best
                     if best_rank == 1 and second_rank > 1:
                         logger.info(f"[ROLE_RESOLVER] Stage 0: Best match '{best_match['name']}' has HOLDS_POSITION (rank=1), second has rank={second_rank} - using best")
                         return RoleResolution(
                             role=role,
                             resolved_name=best_match['name'],
                             resolved_entity_id=best_match['id'],
-                            confidence=0.90,  # High confidence - HOLDS_POSITION is definitive
+                            confidence=0.90,
                             resolution_method="stage0_graph_traversal_ranked",
                             all_matches=[{
                                 "name": p['name'],
@@ -538,20 +565,6 @@ class RoleResolver:
         
         return list(set(variations))
     
-    def is_temporal_query(self, query: str) -> bool:
-        """Detect if query asks about timing/dates."""
-        if not query:
-            return False
-        temporal_keywords = ['when', 'date', 'appointed', 'started', 'joined', 'effective']
-        query_lower = query.lower()
-        return any(kw in query_lower for kw in temporal_keywords)
-    
-    def is_succession_query(self, query: str) -> bool:
-        """Detect if query asks about succession/replacement."""
-        if not query:
-            return False
-        return any(p.search(query) for p in self.SUCCESSION_PATTERNS)
-    
     def _build_role_field_clauses(self, role_variations: List[str], entity_alias: str = "e") -> tuple:
         """
         Build SQL clauses for matching roles in specific JSON fields with word boundaries.
@@ -651,11 +664,6 @@ class RoleResolver:
             scoped_result = self._resolve_scoped_role(scoped_role, scoped_entity)
             if scoped_result.is_resolved:
                 logger.info(f"[ROLE_RESOLVER] Stage -1 SUCCESS: '{scoped_role}' of '{scoped_entity}' → '{scoped_result.resolved_name}'")
-                if self.is_temporal_query(query):
-                    scoped_result.metadata = scoped_result.metadata or {}
-                    scoped_result.metadata["temporal_query"] = True
-                    scoped_result.metadata["note"] = "Query asks about timing/dates. Search source documents for appointment date information."
-                    logger.info(f"[ROLE_RESOLVER] Temporal query detected - added metadata note to search documents for date")
                 return scoped_result
             else:
                 logger.info(f"[ROLE_RESOLVER] Stage -1: No match for '{scoped_role}' of '{scoped_entity}' - returning NOT FOUND (no fallthrough)")
