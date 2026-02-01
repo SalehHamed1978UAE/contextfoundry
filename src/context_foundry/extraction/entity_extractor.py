@@ -194,25 +194,30 @@ class ExtractedEntity:
 class EntityExtractor:
     """
     LLM-powered entity extractor that works with any domain schema.
-    
+
     Loads entity types dynamically from the active domain schema configuration.
+
+    Phase 3 Enhancement: When use_ontology_schema=True, generates extraction prompts
+    from ACTIVE ontology types in the database, enabling schema-constrained extraction.
     """
-    
+
     def __init__(
         self,
         model: str = "gpt-4o",  # Using GPT-4o for better entity extraction (4o-mini has ~21% omission rate)
         temperature: float = 0.0,  # Deterministic for consistent extraction
         max_retries: int = 3,
         schema_loader: Optional[DomainSchemaLoader] = None,
+        use_ontology_schema: bool = True,  # Phase 3: Use ontology-constrained extraction
     ):
         """
         Initialize the entity extractor.
-        
+
         Args:
             model: OpenAI model to use
             temperature: Temperature for generation (0.0 = deterministic)
             max_retries: Maximum retries on API errors
             schema_loader: Optional schema loader instance (uses singleton if not provided)
+            use_ontology_schema: If True, generate prompts from ACTIVE ontology types (Phase 3)
         """
         self.client = OpenAI(
             api_key=AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -222,6 +227,8 @@ class EntityExtractor:
         self.temperature = temperature
         self.max_retries = max_retries
         self._schema_loader = schema_loader
+        self.use_ontology_schema = use_ontology_schema
+        self._ontology_service: Optional[OntologySchemaService] = None
     
     @property
     def schema_loader(self) -> DomainSchemaLoader:
@@ -229,10 +236,116 @@ class EntityExtractor:
         if self._schema_loader is None:
             self._schema_loader = get_schema_loader()
         return self._schema_loader
-    
+
+    @property
+    def ontology_service(self) -> Optional[OntologySchemaService]:
+        """Get OntologySchemaService (lazy initialization, Phase 3)."""
+        if self._ontology_service is None and self.use_ontology_schema:
+            try:
+                self._ontology_service = get_ontology_schema_service()
+                if not self._ontology_service._loaded:
+                    from ..models.schema import get_session
+                    session = get_session()
+                    self._ontology_service.load(session)
+                logger.info(f"[OntologyExtraction] Loaded {len(self._ontology_service.entity_types)} entity types from ontology")
+            except Exception as e:
+                logger.warning(f"[OntologyExtraction] Could not load ontology schema: {e}")
+                self._ontology_service = None
+        return self._ontology_service
+
     def get_valid_entity_types(self) -> Set[str]:
         """Get set of valid entity type names from schema."""
+        # Phase 3: Prefer ontology types if available
+        if self.use_ontology_schema and self.ontology_service:
+            return self.ontology_service.get_valid_entity_types()
         return self.schema_loader.get_valid_entity_types()
+
+    def _build_ontology_constrained_prompt(self, text: str) -> str:
+        """
+        Build extraction prompt constrained to ACTIVE ontology types (Phase 3).
+
+        This generates the prompt dynamically from ontology.types table,
+        ensuring extraction only produces types that exist in the ontology.
+        """
+        if not self.ontology_service:
+            logger.warning("[OntologyExtraction] No ontology service, falling back to default prompt")
+            return self._build_entity_extraction_prompt(text)
+
+        # Get entity type list and descriptions from ontology
+        entity_type_section = self.ontology_service.build_entity_extraction_prompt()
+
+        valid_types = sorted(self.ontology_service.get_valid_entity_types())
+        valid_types_str = ", ".join(valid_types)
+
+        prompt = f"""Extract ALL entities from this text using ONLY the following ontology types.
+
+## VALID ENTITY TYPES (from ontology schema)
+
+{entity_type_section}
+
+## RULES
+
+1. ONLY use entity types listed above - do not invent new types
+2. If an entity doesn't fit any type, use the closest match or skip it
+3. Extract ALL entities exhaustively - a short list is a failed extraction
+4. For PERSON entities, only use 'role' if explicitly stated with formal title
+
+## OUTPUT FORMAT
+
+Return valid JSON array only (no markdown):
+[{{"entity_type": "TYPE", "canonical_name": "exact text", "confidence": 0.9, "properties": {{}}}}]
+
+Valid types: {valid_types_str}
+
+## TEXT TO EXTRACT
+
+{text}"""
+
+        return prompt
+
+    def validate_against_ontology(self, entities: List['ExtractedEntity']) -> Dict:
+        """
+        Validate extracted entities against ACTIVE ontology types (Phase 3).
+
+        Returns:
+            Dict with 'valid', 'invalid', and 'warnings' lists
+        """
+        result = {
+            'valid': [],
+            'invalid': [],
+            'warnings': [],
+            'type_distribution': {},
+        }
+
+        if not self.ontology_service:
+            # No ontology loaded, all entities pass
+            result['valid'] = entities
+            result['warnings'].append("No ontology schema loaded - all types accepted")
+            return result
+
+        valid_types = self.ontology_service.get_valid_entity_types()
+
+        for entity in entities:
+            entity_type = entity.entity_type.upper()
+            result['type_distribution'][entity_type] = result['type_distribution'].get(entity_type, 0) + 1
+
+            if entity_type in valid_types:
+                result['valid'].append(entity)
+            elif entity_type in self.type_mappings:
+                # Type can be mapped to a valid type
+                mapped_type = self.type_mappings[entity_type]
+                if mapped_type.upper() in valid_types:
+                    result['valid'].append(entity)
+                    result['warnings'].append(f"Type '{entity_type}' mapped to '{mapped_type}'")
+                else:
+                    result['invalid'].append(entity)
+                    result['warnings'].append(f"Type '{entity_type}' mapped to '{mapped_type}' which is not in ontology")
+            else:
+                result['invalid'].append(entity)
+                result['warnings'].append(f"Entity '{entity.canonical_name}' has unknown type '{entity_type}'")
+
+        logger.info(f"[OntologyValidation] {len(result['valid'])} valid, {len(result['invalid'])} invalid entities")
+        return result
     
     def _build_entity_extraction_prompt(self, text: str) -> str:
         """Build simplified entity extraction prompt optimized for completeness.
@@ -716,10 +829,19 @@ TEXT:
         chunk_id: str,
         sentence_idx: int,
     ) -> List[ExtractedEntity]:
-        """Extract entities from a single text chunk."""
-        prompt = self._build_entity_extraction_prompt(text)
+        """Extract entities from a single text chunk.
+
+        Phase 3: Uses ontology-constrained prompt when use_ontology_schema=True.
+        """
+        # Phase 3: Use ontology-constrained extraction if available
+        if self.use_ontology_schema and self.ontology_service:
+            prompt = self._build_ontology_constrained_prompt(text)
+            logger.debug("[OntologyExtraction] Using ontology-constrained prompt")
+        else:
+            prompt = self._build_entity_extraction_prompt(text)
+
         system_prompt = self._build_system_prompt()
-        
+
         return self._run_extraction_pass(
             prompt, system_prompt, document_id, chunk_id, sentence_idx
         )

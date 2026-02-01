@@ -371,3 +371,292 @@ def detect_gaps_for_document(session: Session, document_id: str, tenant_id: Opti
     """Convenience function to detect gaps for a specific document."""
     detector = ExtractionGapDetector(session, tenant_id)
     return detector.detect_all(document_id=document_id)
+
+
+# =============================================================================
+# Phase 3: Ontology Coverage Analysis
+# =============================================================================
+
+@dataclass
+class OntologyCoverageReport:
+    """Report of ontology coverage after extraction (Phase 3)."""
+
+    # Counts
+    total_entities: int = 0
+    total_relationships: int = 0
+
+    # Type distributions
+    entity_type_counts: Dict[str, int] = field(default_factory=dict)
+    relationship_type_counts: Dict[str, int] = field(default_factory=dict)
+
+    # Coverage analysis
+    ontology_entity_types: List[str] = field(default_factory=list)
+    ontology_relationship_types: List[str] = field(default_factory=list)
+    missing_entity_types: List[str] = field(default_factory=list)
+    missing_relationship_types: List[str] = field(default_factory=list)
+    unknown_entity_types: List[Dict] = field(default_factory=list)
+
+    # Coverage percentages
+    entity_coverage_pct: float = 0.0
+    relationship_coverage_pct: float = 0.0
+
+    # Orphan analysis
+    orphan_entity_count: int = 0
+    orphan_entities_sample: List[Dict] = field(default_factory=list)
+
+    # Recommendations
+    recommendations: List[str] = field(default_factory=list)
+
+    def to_dict(self) -> Dict:
+        return {
+            'total_entities': self.total_entities,
+            'total_relationships': self.total_relationships,
+            'entity_type_counts': self.entity_type_counts,
+            'relationship_type_counts': self.relationship_type_counts,
+            'ontology_entity_types': self.ontology_entity_types,
+            'missing_entity_types': self.missing_entity_types,
+            'missing_relationship_types': self.missing_relationship_types,
+            'unknown_entity_types': self.unknown_entity_types,
+            'entity_coverage_pct': round(self.entity_coverage_pct, 1),
+            'relationship_coverage_pct': round(self.relationship_coverage_pct, 1),
+            'orphan_entity_count': self.orphan_entity_count,
+            'orphan_entities_sample': self.orphan_entities_sample[:10],
+            'recommendations': self.recommendations,
+        }
+
+    def summary(self) -> str:
+        """Generate human-readable summary."""
+        lines = [
+            "=" * 60,
+            "ONTOLOGY COVERAGE REPORT (Phase 3)",
+            "=" * 60,
+            f"Entities: {self.total_entities} ({len(self.entity_type_counts)} types)",
+            f"Relationships: {self.total_relationships} ({len(self.relationship_type_counts)} types)",
+            f"Entity Coverage: {self.entity_coverage_pct:.1f}%",
+            f"Relationship Coverage: {self.relationship_coverage_pct:.1f}%",
+            f"Orphan Entities: {self.orphan_entity_count}",
+            "",
+        ]
+
+        if self.missing_entity_types:
+            lines.append(f"Missing Entity Types ({len(self.missing_entity_types)}):")
+            for t in self.missing_entity_types[:10]:
+                lines.append(f"  - {t}")
+            if len(self.missing_entity_types) > 10:
+                lines.append(f"  ... and {len(self.missing_entity_types) - 10} more")
+            lines.append("")
+
+        if self.unknown_entity_types:
+            lines.append(f"Unknown Entity Types ({len(self.unknown_entity_types)}):")
+            for t in self.unknown_entity_types[:5]:
+                lines.append(f"  - {t.get('type', 'unknown')}: {t.get('count', 0)} entities")
+            lines.append("")
+
+        if self.recommendations:
+            lines.append("Recommendations:")
+            for r in self.recommendations:
+                lines.append(f"  → {r}")
+
+        lines.append("=" * 60)
+        return "\n".join(lines)
+
+
+class OntologyCoverageAnalyzer:
+    """
+    Analyzes extraction coverage against ontology schema (Phase 3).
+
+    This complements ExtractionGapDetector by focusing on:
+    - Which ontology types have instances
+    - Which ontology types are missing
+    - Unknown types that may need to be added to ontology
+    """
+
+    def __init__(self, session: Session, tenant_id: str):
+        self.session = session
+        self.tenant_id = tenant_id
+        self._ontology_entity_types: Optional[Set[str]] = None
+        self._ontology_relationship_types: Optional[Set[str]] = None
+
+    @property
+    def ontology_entity_types(self) -> Set[str]:
+        """Load ACTIVE entity types from ontology."""
+        if self._ontology_entity_types is None:
+            try:
+                result = self.session.execute(text("""
+                    SELECT UPPER(type_name) as type_name
+                    FROM ontology.types
+                    WHERE status = 'ACTIVE'
+                      AND layer >= 1
+                """))
+                self._ontology_entity_types = {row.type_name for row in result}
+            except Exception as e:
+                logger.warning(f"[OntologyCoverage] Could not load ontology types: {e}")
+                self._ontology_entity_types = set()
+        return self._ontology_entity_types
+
+    @property
+    def ontology_relationship_types(self) -> Set[str]:
+        """Load ACTIVE relationship types from ontology."""
+        if self._ontology_relationship_types is None:
+            try:
+                result = self.session.execute(text("""
+                    SELECT UPPER(relation_type) as relation_type
+                    FROM ontology.relations
+                    WHERE status = 'ACTIVE'
+                """))
+                self._ontology_relationship_types = {row.relation_type for row in result}
+            except Exception as e:
+                logger.warning(f"[OntologyCoverage] Could not load ontology relations: {e}")
+                self._ontology_relationship_types = set()
+        return self._ontology_relationship_types
+
+    def analyze(self) -> OntologyCoverageReport:
+        """Analyze ontology coverage for the tenant/vault."""
+        report = OntologyCoverageReport()
+
+        # Get entity statistics
+        entity_result = self.session.execute(text("""
+            SELECT UPPER(entity_type) as entity_type, COUNT(*) as count
+            FROM entities
+            WHERE tenant_id = :tenant_id
+              AND lifecycle_state IN ('STAGING', 'TRUSTED')
+            GROUP BY UPPER(entity_type)
+            ORDER BY count DESC
+        """), {'tenant_id': self.tenant_id})
+
+        for row in entity_result:
+            report.entity_type_counts[row.entity_type] = row.count
+            report.total_entities += row.count
+
+        # Get relationship statistics
+        rel_result = self.session.execute(text("""
+            SELECT UPPER(relationship_type) as relationship_type, COUNT(*) as count
+            FROM relationships
+            WHERE tenant_id = :tenant_id
+              AND lifecycle_state IN ('STAGING', 'TRUSTED')
+            GROUP BY UPPER(relationship_type)
+            ORDER BY count DESC
+        """), {'tenant_id': self.tenant_id})
+
+        for row in rel_result:
+            report.relationship_type_counts[row.relationship_type] = row.count
+            report.total_relationships += row.count
+
+        # Analyze ontology coverage
+        report.ontology_entity_types = sorted(self.ontology_entity_types)
+        report.ontology_relationship_types = sorted(self.ontology_relationship_types)
+
+        extracted_entity_types = set(report.entity_type_counts.keys())
+        extracted_rel_types = set(report.relationship_type_counts.keys())
+
+        # Missing types (in ontology but not extracted)
+        report.missing_entity_types = sorted(self.ontology_entity_types - extracted_entity_types)
+        report.missing_relationship_types = sorted(self.ontology_relationship_types - extracted_rel_types)
+
+        # Unknown types (extracted but not in ontology)
+        unknown = extracted_entity_types - self.ontology_entity_types - {'SPECIFICATION'}
+        report.unknown_entity_types = [
+            {'type': t, 'count': report.entity_type_counts.get(t, 0)}
+            for t in sorted(unknown, key=lambda x: -report.entity_type_counts.get(x, 0))
+        ]
+
+        # Coverage percentages
+        if self.ontology_entity_types:
+            covered = len(extracted_entity_types & self.ontology_entity_types)
+            report.entity_coverage_pct = (covered / len(self.ontology_entity_types)) * 100
+        if self.ontology_relationship_types:
+            covered = len(extracted_rel_types & self.ontology_relationship_types)
+            report.relationship_coverage_pct = (covered / len(self.ontology_relationship_types)) * 100
+
+        # Find orphan entities
+        orphan_result = self.session.execute(text("""
+            SELECT COUNT(*) as count
+            FROM entities e
+            WHERE e.tenant_id = :tenant_id
+              AND e.lifecycle_state IN ('STAGING', 'TRUSTED')
+              AND NOT EXISTS (
+                  SELECT 1 FROM relationships r
+                  WHERE r.tenant_id = :tenant_id
+                    AND (r.source_entity_id = e.id OR r.target_entity_id = e.id)
+              )
+        """), {'tenant_id': self.tenant_id})
+        row = orphan_result.fetchone()
+        report.orphan_entity_count = row.count if row else 0
+
+        # Sample orphan entities
+        if report.orphan_entity_count > 0:
+            sample_result = self.session.execute(text("""
+                SELECT e.canonical_name, e.entity_type
+                FROM entities e
+                WHERE e.tenant_id = :tenant_id
+                  AND e.lifecycle_state IN ('STAGING', 'TRUSTED')
+                  AND NOT EXISTS (
+                      SELECT 1 FROM relationships r
+                      WHERE r.tenant_id = :tenant_id
+                        AND (r.source_entity_id = e.id OR r.target_entity_id = e.id)
+                  )
+                LIMIT 10
+            """), {'tenant_id': self.tenant_id})
+            report.orphan_entities_sample = [
+                {'name': row.canonical_name, 'type': row.entity_type}
+                for row in sample_result
+            ]
+
+        # Generate recommendations
+        report.recommendations = self._generate_recommendations(report)
+
+        logger.info(f"[OntologyCoverage] Analysis complete: "
+                   f"{report.entity_coverage_pct:.1f}% entity coverage, "
+                   f"{report.relationship_coverage_pct:.1f}% relationship coverage")
+
+        return report
+
+    def _generate_recommendations(self, report: OntologyCoverageReport) -> List[str]:
+        """Generate actionable recommendations."""
+        recs = []
+
+        if report.entity_coverage_pct < 50:
+            recs.append(f"Entity coverage is low ({report.entity_coverage_pct:.0f}%). "
+                       f"Check if source documents contain expected entity types.")
+
+        if report.orphan_entity_count > report.total_entities * 0.3:
+            pct = (report.orphan_entity_count / max(1, report.total_entities)) * 100
+            recs.append(f"{report.orphan_entity_count} orphan entities ({pct:.0f}%). "
+                       f"Improve relationship extraction patterns.")
+
+        key_types = {'PERSON', 'ORGANIZATION', 'SERVICE'}
+        missing_key = key_types & set(report.missing_entity_types)
+        if missing_key:
+            recs.append(f"Key entity types missing: {', '.join(missing_key)}.")
+
+        if report.unknown_entity_types:
+            high_count_unknown = [t for t in report.unknown_entity_types if t['count'] >= 5]
+            if high_count_unknown:
+                types_str = ', '.join(t['type'] for t in high_count_unknown[:3])
+                recs.append(f"Consider adding to ontology: {types_str}")
+
+        if report.total_entities > 0:
+            density = report.total_relationships / report.total_entities
+            if density < 0.5:
+                recs.append(f"Relationship density is low ({density:.2f} per entity). "
+                           f"Expected at least 0.5.")
+
+        return recs
+
+
+def analyze_ontology_coverage(
+    session: Session,
+    tenant_id: str
+) -> OntologyCoverageReport:
+    """
+    Convenience function to analyze ontology coverage for a vault (Phase 3).
+
+    Args:
+        session: Database session
+        tenant_id: The vault/tenant to analyze
+
+    Returns:
+        OntologyCoverageReport with detailed analysis
+    """
+    analyzer = OntologyCoverageAnalyzer(session, tenant_id)
+    return analyzer.analyze()
