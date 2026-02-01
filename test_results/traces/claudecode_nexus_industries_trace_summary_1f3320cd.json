@@ -1,24 +1,24 @@
 {
-  "run_timestamp": "2026-02-01T00:42:43.961427",
+  "run_timestamp": "2026-02-01T01:00:52.679663",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.08,
-    "avg_semantic_score": 0.10715799999999999,
+    "avg_chunks_retrieved": 2.9800000000000004,
+    "avg_semantic_score": 0.103873,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "exact_match": 49,
+      "exact_match": 48,
+      "no_data": 5,
+      "number_match": 8,
       "component_match": 26,
-      "no_data": 3,
-      "no_match": 12,
-      "number_match": 7,
+      "no_match": 10,
       "percentage_match": 1,
       "entity_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 85
+    "low_score_queries": 86
   },
   "low_score_questions": [
     {
@@ -44,6 +44,11 @@
     {
       "q_id": 8,
       "question": "What is the budget for the Falcon X UAV program?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 9,
+      "question": "What is the total investment in the Toyota joint venture?",
       "avg_score": 0.0
     },
     {
@@ -92,14 +97,9 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 19,
-      "question": "Who is the largest aerospace customer of Nexus by relationship value?",
-      "avg_score": 0.0
-    },
-    {
       "q_id": 20,
       "question": "Which supplier is rated Red and at risk?",
-      "avg_score": 0.3252
+      "avg_score": 0.3251
     },
     {
       "q_id": 21,
@@ -445,10 +445,26 @@
       "q_id": 99,
       "question": "How does Nexus's operating margin compare to target?",
       "avg_score": 0.0
+    },
+    {
+      "q_id": 100,
+      "question": "What is the total value of top 3 customer relationships?",
+      "avg_score": 0.0
     }
   ],
   "failures_by_type": {
     "no_data": [
+      {
+        "q_id": 9,
+        "question": "What is the total investment in the Toyota joint venture?",
+        "expected": "$312 million",
+        "actual": "I could not find specific information re",
+        "files_retrieved": [
+          "04_toyota_partnership_announcement.md",
+          "06_toyota_partner_profile.md",
+          "06_toyota_jv_negotiation_summary.md"
+        ]
+      },
       {
         "q_id": 16,
         "question": "What company is Nexus partnering with for solid-state batter",
@@ -464,29 +480,25 @@
         "files_retrieved": []
       },
       {
+        "q_id": 48,
+        "question": "Who is the primary customer for HTS superconducting wire?",
+        "expected": "Siemens Healthineers ($65 million)",
+        "actual": "The primary customer for HTS (High-Tempe",
+        "files_retrieved": []
+      },
+      {
         "q_id": 82,
         "question": "When was Nexus Industries founded?",
         "expected": "1985",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
+          "08_global_locations.md",
           "04_toyota_partnership_announcement.md",
-          "05_fedramp_announcement.md",
           "03_press_release_fy2025.md"
         ]
       }
     ],
     "no_match": [
-      {
-        "q_id": 19,
-        "question": "Who is the largest aerospace customer of Nexus by relationsh",
-        "expected": "Boeing ($730 million)",
-        "actual": "The largest aerospace customer of Nexus ",
-        "files_retrieved": [
-          "12_rio_tinto_customer.md",
-          "07_spacex_customer.md",
-          "02_airbus_customer_profile.md"
-        ]
-      },
       {
         "q_id": 24,
         "question": "What is the hydrogen production capacity of the GreenHydroge",
@@ -494,8 +506,8 @@
         "actual": "The GreenHydrogen facility in El Paso, T",
         "files_retrieved": [
           "04_greenhydrogen_initiative.md",
-          "09_greenhydrogen_milestone.md",
-          "08_global_locations.md"
+          "08_global_locations.md",
+          "02_greenhydrogen_process_specification.md"
         ]
       },
       {
@@ -504,9 +516,9 @@
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "01_corporate_strategy_2026_2030.md",
-          "04_toyota_partnership_announcement.md",
-          "05_fedramp_announcement.md"
+          "05_talent_strategy.md",
+          "08_hr_talent_review.md",
+          "09_investor_presentation_q4.md"
         ]
       },
       {
@@ -515,8 +527,8 @@
         "expected": "Nexus Advanced Materials (1.24 TRIR)",
         "actual": "The division with the highest safety inc",
         "files_retrieved": [
-          "07_environmental_health_safety.md",
-          "05_safety_committee_meeting.md"
+          "05_safety_committee_meeting.md",
+          "07_environmental_health_safety.md"
         ]
       },
       {
@@ -525,17 +537,6 @@
         "expected": "2019",
         "actual": "The CEO of Nexus Industries is Dr. Victo",
         "files_retrieved": []
-      },
-      {
-        "q_id": 48,
-        "question": "Who is the primary customer for HTS superconducting wire?",
-        "expected": "Siemens Healthineers ($65 million)",
-        "actual": "The primary customers for HTS supercondu",
-        "files_retrieved": [
-          "05_hts_wire_manufacturing_spec.md",
-          "12_rio_tinto_customer.md",
-          "07_spacex_customer.md"
-        ]
       },
       {
         "q_id": 61,
@@ -560,20 +561,20 @@
         "expected": "$15 billion",
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
-          "06_market_expansion_asia.md",
+          "02_aerospace_division_strategy.md",
           "01_corporate_strategy_2026_2030.md",
-          "02_aerospace_division_strategy.md"
+          "06_market_expansion_asia.md"
         ]
       },
       {
         "q_id": 83,
         "question": "Who is the primary customer for the SmartGrid Controller?",
         "expected": "Pacific Power (pilot customer)",
-        "actual": "The primary customers for the SmartGrid ",
+        "actual": "The primary customer for the SmartGrid C",
         "files_retrieved": [
-          "08_smartgrid_controller.md",
+          "08_pacific_power_utility.md",
           "07_smartgrid_controller_specification.md",
-          "08_pacific_power_utility.md"
+          "11_microsoft_customer.md"
         ]
       },
       {
@@ -587,12 +588,8 @@
         "q_id": 100,
         "question": "What is the total value of top 3 customer relationships?",
         "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
-        "actual": "The total value of the top three custome",
-        "files_retrieved": [
-          "08_quantum_computing_services.md",
-          "12_rio_tinto_customer.md",
-          "07_spacex_customer.md"
-        ]
+        "actual": "There is insufficient data available to ",
+        "files_retrieved": []
       }
     ]
   }
