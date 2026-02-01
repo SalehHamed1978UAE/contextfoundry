@@ -1,0 +1,35 @@
+ 1. Verify code is deployed                                                                             
+                                                                                                         
+  grep -n "_is_jv_partnership_query\|_is_company_overview_query"                                         
+  src/context_foundry/agents/retrieval_router.py | head -5                                               
+                                                                                                         
+  Should show the new methods exist.                                                                     
+                                                                                                         
+  2. Check logs during Q16, Q31, Q82                                                                     
+                                                                                                         
+  Run single questions with verbose logging:                                                             
+  # Q16                                                                                                  
+  python -m src.test_runner.runner --corpus "ClaudeCode Nexus Industries" --question 16                  
+                                                                                                         
+  # Q31                                                                                                  
+  python -m src.test_runner.runner --corpus "ClaudeCode Nexus Industries" --question 31                  
+                                                                                                         
+  # Q82                                                                                                  
+  python -m src.test_runner.runner --corpus "ClaudeCode Nexus Industries" --question 82                  
+                                                                                                         
+  Look for:                                                                                              
+  - [PIPELINE] Detected JV/partnership query - Is it firing?                                             
+  - [ROUTER] Fetched X JV/partnership document chunks - How many chunks?                                 
+  - Any SQL errors?                                                                                      
+                                                                                                         
+  3. Key Question                                                                                        
+                                                                                                         
+  Q77 passed (BatteryTech JV location = San Antonio). That answer is in the same document                
+  (06_toyota_jv_negotiation_summary.md) as Q16 (Toyota) and Q31 (51%).                                   
+                                                                                                         
+  If Q77 found the document, why didn't Q16 and Q31?                                                     
+                                                                                                         
+  Possible issues:                                                                                       
+  - Q77 query triggered JV detection, but Q16/Q31 queries didn't                                         
+  - The chunks returned don't contain "Toyota Motor Corporation" or "51%" (chunk boundaries)             
+  - LLM is ignoring the data even though it's present 
