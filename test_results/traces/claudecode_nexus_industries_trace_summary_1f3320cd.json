@@ -1,19 +1,19 @@
 {
-  "run_timestamp": "2026-02-01T20:45:48.712770",
+  "run_timestamp": "2026-02-01T21:58:31.746465",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.46,
-    "avg_semantic_score": 0.05017599999999997,
+    "avg_chunks_retrieved": 3.44,
+    "avg_semantic_score": 0.05087700000000001,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "exact_match": 44,
-      "component_match": 29,
-      "no_match": 16,
-      "no_data": 2,
-      "number_match": 6,
+      "exact_match": 46,
+      "component_match": 26,
+      "no_match": 14,
+      "no_data": 4,
+      "number_match": 7,
       "percentage_match": 1,
       "entity_match": 1,
       "semantic_match": 1
@@ -244,6 +244,11 @@
     {
       "q_id": 47,
       "question": "Which university is a research partner for quantum computing?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 48,
+      "question": "Who is the primary customer for HTS superconducting wire?",
       "avg_score": 0.0
     },
     {
@@ -480,11 +485,6 @@
       "q_id": 99,
       "question": "How does Nexus's operating margin compare to target?",
       "avg_score": 0.0
-    },
-    {
-      "q_id": 100,
-      "question": "What is the total value of top 3 customer relationships?",
-      "avg_score": 0.0
     }
   ],
   "failures_by_type": {
@@ -541,28 +541,6 @@
         "files_retrieved": []
       },
       {
-        "q_id": 48,
-        "question": "Who is the primary customer for HTS superconducting wire?",
-        "expected": "Siemens Healthineers ($65 million)",
-        "actual": "The primary customer for HTS superconduc",
-        "files_retrieved": [
-          "02_airbus_customer_profile.md",
-          "05_siemens_healthineers_customer.md",
-          "Unknown"
-        ]
-      },
-      {
-        "q_id": 60,
-        "question": "When was the phishing incident detected?",
-        "expected": "December 12, 2025 at 02:47 UTC",
-        "actual": "The retrieved information does not menti",
-        "files_retrieved": [
-          "10_cybersecurity_incident_response.md",
-          "08_cybersecurity_advisory.md",
-          "Unknown"
-        ]
-      },
-      {
         "q_id": 61,
         "question": "Who replaced Thomas Anderson as Digital President?",
         "expected": "Robert Kim",
@@ -594,8 +572,9 @@
         "q_id": 71,
         "question": "Who is the mining automation partner?",
         "expected": "Caterpillar",
-        "actual": "The mining automation partner is **Rio T",
+        "actual": "The mining automation partner for Nexus ",
         "files_retrieved": [
+          "05_fedramp_announcement.md",
           "04_toyota_partnership_announcement.md",
           "09_competitive_intelligence.md"
         ]
@@ -644,7 +623,7 @@
         "q_id": 100,
         "question": "What is the total value of top 3 customer relationships?",
         "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
-        "actual": "I currently do not have sufficient data ",
+        "actual": "The total value of the top 3 customer re",
         "files_retrieved": [
           "02_airbus_customer_profile.md",
           "Unknown",
@@ -662,6 +641,28 @@
           "06_solid_state_battery_design.md",
           "Unknown",
           "04_toyota_partnership_announcement.md"
+        ]
+      },
+      {
+        "q_id": 48,
+        "question": "Who is the primary customer for HTS superconducting wire?",
+        "expected": "Siemens Healthineers ($65 million)",
+        "actual": "The primary customer for HTS (High-Tempe",
+        "files_retrieved": [
+          "05_siemens_healthineers_customer.md",
+          "Unknown",
+          "01_boeing_customer_profile.md"
+        ]
+      },
+      {
+        "q_id": 60,
+        "question": "When was the phishing incident detected?",
+        "expected": "December 12, 2025 at 02:47 UTC",
+        "actual": "The retrieved information does not provi",
+        "files_retrieved": [
+          "10_cybersecurity_incident_response.md",
+          "08_cybersecurity_advisory.md",
+          "Unknown"
         ]
       },
       {
