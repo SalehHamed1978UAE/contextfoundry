@@ -746,10 +746,11 @@ class DocumentSearcher:
                 WHERE c.tenant_id = :tid
                 AND (
                     d.name ILIKE '%partner%profile%'
-                    OR d.name ILIKE '%jv%negotiation%'
-                    OR d.name ILIKE '%partnership%announcement%'
-                    OR d.name ILIKE '%investor%relations%'
-                    OR d.name ILIKE '%toyota%'
+                    OR d.name ILIKE '%partner%'
+                    OR d.name ILIKE '%jv%'
+                    OR d.name ILIKE '%joint%venture%'
+                    OR d.name ILIKE '%partnership%'
+                    OR d.folder_path ILIKE '%stakeholders%'
                     OR d.folder_path ILIKE '%meetings%'
                     OR d.folder_path ILIKE '%communications%'
                 )
