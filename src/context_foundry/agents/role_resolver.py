@@ -66,6 +66,7 @@ ROLE_TO_DEPARTMENT = {
     'coo': ['operations', 'operational'],
     'cmo': ['marketing', 'brand'],
     'cio': ['information technology', 'it', 'information systems'],
+    'vp trade compliance': ['trade compliance', 'compliance', 'export control'],
 }
 
 
@@ -93,7 +94,8 @@ class RoleResolution:
         confidence: float = 0.0,
         alternatives: Optional[List[Dict[str, Any]]] = None,
         resolution_method: str = "none",
-        all_matches: Optional[List[Dict[str, Any]]] = None
+        all_matches: Optional[List[Dict[str, Any]]] = None,
+        metadata: Optional[Dict] = None
     ):
         self.role = role
         self.resolved_name = resolved_name
@@ -102,6 +104,7 @@ class RoleResolution:
         self.alternatives = alternatives or []
         self.resolution_method = resolution_method
         self.all_matches = all_matches or []
+        self.metadata = metadata
     
     @property
     def is_resolved(self) -> bool:
@@ -122,7 +125,8 @@ class RoleResolution:
             "alternatives": self.alternatives,
             "resolution_method": self.resolution_method,
             "all_matches": self.all_matches,
-            "has_multiple_matches": self.has_multiple_matches
+            "has_multiple_matches": self.has_multiple_matches,
+            "metadata": self.metadata
         }
 
 
@@ -194,7 +198,22 @@ class RoleResolver:
         'controller': ['controller'],
         'treasurer': ['treasurer'],
         'director': ['director'],
+        'vp trade compliance': ['vp trade compliance', 'vice president trade compliance', 'trade compliance vp'],
     }
+    
+    ROLE_DATE_PATTERNS = [
+        re.compile(r'appointed\s+(?:in\s+)?(\w+\s+\d{4}|\d{4})', re.IGNORECASE),
+        re.compile(r'since\s+(\w+\s+\d{4}|\d{4})', re.IGNORECASE),
+        re.compile(r'effective\s+(\w+\s+\d{1,2},?\s+\d{4})', re.IGNORECASE),
+        re.compile(r'(?:joined|started)\s+(?:in\s+)?(\w+\s+\d{4}|\d{4})', re.IGNORECASE),
+    ]
+    
+    SUCCESSION_PATTERNS = [
+        re.compile(r'who\s+(?:replaced|succeeded)\s+(.+?)(?:\s+as\s+(.+?))?(?:\?|$)', re.IGNORECASE),
+        re.compile(r'successor\s+(?:to|of)\s+(.+?)(?:\s+as\s+(.+?))?(?:\?|$)', re.IGNORECASE),
+        re.compile(r'predecessor\s+(?:to|of)\s+(.+?)(?:\s+as\s+(.+?))?(?:\?|$)', re.IGNORECASE),
+        re.compile(r'who\s+took\s+over\s+from\s+(.+?)(?:\s+as\s+(.+?))?(?:\?|$)', re.IGNORECASE),
+    ]
     
     HEALTHCARE_ROLE_ALIASES = {
         'cmo': 'chief medical officer',
@@ -519,6 +538,20 @@ class RoleResolver:
         
         return list(set(variations))
     
+    def is_temporal_query(self, query: str) -> bool:
+        """Detect if query asks about timing/dates."""
+        if not query:
+            return False
+        temporal_keywords = ['when', 'date', 'appointed', 'started', 'joined', 'effective']
+        query_lower = query.lower()
+        return any(kw in query_lower for kw in temporal_keywords)
+    
+    def is_succession_query(self, query: str) -> bool:
+        """Detect if query asks about succession/replacement."""
+        if not query:
+            return False
+        return any(p.search(query) for p in self.SUCCESSION_PATTERNS)
+    
     def _build_role_field_clauses(self, role_variations: List[str], entity_alias: str = "e") -> tuple:
         """
         Build SQL clauses for matching roles in specific JSON fields with word boundaries.
@@ -618,6 +651,11 @@ class RoleResolver:
             scoped_result = self._resolve_scoped_role(scoped_role, scoped_entity)
             if scoped_result.is_resolved:
                 logger.info(f"[ROLE_RESOLVER] Stage -1 SUCCESS: '{scoped_role}' of '{scoped_entity}' → '{scoped_result.resolved_name}'")
+                if self.is_temporal_query(query):
+                    scoped_result.metadata = scoped_result.metadata or {}
+                    scoped_result.metadata["temporal_query"] = True
+                    scoped_result.metadata["note"] = "Query asks about timing/dates. Search source documents for appointment date information."
+                    logger.info(f"[ROLE_RESOLVER] Temporal query detected - added metadata note to search documents for date")
                 return scoped_result
             else:
                 logger.info(f"[ROLE_RESOLVER] Stage -1: No match for '{scoped_role}' of '{scoped_entity}' - returning NOT FOUND (no fallthrough)")
