@@ -1,24 +1,24 @@
 {
-  "run_timestamp": "2026-02-01T10:44:27.228745",
+  "run_timestamp": "2026-02-01T17:15:34.356274",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.0099999999999993,
-    "avg_semantic_score": 0.13072,
+    "avg_chunks_retrieved": 3.46,
+    "avg_semantic_score": 0.06034500000000001,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "exact_match": 50,
+      "exact_match": 45,
+      "number_match": 7,
       "component_match": 27,
-      "no_data": 3,
-      "no_match": 10,
-      "number_match": 6,
+      "no_match": 15,
+      "no_data": 2,
       "percentage_match": 1,
-      "entity_match": 2,
-      "semantic_match": 1
+      "semantic_match": 2,
+      "entity_match": 1
     },
-    "low_score_queries": 83
+    "low_score_queries": 92
   },
   "low_score_questions": [
     {
@@ -29,6 +29,21 @@
     {
       "q_id": 2,
       "question": "What is the name of the CFO?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 3,
+      "question": "Who is the President of Nexus Digital Solutions?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 4,
+      "question": "Who is the Chief Engineer for the Falcon X program?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 5,
+      "question": "Who is the Empowered Official for ITAR compliance?",
       "avg_score": 0.0
     },
     {
@@ -92,6 +107,11 @@
       "avg_score": 0.0
     },
     {
+      "q_id": 19,
+      "question": "Who is the largest aerospace customer of Nexus by relationship value?",
+      "avg_score": 0.0
+    },
+    {
       "q_id": 20,
       "question": "Which supplier is rated Red and at risk?",
       "avg_score": 0.3251
@@ -147,6 +167,11 @@
       "avg_score": 0.0
     },
     {
+      "q_id": 32,
+      "question": "Who will be the CEO of the Toyota JV (NextGen Battery Technologies)?",
+      "avg_score": 0.0
+    },
+    {
       "q_id": 33,
       "question": "How much hydrogen will Shell purchase annually under the offtake agreement?",
       "avg_score": 0.0
@@ -164,6 +189,11 @@
     {
       "q_id": 36,
       "question": "Which division has the highest safety incident rate (TRIR)?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 37,
+      "question": "Who is the Project Director for the GreenHydrogen Initiative?",
       "avg_score": 0.0
     },
     {
@@ -307,6 +337,11 @@
       "avg_score": 0.0
     },
     {
+      "q_id": 68,
+      "question": "Who is the Chair of the Export Control Committee?",
+      "avg_score": 0.0
+    },
+    {
       "q_id": 69,
       "question": "What is the TRIR safety target for FY2026?",
       "avg_score": 0.0
@@ -329,6 +364,11 @@
     {
       "q_id": 74,
       "question": "Which project started first: Falcon X or GreenHydrogen?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 75,
+      "question": "Who is the VP of Engineering for Nexus Digital Solutions?",
       "avg_score": 0.0
     },
     {
@@ -362,6 +402,11 @@
       "avg_score": 0.0
     },
     {
+      "q_id": 83,
+      "question": "Who is the primary customer for the SmartGrid Controller?",
+      "avg_score": 0.0
+    },
+    {
       "q_id": 84,
       "question": "What is the cybersecurity incident response investment?",
       "avg_score": 0.0
@@ -369,7 +414,7 @@
     {
       "q_id": 85,
       "question": "Who is the Chair of the Quality Council?",
-      "avg_score": 0.3139
+      "avg_score": 0.0
     },
     {
       "q_id": 86,
@@ -438,33 +483,6 @@
     }
   ],
   "failures_by_type": {
-    "no_data": [
-      {
-        "q_id": 16,
-        "question": "What company is Nexus partnering with for solid-state batter",
-        "expected": "Toyota Motor Corporation",
-        "actual": "The retrieved information does not speci",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 31,
-        "question": "What is Nexus's ownership percentage in the Toyota battery j",
-        "expected": "51%",
-        "actual": "The retrieved information does not speci",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 82,
-        "question": "When was Nexus Industries founded?",
-        "expected": "1985",
-        "actual": "The retrieved information does not speci",
-        "files_retrieved": [
-          "02_business_divisions.md",
-          "05_fedramp_announcement.md",
-          "03_press_release_fy2025.md"
-        ]
-      }
-    ],
     "no_match": [
       {
         "q_id": 24,
@@ -472,9 +490,9 @@
         "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
         "actual": "The GreenHydrogen facility in El Paso, T",
         "files_retrieved": [
-          "02_greenhydrogen_process_specification.md",
           "08_global_locations.md",
-          "09_greenhydrogen_milestone.md"
+          "09_greenhydrogen_milestone.md",
+          "04_greenhydrogen_initiative.md"
         ]
       },
       {
@@ -483,36 +501,60 @@
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "02_organizational_announcement.md",
+          "08_global_locations.md",
           "01_executive_team.md",
-          "05_talent_strategy.md"
+          "05_digital_division_structure.md"
         ]
       },
       {
-        "q_id": 36,
-        "question": "Which division has the highest safety incident rate (TRIR)?",
-        "expected": "Nexus Advanced Materials (1.24 TRIR)",
-        "actual": "The division with the highest safety inc",
+        "q_id": 32,
+        "question": "Who will be the CEO of the Toyota JV (NextGen Battery Techno",
+        "expected": "Dr. Robert Martinez",
+        "actual": "The CEO of the Toyota joint venture, Nex",
         "files_retrieved": [
-          "05_safety_committee_meeting.md",
-          "07_environmental_health_safety.md"
+          "04_toyota_partnership_announcement.md",
+          "06_toyota_jv_negotiation_summary.md",
+          "09_investor_relations_call.md"
+        ]
+      },
+      {
+        "q_id": 34,
+        "question": "Which project has the largest budget?",
+        "expected": "Orbital Satellite Constellation ($680 mi",
+        "actual": "The project with the largest budget is *",
+        "files_retrieved": [
+          "12_project_cost_summary.md",
+          "04_energy_division_budget.md",
+          "03_aerospace_division_budget.md"
         ]
       },
       {
         "q_id": 45,
         "question": "When was Dr. Victoria Chen appointed CEO?",
         "expected": "2019",
-        "actual": "The CEO of Nexus Industries is Dr. Victo",
+        "actual": "I found multiple people with the CTO rol",
         "files_retrieved": []
       },
       {
         "q_id": 48,
         "question": "Who is the primary customer for HTS superconducting wire?",
         "expected": "Siemens Healthineers ($65 million)",
-        "actual": "The primary customer for HTS (High-Tempe",
+        "actual": "The primary customer for HTS superconduc",
         "files_retrieved": [
           "01_boeing_customer_profile.md",
-          "02_airbus_customer_profile.md"
+          "02_airbus_customer_profile.md",
+          "05_siemens_healthineers_customer.md"
+        ]
+      },
+      {
+        "q_id": 60,
+        "question": "When was the phishing incident detected?",
+        "expected": "December 12, 2025 at 02:47 UTC",
+        "actual": "The retrieved information does not menti",
+        "files_retrieved": [
+          "10_cybersecurity_incident_response.md",
+          "Unknown",
+          "08_cybersecurity_advisory.md"
         ]
       },
       {
@@ -528,8 +570,29 @@
         "expected": "$680 million",
         "actual": "The FY2026 capital expenditure plan for ",
         "files_retrieved": [
-          "07_capital_allocation_plan.md",
-          "01_corporate_strategy_2026_2030.md"
+          "01_corporate_strategy_2026_2030.md",
+          "07_capital_allocation_plan.md"
+        ]
+      },
+      {
+        "q_id": 71,
+        "question": "Who is the mining automation partner?",
+        "expected": "Caterpillar",
+        "actual": "The mining automation partner is **Rio T",
+        "files_retrieved": [
+          "04_toyota_partnership_announcement.md",
+          "09_competitive_intelligence.md"
+        ]
+      },
+      {
+        "q_id": 75,
+        "question": "Who is the VP of Engineering for Nexus Digital Solutions?",
+        "expected": "Dr. Alan Chen",
+        "actual": "The VP of Engineering for Nexus Digital ",
+        "files_retrieved": [
+          "02_organizational_announcement.md",
+          "05_digital_division_structure.md",
+          "07_cybershield_security.md"
         ]
       },
       {
@@ -538,19 +601,9 @@
         "expected": "$15 billion",
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
+          "01_corporate_strategy_2026_2030.md",
           "02_aerospace_division_strategy.md",
-          "06_market_expansion_asia.md",
-          "01_corporate_strategy_2026_2030.md"
-        ]
-      },
-      {
-        "q_id": 83,
-        "question": "Who is the primary customer for the SmartGrid Controller?",
-        "expected": "Pacific Power (pilot customer)",
-        "actual": "The primary customer for the SmartGrid C",
-        "files_retrieved": [
-          "11_microsoft_customer.md",
-          "01_boeing_customer_profile.md"
+          "06_market_expansion_asia.md"
         ]
       },
       {
@@ -559,6 +612,52 @@
         "expected": "Owns the Export Control Policy (per POL-",
         "actual": "The VP of Nexus Industries is VP Trade C",
         "files_retrieved": []
+      },
+      {
+        "q_id": 93,
+        "question": "What electrolyte material is used in the solid-state battery",
+        "expected": "LLZO (Li7La3Zr2O12, Al-doped)",
+        "actual": "The electrolyte material used in solid-s",
+        "files_retrieved": [
+          "04_toyota_partnership_announcement.md",
+          "06_toyota_jv_negotiation_summary.md",
+          "11_batterytech_solid_state.md"
+        ]
+      },
+      {
+        "q_id": 100,
+        "question": "What is the total value of top 3 customer relationships?",
+        "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
+        "actual": "The total value of the top 3 customer re",
+        "files_retrieved": [
+          "02_airbus_customer_profile.md",
+          "11_microsoft_customer.md",
+          "01_boeing_customer_profile.md"
+        ]
+      }
+    ],
+    "no_data": [
+      {
+        "q_id": 25,
+        "question": "What is the target energy density for the solid-state batter",
+        "expected": "400 Wh/kg",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": [
+          "06_toyota_partner_profile.md",
+          "Unknown",
+          "11_batterytech_solid_state.md"
+        ]
+      },
+      {
+        "q_id": 67,
+        "question": "What operating temperature range does the solid-state batter",
+        "expected": "-30\u00b0C to 60\u00b0C",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": [
+          "Unknown",
+          "11_batterytech_solid_state.md",
+          "04_toyota_partnership_announcement.md"
+        ]
       }
     ]
   }
