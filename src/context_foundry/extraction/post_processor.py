@@ -234,6 +234,115 @@ SUPPLIER_PATTERNS = [
 
 SUPPLIER_BLOCKLIST = {'the', 'a', 'an', 'this', 'that', 'these', 'their', 'our', 'its'}
 
+# Technical specification patterns - Pattern captures specifications from tables and text
+# These are domain-agnostic patterns that work for any technical domain
+SPEC_PATTERNS = [
+    # Energy density: "400 Wh/kg", "1000 Wh/L"
+    (r'(\d+(?:\.\d+)?)\s*(Wh/kg|Wh/L|kWh/kg|MWh/L)', 'ENERGY_DENSITY', 0.95),
+    # Temperature ranges: "-30 to 60°C", "-40°C to 80°C"
+    (r'(-?\d+)\s*(?:°C|degrees?(?:\s+C)?|C)?\s*(?:to|-)\s*(-?\d+)\s*(?:°C|degrees?(?:\s+C)?|C)', 'TEMPERATURE_RANGE', 0.90),
+    # Production capacity: "425 kg/hr", "850 kg/hour", "10,200 kg/day"
+    (r'(\d+(?:,\d{3})*(?:\.\d+)?)\s*(kg/hr|kg/hour|kg/day|kg/year|kg per hour|kg per day|MW|GW|GWh|MWh)', 'PRODUCTION_CAPACITY', 0.92),
+    # Material composition: "Li₇La₃Zr₂O₁₂", "Li7La3Zr2O12", "LiNi₀.₈Mn₀.₁Co₀.₁O₂", "NMC811"
+    # Handles both Unicode subscripts and regular numbers
+    (r'(Li[₀-₉0-9a-zA-Z₀₁₂₃₄₅₆₇₈₉]+(?:[A-Z][a-z]?[₀-₉0-9]*)+O[₀-₉₁₂0-9]+(?:\s*\([^)]+\))?)', 'MATERIAL_COMPOSITION', 0.93),
+    # Efficiency: "95%", "99.7% detection rate"
+    (r'(\d+(?:\.\d+)?)\s*%\s*(efficiency|detection rate|availability|purity|uptime)', 'EFFICIENCY_SPEC', 0.88),
+    # Cycle life: "1,500 cycles", "3,000 cycle life"
+    (r'(\d+(?:,\d{3})*)\s*(?:cycles?|cycle life)', 'CYCLE_LIFE', 0.90),
+    # Charge time: "15 min", "30 minutes charge", "Fast Charge (10-80%) | 15 min"
+    (r'(?:fast\s+)?charge[^|]*\|?\s*(\d+)\s*(min|minutes|hours?|hr)', 'CHARGE_TIME', 0.88),
+    # Conductivity: "≥1 mS/cm", "10⁻² S/cm"
+    (r'([≥<>]?\s*\d+(?:\.\d+)?(?:⁻?\d*)?)\s*(mS/cm|S/cm|μS/cm)', 'CONDUCTIVITY', 0.92),
+    # Thickness: "20-30 μm", "15 μm"
+    (r'(\d+(?:-\d+)?)\s*(μm|nm|mm|microns?)', 'THICKNESS', 0.90),
+    # Pressure: "30 bar", "138 kV"
+    (r'(\d+(?:\.\d+)?)\s*(bar|kV|MPa|PSI|psi)', 'PRESSURE_SPEC', 0.88),
+    # Table row with Phase distinction: "Phase 1 | 425 kg/hr | Full Capacity | 850 kg/hr"
+    (r'\|\s*Phase\s+1\s*\|\s*([^|]+)\s*\|', 'PHASE_1_VALUE', 0.95),
+]
+
+# Context patterns for identifying what a spec relates to
+SPEC_CONTEXT_PATTERNS = [
+    # Energy density context
+    (r'(Energy\s+Density)\s*\|?\s*(\d+)\s*(Wh/kg|Wh/L)', 'ENERGY_DENSITY'),
+    # Operating temperature context
+    (r'(Operating\s+Temp(?:erature)?)\s*\|?\s*(-?\d+\s*(?:to|-)\s*-?\d+\s*°?C)', 'OPERATING_TEMPERATURE'),
+    # Hydrogen output context
+    (r'(Hydrogen\s+Output)\s*\|?\s*(\d+(?:,\d{3})*\s*kg/hr)', 'HYDROGEN_OUTPUT'),
+    # Electrolyte composition context
+    (r'(Composition)\s*\|?\s*(Li[₀-₉a-zA-Z₀₁₂₃₄₅₆₇₈₉]+[^|]*(?:\([^)]+\))?)', 'ELECTROLYTE_COMPOSITION'),
+]
+
+
+def extract_technical_specifications(text: str) -> List[Dict]:
+    """
+    Standalone function to extract technical specifications from text using patterns.
+    
+    Returns a list of dicts with keys: spec_type, value, unit, context, confidence, source_text
+    """
+    results = []
+    seen = set()
+    
+    for pattern, spec_type, confidence in SPEC_PATTERNS:
+        try:
+            matches = re.finditer(pattern, text, re.IGNORECASE | re.MULTILINE)
+            for match in matches:
+                groups = match.groups()
+                value = groups[0].strip() if groups[0] else ""
+                unit = groups[1].strip() if len(groups) > 1 and groups[1] else ""
+                
+                # Avoid duplicates
+                key = (spec_type, value, unit)
+                if key in seen:
+                    continue
+                seen.add(key)
+                
+                # Try to find context (what this spec is for)
+                context = _find_spec_context(text, match.start(), match.end())
+                
+                result = {
+                    "spec_type": spec_type,
+                    "value": value,
+                    "unit": unit,
+                    "context": context,
+                    "confidence": confidence,
+                    "source_text": match.group(0)[:100]
+                }
+                results.append(result)
+        except Exception as e:
+            logger.warning(f"Spec pattern {spec_type} failed: {e}")
+    
+    return results
+
+
+def _find_spec_context(text: str, start: int, end: int, window: int = 200) -> str:
+    """Find context around a specification match to understand what it relates to."""
+    # Look at text before the match
+    context_start = max(0, start - window)
+    context_text = text[context_start:start]
+    
+    # Look for table headers or labels
+    # Pattern: "| Header |" or "Parameter: value"
+    header_patterns = [
+        r'\|\s*([A-Z][a-zA-Z\s]+?)\s*\|[^|]*$',  # Table header before value
+        r'([A-Z][a-zA-Z\s]+?)\s*:\s*$',  # Label: value
+        r'([A-Z][a-zA-Z\s]+?)\s*\|\s*$',  # Label | value
+    ]
+    
+    for pattern in header_patterns:
+        match = re.search(pattern, context_text)
+        if match:
+            return match.group(1).strip()
+    
+    # Look for row label in markdown table: "| Label | value |"
+    row_pattern = r'\|\s*([A-Z][a-zA-Z\s/]+?)\s*\|[^|]*' + re.escape(text[start:end])
+    row_match = re.search(row_pattern, text[max(0, start-100):end+50])
+    if row_match:
+        return row_match.group(1).strip()
+    
+    return ""
+
 
 def extract_supplier_relationships(text: str) -> List[Dict]:
     """
@@ -417,6 +526,16 @@ class ExtractionPostProcessor:
         new_relationships.extend(supplier_rels)
         new_entities.extend(supplier_entities)
         patterns_matched += len(supplier_rels)
+
+        # Extract technical specifications (energy density, temperature ranges, capacities, etc.)
+        spec_entities = self._extract_specification_entities(
+            document_text, existing_entity_names
+        )
+        for se in spec_entities:
+            if se['name'].lower() not in existing_entity_names:
+                new_entities.append(se)
+                existing_entity_names.add(se['name'].lower())
+                patterns_matched += 1
 
         elapsed_ms = (time.time() - start) * 1000
 
@@ -897,6 +1016,91 @@ class ExtractionPostProcessor:
             logger.info(f"  - {rel.source_name} SUPPLIES_TO {rel.target_name}")
         
         return relationships, new_entities
+
+    def _extract_specification_entities(
+        self, text: str, existing_entity_names: Set[str]
+    ) -> List[Dict]:
+        """
+        Extract technical specifications as SPECIFICATION entities.
+        Captures energy density, temperature ranges, capacities, material compositions, etc.
+        """
+        entities = []
+        seen = set()
+        
+        for pattern, spec_type, confidence in SPEC_PATTERNS:
+            try:
+                matches = re.finditer(pattern, text, re.IGNORECASE | re.MULTILINE)
+                for match in matches:
+                    groups = match.groups()
+                    
+                    if spec_type == 'TEMPERATURE_RANGE':
+                        # Special handling for temperature ranges
+                        temp_low = groups[0] if groups[0] else ""
+                        temp_high = groups[1] if len(groups) > 1 and groups[1] else ""
+                        value = f"{temp_low} to {temp_high}°C"
+                        unit = "°C"
+                        name = f"Operating Temperature {value}"
+                    elif spec_type == 'MATERIAL_COMPOSITION':
+                        # Material composition (e.g., Li₇La₃Zr₂O₁₂)
+                        value = groups[0].strip() if groups[0] else ""
+                        unit = ""
+                        name = f"Material Composition {value}"
+                    elif spec_type == 'PHASE_1_VALUE':
+                        # Phase-specific value from table
+                        value = groups[0].strip() if groups[0] else ""
+                        unit = ""
+                        name = f"Phase 1 {value}"
+                    else:
+                        # Standard pattern: value + unit
+                        value = groups[0].strip() if groups[0] else ""
+                        unit = groups[1].strip() if len(groups) > 1 and groups[1] else ""
+                        name = f"{value} {unit}".strip()
+                    
+                    if not value or len(value) < 1:
+                        continue
+                    
+                    # Find context to understand what this spec relates to
+                    context = _find_spec_context(text, match.start(), match.end())
+                    
+                    # Create a unique key
+                    key = (spec_type, value, unit, context)
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    
+                    # Skip if already exists
+                    name_lower = name.lower()
+                    if name_lower in existing_entity_names:
+                        continue
+                    
+                    # Build properties dict
+                    properties = {
+                        "spec_type": spec_type,
+                        "value": value,
+                        "source": "post_processor",
+                    }
+                    if unit:
+                        properties["unit"] = unit
+                    if context:
+                        properties["context"] = context
+                    
+                    entity = {
+                        "name": name,
+                        "entity_type": "SPECIFICATION",
+                        "confidence": confidence,
+                        "source": "post_processor",
+                        "properties": properties,
+                        "source_text": match.group(0)[:100]
+                    }
+                    entities.append(entity)
+                    
+                    logger.info(f"[PostProcessor] Found spec: {spec_type} = {value} {unit} (context: {context})")
+                    
+            except Exception as e:
+                logger.warning(f"[PostProcessor] Spec pattern {spec_type} failed: {e}")
+        
+        logger.info(f"[PostProcessor] SPECIFICATION entities found: {len(entities)}")
+        return entities
 
 
 class RoleNormalizer:
