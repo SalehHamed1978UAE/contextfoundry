@@ -191,7 +191,11 @@ LOOK_FOR: [if uncertain/contradicted, what specific information would help]
                 max_tokens=500,
                 messages=[{"role": "user", "content": prompt}]
             )
-            return response.content[0].text
+            # Handle different content block types safely
+            for block in response.content:
+                if hasattr(block, 'text'):
+                    return block.text
+            return str(response.content[0]) if response.content else ""
         except Exception as e:
             logger.error(f"LLM call failed: {e}")
             raise
