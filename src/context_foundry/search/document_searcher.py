@@ -88,6 +88,24 @@ class DocumentSearcher:
         r'\bcustomer\s+(relationship|value|revenue)',
         r'\blargest\s+(aerospace|defense|commercial)\s+customer',
     ]
+
+    # Patterns for company overview/profile queries (founding date, headquarters, etc.)
+    COMPANY_OVERVIEW_PATTERNS = [
+        r'\b(when|what year)\s+was\s+.+\s+(founded|established|incorporated)',
+        r'\b(founding|founded|established|incorporated)\s+(date|year)',
+        r'\bwhere\s+is\s+.+\s+headquartered',
+        r'\b(headquarters|hq)\s+(location|address)',
+        r'\bcompany\s+(history|overview|profile|background)',
+    ]
+
+    # Document patterns to boost for company overview queries
+    INVESTOR_PRESENTATION_PATTERNS = [
+        r'investor.*presentation',
+        r'company.*overview',
+        r'company.*profile',
+        r'corporate.*profile',
+        r'quarterly.*newsletter',
+    ]
     
     CANONICAL_TERMS = {
         'project_names': [
@@ -134,6 +152,7 @@ class DocumentSearcher:
 
         is_company_metric_query = self._is_company_metric_query(query)
         is_customer_ranking = self._is_customer_ranking_query(query)
+        is_company_overview = self._is_company_overview_query(query)
 
         if use_vector:
             chunks = self._vector_search(query, limit + offset)
@@ -148,6 +167,16 @@ class DocumentSearcher:
                         if cc.get('id') not in existing_ids:
                             chunks.append(cc)
                     logger.info(f"[SEARCHER] Customer ranking query - added {len(customer_chunks)} customer profile chunks")
+
+            # For company overview queries (founding date, HQ, etc.), fetch investor presentation docs
+            if is_company_overview:
+                investor_chunks = self._fetch_investor_presentation_chunks(limit=5)
+                if investor_chunks:
+                    existing_ids = {c.get('id') for c in chunks if c.get('id')}
+                    for ic in investor_chunks:
+                        if ic.get('id') not in existing_ids:
+                            chunks.append(ic)
+                    logger.info(f"[SEARCHER] Company overview query - added {len(investor_chunks)} investor/overview chunks")
 
             if chunks:
                 # For customer ranking queries, boost customer profile documents
@@ -532,6 +561,15 @@ class DocumentSearcher:
                 return True
         return False
 
+    def _is_company_overview_query(self, query: str) -> bool:
+        """Check if query is asking about company overview info (founding date, HQ, etc.)."""
+        query_lower = query.lower()
+        for pattern in self.COMPANY_OVERVIEW_PATTERNS:
+            if re.search(pattern, query_lower):
+                logger.info(f"[SEARCHER] Company overview query detected: matched pattern '{pattern}'")
+                return True
+        return False
+
     def _boost_customer_documents(self, chunks: List[Dict], boost_factor: float = 1.5) -> List[Dict]:
         """Boost customer profile documents to the top of results."""
         boosted = []
@@ -591,6 +629,43 @@ class DocumentSearcher:
 
         except Exception as e:
             logger.error(f"[SEARCHER] Failed to fetch customer profile chunks: {e}")
+            return []
+
+    def _fetch_investor_presentation_chunks(self, limit: int = 5) -> List[Dict]:
+        """Directly fetch chunks from investor presentation and company overview documents."""
+        try:
+            query = text("""
+                SELECT c.id, c.content as text, d.name as doc_name
+                FROM chunks c
+                JOIN documents d ON c.document_id = d.id
+                WHERE c.tenant_id = :tid
+                AND (
+                    d.name ILIKE '%investor%presentation%'
+                    OR d.name ILIKE '%company%overview%'
+                    OR d.name ILIKE '%quarterly%newsletter%'
+                    OR d.name ILIKE '%corporate%profile%'
+                )
+                ORDER BY d.name
+                LIMIT :limit
+            """)
+
+            results = self.session.execute(query, {'tid': self.tenant_id, 'limit': limit}).fetchall()
+
+            chunks = []
+            for r in results:
+                chunks.append({
+                    "id": str(r.id),
+                    "text": r.text[:2500] if r.text else "",
+                    "document_name": r.doc_name or "Unknown overview doc",
+                    "similarity": 0.85,
+                    "_investor_doc": True
+                })
+
+            logger.info(f"[SEARCHER] Fetched {len(chunks)} investor/overview chunks directly from DB")
+            return chunks
+
+        except Exception as e:
+            logger.error(f"[SEARCHER] Failed to fetch investor presentation chunks: {e}")
             return []
 
     def _filter_customer_documents(self, chunks: List[Dict]) -> List[Dict]:
