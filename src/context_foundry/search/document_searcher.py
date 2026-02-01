@@ -725,10 +725,10 @@ class DocumentSearcher:
         """Directly fetch chunks from customer profile documents."""
         try:
             query = text("""
-                SELECT c.id, c.content as text, d.name as doc_name
-                FROM chunks c
-                JOIN documents d ON c.document_id = d.id
-                WHERE c.tenant_id = :tid
+                SELECT dc.id, dc.text as text, d.name as doc_name
+                FROM document_chunks dc
+                JOIN platform.documents d ON dc.document_id = d.id
+                WHERE dc.tenant_id = :tid
                 AND (
                     d.name LIKE '%_customer.md'
                     OR d.name LIKE '%customer_profile%'
@@ -803,10 +803,10 @@ class DocumentSearcher:
         """Directly fetch chunks from ITAR, export control, and compliance documents."""
         try:
             query = text("""
-                SELECT c.id, c.content as text, d.name as doc_name
-                FROM chunks c
-                JOIN documents d ON c.document_id = d.id
-                WHERE c.tenant_id = :tid
+                SELECT dc.id, dc.text as text, d.name as doc_name
+                FROM document_chunks dc
+                JOIN platform.documents d ON dc.document_id = d.id
+                WHERE dc.tenant_id = :tid
                 AND (
                     d.name ILIKE '%export%control%'
                     OR d.name ILIKE '%itar%'
@@ -843,10 +843,10 @@ class DocumentSearcher:
         """Directly fetch chunks from partnership, JV, and collaboration documents."""
         try:
             query = text("""
-                SELECT c.id, c.content as text, d.name as doc_name
-                FROM chunks c
-                JOIN documents d ON c.document_id = d.id
-                WHERE c.tenant_id = :tid
+                SELECT dc.id, dc.text as text, d.name as doc_name
+                FROM document_chunks dc
+                JOIN platform.documents d ON dc.document_id = d.id
+                WHERE dc.tenant_id = :tid
                 AND (
                     d.name ILIKE '%partner%profile%'
                     OR d.name ILIKE '%partner%'
@@ -884,10 +884,10 @@ class DocumentSearcher:
         """Directly fetch chunks from investor presentation and company overview documents."""
         try:
             query = text("""
-                SELECT c.id, c.content as text, d.name as doc_name
-                FROM chunks c
-                JOIN documents d ON c.document_id = d.id
-                WHERE c.tenant_id = :tid
+                SELECT dc.id, dc.text as text, d.name as doc_name
+                FROM document_chunks dc
+                JOIN platform.documents d ON dc.document_id = d.id
+                WHERE dc.tenant_id = :tid
                 AND (
                     d.name ILIKE '%investor%presentation%'
                     OR d.name ILIKE '%company%overview%'
