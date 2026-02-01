@@ -1,0 +1,22 @@
+Found the bug! Look at the folder_path: / (root), not stakeholders/.                                   
+                                                                                                         
+  But more importantly - there's a SQL bug in my query:                                                  
+                                                                                                         
+  d.name ILIKE '%_customer%'                                                                             
+                                                                                                         
+  In SQL ILIKE, the underscore _ is a wildcard that matches any single character! So %_customer% doesn't 
+  literally match "_customer" - it matches "any char + customer".                                        
+                                                                                                         
+  Fix: Either escape the underscore or simplify the pattern:                                             
+                                                                                                         
+  d.name ILIKE '%customer%'  -- simpler, will match boeing_customer_profile.md                           
+                                                                                                         
+  Tell Replit to update _fetch_all_customer_profiles() in retrieval_router.py:                           
+                                                                                                         
+  Change:                                                                                                
+  d.name ILIKE '%_customer%'                                                                             
+                                                                                                         
+  To:                                                                                                    
+  d.name ILIKE '%customer%'                                                                              
+                                                                                                         
+  This should fix Boeing retrieval for Q19 and Q100. 
