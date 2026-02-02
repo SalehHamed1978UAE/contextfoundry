@@ -1,0 +1,116 @@
+ Good. Here are the instructions for Replit:                                                            
+                                                                                                         
+  ---                                                                                                    
+  Next Roadmap Item: Ontology Integration                                                                
+                                                                                                         
+  Goal: Wire up the existing OntologyCentricPipeline (710 lines, currently unused) as the extraction     
+  method, constraining entity/relationship types to the ontology schema.                                 
+                                                                                                         
+  ---                                                                                                    
+  Context                                                                                                
+                                                                                                         
+  You have TWO extraction pipelines:                                                                     
+  ┌─────────────────────────┬─────────────────────────────────────────┬──────────────────────────┐       
+  │        Pipeline         │                  File                   │          Status          │       
+  ├─────────────────────────┼─────────────────────────────────────────┼──────────────────────────┤       
+  │ MultiModelExtractor     │ extraction/multi_extractor.py           │ Currently used (default) │       
+  ├─────────────────────────┼─────────────────────────────────────────┼──────────────────────────┤       
+  │ OntologyCentricPipeline │ extraction/ontology_centric_pipeline.py │ Built but NOT wired up   │       
+  └─────────────────────────┴─────────────────────────────────────────┴──────────────────────────┘       
+  The ontology pipeline already:                                                                         
+  - Classifies document type                                                                             
+  - Loads per-document-type ontology schemas                                                             
+  - Extracts with ontology guidance (constrained types)                                                  
+  - Canonicalizes using embeddings                                                                       
+  - Updates reference ontology with new types                                                            
+                                                                                                         
+  This is Phase 3 Ontology Foundry - it's 85% built, just needs integration.                             
+                                                                                                         
+  ---                                                                                                    
+  Phase 1 – Enable Ontology Pipeline Flag                                                                
+                                                                                                         
+  1. Modify scripts/run_vault_extraction.py:                                                             
+                                                                                                         
+  Add CLI flag to switch pipelines:                                                                      
+  parser.add_argument('--use-ontology', action='store_true',                                             
+                      help='Use ontology-centric pipeline instead of multi-model')                       
+                                                                                                         
+  In the extraction loop:                                                                                
+  if args.use_ontology:                                                                                  
+      from src.context_foundry.extraction.ontology_centric_pipeline import OntologyCentricPipeline       
+      pipeline = OntologyCentricPipeline(                                                                
+          session=session,                                                                               
+          tenant_id=vault_id,                                                                            
+          auto_stage=True,                                                                               
+      )                                                                                                  
+      result = pipeline.process_document(doc_id, content, filename)                                      
+  else:                                                                                                  
+      # Existing multi-model code                                                                        
+      ...                                                                                                
+                                                                                                         
+  2. Test: Run extraction on 2-3 documents with --use-ontology flag, verify it works.                    
+                                                                                                         
+  ---                                                                                                    
+  Phase 2 – Gardener Ontology Validation                                                                 
+                                                                                                         
+  1. Add ontology validation to Gardener promotion:                                                      
+                                                                                                         
+  Before promoting STAGING → TRUSTED, validate:                                                          
+  - Entity type exists in ontology schema                                                                
+  - Relationship type exists in ontology schema                                                          
+  - Required properties are present                                                                      
+                                                                                                         
+  2. Location: agents/gardener.py in the promotion_pass method                                           
+                                                                                                         
+  3. Add config flag:                                                                                    
+  validate_against_ontology: bool = True                                                                 
+                                                                                                         
+  4. Block promotion if:                                                                                 
+  - Entity type not in allowed types                                                                     
+  - Relationship type not in allowed types                                                               
+  - Missing required properties per schema                                                               
+                                                                                                         
+  ---                                                                                                    
+  Phase 3 – Make Ontology Default                                                                        
+                                                                                                         
+  After validation that ontology extraction works correctly:                                             
+                                                                                                         
+  1. Update extraction worker to use OntologyCentricPipeline by default                                  
+  2. Keep MultiModelExtractor available via flag for fallback                                            
+  3. Update any hardcoded references                                                                     
+                                                                                                         
+  ---                                                                                                    
+  Files to Review/Modify                                                                                 
+  ┌─────────────────────────────────────────┬───────────────────────────────────┐                        
+  │                  File                   │              Action               │                        
+  ├─────────────────────────────────────────┼───────────────────────────────────┤                        
+  │ extraction/ontology_centric_pipeline.py │ Review - understand what exists   │                        
+  ├─────────────────────────────────────────┼───────────────────────────────────┤                        
+  │ extraction/ontology_manager.py          │ Review - manages schemas          │                        
+  ├─────────────────────────────────────────┼───────────────────────────────────┤                        
+  │ extraction/document_classifier.py       │ Review - classifies doc types     │                        
+  ├─────────────────────────────────────────┼───────────────────────────────────┤                        
+  │ scripts/run_vault_extraction.py         │ Modify - add --use-ontology flag  │                        
+  ├─────────────────────────────────────────┼───────────────────────────────────┤                        
+  │ agents/gardener.py                      │ Modify - add ontology validation  │                        
+  ├─────────────────────────────────────────┼───────────────────────────────────┤                        
+  │ workers/extraction_worker.py            │ Modify (Phase 3) - change default │                        
+  └─────────────────────────────────────────┴───────────────────────────────────┘                        
+  ---                                                                                                    
+  Deliverables Checklist                                                                                 
+                                                                                                         
+  1. --use-ontology flag working in run_vault_extraction.py                                              
+  2. Test extraction of 3+ documents with ontology pipeline                                              
+  3. Gardener validates entity/relationship types against ontology                                       
+  4. Document which types are constrained and which are open                                             
+                                                                                                         
+  Report back when Phase 1 (flag + test extraction) is complete.                                         
+                                                                                                         
+  ---                                                                                                    
+  Don't Do This                                                                                          
+                                                                                                         
+  - ❌ Don't delete or break MultiModelExtractor (keep as fallback)                                      
+  - ❌ Don't change ontology tables directly                                                             
+  - ❌ Don't make ontology default until Phase 1 & 2 are validated                                       
+                                                                                                         
+  ---     
