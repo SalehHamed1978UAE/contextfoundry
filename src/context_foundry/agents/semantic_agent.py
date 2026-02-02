@@ -440,7 +440,7 @@ Return only valid JSON."""
                 FROM entities
                 WHERE tenant_id = :tenant_id
                 AND LOWER(name) = LOWER(:name)
-                AND lifecycle_state = 'TRUSTED'
+                AND lifecycle_state IN ('TRUSTED', 'STAGING')
                 LIMIT 1
             """),
             {"tenant_id": self.tenant_id, "name": name}
@@ -459,7 +459,7 @@ Return only valid JSON."""
                 FROM entities
                 WHERE tenant_id = :tenant_id
                 AND LOWER(name) ILIKE :pattern
-                AND lifecycle_state = 'TRUSTED'
+                AND lifecycle_state IN ('TRUSTED', 'STAGING')
                 ORDER BY 
                     CASE WHEN LOWER(name) LIKE :prefix_pattern THEN 0 ELSE 1 END,
                     LENGTH(name)
@@ -492,7 +492,7 @@ Return only valid JSON."""
                 FROM relationships
                 WHERE tenant_id = :tenant_id
                 AND source_id = :entity_id
-                AND lifecycle_state = 'TRUSTED'
+                AND lifecycle_state IN ('TRUSTED', 'STAGING')
                 GROUP BY relationship_type
                 
                 UNION ALL
@@ -501,7 +501,7 @@ Return only valid JSON."""
                 FROM relationships
                 WHERE tenant_id = :tenant_id
                 AND target_id = :entity_id
-                AND lifecycle_state = 'TRUSTED'
+                AND lifecycle_state IN ('TRUSTED', 'STAGING')
                 GROUP BY relationship_type
             """),
             {"tenant_id": self.tenant_id, "entity_id": entity_id}
@@ -564,7 +564,7 @@ Your answer (JSON array only):"""
                     WHERE r.tenant_id = :tenant_id
                     AND r.source_id = :entity_id
                     AND r.relationship_type = :rel_type
-                    AND r.lifecycle_state = 'TRUSTED'
+                    AND r.lifecycle_state IN ('TRUSTED', 'STAGING')
                 """),
                 {"tenant_id": self.tenant_id, "entity_id": entity_id, "rel_type": rel_type}
             ).fetchall()
@@ -577,7 +577,7 @@ Your answer (JSON array only):"""
                     WHERE r.tenant_id = :tenant_id
                     AND r.target_id = :entity_id
                     AND r.relationship_type = :rel_type
-                    AND r.lifecycle_state = 'TRUSTED'
+                    AND r.lifecycle_state IN ('TRUSTED', 'STAGING')
                 """),
                 {"tenant_id": self.tenant_id, "entity_id": entity_id, "rel_type": rel_type}
             ).fetchall()

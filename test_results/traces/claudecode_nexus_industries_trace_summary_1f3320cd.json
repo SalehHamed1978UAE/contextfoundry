@@ -1,16 +1,16 @@
 {
-  "run_timestamp": "2026-02-02T01:15:05.708626",
+  "run_timestamp": "2026-02-02T01:38:30.608568",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
     "avg_chunks_retrieved": 3.4500000000000006,
-    "avg_semantic_score": 0.05034499999999998,
+    "avg_semantic_score": 0.04034600000000001,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "exact_match": 46,
-      "component_match": 29,
+      "exact_match": 45,
+      "component_match": 30,
       "number_match": 7,
       "no_match": 14,
       "no_data": 1,
@@ -18,7 +18,7 @@
       "entity_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 93
+    "low_score_queries": 94
   },
   "low_score_questions": [
     {
@@ -114,7 +114,7 @@
     {
       "q_id": 20,
       "question": "Which supplier is rated Red and at risk?",
-      "avg_score": 0.3252
+      "avg_score": 0.3251
     },
     {
       "q_id": 21,
@@ -485,6 +485,11 @@
       "q_id": 99,
       "question": "How does Nexus's operating margin compare to target?",
       "avg_score": 0.0
+    },
+    {
+      "q_id": 100,
+      "question": "What is the total value of top 3 customer relationships?",
+      "avg_score": 0.0
     }
   ],
   "failures_by_type": {
@@ -495,9 +500,9 @@
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "04_toyota_partnership_announcement.md",
-          "03_aerospace_division_structure.md",
-          "09_investor_presentation_q4.md"
+          "05_talent_strategy.md",
+          "03_press_release_fy2025.md",
+          "03_aerospace_division_structure.md"
         ]
       },
       {
@@ -518,8 +523,19 @@
         "actual": "The project with the largest budget is *",
         "files_retrieved": [
           "04_energy_division_budget.md",
-          "12_project_cost_summary.md",
-          "03_aerospace_division_budget.md"
+          "03_aerospace_division_budget.md",
+          "12_project_cost_summary.md"
+        ]
+      },
+      {
+        "q_id": 38,
+        "question": "Who is the CISO of Nexus Industries?",
+        "expected": "Jennifer Walsh (appointed January 2026, ",
+        "actual": "The Chief Information Security Officer (",
+        "files_retrieved": [
+          "05_fedramp_announcement.md",
+          "04_toyota_partnership_announcement.md",
+          "02_organizational_announcement.md"
         ]
       },
       {
@@ -535,9 +551,9 @@
         "expected": "December 12, 2025 at 02:47 UTC",
         "actual": "The retrieved information does not menti",
         "files_retrieved": [
-          "10_cybersecurity_incident_response.md",
           "Unknown",
-          "08_cybersecurity_advisory.md"
+          "08_cybersecurity_advisory.md",
+          "10_cybersecurity_incident_response.md"
         ]
       },
       {
@@ -574,8 +590,8 @@
         "expected": "Caterpillar",
         "actual": "The mining automation partner for Nexus ",
         "files_retrieved": [
-          "04_toyota_partnership_announcement.md",
-          "09_competitive_intelligence.md"
+          "09_competitive_intelligence.md",
+          "04_toyota_partnership_announcement.md"
         ]
       },
       {
@@ -601,17 +617,6 @@
         ]
       },
       {
-        "q_id": 83,
-        "question": "Who is the primary customer for the SmartGrid Controller?",
-        "expected": "Pacific Power (pilot customer)",
-        "actual": "The primary customers for the SmartGrid ",
-        "files_retrieved": [
-          "08_pacific_power_utility.md",
-          "04_energy_division_budget.md",
-          "08_smartgrid_controller.md"
-        ]
-      },
-      {
         "q_id": 91,
         "question": "Who is the VP Trade Compliance?",
         "expected": "Owns the Export Control Policy (per POL-",
@@ -625,8 +630,8 @@
         "actual": "The total value of the top 3 customer re",
         "files_retrieved": [
           "01_boeing_customer_profile.md",
-          "05_siemens_healthineers_customer.md",
-          "02_airbus_customer_profile.md"
+          "02_airbus_customer_profile.md",
+          "Unknown"
         ]
       }
     ],

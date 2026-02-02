@@ -272,7 +272,7 @@ class RetrievalRouter:
                     FROM entities
                     WHERE tenant_id = :tenant_id
                       AND name ILIKE :name_pattern
-                      AND lifecycle_state = 'TRUSTED'
+                      AND lifecycle_state IN ('TRUSTED', 'STAGING')
                     ORDER BY confidence DESC
                     LIMIT :limit
                 """)
@@ -351,7 +351,7 @@ class RetrievalRouter:
                     FROM entities
                     WHERE tenant_id = :tenant_id
                       AND name ILIKE :name_pattern
-                      AND lifecycle_state = 'TRUSTED'
+                      AND lifecycle_state IN ('TRUSTED', 'STAGING')
                     ORDER BY confidence DESC
                     LIMIT 3
                 """)
@@ -360,7 +360,7 @@ class RetrievalRouter:
                     "name_pattern": f"%{person_name}%"
                 }).fetchall()
                 
-                # Fallback: If no TRUSTED entities found, try ARCHIVED entities
+                # Fallback: If no TRUSTED/STAGING entities found, try ARCHIVED entities
                 if not entity_results:
                     logger.info(f"[ROUTER] No TRUSTED entity for '{person_name}', trying ARCHIVED fallback")
                     entity_sql_archived = text("""
@@ -413,7 +413,7 @@ class RetrievalRouter:
                         WHERE r.tenant_id = :tenant_id
                           AND r.source_id = :entity_id
                           AND r.relationship_type IN ('HOLDS_POSITION', 'HAS_ROLE', 'WORKS_AS', 'IS_A')
-                          AND r.lifecycle_state = 'TRUSTED'
+                          AND r.lifecycle_state IN ('TRUSTED', 'STAGING')
                         ORDER BY r.confidence DESC
                         LIMIT 5
                     """)
@@ -1985,7 +1985,7 @@ class RetrievalRouter:
                         WHERE r.tenant_id = :tenant_id
                         AND r.relationship_type = ANY(:rel_types)
                         AND LOWER(tgt.name) LIKE :subject_pattern
-                        AND r.lifecycle_state = 'TRUSTED'
+                        AND r.lifecycle_state IN ('TRUSTED', 'STAGING')
                         ORDER BY r.confidence DESC
                         LIMIT :limit
                     """)
