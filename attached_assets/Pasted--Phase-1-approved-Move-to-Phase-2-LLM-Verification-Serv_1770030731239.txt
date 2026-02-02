@@ -1,0 +1,27 @@
+ Phase 1 approved. Move to Phase 2: LLM Verification Service.                                           
+                                                                                                         
+  Build:                                                                                                 
+                                                                                                         
+  1. Create workers/verification_worker.py                                                               
+    - Query unverified facts from evidence_records + their source text                                   
+    - Batch them (configurable batch size, e.g., 20 facts per run)                                       
+    - Call LLM with prompt:                                                                              
+  Given the evidence: "{evidence_text}"                                                                  
+  Does it support this fact: "{fact_description}"?                                                       
+  Answer: yes/no                                                                                         
+  Explanation: <brief reason>                                                                            
+  2. Store verdicts                                                                                      
+    - Insert into fact_verifications (fact_id, fact_type, verification_status, verification_reason,      
+  verifier_model, confidence)                                                                            
+    - Update the fact's verified and evidence_verification_status columns                                
+  3. Config                                                                                              
+    - Daily rate limit / max tokens per run                                                              
+    - Threshold: if LLM says "no", set verification_status = 'rejected' and keep fact in STAGING         
+  4. CLI trigger                                                                                         
+    - Add command to manually run verification for testing: python -m workers.verification_worker        
+  --tenant-id <id> --limit 10                                                                            
+                                                                                                         
+  Test: Create a STAGING fact manually, run worker, verify fact_verifications gets populated and fact    
+  status updates.                                                                                        
+                                                                                                         
+  Report back when worker is functional. Phase 3 (Gardener integration) comes after.  
