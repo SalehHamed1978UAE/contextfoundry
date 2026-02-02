@@ -423,6 +423,16 @@ class StagingLoader:
                 source_document_id=extracted.source_document_id,
                 chunk_id=chunk_uuid
             )
+        else:
+            fallback_evidence = f"Entity: {extracted.canonical_name} | Type: {extracted.entity_type}"
+            logger.debug(f"[StagingLoader] No source_span for entity '{extracted.canonical_name}', using fallback evidence")
+            self._create_evidence_record(
+                fact_type=FactType.ENTITY,
+                fact_id=entity.id,
+                evidence_text=fallback_evidence,
+                source_document_id=extracted.source_document_id,
+                chunk_id=chunk_uuid
+            )
         
         if hasattr(extracted, 'source_chunk_id') and extracted.source_chunk_id:
             doc_uuid = _safe_uuid(extracted.source_document_id)
@@ -549,6 +559,16 @@ class StagingLoader:
                 fact_type=FactType.RELATIONSHIP,
                 fact_id=relationship.id,
                 evidence_text=extracted.source_span,
+                source_document_id=extracted.source_document_id,
+                chunk_id=chunk_uuid
+            )
+        else:
+            fallback_evidence = f"Relationship: {extracted.source_name} --[{extracted.relation_type}]--> {extracted.target_name}"
+            logger.debug(f"[StagingLoader] No source_span for relationship, using fallback evidence")
+            self._create_evidence_record(
+                fact_type=FactType.RELATIONSHIP,
+                fact_id=relationship.id,
+                evidence_text=fallback_evidence,
                 source_document_id=extracted.source_document_id,
                 chunk_id=chunk_uuid
             )

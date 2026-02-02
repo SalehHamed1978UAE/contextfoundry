@@ -169,12 +169,30 @@ class KGIngestor:
             self.session.add(new_entity)
             self.session.flush()
             
-            for source_doc in entity.source_documents:
+            evidence_parts = [f"Entity: {entity.canonical_name}", f"Type: {entity.entity_type.value}"]
+            if entity.name_variants:
+                evidence_parts.append(f"Variants: {', '.join(entity.name_variants[:5])}")
+            if entity.properties:
+                prop_strs = [f"{k}={v}" for k, v in list(entity.properties.items())[:5] if v]
+                if prop_strs:
+                    evidence_parts.append(f"Properties: {'; '.join(prop_strs)}")
+            evidence_text = " | ".join(evidence_parts)
+            
+            if entity.source_documents:
+                for source_doc in entity.source_documents:
+                    self._create_evidence_record(
+                        fact_type=FactType.ENTITY,
+                        fact_id=new_entity.id,
+                        evidence_text=evidence_text,
+                        source_document_id=source_doc
+                    )
+            else:
+                logger.debug(f"[KGIngestor] No source documents for entity '{entity.canonical_name}', creating single evidence record")
                 self._create_evidence_record(
                     fact_type=FactType.ENTITY,
                     fact_id=new_entity.id,
-                    evidence_text=entity.canonical_name,
-                    source_document_id=source_doc
+                    evidence_text=evidence_text,
+                    source_document_id=source_document_id
                 )
             
             result.entities_created += 1
@@ -304,6 +322,15 @@ class KGIngestor:
                         evidence_text=evidence_text,
                         source_document_id=source_document_id
                     )
+            else:
+                fallback_evidence = f"Relationship: {rel.source_entity} --[{rel.relationship_type.value}]--> {rel.target_entity}"
+                logger.debug(f"[KGIngestor] No evidence for relationship, using fallback: {fallback_evidence[:100]}")
+                self._create_evidence_record(
+                    fact_type=FactType.RELATIONSHIP,
+                    fact_id=new_rel.id,
+                    evidence_text=fallback_evidence,
+                    source_document_id=source_document_id
+                )
             
             result.relationships_created += 1
             return new_rel.id

@@ -105,6 +105,12 @@ Architectural features include:
 - **Corpus Maker 1.5:** ⏸️ 87% accuracy (parked - remaining 13 failures need architectural changes)
 
 ### Recent Improvements
+- **Evidence Layer Phase 1**: Schema and evidence capture at extraction time
+  - `evidence_records` table links facts (entities/relationships) to source text
+  - `fact_verifications` table stores LLM verification verdicts (for Phase 2)
+  - `verified` and `evidence_verification_status` columns on Entity/Relationship
+  - StagingLoader and KGIngestor create evidence records for all ingested facts
+  - Fallback evidence synthesized when source_span is missing
 - Technical Specification extraction (11 generalizable patterns)
 - 152 SPECIFICATION entities extracted
 - Post-processor hardening for energy density, temperature, materials
@@ -118,7 +124,7 @@ Architectural features include:
 - **Failure Analysis:** See `docs/ACCURACY_FAILURES_87.md`
 
 ### Next Roadmap Items
-1. Evidence Layer verification loop
+1. Evidence Layer Phase 2: LLM verification loop integrating with Gardener for TRUSTED promotion
 2. Tree-based retrieval architecture
 3. Ontology pipeline integration
 4. Enhanced role resolution pipeline
