@@ -1,0 +1,25 @@
+Proceed with Evidence Layer Phase 3: Gardener & Retrieval Integration                                  
+                                                                                                         
+  1. Gardener Integration                                                                                
+  - Modify Gardener agent to require verified=true (or evidence_verification_status=VERIFIED) before     
+  promoting facts from STAGING → TRUSTED                                                                 
+  - If fact stays unverified after X days, either demote or keep flagged (make configurable)             
+  - Location: likely src/context_foundry/agents/gardener.py or similar                                   
+                                                                                                         
+  2. Retrieval Integration                                                                               
+  - Pass verified and evidence_verification_status into the ContextBundle                                
+  - When returning answers, include verification status in metadata ("verified" vs "unverified" badge)   
+                                                                                                         
+  3. Data Gates (Optional but recommended)                                                               
+  - If a query relies solely on unverified facts, return a warning ("based on unverified evidence") or   
+  gate entirely                                                                                          
+  - This prevents low-confidence answers from being presented as certain                                 
+                                                                                                         
+  Test:                                                                                                  
+  - Create a STAGING fact with verified=false → confirm Gardener won't promote it                        
+  - Create a STAGING fact with verified=true → confirm Gardener promotes it                              
+  - Run a query that uses verified facts → confirm metadata shows "verified"                             
+  - Run a query that uses unverified facts → confirm warning/gating behavior                             
+                                                                                                         
+  Report back when Gardener integration is working. Phase 4 (UI/API exposure) is optional.               
+                                 

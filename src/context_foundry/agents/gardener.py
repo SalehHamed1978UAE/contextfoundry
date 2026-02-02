@@ -22,7 +22,7 @@ from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy import text as sql_text
 
 from ..models.schema import (
-    Entity, Relationship, LifecycleState, ValidationStatus,
+    Entity, Relationship, LifecycleState, ValidationStatus, VerificationStatus,
     ConflictLog as ConflictLogDB,
     GardenerLog, GardenerActionType,
     DuplicateCandidate,
@@ -111,6 +111,11 @@ class GardenerConfig:
     auto_merge_threshold: float = 0.95
     review_merge_threshold: float = 0.70
     never_auto_merge_types: List[str] = field(default_factory=lambda: ["PERSON"])
+    
+    # Evidence Layer Phase 3: Verification requirements for promotion
+    require_verification_for_promotion: bool = True  # Require verified=True before STAGING→TRUSTED
+    unverified_max_days: int = 14  # Flag facts unverified after this many days
+    demote_unverified_after_days: Optional[int] = None  # If set, demote unverified facts after X days
     
     use_database_thresholds: bool = True
 
@@ -733,6 +738,12 @@ class GardenerAgent:
                     block_reason = "unresolved_conflict"
                 elif str(entity.id) in entity_ids_with_pending_duplicates:
                     block_reason = "pending_duplicate"
+                elif self.config.require_verification_for_promotion:
+                    # Evidence Layer Phase 3: Require verification before promotion
+                    entity_verified = getattr(entity, 'verified', False) or False
+                    entity_verification_status = getattr(entity, 'evidence_verification_status', None)
+                    if not entity_verified and entity_verification_status != VerificationStatus.VERIFIED:
+                        block_reason = "evidence_not_verified"
                 
                 if block_reason:
                     result.entities_blocked += 1
@@ -810,6 +821,12 @@ class GardenerAgent:
                     block_reason = "endpoints_not_trusted"
                 elif str(rel.id) in rel_ids_with_conflicts:
                     block_reason = "unresolved_conflict"
+                elif self.config.require_verification_for_promotion:
+                    # Evidence Layer Phase 3: Require verification before promotion
+                    rel_verified = getattr(rel, 'verified', False) or False
+                    rel_verification_status = getattr(rel, 'evidence_verification_status', None)
+                    if not rel_verified and rel_verification_status != VerificationStatus.VERIFIED:
+                        block_reason = "evidence_not_verified"
                 
                 if block_reason:
                     result.relationships_blocked += 1
