@@ -29,6 +29,7 @@ from ..models.schema import (
     ProposedRelationship, ProposedRelationshipStatus,
     get_session
 )
+from ..config.domain_schema import get_schema_loader
 
 logger = logging.getLogger(__name__)
 
@@ -116,6 +117,9 @@ class GardenerConfig:
     require_verification_for_promotion: bool = True  # Require verified=True before STAGING→TRUSTED
     unverified_max_days: int = 14  # Flag facts unverified after this many days
     demote_unverified_after_days: Optional[int] = None  # If set, demote unverified facts after X days
+    
+    # Ontology Integration Phase 2: Validate types against schema before promotion
+    validate_against_ontology: bool = True  # Block promotion if entity/relationship type not in schema
     
     use_database_thresholds: bool = True
 
@@ -320,9 +324,14 @@ class GardenerAgent:
         self._promotion_thresholds: Dict[str, PromotionThreshold] = {}
         self._default_threshold: Optional[PromotionThreshold] = None
         self._deleting_tenant_ids: Set[str] = set()
+        self._allowed_entity_types: Optional[Set[str]] = None
+        self._allowed_relationship_types: Optional[Set[str]] = None
         
         if self.config.use_database_thresholds:
             self._load_promotion_thresholds()
+        
+        if self.config.validate_against_ontology:
+            self._load_allowed_types()
     
     def _should_skip_entity(self, entity) -> bool:
         """Check if entity should be skipped (tenant being deleted)."""
@@ -385,6 +394,36 @@ class GardenerAgent:
                 min_staging_hours=int(self.config.min_dwell_time_hours)
             )
         )
+    
+    def _load_allowed_types(self) -> None:
+        """Load allowed entity and relationship types from domain schema for ontology validation."""
+        try:
+            schema_loader = get_schema_loader()
+            schema = schema_loader.get_schema()
+            
+            self._allowed_entity_types = set(schema.get_entity_type_names())
+            self._allowed_relationship_types = set(schema.get_relationship_type_names())
+            
+            logger.info(
+                f"[Gardener] Loaded ontology schema: {len(self._allowed_entity_types)} entity types, "
+                f"{len(self._allowed_relationship_types)} relationship types"
+            )
+        except Exception as e:
+            logger.warning(f"[Gardener] Failed to load ontology schema, disabling type validation: {e}")
+            self._allowed_entity_types = None
+            self._allowed_relationship_types = None
+    
+    def is_valid_entity_type(self, entity_type: str) -> bool:
+        """Check if entity type is in allowed ontology types."""
+        if self._allowed_entity_types is None:
+            return True
+        return entity_type.upper() in self._allowed_entity_types
+    
+    def is_valid_relationship_type(self, relationship_type: str) -> bool:
+        """Check if relationship type is in allowed ontology types."""
+        if self._allowed_relationship_types is None:
+            return True
+        return relationship_type.upper() in self._allowed_relationship_types
     
     def run_cycle(self) -> GardenerCycleResult:
         """
@@ -745,6 +784,11 @@ class GardenerAgent:
                     if not entity_verified and entity_verification_status != VerificationStatus.VERIFIED:
                         block_reason = "evidence_not_verified"
                 
+                # Ontology Integration Phase 2: Validate entity type against schema
+                if not block_reason and self.config.validate_against_ontology:
+                    if not self.is_valid_entity_type(entity.entity_type):
+                        block_reason = f"invalid_entity_type_{entity.entity_type}"
+                
                 if block_reason:
                     result.entities_blocked += 1
                     result.block_reasons[block_reason] = result.block_reasons.get(block_reason, 0) + 1
@@ -827,6 +871,11 @@ class GardenerAgent:
                     rel_verification_status = getattr(rel, 'evidence_verification_status', None)
                     if not rel_verified and rel_verification_status != VerificationStatus.VERIFIED:
                         block_reason = "evidence_not_verified"
+                
+                # Ontology Integration Phase 2: Validate relationship type against schema
+                if not block_reason and self.config.validate_against_ontology:
+                    if not self.is_valid_relationship_type(rel.relationship_type):
+                        block_reason = f"invalid_relationship_type_{rel.relationship_type}"
                 
                 if block_reason:
                     result.relationships_blocked += 1
