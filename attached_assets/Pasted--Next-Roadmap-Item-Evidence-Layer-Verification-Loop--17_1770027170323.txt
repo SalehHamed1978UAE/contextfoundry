@@ -1,0 +1,66 @@
+ Next Roadmap Item: Evidence Layer Verification Loop                                                    
+                                                                                                         
+  Goal: Automatically validate every extracted fact against its supporting sentences before it becomes   
+  TRUSTED data.                                                                                          
+                                                                                                         
+  ---                                                                                                    
+  Phase 1 – Schema + Evidence Capture                                                                    
+                                                                                                         
+  1. Add Evidence Tables:                                                                                
+  evidence_records (                                                                                     
+    id, tenant_id, fact_type, fact_id,                                                                   
+    evidence_text, source_document_id, chunk_id, created_at                                              
+  )                                                                                                      
+                                                                                                         
+  fact_verifications (                                                                                   
+    id, fact_type, fact_id, verification_status,                                                         
+    verification_reason, verifier_model, confidence, created_at                                          
+  )                                                                                                      
+                                                                                                         
+  2. Modify Extraction/Post-Processor:                                                                   
+  - When entity/relationship is extracted, grab supporting sentence(s) and write an evidence_record      
+  - Each fact must carry metadata to map back to its evidence (fact_id + tenant_id)                      
+                                                                                                         
+  3. Test: Ingest a document, verify evidence records are created per fact.                              
+                                                                                                         
+  ---                                                                                                    
+  Phase 2 – LLM Verification Service                                                                     
+                                                                                                         
+  1. Create Verification Worker (workers/verification_worker.py):                                        
+  - Batch unverified facts + evidence, call LLM                                                          
+  - Prompt: "Given the evidence below, does it support the fact ? Answer yes/no and explain."            
+                                                                                                         
+  2. Store Verdicts:                                                                                     
+  - Insert into fact_verifications                                                                       
+  - Update fact with verified=true/false and verification_status=verified|unverified|rejected            
+                                                                                                         
+  3. Config:                                                                                             
+  - Daily rate limit / batch size                                                                        
+  - Threshold: if LLM returns "no", demote fact to STAGING                                               
+                                                                                                         
+  ---                                                                                                    
+  Phase 3 – Gardener & Retrieval Integration                                                             
+                                                                                                         
+  1. Gardener: Require verified=true for TRUSTED promotion                                               
+                                                                                                         
+  2. Retrieval: Pass verification status into ContextBundle, include "verified" vs "unverified" badges   
+                                                                                                         
+  3. Data Gates: If query relies solely on unverified facts, return warning or gate entirely             
+                                                                                                         
+  ---                                                                                                    
+  Phase 4 – UI/API Exposure (Optional)                                                                   
+                                                                                                         
+  - Add verification_status, verification_reason, evidence_record_ids to API payloads                    
+  - Dashboard showing verified/unverified counts                                                         
+                                                                                                         
+  ---                                                                                                    
+  Deliverables Checklist                                                                                 
+                                                                                                         
+  1. Schema migration with evidence + verification tables                                                
+  2. Extraction pipeline writes evidence records                                                         
+  3. Verification worker processes facts + writes verdicts                                               
+  4. Facts carry verified metadata; Gardener uses it                                                     
+  5. Retrieval surfaces verification status                                                              
+  6. Tests + docs showing end-to-end loop                                                                
+                                                                                                         
+  Report back when Phase 1 is complete. We'll review before moving to Phase 2. 
