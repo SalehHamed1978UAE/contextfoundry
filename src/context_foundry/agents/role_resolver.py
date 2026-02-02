@@ -56,6 +56,21 @@ ROLE_RESOLVER_BLACKLIST = {
     'chief revenue officer',
     'division cisos',
     'divisional chief information security officers',
+    # VP role titles that shouldn't be returned as person names
+    'vp trade compliance',
+    'vp engineering',
+    'vp operations',
+    'vp sales',
+    'vp marketing',
+    'vp finance',
+    'vp human resources',
+    'vp hr',
+    'vp technology',
+    'vp research',
+    'vp product',
+    'vp legal',
+    'vp compliance',
+    'vice president',
 }
 
 # Map roles to related department/function names for fallback lookup
@@ -80,6 +95,38 @@ def _is_blacklisted_name(name: str) -> bool:
     for blacklisted in ROLE_RESOLVER_BLACKLIST:
         if name_lower.startswith(f"{blacklisted}:") or name_lower.startswith(f"{blacklisted} "):
             return True
+    # Also filter if the name looks like a role title pattern (VP X, Director X, etc.)
+    role_prefixes = ['vp ', 'vice president ', 'director ', 'head ', 'manager ', 'lead ']
+    for prefix in role_prefixes:
+        if name_lower.startswith(prefix):
+            return True
+    return False
+
+
+def _is_circular_answer(resolved_name: str, queried_role: str) -> bool:
+    """Check if the resolved name is essentially the same as the queried role (circular answer).
+    
+    Example: Querying "VP Trade Compliance" and getting back "VP Trade Compliance" as the person's name.
+    """
+    if not resolved_name or not queried_role:
+        return False
+    
+    # Normalize both strings
+    resolved_lower = resolved_name.lower().strip()
+    role_lower = queried_role.lower().strip()
+    
+    # Direct match
+    if resolved_lower == role_lower:
+        return True
+    
+    # One contains the other (e.g., "VP Trade Compliance" vs "Trade Compliance")
+    if role_lower in resolved_lower or resolved_lower in role_lower:
+        # But allow if resolved name has a real person name pattern (First Last)
+        words = resolved_name.split()
+        if len(words) == 2 and all(w[0].isupper() and w[1:].islower() for w in words if len(w) > 1):
+            return False  # Likely a real name like "John Smith"
+        return True
+    
     return False
 
 

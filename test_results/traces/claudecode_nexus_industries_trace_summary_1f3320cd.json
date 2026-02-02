@@ -1,24 +1,24 @@
 {
-  "run_timestamp": "2026-02-02T03:13:18.231063",
+  "run_timestamp": "2026-02-02T06:55:55.382239",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.399999999999999,
-    "avg_semantic_score": 0.04087699999999999,
+    "avg_chunks_retrieved": 3.439999999999999,
+    "avg_semantic_score": 0.073949,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "exact_match": 45,
-      "component_match": 28,
-      "number_match": 8,
-      "no_match": 15,
+      "exact_match": 47,
+      "component_match": 29,
       "no_data": 1,
+      "number_match": 7,
+      "no_match": 13,
       "percentage_match": 1,
       "entity_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 94
+    "low_score_queries": 90
   },
   "low_score_questions": [
     {
@@ -114,7 +114,7 @@
     {
       "q_id": 20,
       "question": "Which supplier is rated Red and at risk?",
-      "avg_score": 0.3252
+      "avg_score": 0.3251
     },
     {
       "q_id": 21,
@@ -232,11 +232,6 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 45,
-      "question": "When was Dr. Victoria Chen appointed CEO?",
-      "avg_score": 0.0
-    },
-    {
       "q_id": 46,
       "question": "Who supplies solar panels for the Desert Sun project?",
       "avg_score": 0.0
@@ -244,11 +239,6 @@
     {
       "q_id": 47,
       "question": "Which university is a research partner for quantum computing?",
-      "avg_score": 0.0
-    },
-    {
-      "q_id": 48,
-      "question": "Who is the primary customer for HTS superconducting wire?",
       "avg_score": 0.0
     },
     {
@@ -304,11 +294,6 @@
     {
       "q_id": 60,
       "question": "When was the phishing incident detected?",
-      "avg_score": 0.0
-    },
-    {
-      "q_id": 61,
-      "question": "Who replaced Thomas Anderson as Digital President?",
       "avg_score": 0.0
     },
     {
@@ -485,14 +470,22 @@
       "q_id": 99,
       "question": "How does Nexus's operating margin compare to target?",
       "avg_score": 0.0
-    },
-    {
-      "q_id": 100,
-      "question": "What is the total value of top 3 customer relationships?",
-      "avg_score": 0.0
     }
   ],
   "failures_by_type": {
+    "no_data": [
+      {
+        "q_id": 14,
+        "question": "When was Robert Kim appointed President of Digital Solutions",
+        "expected": "January 2026 (effective January 15, 2026",
+        "actual": "The appointment date was not found in th",
+        "files_retrieved": [
+          "02_organizational_announcement.md",
+          "Unknown",
+          "04_digital_division_quarterly_review.md"
+        ]
+      }
+    ],
     "no_match": [
       {
         "q_id": 29,
@@ -500,9 +493,9 @@
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "03_desert_sun_solar_farm.md",
-          "10_quarterly_newsletter.md",
-          "05_digital_division_structure.md"
+          "01_corporate_strategy_2026_2030.md",
+          "02_business_divisions.md",
+          "08_global_locations.md"
         ]
       },
       {
@@ -522,9 +515,9 @@
         "expected": "Orbital Satellite Constellation ($680 mi",
         "actual": "The project with the largest budget is *",
         "files_retrieved": [
+          "03_aerospace_division_budget.md",
           "12_project_cost_summary.md",
-          "04_energy_division_budget.md",
-          "03_aerospace_division_budget.md"
+          "04_energy_division_budget.md"
         ]
       },
       {
@@ -535,29 +528,26 @@
         "files_retrieved": []
       },
       {
-        "q_id": 38,
-        "question": "Who is the CISO of Nexus Industries?",
-        "expected": "Jennifer Walsh (appointed January 2026, ",
-        "actual": "The CISO of Nexus Industries is Robert K",
-        "files_retrieved": [
-          "02_organizational_announcement.md",
-          "01_annual_report_2025.md",
-          "04_toyota_partnership_announcement.md"
-        ]
-      },
-      {
         "q_id": 45,
         "question": "When was Dr. Victoria Chen appointed CEO?",
         "expected": "2019",
-        "actual": "I found multiple people with the CTO rol",
-        "files_retrieved": []
+        "actual": "Dr. Victoria Chen was appointed CEO of N",
+        "files_retrieved": [
+          "01_board_meeting_q4_2025.md",
+          "01_executive_team.md",
+          "02_organizational_announcement.md"
+        ]
       },
       {
-        "q_id": 61,
-        "question": "Who replaced Thomas Anderson as Digital President?",
-        "expected": "Robert Kim",
-        "actual": "I found multiple people with the PRESIDE",
-        "files_retrieved": []
+        "q_id": 48,
+        "question": "Who is the primary customer for HTS superconducting wire?",
+        "expected": "Siemens Healthineers ($65 million)",
+        "actual": "The primary customer for HTS superconduc",
+        "files_retrieved": [
+          "01_boeing_customer_profile.md",
+          "02_airbus_customer_profile.md",
+          "05_siemens_healthineers_customer.md"
+        ]
       },
       {
         "q_id": 66,
@@ -586,9 +576,8 @@
         "expected": "Caterpillar",
         "actual": "The mining automation partner for Nexus ",
         "files_retrieved": [
-          "09_competitive_intelligence.md",
-          "05_fedramp_announcement.md",
-          "03_press_release_fy2025.md"
+          "04_toyota_partnership_announcement.md",
+          "09_competitive_intelligence.md"
         ]
       },
       {
@@ -608,51 +597,27 @@
         "expected": "$15 billion",
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
-          "06_market_expansion_asia.md",
+          "01_corporate_strategy_2026_2030.md",
           "02_aerospace_division_strategy.md",
-          "01_corporate_strategy_2026_2030.md"
-        ]
-      },
-      {
-        "q_id": 83,
-        "question": "Who is the primary customer for the SmartGrid Controller?",
-        "expected": "Pacific Power (pilot customer)",
-        "actual": "The primary customers for the SmartGrid ",
-        "files_retrieved": [
-          "08_pacific_power_utility.md",
-          "04_energy_division_budget.md",
-          "08_smartgrid_controller.md"
+          "06_market_expansion_asia.md"
         ]
       },
       {
         "q_id": 91,
         "question": "Who is the VP Trade Compliance?",
         "expected": "Owns the Export Control Policy (per POL-",
-        "actual": "The VP of Nexus Industries is VP Trade C",
+        "actual": "I found multiple people with the VP role",
         "files_retrieved": []
       },
       {
         "q_id": 100,
         "question": "What is the total value of top 3 customer relationships?",
         "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
-        "actual": "I couldn't find specific information reg",
+        "actual": "The total value of the top 3 customer re",
         "files_retrieved": [
+          "02_airbus_customer_profile.md",
           "01_boeing_customer_profile.md",
-          "11_microsoft_customer.md",
-          "Unknown"
-        ]
-      }
-    ],
-    "no_data": [
-      {
-        "q_id": 48,
-        "question": "Who is the primary customer for HTS superconducting wire?",
-        "expected": "Siemens Healthineers ($65 million)",
-        "actual": "The primary customer for HTS (High-Tempe",
-        "files_retrieved": [
-          "05_siemens_healthineers_customer.md",
-          "01_boeing_customer_profile.md",
-          "Unknown"
+          "11_microsoft_customer.md"
         ]
       }
     ]

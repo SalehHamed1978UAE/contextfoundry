@@ -476,6 +476,27 @@ class ToolAgent:
         elif ("belongs to" in query_lower or "part of" in query_lower) and has_ownership_relationships:
             question_type_instruction = "\n\nIMPORTANT: This question asks about organizational membership or structure. Look for relationships showing containment or membership."
         
+        # Detect temporal appointment/join date queries: "When was X appointed Y?"
+        # This MUST be detected regardless of role resolution because user may provide name directly
+        elif re.search(r'\bwhen\s+was\b.*\bappointed\b|\bwhen\s+did\b.*\bbecome\b|\bwhen\s+did\b.*\bjoin\b|\bappointment\s+date\b|\bwhen\s+did\b.*\bappoint\b', query_lower):
+            question_type_instruction = """\n\nCRITICAL - TEMPORAL APPOINTMENT QUERY:
+This question asks WHEN someone was appointed, became, or joined a role - NOT WHO holds the role.
+1. Search for appointment dates, effective dates, start dates, or years when the person assumed the role
+2. Look for phrases like "appointed in [date]", "effective [date]", "since [year]", "joined in [year]", "became [role] in [year]"
+3. Your answer MUST include a specific date or year
+4. Do NOT just confirm who the person is - the user is asking WHEN, not WHO
+5. If you find "appointed January 2026" or "effective January 15, 2026", that is the answer"""
+
+        # Detect replacement/succession queries: "Who replaced X?" or "Who succeeded X?"
+        elif re.search(r'\bwho\s+replaced\b|\breplacement\s+for\b|\bsucceeded\b|\bsuccessor\s+(of|to)\b', query_lower):
+            question_type_instruction = """\n\nCRITICAL - SUCCESSION/REPLACEMENT QUERY:
+This question asks WHO replaced or succeeded someone in a role.
+1. Look for the person named in the query (the predecessor)
+2. Find who took over their role or position
+3. Search for phrases like "replaced by", "succeeded by", "new [role]", "appointed as [role]", "assumes role from"
+4. If you find "[New Person] replaces [Old Person]" or "[New Person] appointed as [role]", [New Person] is the answer
+5. Only return the name of the person who REPLACED the one mentioned in the query"""
+
         # Ranking query instruction - help LLM identify and compare values
         ranking_instruction = ""
         has_ranking_intent = classification.has_ranking_intent if classification else False
@@ -502,7 +523,25 @@ If the context lists multiple suppliers with different components, match the sup
         
         # KG prioritization instruction for person/role queries
         kg_prioritization = ""
-        if pipeline_result.relationships and ('role' in query_lower or 'position' in query_lower or 'who is' in query_lower):
+        
+        # Detect temporal appointment queries: "When was X appointed Y?" 
+        is_appointment_date_query = bool(re.search(
+            r'\bwhen\s+was\b.*\bappointed\b|\bwhen\s+did\b.*\bbecome\b|\bwhen\s+did\b.*\bjoin\b|\bappointment\s+date\b',
+            query_lower
+        ))
+        
+        # CRITICAL: When role resolution is available, it MUST be the authoritative answer
+        # This overrides any contradicting document content (which may be outdated)
+        if pipeline_result.role_resolution and pipeline_result.role_resolution.is_resolved:
+            resolved_role = pipeline_result.role_resolution.role
+            resolved_name = pipeline_result.role_resolution.resolved_name
+            
+            if is_appointment_date_query:
+                # For "When was X appointed?" queries, we know WHO but need WHEN from documents
+                kg_prioritization = f"\n\nIMPORTANT: The {resolved_role} is {resolved_name}. However, the user is asking about WHEN they were appointed to this role. Search the documents for the appointment date, effective date, or when they joined/assumed this position. Your answer MUST include the date/year when {resolved_name} was appointed as {resolved_role}."
+            else:
+                kg_prioritization = f"\n\nCRITICAL INSTRUCTION: The knowledge graph has definitively resolved that the {resolved_role} is {resolved_name}. This is the AUTHORITATIVE answer from the current organizational structure. If any document content contradicts this (e.g., mentions a different person as {resolved_role}), IGNORE the document content because it may be outdated. Your answer MUST state that {resolved_name} is the {resolved_role}."
+        elif pipeline_result.relationships and ('role' in query_lower or 'position' in query_lower or 'who is' in query_lower):
             kg_prioritization = "\n\nWhen answering person/role questions, prioritize the Relationships data (e.g., HOLDS_POSITION, HAS_ROLE) over document content. The relationship data is the authoritative source for organizational roles."
         
         intent_guidance = ""
@@ -513,6 +552,25 @@ If the context lists multiple suppliers with different components, match the sup
                 intent_guidance += "\nProvide the specific attribute value, not a description."
             if intent.reasoning:
                 intent_guidance += f"\nQuery interpretation: {intent.reasoning}"
+        
+        # Determine if this is a temporal appointment query - needs special handling
+        is_temporal_appointment = bool(re.search(
+            r'\bwhen\s+was\b.*\bappointed\b|\bwhen\s+did\b.*\bbecome\b|\bwhen\s+did\b.*\bjoin\b|\bappointment\s+date\b',
+            query_lower
+        ))
+        
+        # For temporal queries, use specialized system message
+        if is_temporal_appointment:
+            system_message = """You are an assistant that answers temporal questions. The user is asking WHEN something happened (a date, year, or time period) - NOT about who holds a role.
+
+CRITICAL RULES:
+1. The question asks for a DATE/YEAR - your answer MUST include a specific time (e.g., "2019", "January 2020", "Q3 2024")
+2. Look for phrases like: "appointed in", "effective", "since", "joined in", "became...in"
+3. Do NOT just say who holds the role - the user already knows that
+4. If you cannot find a date, say "The appointment date was not found in the available documents"
+5. Start your answer with the date/year, then add context"""
+        else:
+            system_message = "You are a helpful assistant that answers questions based on provided information."
         
         synthesis_prompt = f"""Based on the following retrieved information, answer the user's question.
 
@@ -528,7 +586,7 @@ Provide a clear, comprehensive answer based on the information above. If specifi
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": "You are a helpful assistant that answers questions based on provided information."},
+                    {"role": "system", "content": system_message},
                     {"role": "user", "content": synthesis_prompt}
                 ],
                 temperature=0.0,
@@ -991,9 +1049,31 @@ Which one would you like to know more about? Please specify by name."""
         except Exception as e:
             logger.warning(f"[AGENT] Pipeline pre-processing failed (continuing without): {e}")
         
+        # CRITICAL: Skip disambiguation for "replacement" queries like "Who replaced Thomas Anderson as President?"
+        # These queries have enough context (the predecessor's name) to find the answer in documents
+        question_lower = question.lower()
+        is_replacement_query = bool(re.search(
+            r'\bwho\s+replaced\b|\breplacement\s+for\b|\bsucceeded\b|\bsuccessor\s+(of|to)\b',
+            question_lower
+        ))
+        
+        # CRITICAL: Skip disambiguation for temporal appointment queries like "When was X appointed CEO?"
+        # The user is asking WHEN not WHO - we need to search documents for the date, not disambiguate roles
+        is_temporal_appointment_query = bool(re.search(
+            r'\bwhen\s+was\b.*\bappointed\b|\bwhen\s+did\b.*\bbecome\b|\bwhen\s+did\b.*\bjoin\b|\bappointment\s+date\b',
+            question_lower
+        ))
+        
         if pipeline_result and pipeline_result.needs_disambiguation and pipeline_result.ambiguity:
-            logger.info(f"[AGENT] Ambiguity detected ({pipeline_result.ambiguity.ambiguity_type}) - using disambiguation reasoner")
-            return self._build_disambiguation_response(question, pipeline_result, start_time, vault_context=vault_context)
+            if is_replacement_query:
+                logger.info(f"[AGENT] Replacement query detected - skipping disambiguation to search documents for succession info")
+                # Don't return disambiguation response - fall through to document search
+            elif is_temporal_appointment_query:
+                logger.info(f"[AGENT] Temporal appointment query detected - skipping disambiguation to search documents for date")
+                # Don't return disambiguation response - fall through to document search for the date
+            else:
+                logger.info(f"[AGENT] Ambiguity detected ({pipeline_result.ambiguity.ambiguity_type}) - using disambiguation reasoner")
+                return self._build_disambiguation_response(question, pipeline_result, start_time, vault_context=vault_context)
         
         # Handle "I don't know" for scoped role resolution failures
         # When user asks "Who is the CEO of NextGen Battery Technologies?" and we can't find it,

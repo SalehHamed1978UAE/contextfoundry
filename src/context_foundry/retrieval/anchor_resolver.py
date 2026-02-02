@@ -446,6 +446,7 @@ class RelationshipFirstRetriever:
             }).fetchall()
             
             people = []
+            person_ids = []
             for row in results:
                 props = row.props or {}
                 role_from_props = (
@@ -462,8 +463,60 @@ class RelationshipFirstRetriever:
                     "edge_type": row.edge_type,
                     "direction": row.direction,
                     "edge_rank": row.edge_rank,
-                    "role_from_props": role_from_props
+                    "role_from_props": role_from_props,
+                    "held_roles": []  # Will be populated below
                 })
+                person_ids.append(str(row.person_id))
+            
+            # Fetch HOLDS_POSITION relationships to ROLE/JOB_TITLE entities for all connected people
+            if person_ids:
+                logger.info(f"[REL_FIRST] Fetching roles for {len(person_ids)} people: {person_ids[:5]}...")
+                
+                # Use IN clause with bound list for better compatibility
+                person_ids_str = ", ".join([f"'{pid}'" for pid in person_ids])
+                role_query = text(f"""
+                    SELECT 
+                        r.source_id::text as person_id,
+                        role_entity.name as role_name,
+                        r.confidence,
+                        r.lifecycle_state
+                    FROM relationships r
+                    JOIN entities role_entity ON r.target_id = role_entity.id
+                    WHERE r.tenant_id = :tenant_id
+                    AND r.source_id::text IN ({person_ids_str})
+                    AND r.relationship_type IN ('HOLDS_POSITION', 'HAS_ROLE', 'HAS_POSITION', 'HAS_TITLE')
+                    AND role_entity.entity_type IN ('ROLE', 'JOB_TITLE', 'POSITION')
+                    ORDER BY r.confidence DESC
+                """)
+                role_results = self.session.execute(role_query, {
+                    "tenant_id": self.tenant_id
+                }).fetchall()
+                
+                logger.info(f"[REL_FIRST] Found {len(role_results)} role relationships")
+                
+                # Build a map of person_id -> list of role names
+                person_roles = {}
+                for row in role_results:
+                    pid = row.person_id
+                    if pid not in person_roles:
+                        person_roles[pid] = []
+                    person_roles[pid].append({
+                        "name": row.role_name,
+                        "confidence": row.confidence,
+                        "lifecycle_state": row.lifecycle_state
+                    })
+                
+                # Add roles to people
+                for person in people:
+                    pid = person["id"]
+                    if pid in person_roles:
+                        person["held_roles"] = person_roles[pid]
+                        # Also set role_from_props if not already set
+                        if not person["role_from_props"] and person_roles[pid]:
+                            # Pick highest confidence role
+                            best_role = max(person_roles[pid], key=lambda x: x.get("confidence", 0))
+                            person["role_from_props"] = best_role["name"]
+                            logger.debug(f"[REL_FIRST] Set role_from_props for {person['name']}: {best_role['name']}")
             
             return people
             
@@ -486,8 +539,9 @@ class RelationshipFirstRetriever:
         
         Checks:
         1. Properties: position, role, title, job_title
-        2. Normalized role matching (CFO = Chief Financial Officer)
-        3. Edge type inference (LEADS → CEO, MANAGES → Manager, CHAIRS → Chair)
+        2. HOLDS_POSITION relationships to ROLE/JOB_TITLE entities
+        3. Normalized role matching (CFO = Chief Financial Officer)
+        4. Edge type inference (LEADS → CEO, MANAGES → Manager, CHAIRS → Chair)
         
         Does NOT match if person has no role information AND no matching edge type.
         """
@@ -506,12 +560,24 @@ class RelationshipFirstRetriever:
         if not props:
             props = {}
         
+        # Check entity properties
         for field in ['position', 'role', 'title', 'job_title']:
             value = props.get(field)
             if value and isinstance(value, str) and value.strip():
                 value_lower = value.lower()
                 for target in targets:
                     if target in value_lower or value_lower in target:
+                        return True
+        
+        # Check held_roles (from HOLDS_POSITION relationships)
+        held_roles = person.get('held_roles', [])
+        for role_info in held_roles:
+            role_name = role_info.get('name', '') if isinstance(role_info, dict) else role_info
+            if role_name and isinstance(role_name, str):
+                role_name_lower = role_name.lower()
+                for target in targets:
+                    if target in role_name_lower or role_name_lower in target:
+                        logger.debug(f"[REL_FIRST] Role match via HOLDS_POSITION: {person['name']} has role '{role_name}' matching '{target_role}'")
                         return True
         
         all_edge_types = person.get('all_edge_types', [])

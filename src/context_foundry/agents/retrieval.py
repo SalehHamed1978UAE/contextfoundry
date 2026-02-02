@@ -454,7 +454,17 @@ class RetrievalAgent:
             keywords = self._extract_keywords(query_text)
             entity_types = self._infer_entity_types(query_text)
             
-            target_entity_name = self._extract_target_entity(query_text)
+            # Skip entity extraction for role-based queries - these are handled by RoleResolver
+            # Role patterns: "Who is the CEO", "Who is the VP of Engineering", "Who is the CISO"
+            is_role_query = bool(re.search(
+                r'\bwho\s+is\s+the\s+(?:CEO|CTO|CFO|COO|CHRO|CISO|CIO|CMO|VP|President|Director|Chair|Manager|Head|Lead)\b',
+                query_text, re.IGNORECASE
+            ))
+            
+            target_entity_name = None
+            if not is_role_query:
+                target_entity_name = self._extract_target_entity(query_text)
+            
             if target_entity_name:
                 found, entity_match = self._verify_target_entity_exists(target_entity_name)
                 bundle.target_entity_name = target_entity_name
@@ -1319,12 +1329,16 @@ class RetrievalAgent:
         # e.g., "the Payment Service" but NOT "the education system in France"
         # Must have Capital First Letter to distinguish entities from common nouns
         # Supports hyphenated names like "Tri-Memory System"
+        # Supports connectors like "of", "for", "and" between capitalized words
         the_pattern = re.search(
-            rf'\bthe\s+([A-Z][a-zA-Z0-9-]*(?:\s+[A-Z][a-zA-Z0-9-]*)*)\b',
+            rf'\bthe\s+([A-Z][a-zA-Z0-9-]*(?:\s+(?:of|for|and|the)\s+)?(?:[A-Z][a-zA-Z0-9-]*)*)\b',
             query_text
         )
         if the_pattern:
-            return self._normalize_entity_name(the_pattern.group(1))
+            extracted = the_pattern.group(1).strip()
+            # Skip if it looks like a role title (VP, CEO, etc.) - these are handled by RoleResolver
+            if not re.match(r'^(?:VP|CEO|CTO|CFO|COO|CHRO|CISO|CIO|CMO|President|Director|Chair|Manager|Head|Lead)\b', extracted, re.IGNORECASE):
+                return self._normalize_entity_name(extracted)
         
         # Pattern 4: "<Entity> goes down" / "<Entity> fails" / "<Entity> is down"
         # (without "if" prefix - that's handled in Pattern 2)
