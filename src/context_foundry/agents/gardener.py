@@ -399,7 +399,7 @@ class GardenerAgent:
         """Load allowed entity and relationship types from domain schema for ontology validation."""
         try:
             schema_loader = get_schema_loader()
-            schema = schema_loader.get_schema()
+            schema = schema_loader.schema
             
             self._allowed_entity_types = set(schema.get_entity_type_names())
             self._allowed_relationship_types = set(schema.get_relationship_type_names())
