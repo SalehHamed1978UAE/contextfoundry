@@ -164,6 +164,8 @@ class ToolExecutor:
             return self._search_documents(arguments)
         elif tool_name == "discover_relationships":
             return self._discover_relationships(arguments)
+        elif tool_name == "get_specifications":
+            return self._get_specifications(arguments)
         else:
             return {"error": f"Unknown tool: {tool_name}"}
     
@@ -607,3 +609,153 @@ class ToolExecutor:
             except:
                 pass
             return {"entity_id": entity_id, "relationship_types": [], "error": str(e)}
+    
+    def _get_specifications(self, args: Dict[str, Any]) -> Dict[str, Any]:
+        """Query SPECIFICATION entities from the knowledge graph.
+        
+        Searches for technical specifications matching the query, including:
+        - Energy density (Wh/kg, Wh/L)
+        - Temperature ranges (-30°C to 60°C)
+        - Capacities (MW, kg/hour)
+        - Dimensions, materials, power output, etc.
+        
+        Returns matching SPECIFICATION entities with their relationships.
+        """
+        from sqlalchemy import text as sql_text
+        
+        query = args.get("query", "")
+        limit = args.get("limit", 10)
+        
+        if not query:
+            return {"error": "query is required", "specifications": []}
+        
+        try:
+            query_lower = query.lower()
+            
+            spec_type_mappings = {
+                "energy density": "ENERGY_DENSITY",
+                "wh/kg": "ENERGY_DENSITY",
+                "kwh": "ENERGY_DENSITY",
+                "temperature": "TEMPERATURE_RANGE",
+                "operating temp": "TEMPERATURE_RANGE",
+                "hydrogen production": "HYDROGEN_CAPACITY",
+                "production capacity": "HYDROGEN_CAPACITY",
+                "kg/hour": "HYDROGEN_CAPACITY",
+                "power output": "POWER_OUTPUT",
+                "efficiency": "EFFICIENCY",
+                "cycle life": "CYCLE_LIFE",
+                "charging": "CHARGING_SPEC",
+                "fast charge": "CHARGING_SPEC",
+                "electrolyte": "MATERIAL",
+                "anode": "MATERIAL",
+                "cathode": "MATERIAL",
+                "material": "MATERIAL",
+            }
+            
+            matched_spec_types = []
+            for keyword, spec_type in spec_type_mappings.items():
+                if keyword in query_lower:
+                    matched_spec_types.append(spec_type)
+            matched_spec_types = list(set(matched_spec_types))
+            
+            search_terms = [t for t in query_lower.split() if len(t) > 2 and t not in ['the', 'for', 'and', 'what', 'is']]
+            
+            pattern_conditions = []
+            params = {"tid": self.tenant_id, "limit": limit}
+            
+            if matched_spec_types:
+                for i, spec_type in enumerate(matched_spec_types):
+                    param_name = f"spec_type_{i}"
+                    pattern_conditions.append(f"e.properties->>'spec_type' = :{param_name}")
+                    params[param_name] = spec_type
+            
+            for i, term in enumerate(search_terms):
+                param_name = f"term_{i}"
+                pattern_conditions.append(f"(LOWER(e.name) LIKE :{param_name} OR LOWER(e.description) LIKE :{param_name} OR LOWER(e.properties::text) LIKE :{param_name})")
+                params[param_name] = f"%{term}%"
+            
+            where_clause = " OR ".join(pattern_conditions) if pattern_conditions else "1=1"
+            
+            spec_sql = sql_text(f"""
+                SELECT e.id, e.name, e.description, e.properties, e.confidence,
+                       d.original_filename as source_document
+                FROM entities e
+                LEFT JOIN platform.documents d ON e.source_document_id::text = d.id::text AND d.tenant_id = :tid
+                WHERE e.tenant_id = :tid
+                  AND e.entity_type = 'SPECIFICATION'
+                  AND e.lifecycle_state = 'TRUSTED'
+                  AND ({where_clause})
+                ORDER BY e.confidence DESC, e.name
+                LIMIT :limit
+            """)
+            
+            rows = self.session.execute(spec_sql, params).fetchall()
+            
+            specifications = []
+            for row in rows:
+                props = row.properties or {}
+                if isinstance(props, str):
+                    import json
+                    try:
+                        props = json.loads(props)
+                    except:
+                        props = {}
+                
+                rel_sql = sql_text("""
+                    SELECT r.relationship_type, e2.name as target_name, e2.entity_type as target_type
+                    FROM relationships r
+                    JOIN entities e2 ON r.target_id = e2.id
+                    WHERE r.source_id = :eid AND r.tenant_id = :tid
+                    LIMIT 5
+                """)
+                rel_rows = self.session.execute(rel_sql, {"eid": str(row.id), "tid": self.tenant_id}).fetchall()
+                
+                relationships = [
+                    {"type": r.relationship_type, "target": r.target_name, "target_type": r.target_type}
+                    for r in rel_rows
+                ]
+                
+                specifications.append({
+                    "id": str(row.id),
+                    "name": row.name,
+                    "description": row.description,
+                    "properties": props,
+                    "confidence": row.confidence,
+                    "source_document": row.source_document,
+                    "relationships": relationships
+                })
+            
+            if not specifications:
+                all_spec_sql = sql_text("""
+                    SELECT e.name, e.confidence
+                    FROM entities e
+                    WHERE e.tenant_id = :tid
+                      AND e.entity_type = 'SPECIFICATION'
+                      AND e.lifecycle_state = 'TRUSTED'
+                    ORDER BY e.confidence DESC
+                    LIMIT 20
+                """)
+                all_rows = self.session.execute(all_spec_sql, {"tid": self.tenant_id}).fetchall()
+                available_specs = [f"{r.name}" for r in all_rows]
+                
+                return {
+                    "query": query,
+                    "specifications": [],
+                    "message": "No specifications found matching query",
+                    "available_specifications": available_specs[:15]
+                }
+            
+            logger.info(f"[TOOL] get_specifications found {len(specifications)} specs for query '{query}'")
+            
+            return {
+                "query": query,
+                "specifications": specifications,
+                "count": len(specifications)
+            }
+        except Exception as e:
+            logger.error(f"[TOOL] get_specifications failed: {e}")
+            try:
+                self.session.rollback()
+            except:
+                pass
+            return {"query": query, "specifications": [], "error": str(e)}

@@ -109,5 +109,27 @@ TOOL_DEFINITIONS = [
                 "required": ["entity_id"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_specifications",
+            "description": "Get technical specifications from the knowledge graph. Use for questions about energy density, temperature range, capacity, power output, dimensions, materials, and other quantifiable specs. Returns SPECIFICATION entities with their values and relationships.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Search query for specifications (e.g., 'energy density', 'temperature range', 'hydrogen capacity')"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Maximum number of specifications to return"
+                    }
+                },
+                "required": ["query"]
+            }
+        }
     }
 ]

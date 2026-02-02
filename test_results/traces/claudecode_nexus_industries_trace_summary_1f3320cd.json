@@ -1,19 +1,19 @@
 {
-  "run_timestamp": "2026-02-01T23:23:44.330442",
+  "run_timestamp": "2026-02-02T01:15:05.708626",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.48,
-    "avg_semantic_score": 0.05087799999999998,
+    "avg_chunks_retrieved": 3.4500000000000006,
+    "avg_semantic_score": 0.05034499999999998,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "exact_match": 45,
-      "number_match": 8,
-      "component_match": 26,
+      "exact_match": 46,
+      "component_match": 29,
+      "number_match": 7,
       "no_match": 14,
-      "no_data": 4,
+      "no_data": 1,
       "percentage_match": 1,
       "entity_match": 1,
       "semantic_match": 1
@@ -114,7 +114,7 @@
     {
       "q_id": 20,
       "question": "Which supplier is rated Red and at risk?",
-      "avg_score": 0.3251
+      "avg_score": 0.3252
     },
     {
       "q_id": 21,
@@ -490,25 +490,14 @@
   "failures_by_type": {
     "no_match": [
       {
-        "q_id": 24,
-        "question": "What is the hydrogen production capacity of the GreenHydroge",
-        "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
-        "actual": "The GreenHydrogen facility in El Paso, T",
-        "files_retrieved": [
-          "02_greenhydrogen_process_specification.md",
-          "09_greenhydrogen_milestone.md",
-          "04_greenhydrogen_initiative.md"
-        ]
-      },
-      {
         "q_id": 29,
         "question": "Who are the members of the Executive Leadership Team?",
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "01_executive_team.md",
-          "05_fedramp_announcement.md",
-          "02_business_divisions.md"
+          "04_toyota_partnership_announcement.md",
+          "03_aerospace_division_structure.md",
+          "09_investor_presentation_q4.md"
         ]
       },
       {
@@ -528,9 +517,9 @@
         "expected": "Orbital Satellite Constellation ($680 mi",
         "actual": "The project with the largest budget is *",
         "files_retrieved": [
-          "03_aerospace_division_budget.md",
           "04_energy_division_budget.md",
-          "12_project_cost_summary.md"
+          "12_project_cost_summary.md",
+          "03_aerospace_division_budget.md"
         ]
       },
       {
@@ -539,6 +528,17 @@
         "expected": "2019",
         "actual": "I found multiple people with the CTO rol",
         "files_retrieved": []
+      },
+      {
+        "q_id": 60,
+        "question": "When was the phishing incident detected?",
+        "expected": "December 12, 2025 at 02:47 UTC",
+        "actual": "The retrieved information does not menti",
+        "files_retrieved": [
+          "10_cybersecurity_incident_response.md",
+          "Unknown",
+          "08_cybersecurity_advisory.md"
+        ]
       },
       {
         "q_id": 61,
@@ -553,8 +553,8 @@
         "expected": "$680 million",
         "actual": "The FY2026 capital expenditure plan for ",
         "files_retrieved": [
-          "01_corporate_strategy_2026_2030.md",
-          "07_capital_allocation_plan.md"
+          "07_capital_allocation_plan.md",
+          "01_corporate_strategy_2026_2030.md"
         ]
       },
       {
@@ -574,7 +574,6 @@
         "expected": "Caterpillar",
         "actual": "The mining automation partner for Nexus ",
         "files_retrieved": [
-          "05_fedramp_announcement.md",
           "04_toyota_partnership_announcement.md",
           "09_competitive_intelligence.md"
         ]
@@ -597,8 +596,19 @@
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
           "02_aerospace_division_strategy.md",
-          "06_market_expansion_asia.md",
-          "01_corporate_strategy_2026_2030.md"
+          "01_corporate_strategy_2026_2030.md",
+          "06_market_expansion_asia.md"
+        ]
+      },
+      {
+        "q_id": 83,
+        "question": "Who is the primary customer for the SmartGrid Controller?",
+        "expected": "Pacific Power (pilot customer)",
+        "actual": "The primary customers for the SmartGrid ",
+        "files_retrieved": [
+          "08_pacific_power_utility.md",
+          "04_energy_division_budget.md",
+          "08_smartgrid_controller.md"
         ]
       },
       {
@@ -609,71 +619,27 @@
         "files_retrieved": []
       },
       {
-        "q_id": 93,
-        "question": "What electrolyte material is used in the solid-state battery",
-        "expected": "LLZO (Li7La3Zr2O12, Al-doped)",
-        "actual": "The electrolyte material used in solid-s",
-        "files_retrieved": [
-          "06_toyota_jv_negotiation_summary.md",
-          "04_toyota_partnership_announcement.md",
-          "Unknown"
-        ]
-      },
-      {
         "q_id": 100,
         "question": "What is the total value of top 3 customer relationships?",
         "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
         "actual": "The total value of the top 3 customer re",
         "files_retrieved": [
-          "02_airbus_customer_profile.md",
-          "Unknown",
-          "05_siemens_healthineers_customer.md"
+          "01_boeing_customer_profile.md",
+          "05_siemens_healthineers_customer.md",
+          "02_airbus_customer_profile.md"
         ]
       }
     ],
     "no_data": [
-      {
-        "q_id": 25,
-        "question": "What is the target energy density for the solid-state batter",
-        "expected": "400 Wh/kg",
-        "actual": "The retrieved information does not speci",
-        "files_retrieved": [
-          "06_solid_state_battery_design.md",
-          "Unknown",
-          "04_toyota_partnership_announcement.md"
-        ]
-      },
       {
         "q_id": 48,
         "question": "Who is the primary customer for HTS superconducting wire?",
         "expected": "Siemens Healthineers ($65 million)",
         "actual": "The primary customer for HTS (High-Tempe",
         "files_retrieved": [
-          "05_siemens_healthineers_customer.md",
+          "01_boeing_customer_profile.md",
           "Unknown",
-          "01_boeing_customer_profile.md"
-        ]
-      },
-      {
-        "q_id": 60,
-        "question": "When was the phishing incident detected?",
-        "expected": "December 12, 2025 at 02:47 UTC",
-        "actual": "The retrieved information does not menti",
-        "files_retrieved": [
-          "10_cybersecurity_incident_response.md",
-          "08_cybersecurity_advisory.md",
-          "Unknown"
-        ]
-      },
-      {
-        "q_id": 67,
-        "question": "What operating temperature range does the solid-state batter",
-        "expected": "-30\u00b0C to 60\u00b0C",
-        "actual": "The retrieved information does not speci",
-        "files_retrieved": [
-          "06_solid_state_battery_design.md",
-          "Unknown",
-          "04_toyota_partnership_announcement.md"
+          "05_siemens_healthineers_customer.md"
         ]
       }
     ]
