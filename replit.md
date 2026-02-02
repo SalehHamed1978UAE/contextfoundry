@@ -123,6 +123,17 @@ Architectural features include:
   - Data Gates extended with `UNVERIFIED_EVIDENCE` gate type (soft warning for answers based on unverified facts)
   - ContextBundle displays `[VERIFIED]`/`[UNVERIFIED]` badges for entities and relationships in LLM prompts
   - Entity/Relationship `to_dict()` includes `verified` and `evidence_verification_status` fields
+- **Ontology Integration Phase 1**: CLI flag for ontology-centric extraction
+  - Added `--use-ontology` flag to `scripts/run_vault_extraction.py`
+  - `run_ontology_extraction()` function uses `OntologyCentricPipeline.extract()`
+  - Ontology pipeline stages directly to KG (no consensus phase needed)
+  - Tested on Manus Orion: 35 entities, 1500+ relationships with ontology-constrained types
+- **Ontology Integration Phase 2**: Gardener ontology validation
+  - Added `validate_against_ontology: bool = True` to GardenerConfig
+  - Gardener promotion_pass validates entity/relationship types against domain schema
+  - Blocks promotion of entities with invalid types (e.g., `invalid_entity_type_XYZ`)
+  - Blocks promotion of relationships with invalid types (e.g., `invalid_relationship_type_FAKE`)
+  - Loaded 1016 entity types and 230 relationship types from ontology tables
 - Technical Specification extraction (11 generalizable patterns)
 - 152 SPECIFICATION entities extracted
 - Post-processor hardening for energy density, temperature, materials
@@ -138,7 +149,7 @@ Architectural features include:
 ### Next Roadmap Items
 1. Evidence Layer Phase 4: Verification dashboard and batch verification UI
 2. Tree-based retrieval architecture
-3. Ontology pipeline integration
+3. Ontology Integration Phase 3: Make ontology pipeline the default for extraction
 4. Enhanced role resolution pipeline
 
 ## Documentation Index
