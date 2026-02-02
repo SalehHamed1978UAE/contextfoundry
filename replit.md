@@ -117,6 +117,12 @@ Architectural features include:
   - Updates fact's `verified` and `evidence_verification_status` columns
   - CLI: `python -m src.context_foundry.workers.verification_worker --tenant-id <id> --limit 10`
   - Configurable batch size, rate limits, and LLM model
+- **Evidence Layer Phase 3**: Gardener & Retrieval Integration
+  - Gardener promotion_pass requires `verified=true` before STAGING→TRUSTED promotion
+  - GardenerConfig has `require_verification_for_promotion=True` (configurable)
+  - Data Gates extended with `UNVERIFIED_EVIDENCE` gate type (soft warning for answers based on unverified facts)
+  - ContextBundle displays `[VERIFIED]`/`[UNVERIFIED]` badges for entities and relationships in LLM prompts
+  - Entity/Relationship `to_dict()` includes `verified` and `evidence_verification_status` fields
 - Technical Specification extraction (11 generalizable patterns)
 - 152 SPECIFICATION entities extracted
 - Post-processor hardening for energy density, temperature, materials
@@ -130,7 +136,7 @@ Architectural features include:
 - **Failure Analysis:** See `docs/ACCURACY_FAILURES_87.md`
 
 ### Next Roadmap Items
-1. Evidence Layer Phase 3: Gardener integration for TRUSTED promotion based on verification status
+1. Evidence Layer Phase 4: Verification dashboard and batch verification UI
 2. Tree-based retrieval architecture
 3. Ontology pipeline integration
 4. Enhanced role resolution pipeline
