@@ -49,6 +49,10 @@ from src.context_foundry.extraction.kg_ingestor import (
     KGIngestor,
     IngestionResult,
 )
+from src.context_foundry.extraction.ontology_centric_pipeline import (
+    OntologyCentricPipeline,
+    OntologyCentricResult,
+)
 from src.context_foundry.models.schema import LifecycleState
 
 try:
@@ -301,6 +305,108 @@ def run_extraction_from_db(
     return stats
 
 
+def run_ontology_extraction(
+    session,
+    vault_id: str,
+    vault_name: str,
+    limit: int = None,
+) -> Dict[str, Any]:
+    """Run ontology-centric extraction on documents.
+    
+    Uses OntologyCentricPipeline which:
+    - Classifies document type
+    - Loads per-document-type ontology schemas  
+    - Extracts with ontology guidance (constrained types)
+    - Canonicalizes using embeddings
+    - Stages directly to KG (no multi-model consensus needed)
+    """
+    documents = get_documents_for_extraction(session, vault_id, limit, skip_multi=True)
+    
+    if not documents:
+        log("No documents found needing extraction")
+        return {"total_documents": 0, "total_entities": 0, "total_relationships": 0}
+    
+    log(f"Found {len(documents)} documents for ontology extraction")
+    
+    pipeline = OntologyCentricPipeline(
+        session=session,
+        tenant_id=vault_id,
+        model="gpt-4o-mini",
+        enable_canonicalization=True,
+        auto_stage=True,
+        enable_job_tracking=True,
+    )
+    
+    stats = {
+        "total_documents": 0,
+        "total_entities": 0,
+        "total_relationships": 0,
+        "total_chunks": 0,
+        "document_types": {},
+        "new_entity_types": [],
+        "new_relationship_types": [],
+        "errors": [],
+    }
+    
+    for i, doc in enumerate(documents, 1):
+        doc_id = doc["id"]
+        doc_name = doc["name"]
+        
+        content = get_document_content(session, doc_id)
+        if not content:
+            log(f"  [{i}/{len(documents)}] Skipping {doc_name}: no content")
+            continue
+        
+        log(f"  [{i}/{len(documents)}] Ontology extracting: {doc_name}")
+        
+        try:
+            result: OntologyCentricResult = pipeline.extract(
+                text=content,
+                document_id=doc_id,
+                filename=doc_name,
+            )
+            
+            if result.success:
+                stats["total_documents"] += 1
+                stats["total_entities"] += len(result.entities)
+                stats["total_relationships"] += len(result.relations)
+                stats["total_chunks"] += result.chunks_stored
+                
+                doc_type = result.document_type
+                stats["document_types"][doc_type] = stats["document_types"].get(doc_type, 0) + 1
+                
+                for et in result.new_entity_types:
+                    if et not in stats["new_entity_types"]:
+                        stats["new_entity_types"].append(et)
+                for rt in result.new_relationship_types:
+                    if rt not in stats["new_relationship_types"]:
+                        stats["new_relationship_types"].append(rt)
+                
+                log(f"    Type: {doc_type}, Entities: {len(result.entities)}, Relations: {len(result.relations)}")
+                
+                if result.staging_result:
+                    log(f"    Staged: {result.staging_result.entities_staged} entities, {result.staging_result.relationships_staged} relationships")
+                
+                # Mark document as extracted
+                try:
+                    session.execute(
+                        text("UPDATE platform.documents SET extraction_level = 'ontology', updated_at = NOW() WHERE id = :doc_id"),
+                        {"doc_id": doc_id}
+                    )
+                    session.commit()
+                except Exception as update_err:
+                    log(f"    Warning: Failed to update extraction_level: {update_err}")
+            else:
+                log(f"    Error: {result.error}")
+                stats["errors"].append(f"{doc_name}: {result.error}")
+                
+        except Exception as e:
+            log(f"    Error: {e}")
+            stats["errors"].append(f"{doc_name}: {str(e)}")
+    
+    return stats
+
+
 def run_consensus_and_ingest(
     vault_id: str,
     vault_name: str,
@@ -451,8 +557,13 @@ def run_full_pipeline(
     limit: Optional[int] = None,
     skip_extraction: bool = False,
     list_only: bool = False,
+    use_ontology: bool = False,
 ):
-    """Run the full multi-model extraction pipeline on a vault."""
+    """Run the full extraction pipeline on a vault.
+    
+    Args:
+        use_ontology: If True, use OntologyCentricPipeline instead of multi-model extraction
+    """
     if models is None:
         models = ["gpt-4o-mini", "claude-sonnet"]
     
@@ -521,21 +632,55 @@ def run_full_pipeline(
         )
     
     if not skip_extraction:
-        log("")
-        log("-" * 70)
-        log("PHASE 1: Multi-Model Extraction")
-        log("-" * 70)
-        
-        extraction_summary = run_extraction_from_db(
-            session, vault_id, vault_name, output_dir, models, limit
-        )
-        
-        log(f"Extraction complete:")
-        log(f"  Total documents: {extraction_summary.get('total_documents', 0)}")
-        log(f"  Total entities: {extraction_summary.get('total_entities', 0)}")
-        log(f"  Total relationships: {extraction_summary.get('total_relationships', 0)}")
-        if extraction_summary.get("errors"):
-            log(f"  Errors: {len(extraction_summary['errors'])}")
+        if use_ontology:
+            log("")
+            log("-" * 70)
+            log("PHASE 1: Ontology-Centric Extraction")
+            log("-" * 70)
+            log("Using OntologyCentricPipeline (document-aware, ontology-constrained)")
+            
+            extraction_summary = run_ontology_extraction(
+                session, vault_id, vault_name, limit
+            )
+            
+            log(f"\nOntology extraction complete:")
+            log(f"  Total documents: {extraction_summary.get('total_documents', 0)}")
+            log(f"  Total entities: {extraction_summary.get('total_entities', 0)}")
+            log(f"  Total relationships: {extraction_summary.get('total_relationships', 0)}")
+            log(f"  Total chunks stored: {extraction_summary.get('total_chunks', 0)}")
+            if extraction_summary.get("document_types"):
+                log(f"  Document types: {extraction_summary['document_types']}")
+            if extraction_summary.get("new_entity_types"):
+                log(f"  New entity types discovered: {extraction_summary['new_entity_types']}")
+            if extraction_summary.get("new_relationship_types"):
+                log(f"  New relationship types discovered: {extraction_summary['new_relationship_types']}")
+            if extraction_summary.get("errors"):
+                log(f"  Errors: {len(extraction_summary['errors'])}")
+            
+            session.close()
+            
+            log("")
+            log("=" * 70)
+            log("ONTOLOGY PIPELINE COMPLETE")
+            log("=" * 70)
+            log("Note: Ontology pipeline stages directly to KG (no consensus phase needed)")
+            return  # Ontology pipeline is complete - no consensus phase needed
+        else:
+            log("")
+            log("-" * 70)
+            log("PHASE 1: Multi-Model Extraction")
+            log("-" * 70)
+            
+            extraction_summary = run_extraction_from_db(
+                session, vault_id, vault_name, output_dir, models, limit
+            )
+            
+            log(f"Extraction complete:")
+            log(f"  Total documents: {extraction_summary.get('total_documents', 0)}")
+            log(f"  Total entities: {extraction_summary.get('total_entities', 0)}")
+            log(f"  Total relationships: {extraction_summary.get('total_relationships', 0)}")
+            if extraction_summary.get("errors"):
+                log(f"  Errors: {len(extraction_summary['errors'])}")
     else:
         log("")
         log("Skipping extraction (--skip-extraction flag)")
@@ -645,6 +790,11 @@ def main():
         action="store_true",
         help="Skip extraction, only run consensus/validation/ingestion"
     )
+    parser.add_argument(
+        "--use-ontology",
+        action="store_true",
+        help="Use ontology-centric pipeline instead of multi-model extraction"
+    )
     
     args = parser.parse_args()
     
@@ -658,6 +808,7 @@ def main():
             models=args.models,
             limit=args.limit,
             skip_extraction=args.skip_extraction,
+            use_ontology=args.use_ontology,
         )
     else:
         parser.print_help()
