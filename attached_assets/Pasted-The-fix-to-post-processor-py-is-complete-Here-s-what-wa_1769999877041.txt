@@ -1,0 +1,40 @@
+The fix to post_processor.py is complete. Here's what was changed:                                     
+                                                                                                         
+  Summary of Changes                                                                                     
+                                                                                                         
+  1. Added Product/Technology Detection Patterns (lines 277-295)                                         
+                                                                                                         
+  New PRODUCT_TECH_PATTERNS list with 8 patterns to identify product/technology names in document        
+  context:                                                                                               
+  - Section headers (## Product: Name, ## ProductName Gen 1)                                             
+  - Gen/Phase/Version suffixes (BatteryTech Gen 2)                                                       
+  - Specification labels (ProductName Specifications)                                                    
+  - Bold table headers (| **Product** |)                                                                 
+  - Contextual phrases (for the ProductName system)                                                      
+                                                                                                         
+  2. Added Helper Functions (lines 305-460)                                                              
+                                                                                                         
+  - _find_parent_product(): Looks backwards from a spec position to find the nearest product name        
+  - _find_products_in_text(): Extracts all product/technology entities from text                         
+                                                                                                         
+  3. Modified _extract_specification_entities() (lines 1165-1304)                                        
+                                                                                                         
+  Changed from returning only entities to returning a tuple of (relationships, entities):                
+  - Now creates HAS_SPEC relationships linking products to their specifications                          
+  - Adds parent product entities discovered during spec extraction                                       
+  - Stores parent_product in spec properties for traceability                                            
+                                                                                                         
+  4. Updated process() Method (lines 675-686)                                                            
+                                                                                                         
+  Updated to handle the new return signature:                                                            
+  spec_rels, spec_entities = self._extract_specification_entities(                                       
+      document_text, existing_entity_names, existing_rel_keys                                            
+  )                                                                                                      
+  new_relationships.extend(spec_rels)                                                                    
+                                                                                                         
+  Expected Impact                                                                                        
+                                                                                                         
+  When documents are re-extracted, SPECIFICATION entities will now have HAS_SPEC relationships to their  
+  parent products, enabling queries like Q24/Q25/Q67/Q93 to retrieve specs via graph traversal.          
+                                                                                                         
+  The next step would be to re-extract the spec documents and re-test the affected questions. 
