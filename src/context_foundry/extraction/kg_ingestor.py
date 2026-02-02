@@ -13,7 +13,7 @@ import uuid
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 
-from ..models.schema import Entity, Relationship, LifecycleState, ValidationStatus
+from ..models.schema import Entity, Relationship, LifecycleState, ValidationStatus, EvidenceRecord, FactType
 from ..ontology.schema import EntityType, RelationshipType
 from ..memory.episodic import openai_embedding
 from ..utils.logger import logger
@@ -52,6 +52,32 @@ class KGIngestor:
     def __init__(self, session: Session, tenant_id: str):
         self.session = session
         self.tenant_id = tenant_id
+    
+    def _create_evidence_record(
+        self,
+        fact_type: FactType,
+        fact_id: uuid.UUID,
+        evidence_text: str,
+        source_document_id: Optional[str] = None
+    ) -> Optional[EvidenceRecord]:
+        """Create an evidence record linking a fact to its supporting source text."""
+        if not evidence_text or not evidence_text.strip():
+            return None
+        
+        try:
+            evidence = EvidenceRecord(
+                id=uuid.uuid4(),
+                tenant_id=uuid.UUID(self.tenant_id) if isinstance(self.tenant_id, str) else self.tenant_id,
+                fact_type=fact_type,
+                fact_id=fact_id,
+                evidence_text=evidence_text.strip()[:5000],
+                source_document_id=source_document_id
+            )
+            self.session.add(evidence)
+            return evidence
+        except Exception as e:
+            logger.debug(f"[KGIngestor] Failed to create evidence record: {e}")
+            return None
     
     def ingest(
         self,
@@ -142,6 +168,15 @@ class KGIngestor:
             )
             self.session.add(new_entity)
             self.session.flush()
+            
+            for source_doc in entity.source_documents:
+                self._create_evidence_record(
+                    fact_type=FactType.ENTITY,
+                    fact_id=new_entity.id,
+                    evidence_text=entity.canonical_name,
+                    source_document_id=source_doc
+                )
+            
             result.entities_created += 1
             return new_entity.id
     
@@ -260,6 +295,16 @@ class KGIngestor:
             )
             self.session.add(new_rel)
             self.session.flush()
+            
+            if rel.evidence:
+                for evidence_text in rel.evidence:
+                    self._create_evidence_record(
+                        fact_type=FactType.RELATIONSHIP,
+                        fact_id=new_rel.id,
+                        evidence_text=evidence_text,
+                        source_document_id=source_document_id
+                    )
+            
             result.relationships_created += 1
             return new_rel.id
     
