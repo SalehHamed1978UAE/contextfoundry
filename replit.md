@@ -1,8 +1,8 @@
 # Context Foundry - Cognitive Operating System for the Enterprise
 
 > **Master Reference:** `docs/CF_MASTER_REFERENCE.md` (v2.0.0) - Complete roadmap, architecture, and design decisions  
-> **Current Phase:** Phase 3 (Ontology Foundry) + Corpus Maker 1.5 (82% accuracy, target 90%)  
-> **Last Updated:** February 1, 2026
+> **Current Phase:** Phase 3 (Ontology Foundry) + Corpus Maker 1.5 (87% accuracy, parked for roadmap)  
+> **Last Updated:** February 2, 2026
 
 ## Quick Reference for AI Agents
 
@@ -102,29 +102,33 @@ Architectural features include:
 - **Phase 1 (MVP):** ✅ Complete
 - **Phase 2 (MVP+):** ✅ Complete - Beat GraphRAG 12-3 in A/B eval
 - **Phase 3 (Ontology Foundry):** 🔄 In Progress
-- **Corpus Maker 1.5:** 🔄 82% accuracy (target: 90%)
+- **Corpus Maker 1.5:** ⏸️ 87% accuracy (parked - remaining 13 failures need architectural changes)
 
 ### Recent Improvements
 - Technical Specification extraction (11 generalizable patterns)
 - 152 SPECIFICATION entities extracted
 - Post-processor hardening for energy density, temperature, materials
-
-### Next Steps (Corpus Maker 1.5)
-1. Add `get_specifications` tool to ToolAgent for spec retrieval
-2. Route spec-related queries to SPECIFICATION entity queries
-3. Improve role resolution for temporal roles
-4. Fix aggregation query reliability
+- Multi-hop role traversal code (asset for future use)
+- HAS_SPEC relationships added to KG
 
 ### Key Metrics
-- **ClaudeCode Nexus Industries:** 82/100 questions passing
+- **ClaudeCode Nexus Industries:** 87/100 questions passing (+3 from 84% baseline)
 - **Hallucination Rate:** 0% (Data Gates enforced)
 - **Provenance:** 18x better than GraphRAG baseline
+- **Failure Analysis:** See `docs/ACCURACY_FAILURES_87.md`
+
+### Next Roadmap Items
+1. Evidence Layer verification loop
+2. Tree-based retrieval architecture
+3. Ontology pipeline integration
+4. Enhanced role resolution pipeline
 
 ## Documentation Index
 
 | Document | Purpose |
 |----------|---------|
 | `docs/CF_MASTER_REFERENCE.md` | **Complete roadmap, architecture, design decisions (v2.0.0)** |
+| `docs/ACCURACY_FAILURES_87.md` | **Analysis of 13 failing questions with root causes** |
 | `docs/ARCHITECTURE.md` | Technical architecture details |
 | `docs/APP_INTEGRATION_PHASE1.md` | App integration phase 1 specification |
 | `docs/RLM_INTEGRATION_SPEC.md` | RLM integration specification (future) |
