@@ -241,7 +241,9 @@ class Entity(Base):
             "valid_from": self.valid_from.isoformat() if self.valid_from else None,
             "valid_to": self.valid_to.isoformat() if self.valid_to else None,
             "superseded_by": str(self.superseded_by) if self.superseded_by else None,
-            "change_reason": self.change_reason
+            "change_reason": self.change_reason,
+            "verified": self.verified if self.verified else False,
+            "evidence_verification_status": self.evidence_verification_status.value if self.evidence_verification_status else None,
         }
 
 
@@ -306,7 +308,9 @@ class Relationship(Base):
             "event_context": self.event_context,
             "qualifiers": self.qualifiers or {},
             "superseded_by": str(self.superseded_by) if self.superseded_by else None,
-            "change_reason": self.change_reason
+            "change_reason": self.change_reason,
+            "verified": self.verified if self.verified else False,
+            "evidence_verification_status": self.evidence_verification_status.value if self.evidence_verification_status else None,
         }
 
 
