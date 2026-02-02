@@ -88,6 +88,89 @@ class ValidationStatus(str, Enum):
     CONFLICT = "CONFLICT"    # Conflicts with existing TRUSTED data
 
 
+class VerificationStatus(str, Enum):
+    """Verification status for facts against their supporting evidence."""
+    UNVERIFIED = "UNVERIFIED"    # Not yet verified by LLM
+    VERIFIED = "VERIFIED"        # LLM confirmed evidence supports fact
+    REJECTED = "REJECTED"        # LLM found evidence does not support fact
+    NEEDS_REVIEW = "NEEDS_REVIEW"  # LLM uncertain, needs human review
+
+
+class FactType(str, Enum):
+    """Types of facts that can have evidence records."""
+    ENTITY = "ENTITY"
+    RELATIONSHIP = "RELATIONSHIP"
+
+
+class EvidenceRecord(Base):
+    """Evidence Layer: Links facts to their supporting source text."""
+    __tablename__ = "evidence_records"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    
+    fact_type = Column(SQLEnum(FactType), nullable=False, index=True)
+    fact_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    
+    evidence_text = Column(Text, nullable=False)
+    source_document_id = Column(String(255), index=True)
+    chunk_id = Column(UUID(as_uuid=True), index=True)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('ix_evidence_records_fact', 'fact_type', 'fact_id'),
+    )
+    
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "tenant_id": str(self.tenant_id),
+            "fact_type": self.fact_type.value if self.fact_type else None,
+            "fact_id": str(self.fact_id),
+            "evidence_text": self.evidence_text,
+            "source_document_id": self.source_document_id,
+            "chunk_id": str(self.chunk_id) if self.chunk_id else None,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
+
+
+class FactVerification(Base):
+    """Evidence Layer: Verification verdicts from LLM review of evidence."""
+    __tablename__ = "fact_verifications"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    
+    fact_type = Column(SQLEnum(FactType), nullable=False, index=True)
+    fact_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    
+    verification_status = Column(SQLEnum(VerificationStatus), default=VerificationStatus.UNVERIFIED, index=True)
+    verification_reason = Column(Text)
+    verifier_model = Column(String(100))
+    confidence = Column(Float)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('ix_fact_verifications_fact', 'fact_type', 'fact_id'),
+        Index('ix_fact_verifications_status', 'verification_status'),
+    )
+    
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "tenant_id": str(self.tenant_id),
+            "fact_type": self.fact_type.value if self.fact_type else None,
+            "fact_id": str(self.fact_id),
+            "verification_status": self.verification_status.value if self.verification_status else None,
+            "verification_reason": self.verification_reason,
+            "verifier_model": self.verifier_model,
+            "confidence": self.confidence,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
+
+
 class Entity(Base):
     """Semantic Memory: Entities in the knowledge graph."""
     __tablename__ = "entities"
@@ -99,6 +182,9 @@ class Entity(Base):
     raw_entity_type = Column(String(200), index=True)  # Open capture: LLM's original type before canonical mapping
     lifecycle_state = Column(SQLEnum(LifecycleState), default=LifecycleState.STAGING, index=True)
     validation_status = Column(SQLEnum(ValidationStatus), default=ValidationStatus.PENDING, index=True)
+    
+    verified = Column(Boolean, default=False, index=True)
+    evidence_verification_status = Column(SQLEnum(VerificationStatus), default=VerificationStatus.UNVERIFIED, index=True)
     
     properties = Column(JSON, default=dict)
     description = Column(Text)
@@ -171,6 +257,9 @@ class Relationship(Base):
     raw_relationship_type = Column(String(200), index=True)  # Open capture: LLM's original type before canonical mapping
     lifecycle_state = Column(SQLEnum(LifecycleState), default=LifecycleState.STAGING, index=True)
     validation_status = Column(SQLEnum(ValidationStatus), default=ValidationStatus.PENDING, index=True)
+    
+    verified = Column(Boolean, default=False, index=True)
+    evidence_verification_status = Column(SQLEnum(VerificationStatus), default=VerificationStatus.UNVERIFIED, index=True)
     
     properties = Column(JSON, default=dict)
     description = Column(Text)
