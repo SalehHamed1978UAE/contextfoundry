@@ -6,5 +6,6 @@ and return ExtractionResults.
 """
 
 from .extraction_worker import ExtractionWorker
+from .verification_worker import VerificationWorker, VerificationConfig
 
-__all__ = ["ExtractionWorker"]
+__all__ = ["ExtractionWorker", "VerificationWorker", "VerificationConfig"]
