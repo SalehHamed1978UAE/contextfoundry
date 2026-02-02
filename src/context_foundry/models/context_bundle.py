@@ -477,8 +477,12 @@ class ContextBundle:
             for entity in self.semantic_entities:
                 lifecycle = entity.get("lifecycle_state", "UNKNOWN")
                 conf = entity.get("confidence", 0)
+                # Evidence Layer Phase 3: Add verification badge
+                verified = entity.get("verified", False)
+                verification_status = entity.get("evidence_verification_status")
+                verification_badge = "[VERIFIED]" if verified or verification_status == "VERIFIED" else "[UNVERIFIED]"
                 lines.append(f"  - {entity.get('name')} [{entity.get('entity_type')}] "
-                           f"(lifecycle: {lifecycle}, confidence: {conf:.2f})")
+                           f"(lifecycle: {lifecycle}, confidence: {conf:.2f}) {verification_badge}")
                 if entity.get("description"):
                     lines.append(f"    Description: {entity.get('description')}")
                 if entity.get("properties"):
@@ -499,8 +503,13 @@ class ContextBundle:
                     to_str = str(valid_to)[:10] if valid_to else "ongoing"
                     temporal_str = f" [{from_str} → {to_str}]"
                 
+                # Evidence Layer Phase 3: Add verification badge
+                rel_verified = rel.get("verified", False)
+                rel_verification_status = rel.get("evidence_verification_status")
+                rel_verification_badge = "[VERIFIED]" if rel_verified or rel_verification_status == "VERIFIED" else "[UNVERIFIED]"
+                
                 lines.append(f"  - {rel.get('source_name')} --[{rel.get('relationship_type')}]--> "
-                           f"{rel.get('target_name')}{temporal_str} (confidence: {conf:.2f}) [REL-{rel_id}]")
+                           f"{rel.get('target_name')}{temporal_str} (confidence: {conf:.2f}) {rel_verification_badge} [REL-{rel_id}]")
                 
                 # Event context (Stage 2)
                 if rel.get("event_context"):

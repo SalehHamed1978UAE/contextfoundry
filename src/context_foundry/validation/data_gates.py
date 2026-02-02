@@ -29,6 +29,7 @@ class DataGateResult(Enum):
     NO_RELEVANT_CHUNKS = "no_relevant_chunks"
     ANSWER_NOT_GROUNDED = "not_grounded"
     INSUFFICIENT_COVERAGE = "insufficient"
+    UNVERIFIED_EVIDENCE = "unverified_evidence"  # Evidence Layer: based on unverified facts
 
 
 @dataclass
@@ -120,6 +121,11 @@ class DataGates:
 
         if target_entity_name and not target_entity:
             return self._entity_not_found_response(target_entity_name, query)
+
+        # Evidence Layer Phase 3: Check for unverified facts
+        unverified_check = self._check_unverified_evidence(entities_found, context)
+        if unverified_check:
+            return unverified_check
 
         query_subjects = self._extract_query_subjects(query)
         chunk_coverage = self._check_chunk_coverage(query_subjects, chunks_retrieved)
@@ -417,6 +423,70 @@ class DataGates:
             explanation="Answer appears to contain fabricated content",
             evidence={"answer_preview": answer[:100] if answer else "", "query": query}
         )
+
+    def _check_unverified_evidence(
+        self,
+        entities_found: List[Dict],
+        context: Dict
+    ) -> Optional[DataGateEvaluation]:
+        """
+        Evidence Layer Phase 3: Check if answer relies solely on unverified facts.
+        
+        Returns DataGateEvaluation if ALL facts are unverified (warning case).
+        Returns None if there are verified facts (allow answer to proceed).
+        
+        Note: This is a soft gate - we return a warning but allow the answer 
+        with reduced confidence and a metadata flag, not a full block.
+        """
+        if not entities_found:
+            return None
+        
+        # Check verification status of each entity
+        verified_count = 0
+        unverified_count = 0
+        unverified_entities = []
+        
+        for entity in entities_found:
+            # Check both verified flag and evidence_verification_status
+            is_verified = entity.get('verified', False)
+            verification_status = entity.get('evidence_verification_status')
+            
+            if is_verified or verification_status == 'VERIFIED':
+                verified_count += 1
+            else:
+                unverified_count += 1
+                unverified_entities.append(entity.get('name', 'Unknown'))
+        
+        # If all entities are unverified, return a soft warning
+        # (Note: we still allow the answer but flag it)
+        if verified_count == 0 and unverified_count > 0:
+            # Check context for gate_unverified_entirely flag
+            # If True, block entirely. Otherwise, just add warning metadata.
+            if context.get('gate_unverified_entirely', False):
+                return DataGateEvaluation(
+                    result=DataGateResult.UNVERIFIED_EVIDENCE,
+                    confidence=0.4,
+                    should_answer=False,
+                    alternative_response=(
+                        "This answer is based entirely on unverified evidence. "
+                        "The supporting facts have not been verified against source documents. "
+                        "Please treat this information with caution."
+                    ),
+                    explanation=f"All {unverified_count} entities are unverified",
+                    evidence={
+                        "verified_count": verified_count,
+                        "unverified_count": unverified_count,
+                        "unverified_entities": unverified_entities[:5]
+                    }
+                )
+            else:
+                # Soft warning: Log but allow answer to proceed
+                logger.warning(
+                    f"[DATA_GATES] UNVERIFIED_WARNING: Answer based on {unverified_count} unverified entities"
+                )
+                return None
+        
+        return None
 
 
 def evaluate_data_gates(
