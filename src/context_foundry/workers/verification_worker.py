@@ -13,7 +13,7 @@ from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass
 
 from openai import OpenAI
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import Session
 
 from ..models.schema import (
@@ -73,6 +73,9 @@ class VerificationWorker:
         self.config = config or VerificationConfig()
         
         api_key = os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY environment variable is required for verification worker")
+        
         base_url = os.environ.get("OPENAI_BASE_URL")
         
         if base_url:
@@ -155,11 +158,11 @@ class VerificationWorker:
             tenant_uuid = uuid.UUID(self.tenant_id) if isinstance(self.tenant_id, str) else self.tenant_id
             query = query.filter(EvidenceRecord.tenant_id == tenant_uuid)
         
-        already_verified = self.session.query(FactVerification.fact_id).filter(
+        already_verified_subq = select(FactVerification.fact_id).where(
             FactVerification.verification_status != VerificationStatus.UNVERIFIED
-        ).subquery()
+        ).scalar_subquery()
         
-        query = query.filter(~EvidenceRecord.fact_id.in_(already_verified))
+        query = query.filter(~EvidenceRecord.fact_id.in_(already_verified_subq))
         
         evidence_records = query.limit(limit).all()
         

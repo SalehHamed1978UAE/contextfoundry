@@ -107,10 +107,16 @@ Architectural features include:
 ### Recent Improvements
 - **Evidence Layer Phase 1**: Schema and evidence capture at extraction time
   - `evidence_records` table links facts (entities/relationships) to source text
-  - `fact_verifications` table stores LLM verification verdicts (for Phase 2)
+  - `fact_verifications` table stores LLM verification verdicts
   - `verified` and `evidence_verification_status` columns on Entity/Relationship
   - StagingLoader and KGIngestor create evidence records for all ingested facts
   - Fallback evidence synthesized when source_span is missing
+- **Evidence Layer Phase 2**: LLM Verification Worker
+  - `VerificationWorker` queries unverified facts and calls LLM to verify
+  - Stores verdicts in `fact_verifications` with reason and confidence
+  - Updates fact's `verified` and `evidence_verification_status` columns
+  - CLI: `python -m src.context_foundry.workers.verification_worker --tenant-id <id> --limit 10`
+  - Configurable batch size, rate limits, and LLM model
 - Technical Specification extraction (11 generalizable patterns)
 - 152 SPECIFICATION entities extracted
 - Post-processor hardening for energy density, temperature, materials
@@ -124,7 +130,7 @@ Architectural features include:
 - **Failure Analysis:** See `docs/ACCURACY_FAILURES_87.md`
 
 ### Next Roadmap Items
-1. Evidence Layer Phase 2: LLM verification loop integrating with Gardener for TRUSTED promotion
+1. Evidence Layer Phase 3: Gardener integration for TRUSTED promotion based on verification status
 2. Tree-based retrieval architecture
 3. Ontology pipeline integration
 4. Enhanced role resolution pipeline
