@@ -11,7 +11,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_
 
 from ..models.schema import (
-    Entity, Relationship, LifecycleState, EntityMention, Document, ValidationStatus
+    Entity, Relationship, LifecycleState, EntityMention, Document, ValidationStatus,
+    EvidenceRecord, FactType
 )
 from .entity_extractor import ExtractedEntity
 
@@ -113,6 +114,48 @@ class StagingLoader:
         self.duplicate_detector = DuplicateDetector(session, similarity_threshold, tenant_id=tenant_id)
         self._candidate_normalizer = CandidateNormalizer()
         self._known_relationship_types_cache: Optional[set] = None
+    
+    def _create_evidence_record(
+        self,
+        fact_type: FactType,
+        fact_id: uuid.UUID,
+        evidence_text: str,
+        source_document_id: Optional[str] = None,
+        chunk_id: Optional[uuid.UUID] = None
+    ) -> Optional[EvidenceRecord]:
+        """Create an evidence record linking a fact to its supporting source text.
+        
+        Args:
+            fact_type: ENTITY or RELATIONSHIP
+            fact_id: UUID of the entity or relationship
+            evidence_text: The source text supporting this fact
+            source_document_id: Document ID where evidence was found
+            chunk_id: Chunk ID where evidence was found
+            
+        Returns:
+            Created EvidenceRecord or None if evidence_text is empty
+        """
+        if not evidence_text or not evidence_text.strip():
+            return None
+        
+        if not self.tenant_id:
+            return None
+        
+        try:
+            evidence = EvidenceRecord(
+                id=uuid.uuid4(),
+                tenant_id=uuid.UUID(self.tenant_id),
+                fact_type=fact_type,
+                fact_id=fact_id,
+                evidence_text=evidence_text.strip()[:5000],
+                source_document_id=source_document_id,
+                chunk_id=chunk_id
+            )
+            self.session.add(evidence)
+            return evidence
+        except Exception as e:
+            logger.debug(f"[StagingLoader] Failed to create evidence record: {e}")
+            return None
     
     def _document_exists_in_public(self, doc_id: uuid.UUID) -> bool:
         """Check if a document exists in public.documents (for FK constraint).
@@ -372,6 +415,15 @@ class StagingLoader:
         
         self.session.add(entity)
         
+        if extracted.source_span:
+            self._create_evidence_record(
+                fact_type=FactType.ENTITY,
+                fact_id=entity.id,
+                evidence_text=extracted.source_span,
+                source_document_id=extracted.source_document_id,
+                chunk_id=chunk_uuid
+            )
+        
         if hasattr(extracted, 'source_chunk_id') and extracted.source_chunk_id:
             doc_uuid = _safe_uuid(extracted.source_document_id)
             chunk_uuid = _safe_uuid(extracted.source_chunk_id)
@@ -491,6 +543,15 @@ class StagingLoader:
         )
         
         self.session.add(relationship)
+        
+        if extracted.source_span:
+            self._create_evidence_record(
+                fact_type=FactType.RELATIONSHIP,
+                fact_id=relationship.id,
+                evidence_text=extracted.source_span,
+                source_document_id=extracted.source_document_id,
+                chunk_id=chunk_uuid
+            )
         
         return relationship, "created"
     
