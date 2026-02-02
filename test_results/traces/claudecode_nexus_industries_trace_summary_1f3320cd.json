@@ -1,23 +1,24 @@
 {
-  "run_timestamp": "2026-02-02T02:16:38.664851",
+  "run_timestamp": "2026-02-02T03:13:18.231063",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.3800000000000003,
-    "avg_semantic_score": 0.05034399999999999,
+    "avg_chunks_retrieved": 3.399999999999999,
+    "avg_semantic_score": 0.04087699999999999,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
       "exact_match": 45,
-      "component_match": 29,
-      "number_match": 7,
-      "no_match": 16,
+      "component_match": 28,
+      "number_match": 8,
+      "no_match": 15,
+      "no_data": 1,
       "percentage_match": 1,
       "entity_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 93
+    "low_score_queries": 94
   },
   "low_score_questions": [
     {
@@ -113,7 +114,7 @@
     {
       "q_id": 20,
       "question": "Which supplier is rated Red and at risk?",
-      "avg_score": 0.3251
+      "avg_score": 0.3252
     },
     {
       "q_id": 21,
@@ -243,6 +244,11 @@
     {
       "q_id": 47,
       "question": "Which university is a research partner for quantum computing?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 48,
+      "question": "Who is the primary customer for HTS superconducting wire?",
       "avg_score": 0.0
     },
     {
@@ -494,9 +500,9 @@
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "05_talent_strategy.md",
-          "03_press_release_fy2025.md",
-          "03_aerospace_division_structure.md"
+          "03_desert_sun_solar_farm.md",
+          "10_quarterly_newsletter.md",
+          "05_digital_division_structure.md"
         ]
       },
       {
@@ -516,9 +522,9 @@
         "expected": "Orbital Satellite Constellation ($680 mi",
         "actual": "The project with the largest budget is *",
         "files_retrieved": [
+          "12_project_cost_summary.md",
           "04_energy_division_budget.md",
-          "03_aerospace_division_budget.md",
-          "12_project_cost_summary.md"
+          "03_aerospace_division_budget.md"
         ]
       },
       {
@@ -532,11 +538,11 @@
         "q_id": 38,
         "question": "Who is the CISO of Nexus Industries?",
         "expected": "Jennifer Walsh (appointed January 2026, ",
-        "actual": "The Chief Information Security Officer (",
+        "actual": "The CISO of Nexus Industries is Robert K",
         "files_retrieved": [
-          "05_fedramp_announcement.md",
-          "04_toyota_partnership_announcement.md",
-          "02_organizational_announcement.md"
+          "02_organizational_announcement.md",
+          "01_annual_report_2025.md",
+          "04_toyota_partnership_announcement.md"
         ]
       },
       {
@@ -547,21 +553,10 @@
         "files_retrieved": []
       },
       {
-        "q_id": 48,
-        "question": "Who is the primary customer for HTS superconducting wire?",
-        "expected": "Siemens Healthineers ($65 million)",
-        "actual": "The primary customer for HTS superconduc",
-        "files_retrieved": [
-          "01_boeing_customer_profile.md",
-          "02_airbus_customer_profile.md",
-          "Unknown"
-        ]
-      },
-      {
         "q_id": 61,
         "question": "Who replaced Thomas Anderson as Digital President?",
         "expected": "Robert Kim",
-        "actual": "The PRESIDENT of Nexus Industries is Ken",
+        "actual": "I found multiple people with the PRESIDE",
         "files_retrieved": []
       },
       {
@@ -570,8 +565,8 @@
         "expected": "$680 million",
         "actual": "The FY2026 capital expenditure plan for ",
         "files_retrieved": [
-          "07_capital_allocation_plan.md",
-          "01_corporate_strategy_2026_2030.md"
+          "01_corporate_strategy_2026_2030.md",
+          "07_capital_allocation_plan.md"
         ]
       },
       {
@@ -592,7 +587,8 @@
         "actual": "The mining automation partner for Nexus ",
         "files_retrieved": [
           "09_competitive_intelligence.md",
-          "04_toyota_partnership_announcement.md"
+          "05_fedramp_announcement.md",
+          "03_press_release_fy2025.md"
         ]
       },
       {
@@ -612,9 +608,9 @@
         "expected": "$15 billion",
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
+          "06_market_expansion_asia.md",
           "02_aerospace_division_strategy.md",
-          "01_corporate_strategy_2026_2030.md",
-          "06_market_expansion_asia.md"
+          "01_corporate_strategy_2026_2030.md"
         ]
       },
       {
@@ -639,10 +635,23 @@
         "q_id": 100,
         "question": "What is the total value of top 3 customer relationships?",
         "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
-        "actual": "The total value of the top 3 customer re",
+        "actual": "I couldn't find specific information reg",
         "files_retrieved": [
           "01_boeing_customer_profile.md",
-          "02_airbus_customer_profile.md",
+          "11_microsoft_customer.md",
+          "Unknown"
+        ]
+      }
+    ],
+    "no_data": [
+      {
+        "q_id": 48,
+        "question": "Who is the primary customer for HTS superconducting wire?",
+        "expected": "Siemens Healthineers ($65 million)",
+        "actual": "The primary customer for HTS (High-Tempe",
+        "files_retrieved": [
+          "05_siemens_healthineers_customer.md",
+          "01_boeing_customer_profile.md",
           "Unknown"
         ]
       }
