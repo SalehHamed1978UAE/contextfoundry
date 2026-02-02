@@ -1,19 +1,19 @@
 {
-  "run_timestamp": "2026-02-02T06:55:55.382239",
+  "run_timestamp": "2026-02-02T08:04:40.692203",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.439999999999999,
-    "avg_semantic_score": 0.073949,
+    "avg_chunks_retrieved": 3.43,
+    "avg_semantic_score": 0.07314400000000001,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
       "exact_match": 47,
-      "component_match": 29,
+      "component_match": 30,
       "no_data": 1,
       "number_match": 7,
-      "no_match": 13,
+      "no_match": 12,
       "percentage_match": 1,
       "entity_match": 1,
       "semantic_match": 1
@@ -481,8 +481,8 @@
         "actual": "The appointment date was not found in th",
         "files_retrieved": [
           "02_organizational_announcement.md",
-          "Unknown",
-          "04_digital_division_quarterly_review.md"
+          "09_competitive_intelligence.md",
+          "Unknown"
         ]
       }
     ],
@@ -493,9 +493,9 @@
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "01_corporate_strategy_2026_2030.md",
-          "02_business_divisions.md",
-          "08_global_locations.md"
+          "02_organizational_announcement.md",
+          "01_executive_team.md",
+          "01_corporate_strategy_2026_2030.md"
         ]
       },
       {
@@ -515,9 +515,9 @@
         "expected": "Orbital Satellite Constellation ($680 mi",
         "actual": "The project with the largest budget is *",
         "files_retrieved": [
+          "04_energy_division_budget.md",
           "03_aerospace_division_budget.md",
-          "12_project_cost_summary.md",
-          "04_energy_division_budget.md"
+          "12_project_cost_summary.md"
         ]
       },
       {
@@ -533,20 +533,9 @@
         "expected": "2019",
         "actual": "Dr. Victoria Chen was appointed CEO of N",
         "files_retrieved": [
-          "01_board_meeting_q4_2025.md",
+          "02_organizational_announcement.md",
           "01_executive_team.md",
-          "02_organizational_announcement.md"
-        ]
-      },
-      {
-        "q_id": 48,
-        "question": "Who is the primary customer for HTS superconducting wire?",
-        "expected": "Siemens Healthineers ($65 million)",
-        "actual": "The primary customer for HTS superconduc",
-        "files_retrieved": [
-          "01_boeing_customer_profile.md",
-          "02_airbus_customer_profile.md",
-          "05_siemens_healthineers_customer.md"
+          "01_board_meeting_q4_2025.md"
         ]
       },
       {
@@ -555,8 +544,8 @@
         "expected": "$680 million",
         "actual": "The FY2026 capital expenditure plan for ",
         "files_retrieved": [
-          "01_corporate_strategy_2026_2030.md",
-          "07_capital_allocation_plan.md"
+          "07_capital_allocation_plan.md",
+          "01_corporate_strategy_2026_2030.md"
         ]
       },
       {
@@ -597,9 +586,9 @@
         "expected": "$15 billion",
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
+          "06_market_expansion_asia.md",
           "01_corporate_strategy_2026_2030.md",
-          "02_aerospace_division_strategy.md",
-          "06_market_expansion_asia.md"
+          "02_aerospace_division_strategy.md"
         ]
       },
       {
@@ -615,9 +604,9 @@
         "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
         "actual": "The total value of the top 3 customer re",
         "files_retrieved": [
-          "02_airbus_customer_profile.md",
+          "11_microsoft_customer.md",
           "01_boeing_customer_profile.md",
-          "11_microsoft_customer.md"
+          "Unknown"
         ]
       }
     ]

@@ -130,6 +130,85 @@ def _is_circular_answer(resolved_name: str, queried_role: str) -> bool:
     return False
 
 
+def _resolve_role_via_multihop(session, tenant_id: str, role_entity_ids: List[str]) -> List[Dict[str, Any]]:
+    """
+    Multi-hop role traversal: Find PERSON entities that LEAD or HOLD_POSITION to role entities.
+    
+    When a role entity (like "VP Trade Compliance" as an entity) is found instead of a person,
+    this function traverses incoming relationships to find the actual person.
+    
+    Pattern: PERSON --[LEADS/HOLDS_POSITION]--> Role Entity
+    
+    Args:
+        session: Database session
+        tenant_id: Tenant ID for filtering
+        role_entity_ids: List of role entity IDs to traverse from
+        
+    Returns:
+        List of person dicts with id, name, and role info
+    """
+    if not role_entity_ids:
+        return []
+    
+    logger.info(f"[ROLE_RESOLVER] Multi-hop traversal for {len(role_entity_ids)} role entities")
+    
+    from sqlalchemy import text as sql_text
+    
+    # Find persons who have LEADS or HOLDS_POSITION relationships TO these role entities
+    placeholders = ", ".join([f":role_id_{i}" for i in range(len(role_entity_ids))])
+    
+    query = sql_text(f"""
+        SELECT DISTINCT
+            p.id as person_id,
+            p.name as person_name,
+            p.properties::jsonb as props,
+            r.relationship_type as edge_type,
+            role_ent.name as role_entity_name
+        FROM relationships r
+        JOIN entities p ON r.source_id = p.id
+        JOIN entities role_ent ON r.target_id = role_ent.id
+        WHERE r.target_id IN ({placeholders})
+        AND r.tenant_id = :tenant_id
+        AND p.entity_type = 'PERSON'
+        AND r.relationship_type IN ('LEADS', 'HOLDS_POSITION', 'MANAGES', 'CHAIRS', 'HEADS')
+        ORDER BY 
+            CASE WHEN r.relationship_type = 'LEADS' THEN 1
+                 WHEN r.relationship_type = 'CHAIRS' THEN 1
+                 WHEN r.relationship_type = 'HEADS' THEN 1
+                 WHEN r.relationship_type = 'HOLDS_POSITION' THEN 2
+                 ELSE 3 END,
+            p.name
+    """)
+    
+    params = {"tenant_id": tenant_id}
+    for i, role_id in enumerate(role_entity_ids):
+        params[f"role_id_{i}"] = role_id
+    
+    try:
+        results = session.execute(query, params).fetchall()
+        persons = []
+        seen_ids = set()
+        
+        for row in results:
+            if str(row.person_id) not in seen_ids:
+                seen_ids.add(str(row.person_id))
+                props = row.props or {}
+                persons.append({
+                    'id': str(row.person_id),
+                    'name': row.person_name,
+                    'role_from_props': props.get('position') or props.get('role') or props.get('title'),
+                    'edge_type': row.edge_type,
+                    'role_entity_name': row.role_entity_name,
+                    'edge_rank': 1 if row.edge_type in ('LEADS', 'CHAIRS', 'HEADS') else 2
+                })
+                logger.info(f"[ROLE_RESOLVER] Multi-hop found: {row.person_name} --[{row.edge_type}]--> {row.role_entity_name}")
+        
+        return persons
+    except Exception as e:
+        logger.error(f"[ROLE_RESOLVER] Multi-hop traversal failed: {e}")
+        return []
+
+
 class RoleResolution:
     """Result of role resolution."""
     
@@ -355,8 +434,22 @@ class RoleResolver:
             if result['entities']:
                 # Filter out blacklisted names (role names incorrectly extracted as person entities)
                 entities = [e for e in result['entities'] if not _is_blacklisted_name(e.get('name', ''))]
+                blacklisted_entities = [e for e in result['entities'] if _is_blacklisted_name(e.get('name', ''))]
                 
-                # If all matches were blacklisted, try department-based fallback
+                # If all matches were blacklisted, try multi-hop traversal first
+                # Pattern: find PERSON --[LEADS/HOLDS_POSITION]--> role_entity
+                if not entities and blacklisted_entities:
+                    role_entity_ids = [e.get('id') for e in blacklisted_entities if e.get('id')]
+                    if role_entity_ids:
+                        logger.info(f"[ROLE_RESOLVER] Stage 0: All matches blacklisted, trying multi-hop traversal")
+                        multihop_results = _resolve_role_via_multihop(self.session, self.tenant_id, role_entity_ids)
+                        if multihop_results:
+                            # Filter out any blacklisted names from multi-hop results too
+                            entities = [e for e in multihop_results if not _is_blacklisted_name(e.get('name', ''))]
+                            if entities:
+                                logger.info(f"[ROLE_RESOLVER] Stage 0: Found {len(entities)} people via multi-hop traversal")
+                
+                # If still no results, try department-based fallback
                 if not entities and result['entities']:
                     role_lower = role.lower().strip()
                     departments = ROLE_TO_DEPARTMENT.get(role_lower, [])
