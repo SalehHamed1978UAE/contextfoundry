@@ -1,24 +1,23 @@
 {
-  "run_timestamp": "2026-02-02T01:38:30.608568",
+  "run_timestamp": "2026-02-02T02:16:38.664851",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.4500000000000006,
-    "avg_semantic_score": 0.04034600000000001,
+    "avg_chunks_retrieved": 3.3800000000000003,
+    "avg_semantic_score": 0.05034399999999999,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
       "exact_match": 45,
-      "component_match": 30,
+      "component_match": 29,
       "number_match": 7,
-      "no_match": 14,
-      "no_data": 1,
+      "no_match": 16,
       "percentage_match": 1,
       "entity_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 94
+    "low_score_queries": 93
   },
   "low_score_questions": [
     {
@@ -244,11 +243,6 @@
     {
       "q_id": 47,
       "question": "Which university is a research partner for quantum computing?",
-      "avg_score": 0.0
-    },
-    {
-      "q_id": 48,
-      "question": "Who is the primary customer for HTS superconducting wire?",
       "avg_score": 0.0
     },
     {
@@ -528,6 +522,13 @@
         ]
       },
       {
+        "q_id": 37,
+        "question": "Who is the Project Director for the GreenHydrogen Initiative",
+        "expected": "Jennifer Walsh",
+        "actual": "The Project Director for the GreenHydrog",
+        "files_retrieved": []
+      },
+      {
         "q_id": 38,
         "question": "Who is the CISO of Nexus Industries?",
         "expected": "Jennifer Walsh (appointed January 2026, ",
@@ -546,21 +547,21 @@
         "files_retrieved": []
       },
       {
-        "q_id": 60,
-        "question": "When was the phishing incident detected?",
-        "expected": "December 12, 2025 at 02:47 UTC",
-        "actual": "The retrieved information does not menti",
+        "q_id": 48,
+        "question": "Who is the primary customer for HTS superconducting wire?",
+        "expected": "Siemens Healthineers ($65 million)",
+        "actual": "The primary customer for HTS superconduc",
         "files_retrieved": [
-          "Unknown",
-          "08_cybersecurity_advisory.md",
-          "10_cybersecurity_incident_response.md"
+          "01_boeing_customer_profile.md",
+          "02_airbus_customer_profile.md",
+          "Unknown"
         ]
       },
       {
         "q_id": 61,
         "question": "Who replaced Thomas Anderson as Digital President?",
         "expected": "Robert Kim",
-        "actual": "I found multiple people with the PRESIDE",
+        "actual": "The PRESIDENT of Nexus Industries is Ken",
         "files_retrieved": []
       },
       {
@@ -617,6 +618,17 @@
         ]
       },
       {
+        "q_id": 83,
+        "question": "Who is the primary customer for the SmartGrid Controller?",
+        "expected": "Pacific Power (pilot customer)",
+        "actual": "The primary customers for the SmartGrid ",
+        "files_retrieved": [
+          "08_pacific_power_utility.md",
+          "04_energy_division_budget.md",
+          "08_smartgrid_controller.md"
+        ]
+      },
+      {
         "q_id": 91,
         "question": "Who is the VP Trade Compliance?",
         "expected": "Owns the Export Control Policy (per POL-",
@@ -632,19 +644,6 @@
           "01_boeing_customer_profile.md",
           "02_airbus_customer_profile.md",
           "Unknown"
-        ]
-      }
-    ],
-    "no_data": [
-      {
-        "q_id": 48,
-        "question": "Who is the primary customer for HTS superconducting wire?",
-        "expected": "Siemens Healthineers ($65 million)",
-        "actual": "The primary customer for HTS (High-Tempe",
-        "files_retrieved": [
-          "01_boeing_customer_profile.md",
-          "Unknown",
-          "05_siemens_healthineers_customer.md"
         ]
       }
     ]
