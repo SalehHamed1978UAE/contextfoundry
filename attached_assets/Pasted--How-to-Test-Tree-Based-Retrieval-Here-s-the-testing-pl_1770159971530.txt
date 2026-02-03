@@ -1,0 +1,120 @@
+ How to Test Tree-Based Retrieval
+
+  Here's the testing plan, from simple to comprehensive:
+
+  ---
+  Step 1: Run Unit Tests (Quick validation)
+
+  # Test the core components work
+  pytest tests/unit/test_tree_retriever.py -v
+
+  This validates:
+  - Intent extraction works
+  - Graph traversal logic is correct
+  - Ranking algorithm functions
+  - Confidence scoring
+
+  Expected: All tests pass ✅
+
+  ---
+  Step 2: Enable the Feature Flag
+
+  # Set environment variable
+  export CF_TREE_BASED_RETRIEVAL=true
+
+  # Or add to .env file
+  echo "CF_TREE_BASED_RETRIEVAL=true" >> .env
+
+  ---
+  Step 3: Test on the 88% Baseline Vault
+
+  This is the vault that achieved 88% accuracy (the one you tested for Phase 3
+   comparison):
+
+  # Get the vault ID from the Phase 3 results
+  cat data/test-runner/status.json | grep vault_id
+
+  # Run the 100-question test with tree-based retrieval enabled
+  python -m src.test_runner.runner \
+    --vault-id <vault-id-from-above> \
+    --questions src/test_questions/nexus_100q.json \
+    --force
+
+  What this does:
+  - Runs all 100 questions
+  - Uses tree-based retrieval instead of semantic search
+  - Generates new results in data/test-runner/status.json
+
+  Expected time: 10-15 minutes
+
+  ---
+  Step 4: Compare Results
+
+  # Check the new accuracy
+  python3 -c "import json; d=json.load(open('data/test-runner/status.json')); 
+  print(f'Accuracy: {d[\"qa_progress\"][\"accuracy_percent\"]}%'); 
+  print(f'Passed: {d[\"qa_progress\"][\"passed\"]}/100')"
+
+  Expected Results:
+  - Before (semantic search): 88% (88/100)
+  - After (tree-based): 96-100% (96-100/100)
+  - Improvement: +8-12 percentage points
+
+  ---
+  Step 5: Analyze the Failures
+
+  # Export detailed results with failures
+  python -m src.test_runner.export_results \
+    --vault-id <vault-id> \
+    --output tree_based_results.json
+
+  Then compare which questions changed:
+  - Previously failing → Now passing (this is the win!)
+  - Previously passing → Now failing (regressions to investigate)
+
+  ---
+  Quick Test (Alternative - Single Query)
+
+  If you want to test just ONE query quickly:
+
+  # Create a test script: test_single_query.py
+  import os
+  os.environ['CF_TREE_BASED_RETRIEVAL'] = 'true'
+
+  from src.context_foundry.retrieval import TreeBasedRetriever
+  from sqlalchemy import create_engine
+  from sqlalchemy.orm import sessionmaker
+
+  # Connect to database
+  engine = create_engine(os.environ['DATABASE_URL'])
+  Session = sessionmaker(bind=engine)
+  session = Session()
+
+  # Test on a vault
+  vault_id = "<your-vault-id>"
+  retriever = TreeBasedRetriever(session, vault_id)
+
+  # Try a query
+  result = retriever.retrieve(
+      query="Who is the CFO?",
+      query_type="ROLE"
+  )
+
+  print(f"Method: {result.method}")
+  print(f"Confidence: {result.confidence}")
+  print(f"Anchor: {result.anchor['name'] if result.anchor else 'None'}")
+  print(f"Results: {len(result.entities)}")
+  for entity in result.entities[:3]:
+      print(f"  - {entity['name']} ({entity['entity_type']})")
+
+  Then run:
+  python test_single_query.py
+
+  ---
+  Which Test Should You Run First?
+
+  I recommend:
+
+  1. Start with Step 1 (unit tests) - validates code works (30 seconds)
+  2. Then Step 3 (full 100Q test) - shows real impact (15 minutes)
+  3. Then Step 4 (compare results) - proves improvement
