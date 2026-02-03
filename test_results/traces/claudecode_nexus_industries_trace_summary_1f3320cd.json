@@ -1,18 +1,17 @@
 {
-  "run_timestamp": "2026-02-02T08:04:40.692203",
+  "run_timestamp": "2026-02-03T03:04:04.466237",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.43,
-    "avg_semantic_score": 0.07314400000000001,
+    "avg_chunks_retrieved": 3.39,
+    "avg_semantic_score": 0.07315199999999997,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "exact_match": 47,
-      "component_match": 30,
-      "no_data": 1,
-      "number_match": 7,
+      "exact_match": 48,
+      "component_match": 29,
+      "number_match": 8,
       "no_match": 12,
       "percentage_match": 1,
       "entity_match": 1,
@@ -114,7 +113,7 @@
     {
       "q_id": 20,
       "question": "Which supplier is rated Red and at risk?",
-      "avg_score": 0.3251
+      "avg_score": 0.3252
     },
     {
       "q_id": 21,
@@ -473,19 +472,6 @@
     }
   ],
   "failures_by_type": {
-    "no_data": [
-      {
-        "q_id": 14,
-        "question": "When was Robert Kim appointed President of Digital Solutions",
-        "expected": "January 2026 (effective January 15, 2026",
-        "actual": "The appointment date was not found in th",
-        "files_retrieved": [
-          "02_organizational_announcement.md",
-          "09_competitive_intelligence.md",
-          "Unknown"
-        ]
-      }
-    ],
     "no_match": [
       {
         "q_id": 29,
@@ -493,31 +479,19 @@
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "02_organizational_announcement.md",
           "01_executive_team.md",
-          "01_corporate_strategy_2026_2030.md"
+          "05_digital_division_structure.md",
+          "03_aerospace_division_structure.md"
         ]
       },
       {
-        "q_id": 32,
-        "question": "Who will be the CEO of the Toyota JV (NextGen Battery Techno",
-        "expected": "Dr. Robert Martinez",
-        "actual": "The CEO of the Toyota joint venture, Nex",
+        "q_id": 36,
+        "question": "Which division has the highest safety incident rate (TRIR)?",
+        "expected": "Nexus Advanced Materials (1.24 TRIR)",
+        "actual": "The division with the highest safety inc",
         "files_retrieved": [
-          "04_toyota_partnership_announcement.md",
-          "06_toyota_jv_negotiation_summary.md",
-          "09_investor_relations_call.md"
-        ]
-      },
-      {
-        "q_id": 34,
-        "question": "Which project has the largest budget?",
-        "expected": "Orbital Satellite Constellation ($680 mi",
-        "actual": "The project with the largest budget is *",
-        "files_retrieved": [
-          "04_energy_division_budget.md",
-          "03_aerospace_division_budget.md",
-          "12_project_cost_summary.md"
+          "05_safety_committee_meeting.md",
+          "07_environmental_health_safety.md"
         ]
       },
       {
@@ -535,7 +509,18 @@
         "files_retrieved": [
           "02_organizational_announcement.md",
           "01_executive_team.md",
-          "01_board_meeting_q4_2025.md"
+          "08_hr_talent_review.md"
+        ]
+      },
+      {
+        "q_id": 48,
+        "question": "Who is the primary customer for HTS superconducting wire?",
+        "expected": "Siemens Healthineers ($65 million)",
+        "actual": "The primary customer for HTS superconduc",
+        "files_retrieved": [
+          "01_boeing_customer_profile.md",
+          "02_airbus_customer_profile.md",
+          "05_siemens_healthineers_customer.md"
         ]
       },
       {
@@ -544,8 +529,8 @@
         "expected": "$680 million",
         "actual": "The FY2026 capital expenditure plan for ",
         "files_retrieved": [
-          "07_capital_allocation_plan.md",
-          "01_corporate_strategy_2026_2030.md"
+          "01_corporate_strategy_2026_2030.md",
+          "07_capital_allocation_plan.md"
         ]
       },
       {
@@ -586,9 +571,9 @@
         "expected": "$15 billion",
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
-          "06_market_expansion_asia.md",
           "01_corporate_strategy_2026_2030.md",
-          "02_aerospace_division_strategy.md"
+          "02_aerospace_division_strategy.md",
+          "06_market_expansion_asia.md"
         ]
       },
       {
@@ -604,9 +589,9 @@
         "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
         "actual": "The total value of the top 3 customer re",
         "files_retrieved": [
+          "Unknown",
           "11_microsoft_customer.md",
-          "01_boeing_customer_profile.md",
-          "Unknown"
+          "01_boeing_customer_profile.md"
         ]
       }
     ]
