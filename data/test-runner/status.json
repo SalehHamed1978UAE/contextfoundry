@@ -1,32 +1,37 @@
 {
+  "status": "running",
+  "vault_id": "4668fc6d-c401-46d2-9797-4c8785f4d6ce",
+  "question_set_id": "67c09370-b458-4717-8244-2caa52ff6475",
+  "test_run_id": "78d62cfd-6625-4bd8-a980-3aa8dacc9094",
+  "mode": "auto",
+  "corpus_folder": null,
+  "started_at": "2026-02-03T21:44:47.419535",
+  "pid": 7190,
   "stages": {
     "delete": {
-      "status": "pending"
+      "status": "skipped"
     },
     "create": {
-      "status": "pending"
+      "status": "skipped"
     },
     "upload": {
-      "status": "pending"
+      "status": "skipped"
     },
     "extract": {
-      "status": "pending"
+      "status": "complete",
+      "entities": 6143
     },
     "qa": {
-      "status": "complete"
+      "status": "running"
     }
   },
-  "updated_at": "2026-02-03T20:04:21.297851",
   "qa_progress": {
-    "total": 100,
-    "answered": 100,
-    "passed": 88,
-    "failed": 12,
-    "accuracy_percent": 88.0
+    "total": 0,
+    "answered": 0,
+    "passed": 0,
+    "failed": 0,
+    "accuracy_percent": 0
   },
-  "current_question": {
-    "id": 100,
-    "text": "What is the total value of top 3 customer relationships?"
-  },
-  "status": "finished"
+  "current_question": null,
+  "updated_at": "2026-02-03T21:48:18.712914"
 }

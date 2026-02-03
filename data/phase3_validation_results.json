@@ -1,0 +1,44 @@
+{
+  "vault_id": "4668fc6d-c401-46d2-9797-4c8785f4d6ce",
+  "vault_name": "ClaudeCode Nexus Industries (Ontology)",
+  "timestamp": "2026-02-03T21:48:14.764694",
+  "gates": {
+    "gate_1_vault_exists": {
+      "passed": true,
+      "message": "Vault exists: ClaudeCode Nexus Industries (Ontology)"
+    },
+    "gate_2_documents_uploaded": {
+      "passed": true,
+      "message": "100 documents uploaded (required: 100)"
+    },
+    "gate_3_extraction_completed": {
+      "passed": false,
+      "message": "Only 0/100 documents extracted"
+    },
+    "gate_4_entities_created": {
+      "passed": true,
+      "message": "6143 entities extracted (required: 500)"
+    },
+    "gate_5_relationships_created": {
+      "passed": true,
+      "message": "1238 relationships extracted (required: 1000)"
+    },
+    "gate_6_ontology_types_used": {
+      "passed": true,
+      "message": "102 distinct entity types used (required: 10)"
+    },
+    "gate_7_test_results_exist": {
+      "passed": true,
+      "message": "Test results file exists and is valid JSON"
+    },
+    "gate_8_all_questions_answered": {
+      "passed": false,
+      "message": "Test suite has 0 questions (expected 100)"
+    },
+    "gate_9_accuracy_threshold": {
+      "passed": false,
+      "message": "Accuracy is 0% (need 88.0%)"
+    }
+  },
+  "overall_pass": false
+}

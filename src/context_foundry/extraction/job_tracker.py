@@ -38,7 +38,29 @@ class ExtractionJobTracker:
         content_hash: Optional[str] = None,
         chunks_total: int = 0
     ) -> UUID:
-        """Create a new extraction job"""
+        """Create a new extraction job.
+        
+        If an active job (PENDING/RUNNING) already exists for this document,
+        it will be marked as FAILED first to allow creating a new job.
+        """
+        
+        # Check for and clean up any existing active jobs for this document
+        # This prevents UniqueViolation from idx_extraction_jobs_active_document
+        existing = self.db.execute(text("""
+            SELECT id, status FROM extraction_jobs 
+            WHERE document_id = :doc_id AND status IN ('PENDING', 'RUNNING')
+        """), {"doc_id": document_id}).fetchall()
+        
+        if existing:
+            for row in existing:
+                logger.info(f"[JobTracker] Cleaning up stale {row[1]} job {row[0]} for document {document_id}")
+            
+            self.db.execute(text("""
+                UPDATE extraction_jobs 
+                SET status = 'FAILED', error_message = 'Superseded by new extraction job'
+                WHERE document_id = :doc_id AND status IN ('PENDING', 'RUNNING')
+            """), {"doc_id": document_id})
+            self.db.commit()
         
         job_id = uuid4()
         
