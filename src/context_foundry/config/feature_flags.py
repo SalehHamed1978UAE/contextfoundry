@@ -1,5 +1,5 @@
 """
-Feature flags for Context Foundry extraction modes.
+Feature flags for Context Foundry extraction modes and retrieval strategies.
 
 Part of Week 0: Shadow Mode Setup per ontology architecture spec.
 """
@@ -17,6 +17,9 @@ class ExtractionMode(str, Enum):
 
 EXTRACTION_MODE = os.getenv("CF_EXTRACTION_MODE", ExtractionMode.LEGACY.value)
 SHADOW_WRITE_ENABLED = os.getenv("CF_SHADOW_WRITE", "false").lower() == "true"
+
+# Tree-Based Retrieval Feature Flag
+TREE_BASED_RETRIEVAL_ENABLED = os.getenv("CF_TREE_BASED_RETRIEVAL", "false").lower() == "true"
 
 
 def get_extraction_mode() -> ExtractionMode:
@@ -41,3 +44,13 @@ def is_constrained_mode() -> bool:
 def should_write_shadow() -> bool:
     """Check if shadow writes are enabled"""
     return SHADOW_WRITE_ENABLED or is_shadow_mode()
+
+
+def is_tree_based_retrieval_enabled() -> bool:
+    """
+    Check if tree-based retrieval is enabled.
+
+    Tree-based retrieval prioritizes graph proximity over semantic similarity.
+    Enable with environment variable: CF_TREE_BASED_RETRIEVAL=true
+    """
+    return TREE_BASED_RETRIEVAL_ENABLED

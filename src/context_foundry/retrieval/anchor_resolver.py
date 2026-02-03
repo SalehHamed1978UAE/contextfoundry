@@ -175,35 +175,47 @@ class AnchorResolver:
     def identify_anchor(self, query: str) -> Optional[Dict[str, Any]]:
         """
         Identify the anchor entity for a query.
-        
+
         Priority:
-        1. Explicit mention in query ("CFO of Nexus", "Toyota's CEO")  
-        2. Vault's primary organization (default)
-        
+        1. Explicit organization mention in query ("CFO of Nexus", "Toyota's CEO")
+        2. Entity-scoped query ("budget for Falcon X", "CEO of Toyota JV")
+        3. Vault's primary organization (default)
+
         Args:
             query: The user's question
-            
+
         Returns:
             Dict with anchor entity info, or None if no anchor found
         """
+        # Check for explicit organization mention
         explicit_org = self._extract_organization_from_query(query)
         if explicit_org:
             entity = self._find_entity_by_name(explicit_org)
             if entity:
-                logger.info(f"[ANCHOR] Explicit anchor from query: {entity['name']}")
+                logger.info(f"[ANCHOR] Explicit org anchor from query: {entity['name']}")
                 return entity
-        
+
+        # Check for entity-scoped query (e.g., "budget for Falcon X")
+        entity_mention = self._extract_entity_from_query(query)
+        if entity_mention:
+            entity = self._find_any_entity_by_name(entity_mention)
+            if entity and entity['entity_type'] in ['PROJECT', 'PRODUCT', 'DIVISION', 'INITIATIVE', 'PROGRAM']:
+                logger.info(f"[ANCHOR] Entity-scoped anchor from query: {entity['name']} ({entity['entity_type']})")
+                return entity
+
+        # Default to vault primary org
         primary = self.get_primary_organization()
         if primary:
             logger.info(f"[ANCHOR] Using vault's primary org as anchor: {primary['name']}")
             return primary
-        
+
+        # Auto-detect and cache
         detected = self.determine_primary_organization()
         if detected:
             self.set_primary_organization(detected['id'], detected['name'])
             logger.info(f"[ANCHOR] Auto-detected and cached anchor: {detected['name']}")
             return detected
-        
+
         logger.warning(f"[ANCHOR] No anchor available for query: {query[:50]}...")
         return None
     
@@ -231,6 +243,31 @@ class AnchorResolver:
         
         return None
     
+    def _extract_entity_from_query(self, query: str) -> Optional[str]:
+        """
+        Extract any named entity from query, not just organizations.
+
+        Patterns matched:
+        - "budget for Falcon X"
+        - "CEO of Toyota JV"
+        - "supplier for GreenHydrogen"
+        - "revenue of Aerospace Division"
+        """
+        patterns = [
+            r"(?:for|of|in)\s+([A-Z][A-Za-z\s]+?)(?:\?|$|,|\s+(?:and|or|who|what|which))",
+            r"([A-Z][A-Za-z\s]+?)'s\s+(?:budget|revenue|CEO|capacity|specifications?)",
+            r"(?:budget|revenue|capacity|CEO|director|manager|specifications?)\s+(?:for|of|in)\s+([A-Z][A-Za-z\s]+?)(?:\?|$|,)",
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, query)
+            if match:
+                entity_name = match.group(1).strip()
+                if len(entity_name) > 2 and entity_name.lower() not in ['the', 'this', 'that', 'our', 'its']:
+                    return entity_name
+
+        return None
+
     def _find_entity_by_name(self, name: str) -> Optional[Dict[str, Any]]:
         """Find an organization entity by name (fuzzy match)."""
         try:
@@ -240,7 +277,7 @@ class AnchorResolver:
                 WHERE tenant_id = :tenant_id
                 AND LOWER(name) LIKE :pattern
                 AND entity_type IN ('ORGANIZATION', 'COMPANY', 'BUSINESS_UNIT', 'CORPORATION')
-                ORDER BY 
+                ORDER BY
                     CASE WHEN LOWER(name) = :exact THEN 0 ELSE 1 END,
                     LENGTH(name)
                 LIMIT 1
@@ -249,7 +286,7 @@ class AnchorResolver:
                 "pattern": f"%{name.lower()}%",
                 "exact": name.lower()
             }).fetchone()
-            
+
             if result:
                 return {
                     "id": str(result.id),
@@ -259,6 +296,40 @@ class AnchorResolver:
             return None
         except Exception as e:
             logger.error(f"[ANCHOR] _find_entity_by_name failed: {e}")
+            return None
+
+    def _find_any_entity_by_name(self, name: str) -> Optional[Dict[str, Any]]:
+        """
+        Find ANY entity by name (fuzzy match), not just organizations.
+
+        Used for entity-scoped queries like "budget for Falcon X".
+        """
+        try:
+            result = self.session.execute(text("""
+                SELECT id, name, entity_type
+                FROM entities
+                WHERE tenant_id = :tenant_id
+                AND LOWER(name) LIKE :pattern
+                AND lifecycle_state IN ('TRUSTED', 'STAGING')
+                ORDER BY
+                    CASE WHEN LOWER(name) = :exact THEN 0 ELSE 1 END,
+                    LENGTH(name)
+                LIMIT 1
+            """), {
+                "tenant_id": self.tenant_id,
+                "pattern": f"%{name.lower()}%",
+                "exact": name.lower()
+            }).fetchone()
+
+            if result:
+                return {
+                    "id": str(result.id),
+                    "name": result.name,
+                    "entity_type": result.entity_type
+                }
+            return None
+        except Exception as e:
+            logger.error(f"[ANCHOR] _find_any_entity_by_name failed: {e}")
             return None
 
 
