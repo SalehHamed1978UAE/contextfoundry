@@ -1,40 +1,14 @@
 {
-  "status": "running",
-  "vault_id": "4668fc6d-c401-46d2-9797-4c8785f4d6ce",
-  "question_set_id": "67c09370-b458-4717-8244-2caa52ff6475",
-  "test_run_id": "78d62cfd-6625-4bd8-a980-3aa8dacc9094",
-  "mode": "auto",
-  "corpus_folder": null,
-  "started_at": "2026-02-03T21:44:47.419535",
-  "pid": 7190,
   "stages": {
-    "delete": {
-      "status": "skipped"
-    },
-    "create": {
-      "status": "skipped"
-    },
-    "upload": {
-      "status": "skipped"
-    },
-    "extract": {
-      "status": "complete",
-      "entities": 6143
-    },
     "qa": {
-      "status": "running"
+      "status": "complete"
     }
   },
   "qa_progress": {
     "total": 100,
-    "answered": 23,
-    "passed": 12,
-    "failed": 11,
-    "accuracy_percent": 52.2
-  },
-  "current_question": {
-    "id": 7,
-    "text": "How many employees does Nexus Industries have?"
-  },
-  "updated_at": "2026-02-03T21:49:26.565717"
+    "answered": 100,
+    "passed": 85,
+    "failed": 15,
+    "accuracy_percent": 85.0
+  }
 }
