@@ -1,0 +1,64 @@
+ INSTRUCTION FOR REPLIT:
+
+  Tell Replit exactly this:
+
+  ---
+  Execute Phase 3 now. Start with pre-flight checks:
+
+  # Pre-flight Check 1: Scripts exist
+  ls -la scripts/phase3_ontology_validator.py
+  scripts/phase3_ontology_execution.py
+
+  # Pre-flight Check 2: Corpus exists
+  ls -la "test documents/ClaudeCode_NExus_Industries_corpus/" | head -20
+
+  # Pre-flight Check 3: Database connection
+  python -c "import os; db = os.environ.get('DATABASE_URL'); print('✅ DB 
+  configured' if db else '❌ DB NOT SET')"
+
+  # Pre-flight Check 4: Platform running
+  curl -s http://localhost:5000/api/health && echo " ✅ Platform running" ||
+  echo "❌ Platform NOT running"
+
+  If all 4 checks pass, execute the main workflow:
+
+  python scripts/phase3_ontology_execution.py 2>&1 | tee phase3_execution.log
+
+  This will take 60-90 minutes. Do not interrupt. Let it complete all 5 steps:
+  1. Create vault
+  2. Upload documents
+  3. Ontology extraction (30-60 min - longest stage)
+  4. Run 100Q test
+  5. Run validation
+
+  After completion, run verification commands:
+
+  # Check exit code
+  echo "Exit code: $?"
+
+  # Check overall pass
+  python -c "import json; result = 
+  json.load(open('data/phase3_validation_results.json')); print('✅ OVERALL 
+  PASS' if result['overall_pass'] else '❌ OVERALL FAIL')"
+
+  # Check all gates
+  python -c "
+  import json
+  result = json.load(open('data/phase3_validation_results.json'))
+  print('GATE RESULTS:')
+  for gate, data in result['gates'].items():
+      status = '✅' if data['passed'] else '❌'
+      print(f'{status} {gate}: {data[\"message\"]}')"
+
+  # Check accuracy
+  python -c "import json; d=json.load(open('data/test-runner/status.json')); 
+  print(f\"Accuracy: {d['qa_progress']['accuracy_percent']}% 
+  ({d['qa_progress']['passed']}/{d['qa_progress']['total']} passed)\")"
+
+  # Get vault ID
+  python -c "import json; print('Vault ID:', 
+  json.load(open('data/phase3_validation_results.json'))['vault_id'])"
+
+  Then report results in the format specified in the work plan.
+
+  Begin execution now.
