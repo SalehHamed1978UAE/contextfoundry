@@ -1914,11 +1914,22 @@ class RetrievalRouter:
                 logger.info(f"[ROUTER] Tree-based retrieval ENABLED - attempting hierarchical traversal")
                 tree_retriever = TreeBasedRetriever(self.session, self.tenant_id)
 
-                # Map classification to query_type for tree retrieval
-                query_type_map = {
-                    True: "ROLE" if classification.has_role_reference else "UNKNOWN"
-                }
-                tree_query_type = query_type_map.get(classification.has_role_reference, "UNKNOWN")
+                # Expanded query type mapping based on classification
+                tree_query_type = "UNKNOWN"
+                if classification.has_role_reference:
+                    tree_query_type = "ROLE"
+                elif classification.query_type == "AGGREGATION":
+                    tree_query_type = "AGGREGATION"
+                elif classification.query_type == "ATTRIBUTE":
+                    tree_query_type = "ATTRIBUTE"
+                elif classification.query_type == "RELATIONSHIP":
+                    tree_query_type = "RELATIONSHIP"
+                elif classification.query_type == "EXPLORATION":
+                    tree_query_type = "EXPLORATION"
+                elif classification.retrieval_strategy in ["GRAPH_ONLY", "HYBRID"]:
+                    tree_query_type = "GRAPH"
+                
+                logger.info(f"[ROUTER] Tree query type detected: {tree_query_type} (classification: {classification.query_type})")
 
                 tree_result = tree_retriever.retrieve(
                     query=query,
