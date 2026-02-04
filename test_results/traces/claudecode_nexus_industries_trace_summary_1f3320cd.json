@@ -1,10 +1,10 @@
 {
-  "run_timestamp": "2026-02-03T03:04:04.466237",
+  "run_timestamp": "2026-02-04T08:10:45.615298",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
     "avg_chunks_retrieved": 3.39,
-    "avg_semantic_score": 0.07315199999999997,
+    "avg_semantic_score": 0.06413999999999997,
     "query_type_distribution": {
       "unknown": 100
     },
@@ -17,7 +17,7 @@
       "entity_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 90
+    "low_score_queries": 91
   },
   "low_score_questions": [
     {
@@ -113,7 +113,7 @@
     {
       "q_id": 20,
       "question": "Which supplier is rated Red and at risk?",
-      "avg_score": 0.3252
+      "avg_score": 0.3251
     },
     {
       "q_id": 21,
@@ -469,6 +469,11 @@
       "q_id": 99,
       "question": "How does Nexus's operating margin compare to target?",
       "avg_score": 0.0
+    },
+    {
+      "q_id": 100,
+      "question": "What is the total value of top 3 customer relationships?",
+      "avg_score": 0.0
     }
   ],
   "failures_by_type": {
@@ -479,9 +484,9 @@
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "01_executive_team.md",
           "05_digital_division_structure.md",
-          "03_aerospace_division_structure.md"
+          "10_rd_investment_report.md",
+          "10_quarterly_newsletter.md"
         ]
       },
       {
@@ -490,8 +495,8 @@
         "expected": "Nexus Advanced Materials (1.24 TRIR)",
         "actual": "The division with the highest safety inc",
         "files_retrieved": [
-          "05_safety_committee_meeting.md",
-          "07_environmental_health_safety.md"
+          "07_environmental_health_safety.md",
+          "05_safety_committee_meeting.md"
         ]
       },
       {
@@ -508,8 +513,8 @@
         "actual": "Dr. Victoria Chen was appointed CEO of N",
         "files_retrieved": [
           "02_organizational_announcement.md",
-          "01_executive_team.md",
-          "08_hr_talent_review.md"
+          "01_board_meeting_q4_2025.md",
+          "01_executive_team.md"
         ]
       },
       {
@@ -518,9 +523,9 @@
         "expected": "Siemens Healthineers ($65 million)",
         "actual": "The primary customer for HTS superconduc",
         "files_retrieved": [
+          "05_siemens_healthineers_customer.md",
           "01_boeing_customer_profile.md",
-          "02_airbus_customer_profile.md",
-          "05_siemens_healthineers_customer.md"
+          "Unknown"
         ]
       },
       {
@@ -550,8 +555,8 @@
         "expected": "Caterpillar",
         "actual": "The mining automation partner for Nexus ",
         "files_retrieved": [
-          "04_toyota_partnership_announcement.md",
-          "09_competitive_intelligence.md"
+          "09_competitive_intelligence.md",
+          "04_toyota_partnership_announcement.md"
         ]
       },
       {
@@ -587,11 +592,11 @@
         "q_id": 100,
         "question": "What is the total value of top 3 customer relationships?",
         "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
-        "actual": "The total value of the top 3 customer re",
+        "actual": "I couldn't retrieve the total value of t",
         "files_retrieved": [
+          "01_boeing_customer_profile.md",
           "Unknown",
-          "11_microsoft_customer.md",
-          "01_boeing_customer_profile.md"
+          "11_microsoft_customer.md"
         ]
       }
     ]
