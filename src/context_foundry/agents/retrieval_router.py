@@ -1903,7 +1903,51 @@ class RetrievalRouter:
             expanded_query=expanded_query,
             classified_query=classified_query
         )
-        
+
+        # TREE-BASED RETRIEVAL: If enabled, try hierarchical graph traversal first
+        from src.context_foundry.config.feature_flags import is_tree_based_retrieval_enabled
+
+        if is_tree_based_retrieval_enabled():
+            try:
+                from src.context_foundry.retrieval.tree_retriever import TreeBasedRetriever
+
+                logger.info(f"[ROUTER] Tree-based retrieval ENABLED - attempting hierarchical traversal")
+                tree_retriever = TreeBasedRetriever(self.session, self.tenant_id)
+
+                # Map classification to query_type for tree retrieval
+                query_type_map = {
+                    True: "ROLE" if classification.has_role_reference else "UNKNOWN"
+                }
+                tree_query_type = query_type_map.get(classification.has_role_reference, "UNKNOWN")
+
+                tree_result = tree_retriever.retrieve(
+                    query=query,
+                    query_type=tree_query_type,
+                    max_depth=3
+                )
+
+                # Use tree results if confidence is high or medium
+                if tree_result.confidence in ['high', 'medium']:
+                    logger.info(f"[ROUTER] Tree-based retrieval SUCCESS: confidence={tree_result.confidence}, "
+                               f"entities={len(tree_result.entities)}, rels={len(tree_result.relationships)}")
+
+                    result.entities = tree_result.entities
+                    result.relationships = tree_result.relationships
+                    result.strategy_used = f"TREE_BASED_{tree_result.confidence.upper()}"
+
+                    # Also get document chunks for context
+                    chunks = self._search_documents(query, classification, role_resolution, limit)
+                    result.chunks = chunks
+
+                    logger.info(f"[ROUTER] Tree-based complete: {len(result.entities)} entities, "
+                               f"{len(result.relationships)} rels, {len(result.chunks)} chunks")
+                    return result
+                else:
+                    logger.info(f"[ROUTER] Tree-based retrieval LOW/NONE confidence, falling back to standard pipeline")
+
+            except Exception as e:
+                logger.warning(f"[ROUTER] Tree-based retrieval failed: {e}, falling back to standard pipeline")
+
         # PERSON QUERY ROUTING: For person/role queries, call _lookup_person_role() FIRST
         # This ensures KG relationships (HOLDS_POSITION) are retrieved before document search
         if query_type == 'person' and detected_person_names:
