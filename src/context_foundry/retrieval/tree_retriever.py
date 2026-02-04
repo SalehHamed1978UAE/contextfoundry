@@ -302,13 +302,18 @@ class TreeBasedRetriever:
                 "tenant_id": self.tenant_id
             }).fetchall()
 
-            return [{
+            connected_list = [{
                 'id': str(r.connected_id),
                 'name': r.connected_name,
                 'entity_type': r.connected_type,
                 'edge_type': r.edge_type,
                 'direction': r.direction
             } for r in results]
+
+            logger.debug(f"[TREE] Entity {entity_id[:8]} has {len(connected_list)} connected entities " +
+                        f"(filtering for: {relationship_types[:3] if len(relationship_types) > 3 else relationship_types}...)")
+
+            return connected_list
 
         except Exception as e:
             logger.error(f"[TREE] Error getting connected entities: {e}")
