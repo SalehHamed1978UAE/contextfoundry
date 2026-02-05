@@ -7306,5 +7306,10 @@ if __name__ == '__main__':
         print(f"[Platform] Port check skipped (started via start.sh)")
     
     init_scheduler()
+    
+    from src.context_foundry.config.feature_flags import is_tree_based_retrieval_enabled
+    tree_enabled = is_tree_based_retrieval_enabled()
+    print(f"[Config] Tree-based retrieval: {str(tree_enabled).lower()}")
+    
     print(f"[Platform] Starting on port {port}")
     app.run(host='0.0.0.0', port=port, debug=True, threaded=True, use_reloader=False)
