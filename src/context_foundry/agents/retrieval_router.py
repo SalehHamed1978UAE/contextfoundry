@@ -2374,65 +2374,67 @@ class QueryPipeline:
             # Handle scoped role resolution (Stage -1) - direct answer for "CEO of X" queries
             # This handles queries like "Who is the CEO of NextGen Battery Technologies?"
             # where the role resolver found a specific person via graph traversal
-            if (role_resolution.is_resolved 
-                and not role_resolution.has_multiple_matches
-                and role_resolution.resolution_method == "stage_minus1_scoped_entity"):
-                
-                logger.info(f"[PIPELINE] Scoped role resolution SUCCESS: {classification.role_referenced} of scoped entity → {role_resolution.resolved_name}")
-                
-                # Build direct answer result - this is a definitive answer from KG
-                result = RetrievalResult(
-                    entities=[],
-                    relationships=[],
-                    chunks=[],
-                    strategy_used="SCOPED_ROLE_RESOLUTION",
-                    query=query,
-                    classification=classification,
-                    role_resolution=role_resolution,
-                    intent=intent
-                )
-                
-                # Add the resolved person as context for the agent
-                result.entities = [{
-                    "name": role_resolution.resolved_name,
-                    "type": "PERSON",
-                    "role": role_resolution.role,
-                    "scoped_entity": role_resolution.metadata.get("scoped_entity") if role_resolution.metadata else None,
-                    "resolution_method": "scoped_role_resolution"
-                }]
-                
-                return result
+            # DISABLED: Allow queries to flow through to tree-based retrieval
+            # if (role_resolution.is_resolved 
+            #     and not role_resolution.has_multiple_matches
+            #     and role_resolution.resolution_method == "stage_minus1_scoped_entity"):
+            #     
+            #     logger.info(f"[PIPELINE] Scoped role resolution SUCCESS: {classification.role_referenced} of scoped entity → {role_resolution.resolved_name}")
+            #     
+            #     # Build direct answer result - this is a definitive answer from KG
+            #     result = RetrievalResult(
+            #         entities=[],
+            #         relationships=[],
+            #         chunks=[],
+            #         strategy_used="SCOPED_ROLE_RESOLUTION",
+            #         query=query,
+            #         classification=classification,
+            #         role_resolution=role_resolution,
+            #         intent=intent
+            #     )
+            #     
+            #     # Add the resolved person as context for the agent
+            #     result.entities = [{
+            #         "name": role_resolution.resolved_name,
+            #         "type": "PERSON",
+            #         "role": role_resolution.role,
+            #         "scoped_entity": role_resolution.metadata.get("scoped_entity") if role_resolution.metadata else None,
+            #         "resolution_method": "scoped_role_resolution"
+            #     }]
+            #     
+            #     return result
             
             # Handle scoped role resolution FAILURE - "I don't know" response
             # When user asks "Who is the CEO of NextGen Battery Technologies?" and we can't find it,
             # return a definitive "not found" instead of falling through to wrong answers
-            if role_resolution.resolution_method == "scoped_entity_not_found":
-                scoped_entity = role_resolution.metadata.get("scoped_entity", "the entity") if role_resolution.metadata else "the entity"
-                scoped_role = role_resolution.role or "that role"
-                
-                logger.info(f"[PIPELINE] Scoped role resolution FAILED: '{scoped_role}' of '{scoped_entity}' - returning 'I don't know'")
-                
-                # Build a "not found" result that signals to the reasoning agent to admit uncertainty
-                result = RetrievalResult(
-                    entities=[],
-                    relationships=[],
-                    chunks=[],
-                    strategy_used="SCOPED_ROLE_NOT_FOUND",
-                    query=query,
-                    classification=classification,
-                    role_resolution=role_resolution,
-                    intent=intent
-                )
-                
-                # Add metadata so downstream can generate "I don't know" response
-                result.entities = [{
-                    "type": "NOT_FOUND",
-                    "scoped_entity": scoped_entity,
-                    "scoped_role": scoped_role,
-                    "message": f"I couldn't find information about the {scoped_role} of {scoped_entity} in the knowledge base."
-                }]
-                
-                return result
+            # DISABLED: Allow queries to flow through to tree-based retrieval
+            # if role_resolution.resolution_method == "scoped_entity_not_found":
+            #     scoped_entity = role_resolution.metadata.get("scoped_entity", "the entity") if role_resolution.metadata else "the entity"
+            #     scoped_role = role_resolution.role or "that role"
+            #     
+            #     logger.info(f"[PIPELINE] Scoped role resolution FAILED: '{scoped_role}' of '{scoped_entity}' - returning 'I don't know'")
+            #     
+            #     # Build a "not found" result that signals to the reasoning agent to admit uncertainty
+            #     result = RetrievalResult(
+            #         entities=[],
+            #         relationships=[],
+            #         chunks=[],
+            #         strategy_used="SCOPED_ROLE_NOT_FOUND",
+            #         query=query,
+            #         classification=classification,
+            #         role_resolution=role_resolution,
+            #         intent=intent
+            #     )
+            #     
+            #     # Add metadata so downstream can generate "I don't know" response
+            #     result.entities = [{
+            #         "type": "NOT_FOUND",
+            #         "scoped_entity": scoped_entity,
+            #         "scoped_role": scoped_role,
+            #         "message": f"I couldn't find information about the {scoped_role} of {scoped_entity} in the knowledge base."
+            #     }]
+            #     
+            #     return result
             
             should_chain = (
                 intent 
