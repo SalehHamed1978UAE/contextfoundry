@@ -176,8 +176,8 @@ class TreeBasedRetriever:
 
             visited.add(entity_id)
 
-            # Get entity details
-            entity = self._get_entity_details(entity_id)
+            # Get entity details (allow ARCHIVED anchor at depth 0 for traversal bootstrap)
+            entity = self._get_entity_details(entity_id, allow_archived=(depth == 0))
             if not entity:
                 continue
 
@@ -203,9 +203,10 @@ class TreeBasedRetriever:
         logger.info(f"[TREE] BFS complete: visited {len(visited)} entities, found {len(results)} matches")
         return results
 
-    def _get_entity_details(self, entity_id: str) -> Optional[Dict[str, Any]]:
+    def _get_entity_details(self, entity_id: str, allow_archived: bool = False) -> Optional[Dict[str, Any]]:
         """Get full entity details including properties and embedding."""
         try:
+            lifecycle_filter = "('TRUSTED', 'STAGING', 'ARCHIVED')" if allow_archived else "('TRUSTED', 'STAGING')"
             result = self.session.execute(text("""
                 SELECT
                     id, name, entity_type,
@@ -216,7 +217,7 @@ class TreeBasedRetriever:
                 FROM entities
                 WHERE id = :entity_id
                 AND tenant_id = :tenant_id
-                AND lifecycle_state IN ('TRUSTED', 'STAGING')
+                AND lifecycle_state IN """ + lifecycle_filter + """
             """), {
                 "entity_id": entity_id,
                 "tenant_id": self.tenant_id
