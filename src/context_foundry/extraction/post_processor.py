@@ -201,6 +201,26 @@ ORGANIZATION_PATTERNS = [
      "works_at_reverse", 0.90),
 ]
 
+# Financial metric patterns - capture key financial values with optional period
+FINANCIAL_METRIC_PATTERNS = [
+    # FY2025 revenue was $1.2B
+    (r'\b(?:FY\s?(\d{4})|fiscal year\s?(\d{4}))?\s*'
+     r'(revenue|sales|income|profit|margin|backlog|budget|spend|cost|expense)\s*'
+     r'(?:was|is|:|of|totaled|amounted to)?\s*\$?([0-9,]+(?:\.[0-9]+)?)\s*'
+     r'(billion|million|bn|m)?\b',
+     0.85),
+]
+
+# Agreement value patterns - capture agreement/contract values with counterparty
+AGREEMENT_VALUE_PATTERNS = [
+    # Shell hydrogen offtake agreement valued at $450M
+    (r'\b([A-Z][A-Za-z0-9&.\-\s]{2,40}?)\s+'
+     r'(?:agreement|contract|offtake|deal|partnership)\s+'
+     r'(?:valued at|value of|worth|for|totaling)\s*\$?([0-9,]+(?:\.[0-9]+)?)\s*'
+     r'(billion|million|bn|m)?\b',
+     0.85),
+]
+
 INVESTMENT_PATTERNS = [
     (r'PORTFOLIO\s+COMPANY[:\s]+([A-Z][A-Za-z0-9&.-]*(?:[ \t]+[A-Z][A-Za-z0-9&.-]*)*)(?=\s*\n|\s*$)',
      "portfolio_header", 0.95),
@@ -527,6 +547,15 @@ class ExtractionPostProcessor:
         new_entities.extend(supplier_entities)
         patterns_matched += len(supplier_rels)
 
+        # Financial metric and agreement extraction (org-linked)
+        primary_org = self._get_primary_organization(existing_entities)
+        fin_entities, fin_rels = self._extract_financial_metrics(
+            document_text, existing_entity_names, existing_rel_keys, primary_org
+        )
+        new_entities.extend(fin_entities)
+        new_relationships.extend(fin_rels)
+        patterns_matched += len(fin_rels)
+
         # Extract technical specifications (energy density, temperature ranges, capacities, etc.)
         spec_entities = self._extract_specification_entities(
             document_text, existing_entity_names
@@ -549,6 +578,118 @@ class ExtractionPostProcessor:
             patterns_matched=patterns_matched,
             processing_time_ms=elapsed_ms
         )
+
+    def _get_primary_organization(self, entities: List[Dict]) -> Optional[str]:
+        """Pick a primary organization name from existing entities."""
+        for e in entities:
+            entity_type = (e.get('entity_type') or '').upper()
+            if entity_type in ('ORGANIZATION', 'COMPANY', 'BUSINESS_UNIT', 'DIVISION'):
+                name = e.get('name') or e.get('canonical_name')
+                if name:
+                    return name
+        return None
+
+    def _extract_financial_metrics(
+        self,
+        document_text: str,
+        existing_entity_names: Set[str],
+        existing_rel_keys: Set[Tuple[str, str, str]],
+        primary_org: Optional[str]
+    ) -> Tuple[List[Dict], List[ExtractedRelationshipFromPattern]]:
+        """
+        Extract financial metric and agreement relationships.
+        Creates FINANCIAL_METRIC / AGREEMENT entities and links them to the primary org.
+        """
+        if not primary_org:
+            return [], []
+
+        new_entities: List[Dict] = []
+        new_relationships: List[ExtractedRelationshipFromPattern] = []
+
+        # Financial metrics
+        for pattern, confidence in FINANCIAL_METRIC_PATTERNS:
+            for match in re.finditer(pattern, document_text, flags=re.IGNORECASE):
+                fy1, fy2, metric_type, value, unit = match.groups()
+                period = f"FY{fy1 or fy2}" if (fy1 or fy2) else "UNKNOWN"
+                metric_type_norm = (metric_type or "metric").lower()
+                unit_norm = (unit or "").lower()
+                metric_name = f"{primary_org} {metric_type_norm} ({period})"
+                canonical_name = f"{primary_org}_{metric_type_norm}_{period}".replace(" ", "_")
+
+                if canonical_name.lower() not in existing_entity_names:
+                    new_entities.append({
+                        "name": metric_name,
+                        "entity_type": "FINANCIAL_METRIC",
+                        "confidence": confidence,
+                        "attributes": {
+                            "metric_type": metric_type_norm,
+                            "value": value.replace(",", ""),
+                            "unit": unit_norm,
+                            "time_period": period,
+                        }
+                    })
+                    existing_entity_names.add(canonical_name.lower())
+
+                rel_type = {
+                    "revenue": "HAS_REVENUE",
+                    "sales": "HAS_REVENUE",
+                    "budget": "HAS_BUDGET",
+                    "spend": "HAS_COST",
+                    "cost": "HAS_COST",
+                    "expense": "HAS_COST",
+                    "profit": "HAS_METRIC",
+                    "margin": "HAS_METRIC",
+                    "backlog": "HAS_METRIC",
+                    "income": "HAS_METRIC",
+                }.get(metric_type_norm, "HAS_METRIC")
+
+                rel_key = (primary_org.lower(), rel_type, metric_name.lower())
+                if rel_key not in existing_rel_keys:
+                    new_relationships.append(ExtractedRelationshipFromPattern(
+                        relationship_type=rel_type,
+                        source_name=primary_org,
+                        target_name=metric_name,
+                        confidence=confidence,
+                        pattern_name="financial_metric",
+                        source_text=match.group(0),
+                    ))
+                    existing_rel_keys.add(rel_key)
+
+        # Agreements with value
+        for pattern, confidence in AGREEMENT_VALUE_PATTERNS:
+            for match in re.finditer(pattern, document_text, flags=re.IGNORECASE):
+                counterparty, value, unit = match.groups()
+                counterparty = (counterparty or "Counterparty").strip()
+                unit_norm = (unit or "").lower()
+                agreement_name = f"{counterparty} Agreement"
+                canonical_name = f"{primary_org}_{counterparty}_agreement".replace(" ", "_")
+
+                if canonical_name.lower() not in existing_entity_names:
+                    new_entities.append({
+                        "name": agreement_name,
+                        "entity_type": "AGREEMENT",
+                        "confidence": confidence,
+                        "attributes": {
+                            "counterparty": counterparty,
+                            "value": value.replace(",", ""),
+                            "unit": unit_norm,
+                        }
+                    })
+                    existing_entity_names.add(canonical_name.lower())
+
+                rel_key = (primary_org.lower(), "HAS_AGREEMENT", agreement_name.lower())
+                if rel_key not in existing_rel_keys:
+                    new_relationships.append(ExtractedRelationshipFromPattern(
+                        relationship_type="HAS_AGREEMENT",
+                        source_name=primary_org,
+                        target_name=agreement_name,
+                        confidence=confidence,
+                        pattern_name="agreement_value",
+                        source_text=match.group(0),
+                    ))
+                    existing_rel_keys.add(rel_key)
+
+        return new_entities, new_relationships
 
     def _build_entity_name_set(self, entities: List[Dict]) -> Set[str]:
         """Build a set of normalized entity names for lookup."""

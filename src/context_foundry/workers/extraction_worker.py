@@ -345,6 +345,30 @@ class ExtractionWorker:
                     spreadsheet_doc.tables,
                     file_name
                 )
+
+                # Extract financial metrics as entities/relationships (spreadsheet)
+                try:
+                    if spreadsheet_doc.tables:
+                        # Aggregate financial metrics across tables
+                        financial_metrics = {}
+                        for table in spreadsheet_doc.tables:
+                            if table.financial_metrics:
+                                for metric_type, values in table.financial_metrics.items():
+                                    financial_metrics.setdefault(metric_type, {}).update(values)
+
+                        if financial_metrics:
+                            from ..extraction.financial_calculator import FinancialMetricExtractor
+                            fm_extractor = FinancialMetricExtractor()
+                            fm_entities = fm_extractor.extract_entities(financial_metrics, file_name)
+                            fm_relationships = fm_extractor.extract_relationships(fm_entities)
+
+                            # Merge into row-level entities/relationships for insertion
+                            row_entities.extend(fm_entities)
+                            row_relationships.extend(fm_relationships)
+                            logger.info(f"[ExtractionWorker] Added {len(fm_entities)} financial metric entities and "
+                                        f"{len(fm_relationships)} metric relationships from spreadsheet")
+                except Exception as e:
+                    logger.warning(f"[ExtractionWorker] Financial metric extraction failed: {e}")
                 
                 if row_entities:
                     logger.info(f"[ExtractionWorker] Extracted {len(row_entities)} row-level entities from spreadsheet")
