@@ -155,6 +155,53 @@ DEFAULT_ONTOLOGIES = {
             RelationshipTypeSchema("PREREQUISITE_FOR", "Procedure is prerequisite for another", ["PROCEDURE"], ["PROCEDURE"]),
         ]
     ),
+    "GENERAL": ReferenceOntology(
+        id=None,
+        tenant_id="",
+        document_type="GENERAL",
+        entity_types=[
+            EntityTypeSchema("PERSON", "A human individual mentioned in the document"),
+            EntityTypeSchema("ORGANIZATION", "A company, institution, or business entity"),
+            EntityTypeSchema("PROJECT", "A business project, initiative, or program"),
+            EntityTypeSchema("ROLE", "A job title or position"),
+            EntityTypeSchema("DEPARTMENT", "An organizational unit or team"),
+            EntityTypeSchema("LOCATION", "A geographic location, city, or region"),
+            EntityTypeSchema("DATE", "A date, time period, or deadline"),
+            EntityTypeSchema("METRIC", "A quantitative measurement or KPI"),
+            EntityTypeSchema("REVENUE", "Revenue, sales, or income amount"),
+            EntityTypeSchema("BUDGET", "Budget, cost, or financial allocation"),
+            EntityTypeSchema("AGREEMENT", "A contract, deal, or business agreement"),
+            EntityTypeSchema("SUPPLIER", "A vendor, supplier, or partner organization"),
+            EntityTypeSchema("TECHNOLOGY", "A technology, system, or platform"),
+        ],
+        relationship_types=[
+            # Role and organizational relationships
+            RelationshipTypeSchema("LEADS", "Person leads or is CEO of an organization", ["PERSON"], ["ORGANIZATION", "DEPARTMENT"]),
+            RelationshipTypeSchema("CEO_OF", "Person is CEO of an organization", ["PERSON"], ["ORGANIZATION"]),
+            RelationshipTypeSchema("CFO_OF", "Person is CFO of an organization", ["PERSON"], ["ORGANIZATION"]),
+            RelationshipTypeSchema("CTO_OF", "Person is CTO of an organization", ["PERSON"], ["ORGANIZATION"]),
+            RelationshipTypeSchema("COO_OF", "Person is COO of an organization", ["PERSON"], ["ORGANIZATION"]),
+            RelationshipTypeSchema("CHAIRS", "Person chairs or leads a team/department", ["PERSON"], ["DEPARTMENT", "ORGANIZATION"]),
+            RelationshipTypeSchema("MANAGES", "Person manages a department or project", ["PERSON"], ["DEPARTMENT", "PROJECT"]),
+            RelationshipTypeSchema("HOLDS_POSITION", "Person holds a role at an organization", ["PERSON"], ["ROLE"]),
+            RelationshipTypeSchema("WORKS_AT", "Person works at an organization", ["PERSON"], ["ORGANIZATION"]),
+            RelationshipTypeSchema("PROJECT_DIRECTOR_OF", "Person is director of a project", ["PERSON"], ["PROJECT"]),
+
+            # Financial and metric relationships (NEW - for tree retrieval)
+            RelationshipTypeSchema("HAS_REVENUE", "Organization has revenue or sales amount", ["ORGANIZATION", "PROJECT"], ["REVENUE", "METRIC"]),
+            RelationshipTypeSchema("HAS_BUDGET", "Organization or project has budget allocation", ["ORGANIZATION", "PROJECT"], ["BUDGET", "METRIC"]),
+            RelationshipTypeSchema("HAS_AGREEMENT", "Organization has agreement or contract", ["ORGANIZATION"], ["AGREEMENT", "SUPPLIER"]),
+            RelationshipTypeSchema("HAS_METRIC", "Entity has associated metric or measurement", ["ORGANIZATION", "PROJECT", "DEPARTMENT"], ["METRIC"]),
+            RelationshipTypeSchema("SUPPLIES_TO", "Supplier provides goods/services to organization", ["SUPPLIER"], ["ORGANIZATION"]),
+
+            # Project and business relationships
+            RelationshipTypeSchema("OWNS", "Organization owns a project or initiative", ["ORGANIZATION"], ["PROJECT"]),
+            RelationshipTypeSchema("LAUNCHES", "Organization launches a project or product", ["ORGANIZATION"], ["PROJECT"]),
+            RelationshipTypeSchema("USES", "Organization uses a technology or system", ["ORGANIZATION", "PROJECT"], ["TECHNOLOGY"]),
+            RelationshipTypeSchema("LOCATED_IN", "Entity is located in a place", ["ORGANIZATION", "PERSON"], ["LOCATION"]),
+            RelationshipTypeSchema("PART_OF", "Department is part of organization", ["DEPARTMENT"], ["ORGANIZATION"]),
+        ]
+    ),
 }
 
 

@@ -73,10 +73,11 @@ class IntentExtractor:
                 r'what is the (?:revenue|budget|capacity|cost|value|price|salary)',
                 r'how much (?:is|does|will)',
                 r'what (?:is|are) the (?:total|annual|monthly)',
+                r'(?:revenue|budget|agreement|contract|supplier)',
             ],
-            'entity_types': ['METRIC', 'FINANCIAL_DATA', 'SPECIFICATION', 'NUMBER'],
+            'entity_types': ['METRIC', 'FINANCIAL_DATA', 'SPECIFICATION', 'NUMBER', 'REVENUE', 'BUDGET', 'AGREEMENT'],
             'relationship_types': ['HAS_REVENUE', 'HAS_BUDGET', 'HAS_METRIC', 'HAS_SPEC',
-                                  'HAS_CAPACITY', 'HAS_VALUE', 'HAS_COST'],
+                                  'HAS_CAPACITY', 'HAS_VALUE', 'HAS_COST', 'HAS_AGREEMENT', 'SUPPLIES_TO'],
             'question_type': 'what'
         },
 

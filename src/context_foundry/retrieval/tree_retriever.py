@@ -63,7 +63,7 @@ class TreeBasedRetriever:
 
         # Entity to specifications/metrics
         'HAS_SPEC', 'HAS_METRIC', 'HAS_REVENUE', 'HAS_BUDGET', 'HAS_CAPACITY',
-        'HAS_VALUE', 'HAS_COST',
+        'HAS_VALUE', 'HAS_COST', 'HAS_AGREEMENT',
 
         # Temporal relationships
         'STARTED_ON', 'ENDED_ON', 'SCHEDULED_FOR', 'EXPECTED_ON',
