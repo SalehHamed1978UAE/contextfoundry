@@ -29,6 +29,10 @@ for i in 1 2 3; do
     sleep 2
 done
 
+# Enable tree-based retrieval
+export CF_TREE_BASED_RETRIEVAL=true
+echo "[Config] Tree-based retrieval: $CF_TREE_BASED_RETRIEVAL"
+
 # Start Brain Service on port 3000
 echo "[Start] Starting Brain Service on port 3000..."
 cd /home/runner/workspace
