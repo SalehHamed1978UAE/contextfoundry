@@ -1846,7 +1846,64 @@ class RetrievalRouter:
         
         logger.info(f"[ROUTER] Attribute search found {len(all_chunks)} chunks for {entity_name}/{original_role}")
         return all_chunks[:limit]
-    
+
+    def _map_classification_to_tree_query_type(self, query: str, classification: QueryClassification) -> str:
+        """
+        Map QueryClassification to TreeBasedRetriever query types.
+
+        Returns one of: ROLE, METRIC, PROJECT, RELATIONSHIP, AGGREGATION, COMPARISON, TEMPORAL, SPECIFICATION
+
+        This mapper analyzes both the QueryClassification attributes and the query text
+        to determine the most appropriate tree retrieval query type.
+        """
+        query_lower = query.lower()
+
+        # ROLE queries: Has role reference or person query
+        if classification.has_role_reference:
+            return "ROLE"
+
+        # AGGREGATION queries: Has ranking intent or aggregation type
+        if classification.has_ranking_intent or classification.query_type == 'AGGREGATION':
+            return "AGGREGATION"
+
+        # RELATIONSHIP queries: Explicit relationship type
+        if classification.query_type == 'RELATIONSHIP':
+            return "RELATIONSHIP"
+
+        # METRIC queries: Check for financial/numerical keywords
+        metric_keywords = [
+            'revenue', 'budget', 'capacity', 'cost', 'value', 'price',
+            'expenditure', 'capex', 'opex', 'margin', 'profit', 'salary',
+            'total', 'annual', 'monthly', 'quarterly', 'financial'
+        ]
+        if any(keyword in query_lower for keyword in metric_keywords):
+            return "METRIC"
+
+        # PROJECT queries: Check for project/launch keywords
+        project_keywords = [
+            'launching', 'launch', 'project', 'program', 'initiative',
+            'start', 'complete', 'deadline', 'milestone'
+        ]
+        if any(keyword in query_lower for keyword in project_keywords):
+            return "PROJECT"
+
+        # TEMPORAL queries: Check for time-related keywords
+        temporal_keywords = ['when', 'former', 'previous', 'current', 'future', 'was', 'will be']
+        if any(keyword in query_lower for keyword in temporal_keywords):
+            return "TEMPORAL"
+
+        # COMPARISON queries: Check for comparison keywords
+        comparison_keywords = ['compare', 'versus', 'vs', 'difference', 'better', 'worse']
+        if any(keyword in query_lower for keyword in comparison_keywords):
+            return "COMPARISON"
+
+        # Check for ATTRIBUTE queries (questions about entity properties)
+        if classification.query_type == 'ATTRIBUTE':
+            return "SPECIFICATION"
+
+        # Default to UNKNOWN if no pattern matches
+        return "UNKNOWN"
+
     def route(
         self,
         query: str,
@@ -1914,21 +1971,8 @@ class RetrievalRouter:
                 logger.info(f"[ROUTER] Tree-based retrieval ENABLED - attempting hierarchical traversal")
                 tree_retriever = TreeBasedRetriever(self.session, self.tenant_id)
 
-                # Expanded query type mapping based on classification
-                tree_query_type = "UNKNOWN"
-                if classification.has_role_reference:
-                    tree_query_type = "ROLE"
-                elif classification.query_type == "AGGREGATION":
-                    tree_query_type = "AGGREGATION"
-                elif classification.query_type == "ATTRIBUTE":
-                    tree_query_type = "ATTRIBUTE"
-                elif classification.query_type == "RELATIONSHIP":
-                    tree_query_type = "RELATIONSHIP"
-                elif classification.query_type == "EXPLORATION":
-                    tree_query_type = "EXPLORATION"
-                elif classification.retrieval_strategy in ["GRAPH_ONLY", "HYBRID"]:
-                    tree_query_type = "GRAPH"
-                
+                # Map classification to query_type for tree retrieval
+                tree_query_type = self._map_classification_to_tree_query_type(query, classification)
                 logger.info(f"[ROUTER] Tree query type detected: {tree_query_type} (classification: {classification.query_type})")
 
                 tree_result = tree_retriever.retrieve(
