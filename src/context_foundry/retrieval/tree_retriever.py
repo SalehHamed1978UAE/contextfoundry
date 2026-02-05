@@ -72,6 +72,17 @@ class TreeBasedRetriever:
         'CEO_OF', 'CFO_OF', 'CTO_OF', 'PROJECT_DIRECTOR_OF', 'CHAIRS',
     ]
 
+    # Relationship types that imply specific roles (for ROLE queries)
+    RELATIONSHIP_TO_ROLE = {
+        'LEADS': ['CEO', 'CHIEF EXECUTIVE OFFICER', 'PRESIDENT'],
+        'CEO_OF': ['CEO', 'CHIEF EXECUTIVE OFFICER'],
+        'CFO_OF': ['CFO', 'CHIEF FINANCIAL OFFICER'],
+        'CTO_OF': ['CTO', 'CHIEF TECHNOLOGY OFFICER'],
+        'COO_OF': ['COO', 'CHIEF OPERATING OFFICER'],
+        'CHAIRS': ['CHAIR', 'CHAIRPERSON'],
+        'PROJECT_DIRECTOR_OF': ['DIRECTOR', 'PROJECT DIRECTOR'],
+    }
+
     def __init__(self, session: Session, tenant_id: str):
         self.session = session
         self.tenant_id = tenant_id
@@ -162,7 +173,7 @@ class TreeBasedRetriever:
         filtered by intent (entity type, relationship type, properties).
         """
         visited: Set[str] = set()
-        queue: List[Tuple[str, int]] = [(anchor['id'], 0)]  # (entity_id, depth)
+        queue: List[Tuple[str, int, Optional[str]]] = [(anchor['id'], 0, None)]  # (entity_id, depth, edge_type)
         results: List[Dict[str, Any]] = []
 
         logger.info(f"[TREE] Starting BFS from anchor: {anchor['name']}")
@@ -170,7 +181,7 @@ class TreeBasedRetriever:
         logger.info(f"[TREE] Relationship types: {intent.relationship_types[:5]}...")
 
         while queue:
-            entity_id, depth = queue.pop(0)
+            entity_id, depth, edge_type = queue.pop(0)
 
             if entity_id in visited or depth > max_depth:
                 continue
@@ -183,7 +194,7 @@ class TreeBasedRetriever:
                 continue
 
             # Check if entity matches intent
-            if self._matches_intent(entity, intent, depth):
+            if self._matches_intent(entity, intent, depth, edge_type=edge_type):
                 results.append({
                     'entity': entity,
                     'depth': depth,
@@ -204,7 +215,7 @@ class TreeBasedRetriever:
                     logger.info(f"[TREE] Zero connections found - checking if this entity ID exists in relationships")
                 for conn in connected:
                     if conn['id'] not in visited:
-                        queue.append((conn['id'], depth + 1))
+                        queue.append((conn['id'], depth + 1, conn.get('edge_type')))
 
         logger.info(f"[TREE] BFS complete: visited {len(visited)} entities, found {len(results)} matches")
         return results
@@ -330,7 +341,8 @@ class TreeBasedRetriever:
         self,
         entity: Dict[str, Any],
         intent: QueryIntent,
-        depth: int
+        depth: int,
+        edge_type: Optional[str] = None
     ) -> bool:
         """
         Check if entity matches the query intent.
@@ -349,16 +361,22 @@ class TreeBasedRetriever:
             if entity['entity_type'] not in intent.target_entity_types:
                 return False
 
-        # Check property filters
-        if intent.property_filters:
-            props = entity.get('properties', {})
-            for key, value in intent.property_filters.items():
-                prop_value = props.get(key, '')
-                if isinstance(prop_value, str):
-                    if value.lower() not in prop_value.lower():
+        # ROLE queries: use relationship semantics instead of entity properties
+        if intent.query_type == 'ROLE' and intent.property_filters:
+            role_value = intent.property_filters.get('role')
+            if role_value and not self._relationship_implies_role(edge_type, role_value):
+                return False
+        else:
+            # Check property filters (fiscal_year, etc.)
+            if intent.property_filters:
+                props = entity.get('properties', {})
+                for key, value in intent.property_filters.items():
+                    prop_value = props.get(key, '')
+                    if isinstance(prop_value, str):
+                        if value.lower() not in prop_value.lower():
+                            return False
+                    elif str(value).lower() not in str(prop_value).lower():
                         return False
-                elif str(value).lower() not in str(prop_value).lower():
-                    return False
 
         # Check semantic keywords (soft match)
         if intent.semantic_keywords:
@@ -371,6 +389,15 @@ class TreeBasedRetriever:
                 return False
 
         return True
+
+    def _relationship_implies_role(self, edge_type: Optional[str], role_value: str) -> bool:
+        """Check if a relationship type implies the requested role."""
+        if not edge_type or not role_value:
+            return False
+        roles = self.RELATIONSHIP_TO_ROLE.get(edge_type.upper())
+        if not roles:
+            return False
+        return role_value.strip().upper() in roles
 
     def _rank_results(
         self,
