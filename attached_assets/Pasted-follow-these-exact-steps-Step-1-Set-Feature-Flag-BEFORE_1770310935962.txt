@@ -1,0 +1,66 @@
+follow these exact steps:
+
+  Step 1: Set Feature Flag BEFORE Starting Server
+
+  export CF_TREE_BASED_RETRIEVAL=true
+
+  Verify it's set:
+  echo $CF_TREE_BASED_RETRIEVAL
+  # Should output: true
+
+  Step 2: Start Server with Flag Set
+
+  python web_app.py
+
+  Critical Check: Look for this in the startup logs:
+  [ROUTER] Tree-based retrieval ENABLED
+
+  If you DON'T see this message when the first query runs, the flag wasn't set
+   properly.
+
+  Step 3: Run Test Against Ontology Vault (4668fc6d)
+
+  In a new terminal (keep server running):
+
+  python -m src.test_runner.runner \
+    --vault-id "4668fc6d-c401-46d2-9797-4c8785f4d6ce" \
+    --questions "src/test_questions/nexus_100q.json" \
+    --force
+
+  Important: Use vault 4668fc6d (Ontology vault with 1,315 relationships)NOT
+  vault 1f3320cd (previous test vault with minimal relationships)
+
+  Step 4: Monitor Server Logs
+
+  Watch for these patterns in the server output:
+  - [ROUTER] Tree-based retrieval ENABLED
+  - [ROUTER] Tree query type detected: METRIC/AGGREGATION/PROJECT/etc.
+  - [TREE] Starting BFS from anchor: Nexus Industries
+  - [TREE] BFS complete: visited X entities, found Y matches
+  - [TREE] Entity XXXXXX has N connected entities
+
+  Step 5: After Test Completes, Send Back
+
+  1. Test Status:
+  cat data/test-runner/status.json
+
+  2. Test Results:
+  ls -lt test_results/vault_4668fc6d_*.json | head -1
+  # Then cat the most recent file
+
+  3. Server Logs with Tree Retrieval:
+  # Grep for all TREE and ROUTER logs
+  grep -E "\[TREE\]|\[ROUTER\]" <server_log_file>
+  # Or if logs are in console, copy the relevant sections
+
+  ---
+  Expected Behavior:
+  - Tree retrieval should trigger for MOST queries (not just ROLE)
+  - BFS should visit MORE than 1 entity (should traverse graph)
+  - Should find connected entities and matches
+  - Accuracy should be ≥80% (baseline) and hopefully closer to 88-96%
+
+  If you still see "visited 1 entities, found 0 matches", that would be very
+  surprising given the ontology vault has 1,315 relationships, and would
+  indicate a deeper issue with anchor identification or relationship queries.
+

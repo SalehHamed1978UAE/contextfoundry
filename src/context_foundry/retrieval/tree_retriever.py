@@ -210,7 +210,7 @@ class TreeBasedRetriever:
                 SELECT
                     id, name, entity_type,
                     properties::jsonb as properties,
-                    embedding,
+                    name_embedding,
                     confidence,
                     lifecycle_state
                 FROM entities
@@ -230,7 +230,7 @@ class TreeBasedRetriever:
                 'name': result.name,
                 'entity_type': result.entity_type,
                 'properties': result.properties or {},
-                'embedding': result.embedding,
+                'embedding': result.name_embedding,
                 'confidence': result.confidence,
                 'lifecycle_state': result.lifecycle_state
             }
