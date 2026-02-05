@@ -108,6 +108,7 @@ class TreeBasedRetriever:
             return self._fallback_semantic_search(query)
 
         logger.info(f"[TREE] Anchor: {anchor['name']} (id={anchor['id']})")
+        logger.info(f"[TREE] Anchor full ID: {anchor['id']}")
 
         # Step 2: Extract query intent
         intent = self.intent_extractor.extract(query, query_type)
@@ -196,6 +197,11 @@ class TreeBasedRetriever:
                 rel_types = intent.relationship_types if intent.relationship_types != ['*'] else self.CORE_RELATIONSHIP_TYPES
 
                 connected = self._get_connected_entities(entity_id, rel_types)
+                logger.info(f"[TREE] Depth {depth}: entity_id={entity_id[:8]}..., found {len(connected)} connected entities")
+                if len(connected) > 0:
+                    logger.info(f"[TREE] First 3 connections: {[c['name'] for c in connected[:3]]}")
+                else:
+                    logger.info(f"[TREE] Zero connections found - checking if this entity ID exists in relationships")
                 for conn in connected:
                     if conn['id'] not in visited:
                         queue.append((conn['id'], depth + 1))
