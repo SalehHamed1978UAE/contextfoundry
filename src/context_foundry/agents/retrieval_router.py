@@ -1964,23 +1964,7 @@ class RetrievalRouter:
         # TREE-BASED RETRIEVAL: If enabled, try hierarchical graph traversal first
         from src.context_foundry.config.feature_flags import is_tree_based_retrieval_enabled
 
-        tree_enabled = is_tree_based_retrieval_enabled()
-        tree_allowed = (
-            query_type != 'financial'
-            and (
-                query_type in ('person', 'relationship')
-                or classification.has_role_reference
-                or classification.query_type in ('RELATIONSHIP', 'EXPLORATION')
-            )
-        )
-
-        if tree_enabled and not tree_allowed:
-            logger.info(
-                f"[ROUTER] Tree-based retrieval skipped for query_type={query_type} "
-                f"(classification={classification.query_type}); using standard pipeline"
-            )
-
-        if tree_enabled and tree_allowed:
+        if is_tree_based_retrieval_enabled():
             try:
                 from src.context_foundry.retrieval.tree_retriever import TreeBasedRetriever
 
