@@ -225,13 +225,64 @@ class StagingLoader:
         except Exception as e:
             pass
     
+    LLM_TO_ONTOLOGY_TYPE_MAP = {
+        'HAS_CONTRACT': 'OWNS',
+        'HAS_DIVISION': 'PART_OF',
+        'GENERATES_REVENUE': 'EARNS',
+        'INVOLVED_IN': 'MEMBER_OF',
+        'BELONGS_TO': 'MEMBER_OF',
+        'PARTICIPATES_IN': 'MEMBER_OF',
+        'ATTENDED_BY': 'MEMBER_OF',
+        'WORKS_FOR': 'WORKS_AT',
+        'EMPLOYED_BY': 'WORKS_AT',
+        'EMPLOYED_AT': 'WORKS_AT',
+        'CONTRACTED_BY': 'OWNS',
+        'HAS_ROLE': 'HOLDS_POSITION',
+        'HAS_POSITION': 'HOLDS_POSITION',
+        'PROVIDES': 'SUPPLIES',
+        'PROVIDES_TO': 'SUPPLIES',
+        'DELIVERS_TO': 'SUPPLIES',
+        'VENDOR_FOR': 'SUPPLIES',
+        'SUPPLIER_OF': 'SUPPLIES',
+        'SUPPLIER_FOR': 'SUPPLIES',
+        'SUPPLIES_TO': 'SUPPLIES',
+        'CONTRACTED_TO_SUPPLY': 'SUPPLIES',
+        'PURCHASED_BY': 'SUPPLIES',
+        'PURCHASED_FROM': 'SUPPLIES',
+        'OFFERS_PRODUCT': 'SUPPLIES',
+        'LOCATED_AT': 'LOCATED_IN',
+        'BASED_IN': 'LOCATED_IN',
+        'HEADQUARTERED_AT': 'LOCATED_IN',
+        'SUPERVISES': 'MANAGES',
+        'DIRECTS': 'LEADS',
+        'CHAIRS': 'LEADS',
+        'HEAD_OF': 'LEADS',
+        'HAS_SPEC': 'DESCRIBES',
+        'HAS_SPECIFICATION': 'DESCRIBES',
+        'SPECIFIES': 'DESCRIBES',
+        'PRESENTED_BY': 'AUTHORED_BY',
+        'HAS_KEY_CONTACT': 'AFFILIATED_WITH',
+        'HAS_FINANCIAL_METRIC': 'EARNS',
+        'HAS_METRIC': 'EARNS',
+        'HAS_BUDGET': 'OWNS',
+        'HAS_STATUS': 'RELATED_TO',
+        'ATTENDS': 'MEMBER_OF',
+        'HAS_RATING': 'RELATED_TO',
+        'HAS_ISSUE': 'AFFECTS',
+        'HAS_RESOLUTION': 'RELATED_TO',
+        'OCCURS_ON': 'OCCURRED_ON',
+        'EVALUATES': 'MANAGES',
+        'PART_OF_PROJECT': 'PART_OF',
+    }
+
     def _normalize_relation_type(self, relation_type: str) -> str:
         """Normalize relationship type string for database storage.
         
-        Since relationship_type is now VARCHAR, we just normalize to uppercase.
-        Any type from the loaded schema config is valid.
+        Maps common LLM-generated types to known ontology types, then normalizes to uppercase.
         """
-        return relation_type.upper()
+        upper = relation_type.upper()
+        mapped = self.LLM_TO_ONTOLOGY_TYPE_MAP.get(upper, upper)
+        return mapped
     
     def _get_known_relationship_types(self) -> set:
         """Get all known relationship types from schema + approved candidates.
@@ -271,10 +322,17 @@ class StagingLoader:
         return base_types
     
     def _is_known_relationship_type(self, rel_type: str) -> bool:
-        """Check if a relationship type is known (in schema or approved)."""
-        normalized = self._candidate_normalizer.normalize_relationship(rel_type)
+        """Check if a relationship type is known (in schema or approved).
+        
+        First maps through LLM_TO_ONTOLOGY_TYPE_MAP, then checks against known types.
+        """
+        mapped = self._normalize_relation_type(rel_type)
+        normalized = self._candidate_normalizer.normalize_relationship(mapped)
         known_types = self._get_known_relationship_types()
-        return normalized in known_types
+        if normalized in known_types:
+            return True
+        raw_normalized = self._candidate_normalizer.normalize_relationship(rel_type.upper())
+        return raw_normalized in known_types
     
     def _find_entity_by_name(
         self, 
@@ -476,7 +534,7 @@ class StagingLoader:
         """
         relation_type = self._normalize_relation_type(extracted.relation_type)
         
-        if not self._is_known_relationship_type(extracted.relation_type):
+        if not self._is_known_relationship_type(relation_type):
             normalized_type = self._candidate_normalizer.normalize_relationship(extracted.relation_type)
             if self.tenant_id:
                 try:
