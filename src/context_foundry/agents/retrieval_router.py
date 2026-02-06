@@ -1983,6 +1983,8 @@ class RetrievalRouter:
                 result.intent = decompose_aggregation_query(query)
             except Exception as e:
                 logger.warning(f"[ROUTER] Aggregation decomposition failed: {e}")
+        # TODO(spec: CONFLICT_AWARE_RETRIEVAL_FINAL.md §4.0/§4.1): wire aggregation intent into
+        # sub-query decomposition + fact classification + structured compute.
 
         # TREE-BASED RETRIEVAL: If enabled, try hierarchical graph traversal first
         from src.context_foundry.config.feature_flags import is_tree_based_retrieval_enabled
@@ -2014,6 +2016,8 @@ class RetrievalRouter:
                         tree_result.relationships,
                         anchor_term
                     )
+                # TODO(spec: CONFLICT_AWARE_RETRIEVAL_FINAL.md §5.2 rule 1): apply entity grounding
+                # validation on the non-tree/doc-search path when tree retrieval is disabled or falls back.
 
                 # Use tree results if confidence is high or medium
                 if tree_result.confidence in ['high', 'medium']:

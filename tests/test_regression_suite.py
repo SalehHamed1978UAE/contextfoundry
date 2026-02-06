@@ -360,6 +360,10 @@ class TestTargetEntityVerification:
     @pytest.mark.fast_regression
     def test_verify_nonexistent_entity(self):
         """Verify nonexistent entities return False."""
+        database_url = os.environ.get("DATABASE_URL")
+        if not database_url:
+            pytest.skip("DATABASE_URL not set")
+
         from src.context_foundry.agents.retrieval import RetrievalAgent
         
         agent = RetrievalAgent()
@@ -437,6 +441,10 @@ class TestQuadrantConfidence:
     @pytest.mark.fast_regression
     def test_q1_entity_and_docs(self):
         """Verify Q1 (entity + docs) returns high confidence."""
+        ai_key = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY")
+        if not ai_key:
+            pytest.skip("OpenAI API key not set")
+
         from src.context_foundry.agents.reasoning import ReasoningAgent
         from src.context_foundry.models.context_bundle import ContextBundle
         
@@ -457,6 +465,10 @@ class TestQuadrantConfidence:
     @pytest.mark.fast_regression
     def test_q2_entity_only(self):
         """Verify Q2 (entity only) returns moderate confidence."""
+        ai_key = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY")
+        if not ai_key:
+            pytest.skip("OpenAI API key not set")
+
         from src.context_foundry.agents.reasoning import ReasoningAgent
         from src.context_foundry.models.context_bundle import ContextBundle
         
@@ -477,6 +489,10 @@ class TestQuadrantConfidence:
     @pytest.mark.fast_regression
     def test_q4_no_evidence(self):
         """Verify Q4 (no evidence) returns low confidence."""
+        ai_key = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY")
+        if not ai_key:
+            pytest.skip("OpenAI API key not set")
+
         from src.context_foundry.agents.reasoning import ReasoningAgent
         from src.context_foundry.models.context_bundle import ContextBundle
         
@@ -497,6 +513,10 @@ class TestQuadrantConfidence:
     @pytest.mark.fast_regression
     def test_target_missing_caps_confidence(self):
         """Verify target entity missing caps confidence."""
+        ai_key = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY")
+        if not ai_key:
+            pytest.skip("OpenAI API key not set")
+
         from src.context_foundry.agents.reasoning import ReasoningAgent
         from src.context_foundry.models.context_bundle import ContextBundle
         
@@ -728,6 +748,10 @@ class TestRegressionVectors:
     @pytest.mark.fast_regression
     def test_blast_radius_guard(self):
         """Regression: Blast radius queries for non-existent entities should fail safely."""
+        ai_key = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY")
+        if not ai_key:
+            pytest.skip("OpenAI API key not set")
+
         from src.context_foundry.agents.reasoning import ReasoningAgent
         from src.context_foundry.models.context_bundle import ContextBundle
         
