@@ -113,9 +113,39 @@ python scripts/run_vault_extraction.py --vault-id <vault-id> --use-ontology
 
 ---
 
-## Step 4: Validate Against Pre-Committed Criteria
+## Step 4: Run Automated Validation (Phase 2.5)
 
-Now run the validation checks **BEFORE** looking at any test scores.
+**CRITICAL**: Run automated validation **BEFORE** looking at any test scores.
+
+### Option 1: Automated Script (Recommended)
+
+```bash
+# Run comprehensive automated validation
+python scripts/phase2_5_validation.py --vault-id <slice-vault-id>
+
+# With baseline comparison for regression detection
+python scripts/phase2_5_validation.py \
+  --vault-id <slice-vault-id> \
+  --baseline-vault-id <old-vault-id> \
+  --output validation_report.json
+```
+
+**The script will:**
+- ✓ Check type consistency (Boeing as PERSON?)
+- ✓ Check schema coverage (supply-chain types missing?)
+- ✓ Check degree anomalies (entities with >10 edges?)
+- ✓ Check distribution (WORKS_AT >20%?)
+- ✓ Check cardinality violations
+- ✓ Check regressions vs baseline (relationships disappeared?)
+
+**Exit codes:**
+- `0` = PASS (all checks passed)
+- `1` = FAIL (critical failures - DO NOT proceed)
+- `2` = WARN (warnings - review before proceeding)
+
+### Option 2: Manual SQL Validation
+
+If you prefer manual validation, run the SQL queries below.
 
 ### A) Check Supply-Chain Edges Appear
 
