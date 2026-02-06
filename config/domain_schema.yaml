@@ -583,6 +583,54 @@ relationship_types:
       - ORGANIZATION
     cardinality: many-to-many
 
+  # Supply Chain & Commercial Relationships
+  - name: SUPPLIES
+    description: "Organization supplies products, components, or services to another Organization"
+    source_types:
+      - ORGANIZATION
+    target_types:
+      - ORGANIZATION
+    cardinality: many-to-many
+    examples:
+      - "Siemens supplies turbine components to Nexus Industries"
+      - "Boeing is a supplier of aircraft parts to commercial aviation companies"
+      - "Nel Hydrogen provides fuel cell technology to energy companies"
+
+  - name: CUSTOMER_OF
+    description: "Organization is a customer of another Organization"
+    source_types:
+      - ORGANIZATION
+    target_types:
+      - ORGANIZATION
+    cardinality: many-to-many
+    examples:
+      - "Nexus Industries is a customer of Siemens for turbine equipment"
+      - "Boeing purchases components from various aerospace suppliers"
+      - "Energy companies are customers of Nel Hydrogen for fuel cells"
+
+  - name: PROCURES_FROM
+    description: "Organization procures/purchases goods or services from another Organization"
+    source_types:
+      - ORGANIZATION
+    target_types:
+      - ORGANIZATION
+    cardinality: many-to-many
+    examples:
+      - "Nexus Industries procures turbines from Siemens"
+      - "The company procures raw materials from international suppliers"
+      - "Manufacturing division procures components from certified vendors"
+
+  - name: VENDOR_OF
+    description: "Organization is a vendor/supplier to another Organization (inverse of CUSTOMER_OF)"
+    source_types:
+      - ORGANIZATION
+    target_types:
+      - ORGANIZATION
+    cardinality: many-to-many
+    examples:
+      - "Siemens is a vendor of industrial equipment to Nexus Industries"
+      - "The supplier is a vendor of critical components to aerospace companies"
+
   # Leadership/Roles
   - name: LEADS
     description: "Person leads a project, team, or organization"
