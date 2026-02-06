@@ -105,6 +105,13 @@ Architectural features include:
 - **Corpus Maker 1.5:** ⏸️ 87% accuracy (parked - remaining 13 failures need architectural changes)
 
 ### Recent Improvements
+- **Ontology Extraction Pipeline Fix** (February 6, 2026): Phase 2 slice validation PASSED (5/5 criteria)
+  - Added `LLM_TO_ONTOLOGY_TYPE_MAP` with 48 mappings from LLM-generated types to valid ontology types
+  - Fixed critical bug: `_is_known_relationship_type` was checking original LLM type instead of mapped type (staging_loader.py:537)
+  - Validated all mapping targets against 230 actual ontology types
+  - Slice vault results: 173 relationships committed, 0 candidates, 11 distinct types, 4/5 docs with supply-chain edges
+  - Validation report: `test_results/phase2_slice_validation_report.md`
+  - Ready for full 197-document re-extraction
 - **Evidence Layer Phase 1**: Schema and evidence capture at extraction time
   - `evidence_records` table links facts (entities/relationships) to source text
   - `fact_verifications` table stores LLM verification verdicts
