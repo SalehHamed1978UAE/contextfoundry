@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 import numpy as np
+import time
 
 from src.context_foundry.utils.logger import logger
 from src.context_foundry.retrieval.anchor_resolver import AnchorResolver
@@ -88,6 +89,8 @@ class TreeBasedRetriever:
         self.tenant_id = tenant_id
         self.anchor_resolver = AnchorResolver(session, tenant_id)
         self.intent_extractor = IntentExtractor()
+        self.timeout_seconds: Optional[float] = None
+        self._start_time: Optional[float] = None
 
     def retrieve(
         self,
@@ -109,8 +112,10 @@ class TreeBasedRetriever:
         if max_depth is None:
             max_depth = self.DEFAULT_MAX_DEPTH
 
+        self._start_time = time.monotonic()
+
         logger.info(f"[TREE] Retrieving for query: {query}")
-        logger.info(f"[TREE] Query type: {query_type}, max_depth: {max_depth}")
+        logger.info(f"[TREE] Query type: {query_type}, max_depth: {max_depth}, timeout: {self.timeout_seconds}s")
 
         # Step 1: Identify anchor
         anchor = self.anchor_resolver.identify_anchor(query)
@@ -181,6 +186,13 @@ class TreeBasedRetriever:
         logger.info(f"[TREE] Relationship types: {intent.relationship_types[:5]}...")
 
         while queue:
+            if self.timeout_seconds and self._start_time:
+                elapsed = time.monotonic() - self._start_time
+                if elapsed > self.timeout_seconds:
+                    logger.warning(f"[TREE] BFS timeout after {elapsed:.1f}s (limit={self.timeout_seconds}s), "
+                                   f"visited {len(visited)} entities, returning {len(results)} partial matches")
+                    break
+
             entity_id, depth, edge_type = queue.pop(0)
 
             if entity_id in visited or depth > max_depth:

@@ -2179,15 +2179,17 @@ class RetrievalRouter:
         # TREE-BASED RETRIEVAL: If enabled, try hierarchical graph traversal first
         from src.context_foundry.config.feature_flags import is_tree_based_retrieval_enabled
 
+        TREE_RETRIEVAL_TIMEOUT_SECONDS = 30
+
         if is_tree_based_retrieval_enabled():
             try:
                 from src.context_foundry.retrieval.tree_retriever import TreeBasedRetriever
                 from src.context_foundry.grounding.validator import validate_path_contains_anchor
 
-                logger.info(f"[ROUTER] Tree-based retrieval ENABLED - attempting hierarchical traversal")
+                logger.info(f"[ROUTER] Tree-based retrieval ENABLED - attempting hierarchical traversal (timeout={TREE_RETRIEVAL_TIMEOUT_SECONDS}s)")
                 tree_retriever = TreeBasedRetriever(self.session, self.tenant_id)
+                tree_retriever.timeout_seconds = TREE_RETRIEVAL_TIMEOUT_SECONDS
 
-                # Map classification to query_type for tree retrieval
                 tree_query_type = self._map_classification_to_tree_query_type(query, classification)
                 logger.info(f"[ROUTER] Tree query type detected: {tree_query_type} (classification: {classification.query_type})")
 
