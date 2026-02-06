@@ -1,0 +1,71 @@
+ Run Phase 2 validation queries on the slice vault. Replace <vault-id> with 
+  your actual slice vault ID.
+
+  -- CRITERION 1: Supply-chain edges (MOST CRITICAL)
+  -- Need ≥3 of 5 docs to produce supply-chain edges
+
+  -- A) How many docs produced supply-chain edges?
+  SELECT
+    COUNT(DISTINCT source_document_id) as docs_with_supply_chain_edges
+  FROM cf_relationships
+  WHERE tenant_id = '<vault-id>'
+    AND relation_type IN ('SUPPLIES', 'CUSTOMER_OF', 'PROCURES_FROM',
+  'VENDOR_OF', 'SUPPLIED_BY', 'SUPPLIER_OF');
+
+  -- B) What are the actual supply-chain edges?
+  SELECT
+    r.source_document_id,
+    r.relation_type,
+    e1.canonical_name as source,
+    e2.canonical_name as target
+  FROM cf_relationships r
+  JOIN cf_entities e1 ON r.source_entity_id = e1.id
+  JOIN cf_entities e2 ON r.target_entity_id = e2.id
+  WHERE r.tenant_id = '<vault-id>'
+    AND relation_type IN ('SUPPLIES', 'CUSTOMER_OF', 'PROCURES_FROM',
+  'VENDOR_OF', 'SUPPLIED_BY', 'SUPPLIER_OF')
+  ORDER BY source_document_id, relation_type;
+
+  -- CRITERION 2: Boeing entity type
+  SELECT
+    canonical_name,
+    entity_type,
+    degree
+  FROM cf_entities
+  WHERE tenant_id = '<vault-id>'
+    AND LOWER(canonical_name) LIKE '%boeing%';
+
+  -- CRITERION 3: WORKS_AT count
+  SELECT COUNT(*) as works_at_count
+  FROM cf_relationships
+  WHERE tenant_id = '<vault-id>'
+    AND relation_type = 'WORKS_AT';
+
+  -- CRITERION 4: Degree anomalies
+  SELECT
+    canonical_name,
+    entity_type,
+    degree
+  FROM cf_entities
+  WHERE tenant_id = '<vault-id>'
+  ORDER BY degree DESC
+  LIMIT 10;
+
+  -- CRITERION 5: Distribution
+  SELECT
+    relation_type,
+    COUNT(*) as count,
+    ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 1) as percentage
+  FROM cf_relationships
+  WHERE tenant_id = '<vault-id>'
+  GROUP BY relation_type
+  ORDER BY count DESC;
+
+  -- BONUS: Overall stats
+  SELECT
+    (SELECT COUNT(*) FROM cf_relationships WHERE tenant_id = '<vault-id>') as
+  total_relationships,
+    (SELECT COUNT(*) FROM cf_candidate_relationships WHERE tenant_id =
+  '<vault-id>') as candidates
+
+  Share the results for all 5 criteria so we can make the PASS/FAIL decision.
