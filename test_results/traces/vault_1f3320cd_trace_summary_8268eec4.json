@@ -1,0 +1,614 @@
+{
+  "run_timestamp": "2026-02-06T21:24:33.445055",
+  "trace_file": "test_results/traces/vault_1f3320cd_traces_8268eec4.jsonl",
+  "stats": {
+    "total_questions": 100,
+    "avg_chunks_retrieved": 3.22,
+    "avg_semantic_score": 0.11784000000000003,
+    "query_type_distribution": {
+      "unknown": 100
+    },
+    "evaluator_rule_distribution": {
+      "exact_match": 45,
+      "no_data": 7,
+      "component_match": 27,
+      "number_match": 7,
+      "no_match": 10,
+      "percentage_match": 1,
+      "entity_match": 1,
+      "semantic_match": 1,
+      "timeout": 1
+    },
+    "low_score_queries": 83
+  },
+  "low_score_questions": [
+    {
+      "q_id": 1,
+      "question": "Who is the CEO of Nexus Industries?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 2,
+      "question": "What is the name of the CFO?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 3,
+      "question": "Who is the President of Nexus Digital Solutions?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 6,
+      "question": "What was Nexus Industries' revenue in FY2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 7,
+      "question": "How many employees does Nexus Industries have?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 8,
+      "question": "What is the budget for the Falcon X UAV program?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 10,
+      "question": "What is the value of the Shell hydrogen offtake agreement?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 11,
+      "question": "When is the first flight of the Falcon X UAV expected?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 12,
+      "question": "When did the GreenHydrogen facility produce its first hydrogen?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 13,
+      "question": "When is BatteryTech solid-state battery commercial production expected?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 14,
+      "question": "When was Robert Kim appointed President of Digital Solutions?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 15,
+      "question": "Who does Michael Chang report to?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 16,
+      "question": "What company is Nexus partnering with for solid-state batteries?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 17,
+      "question": "Who supplied the electrolyzers for the GreenHydrogen facility?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 18,
+      "question": "Which company has a green hydrogen offtake agreement with Nexus?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 19,
+      "question": "Who is the largest aerospace customer of Nexus by relationship value?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 20,
+      "question": "Which supplier is rated Red and at risk?",
+      "avg_score": 0.3252
+    },
+    {
+      "q_id": 21,
+      "question": "Where is Nexus Industries headquartered?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 22,
+      "question": "What is the capacity of the Desert Sun Solar Farm?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 23,
+      "question": "How many qubits does the QuantumLeap system have?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 24,
+      "question": "What is the hydrogen production capacity of the GreenHydrogen facility?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 25,
+      "question": "What is the target energy density for the solid-state battery?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 26,
+      "question": "How many business divisions does Nexus Industries have?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 27,
+      "question": "Which division has the most employees?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 28,
+      "question": "Which division has the highest revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 30,
+      "question": "What is the R&D investment as a percentage of revenue for FY2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 32,
+      "question": "Who will be the CEO of the Toyota JV (NextGen Battery Technologies)?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 33,
+      "question": "How much hydrogen will Shell purchase annually under the offtake agreement?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 34,
+      "question": "Which project has the largest budget?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 35,
+      "question": "Which division had the highest revenue growth in FY2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 37,
+      "question": "Who is the Project Director for the GreenHydrogen Initiative?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 38,
+      "question": "Who is the CISO of Nexus Industries?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 39,
+      "question": "What is the annual dividend per share?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 40,
+      "question": "What is the total company backlog?",
+      "avg_score": 0.2896
+    },
+    {
+      "q_id": 41,
+      "question": "How many endpoints does CyberShield protect?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 42,
+      "question": "What is the annual HTS wire production capacity?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 43,
+      "question": "When did CyberShield achieve FedRAMP High authorization?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 44,
+      "question": "When is the Toyota JV expected to close?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 46,
+      "question": "Who supplies solar panels for the Desert Sun project?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 48,
+      "question": "Who is the primary customer for HTS superconducting wire?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 49,
+      "question": "What is the endurance of the Falcon X UAV?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 50,
+      "question": "What is the service ceiling of the Falcon X?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 51,
+      "question": "How many satellites are in the Orbital Constellation project?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 52,
+      "question": "What is the detection rate of CyberShield?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 53,
+      "question": "What percentage of the Toyota JV production will Toyota purchase?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 54,
+      "question": "How much is Nexus investing in cash in the Toyota JV?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 56,
+      "question": "Which Boeing or Airbus has the larger contract value with Nexus?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 57,
+      "question": "What are the four divisions of Nexus Industries?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 58,
+      "question": "What is the Falcon X program's budget variance?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 59,
+      "question": "How many global locations does Nexus have?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 60,
+      "question": "When was the phishing incident detected?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 62,
+      "question": "What FedRAMP level did CyberShield achieve?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 63,
+      "question": "Which executive has a PhD from MIT?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 64,
+      "question": "What is the name of the Toyota JV company?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 65,
+      "question": "Is Nexus Digital growing faster or slower than Nexus Aerospace?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 66,
+      "question": "What is the FY2026 capital expenditure plan?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 67,
+      "question": "What operating temperature range does the solid-state battery support?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 69,
+      "question": "What is the TRIR safety target for FY2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 70,
+      "question": "When is the NexusConnect Edge AI product launching?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 72,
+      "question": "What is the fast charge time for the solid-state battery (10-80%)?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 73,
+      "question": "How many new employees will Nexus hire in FY2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 74,
+      "question": "Which project started first: Falcon X or GreenHydrogen?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 75,
+      "question": "Who is the VP of Engineering for Nexus Digital Solutions?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 77,
+      "question": "What is the location of the BatteryTech JV facility?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 78,
+      "question": "Who provides flight computers for Falcon X?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 79,
+      "question": "What is the 2030 revenue target in the corporate strategy?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 80,
+      "question": "What is the operating margin for FY2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 81,
+      "question": "What is Nexus's sustainability goal for carbon neutrality?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 82,
+      "question": "When was Nexus Industries founded?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 84,
+      "question": "What is the cybersecurity incident response investment?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 86,
+      "question": "What is the mean time to detect for CyberShield?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 87,
+      "question": "What is the combined cybersecurity and security certification status?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 88,
+      "question": "Which has higher energy density: solid-state or current li-ion batteries?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 90,
+      "question": "What is the minimum internet speed for remote work?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 91,
+      "question": "Who is the VP Trade Compliance?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 92,
+      "question": "What is the Quantum Volume of the QL-127 system?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 93,
+      "question": "What electrolyte material is used in the solid-state battery?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 94,
+      "question": "When is the 256-qubit quantum system planned?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 95,
+      "question": "Who provides the SAR radar for Falcon X?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 96,
+      "question": "What is the APAC revenue target for 2030?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 97,
+      "question": "What is the M&A budget capacity?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 98,
+      "question": "What is the renewable energy achievement percentage?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 99,
+      "question": "How does Nexus's operating margin compare to target?",
+      "avg_score": 0.0
+    }
+  ],
+  "failures_by_type": {
+    "no_data": [
+      {
+        "q_id": 7,
+        "question": "How many employees does Nexus Industries have?",
+        "expected": "12,500",
+        "actual": "Insufficient data to count",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 15,
+        "question": "Who does Michael Chang report to?",
+        "expected": "Dr. Victoria Chen (CEO)",
+        "actual": "I don't have enough information to answe",
+        "files_retrieved": [
+          "05_safety_committee_meeting.md",
+          "03_press_release_fy2025.md",
+          "02_business_divisions.md"
+        ]
+      },
+      {
+        "q_id": 26,
+        "question": "How many business divisions does Nexus Industries have?",
+        "expected": "4 (Aerospace, Energy, Digital, Materials",
+        "actual": "Insufficient data to count",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 38,
+        "question": "Who is the CISO of Nexus Industries?",
+        "expected": "Jennifer Walsh (appointed January 2026, ",
+        "actual": "I don't have enough information to answe",
+        "files_retrieved": [
+          "10_data_privacy.md",
+          "07_environmental_health_safety.md",
+          "08_quality_management.md"
+        ]
+      },
+      {
+        "q_id": 41,
+        "question": "How many endpoints does CyberShield protect?",
+        "expected": "Over 2 million (2.1 million)",
+        "actual": "Insufficient data to count",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 51,
+        "question": "How many satellites are in the Orbital Constellation project",
+        "expected": "48 satellites",
+        "actual": "Insufficient data to count",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 59,
+        "question": "How many global locations does Nexus have?",
+        "expected": "32 locations",
+        "actual": "Insufficient data to count",
+        "files_retrieved": []
+      }
+    ],
+    "no_match": [
+      {
+        "q_id": 27,
+        "question": "Which division has the most employees?",
+        "expected": "Nexus Digital Solutions (3,500 employees",
+        "actual": "The division with the most employees is ",
+        "files_retrieved": [
+          "09_greenhydrogen_milestone.md",
+          "02_organizational_announcement.md",
+          "07_safety_alert_bulletin.md"
+        ]
+      },
+      {
+        "q_id": 37,
+        "question": "Who is the Project Director for the GreenHydrogen Initiative",
+        "expected": "Jennifer Walsh",
+        "actual": "The Project Director for the GreenHydrog",
+        "files_retrieved": [
+          "03_greenhydrogen_steering_committee.md",
+          "09_greenhydrogen_milestone.md",
+          "02_greenhydrogen_process_specification.md"
+        ]
+      },
+      {
+        "q_id": 45,
+        "question": "When was Dr. Victoria Chen appointed CEO?",
+        "expected": "2019",
+        "actual": "Dr. Victoria Chen was appointed CEO of N",
+        "files_retrieved": [
+          "01_board_meeting_q4_2025.md",
+          "01_executive_team.md",
+          "02_organizational_announcement.md"
+        ]
+      },
+      {
+        "q_id": 48,
+        "question": "Who is the primary customer for HTS superconducting wire?",
+        "expected": "Siemens Healthineers ($65 million)",
+        "actual": "The primary customer for HTS (High-Tempe",
+        "files_retrieved": [
+          "01_boeing_customer_profile.md",
+          "Unknown",
+          "02_airbus_customer_profile.md"
+        ]
+      },
+      {
+        "q_id": 66,
+        "question": "What is the FY2026 capital expenditure plan?",
+        "expected": "$680 million",
+        "actual": "The FY2026 capital expenditure plan for ",
+        "files_retrieved": [
+          "01_corporate_strategy_2026_2030.md",
+          "07_capital_allocation_plan.md"
+        ]
+      },
+      {
+        "q_id": 71,
+        "question": "Who is the mining automation partner?",
+        "expected": "Caterpillar",
+        "actual": "The mining automation partner is **Toyot",
+        "files_retrieved": [
+          "09_competitive_intelligence.md",
+          "04_toyota_partnership_announcement.md",
+          "06_toyota_jv_negotiation_summary.md"
+        ]
+      },
+      {
+        "q_id": 75,
+        "question": "Who is the VP of Engineering for Nexus Digital Solutions?",
+        "expected": "Dr. Alan Chen",
+        "actual": "The VP of Engineering for Nexus Digital ",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 79,
+        "question": "What is the 2030 revenue target in the corporate strategy?",
+        "expected": "$15 billion",
+        "actual": "The 2030 revenue targets outlined in the",
+        "files_retrieved": [
+          "01_corporate_strategy_2026_2030.md",
+          "02_aerospace_division_strategy.md",
+          "06_market_expansion_asia.md"
+        ]
+      },
+      {
+        "q_id": 83,
+        "question": "Who is the primary customer for the SmartGrid Controller?",
+        "expected": "Pacific Power (pilot customer)",
+        "actual": "The primary customer for the SmartGrid C",
+        "files_retrieved": [
+          "11_microsoft_customer.md",
+          "01_boeing_customer_profile.md",
+          "Unknown"
+        ]
+      },
+      {
+        "q_id": 91,
+        "question": "Who is the VP Trade Compliance?",
+        "expected": "Owns the Export Control Policy (per POL-",
+        "actual": "I found multiple people with the VP role",
+        "files_retrieved": []
+      }
+    ],
+    "timeout": [
+      {
+        "q_id": 99,
+        "question": "How does Nexus's operating margin compare to target?",
+        "expected": "11.2% actual vs 11.5-12.0% target for FY",
+        "actual": "",
+        "files_retrieved": []
+      }
+    ]
+  }
+}
