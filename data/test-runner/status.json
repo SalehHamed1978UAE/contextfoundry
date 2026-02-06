@@ -1,20 +1,40 @@
 {
+  "status": "running",
+  "vault_id": "1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91",
+  "question_set_id": "c79271ca-2275-4888-9bda-b48e6405e870",
+  "test_run_id": "8268eec4-aba7-4f95-ae08-fe1d50a66352",
+  "mode": "auto",
+  "corpus_folder": null,
+  "started_at": "2026-02-06T21:00:29.928103",
+  "pid": 36603,
   "stages": {
     "delete": {
-      "status": "pending"
+      "status": "skipped"
     },
     "create": {
-      "status": "pending"
+      "status": "skipped"
     },
     "upload": {
-      "status": "pending"
+      "status": "skipped"
     },
     "extract": {
-      "status": "pending"
+      "status": "complete",
+      "entities": 7404
     },
     "qa": {
-      "status": "pending"
+      "status": "running"
     }
   },
-  "updated_at": "2026-02-06T19:05:15.964174"
+  "qa_progress": {
+    "total": 100,
+    "answered": 35,
+    "passed": 31,
+    "failed": 4,
+    "accuracy_percent": 88.6
+  },
+  "current_question": {
+    "id": 35,
+    "text": "Which division had the highest revenue growth in FY2025?"
+  },
+  "updated_at": "2026-02-06T21:09:02.537852"
 }
