@@ -10,7 +10,7 @@ def test_extract_named_entities():
 def test_build_fallback_queries_single():
     query = "Who is the CEO of Nexus Industries?"
     queries = build_fallback_queries(query)
-    assert queries == ["Nexus Industries"]
+    assert queries == ["CEO Nexus Industries"]
 
 
 def test_build_fallback_queries_multi():

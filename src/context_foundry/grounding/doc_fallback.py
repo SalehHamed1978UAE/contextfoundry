@@ -40,13 +40,26 @@ def extract_named_entities(query: str) -> List[str]:
     return deduped
 
 
+def extract_role_tokens(query: str) -> List[str]:
+    if not query:
+        return []
+    roles = []
+    for token in ROLE_TOKENS:
+        if re.search(rf"\b{re.escape(token)}\b", query, flags=re.IGNORECASE):
+            roles.append(token.upper())
+    return roles
+
+
 def build_fallback_queries(query: str) -> List[str]:
     entities = extract_named_entities(query)
+    roles = extract_role_tokens(query)
     if not entities:
         return [query]
 
     # Require all entities when possible
     if len(entities) <= 2:
+        if roles:
+            return [f"{roles[0]} {' '.join(entities)}"]
         return [" ".join(entities)]
 
     # Multi-entity: build pairwise queries with primary entity
