@@ -45,6 +45,19 @@ CANONICAL_SUPPLIER_TYPES = {
 }
 AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
 
+EMPLOYMENT_POSITIVE_PATTERN = re.compile(
+    r"\b(works?\s+(at|for)|employee|employed|serves as|is (the )?(ceo|cfo|cto|coo|president|director|manager|officer)|appointed|joined)\b",
+    re.IGNORECASE,
+)
+EMPLOYMENT_NEGATIVE_PATTERN = re.compile(
+    r"\b(met with|meeting|discussed|collaborat|project with|representative|committee|steering|report)\b",
+    re.IGNORECASE,
+)
+ORG_HINT_PATTERN = re.compile(
+    r"\b(inc|corp|corporation|company|co|llc|ltd|plc|gmbh|ag|group|holdings|industries|systems|technologies|healthineers)\b",
+    re.IGNORECASE,
+)
+
 
 @dataclass
 class ExtractedRelation:
@@ -119,18 +132,27 @@ class RelationExtractor:
         return self.schema_loader.get_valid_relationship_types()
     
     def _build_relation_extraction_prompt(self, text: str, entities_str: str) -> str:
-        """Build minimal open capture relation extraction prompt."""
+        """Build relation extraction prompt with anti-contamination guardrails."""
         
         prompt = f"""Extract all relationships between the entities in this text.
 
-Use whatever relationship type best describes each connection.
+Use relationship types that best describe each connection.
 Both source and target must be from the known entities list.
+
+CRITICAL RULES:
+1. Co-occurrence is NOT employment:
+   - If a person and organization are only mentioned together in a meeting/report/project context, DO NOT create WORKS_AT/WORKS_FOR.
+   - Only create WORKS_AT/WORKS_FOR when employment is explicit ("works at", "employee of", "serves as CFO of", etc.).
+2. Prioritize supply-chain/commercial relationships:
+   - For supplier/vendor/customer/procurement language, extract supply-chain types (SUPPLIES_TO, SUPPLIER_OF, CUSTOMER_OF, PROCURES_FROM, VENDOR_OF).
+3. Validate entity typing in relationships:
+   - If a major company-like name appears as PERSON, do not create relationship from that bad typing.
 
 KNOWN ENTITIES:
 {entities_str}
 
 Return JSON array only (no markdown):
-[{{"source_name": "...", "relation_type": "...", "target_name": "...", "confidence": 0.9}}]
+[{{"source_name": "...", "relation_type": "...", "target_name": "...", "source_span": "...", "confidence": 0.9}}]
 
 TEXT:
 {text}"""
@@ -201,6 +223,19 @@ TEXT:
             if name_lower in entity_name or entity_name in name_lower:
                 return True
         return False
+
+    def _looks_like_organization_name(self, name: str) -> bool:
+        """Heuristic check for organization-like names."""
+        return bool(ORG_HINT_PATTERN.search(name or ""))
+
+    def _has_employment_signal(self, relation: Dict) -> bool:
+        """Require explicit employment evidence to avoid co-occurrence contamination."""
+        evidence = (relation.get("source_span") or relation.get("evidence") or "").strip()
+        if not evidence:
+            return float(relation.get("confidence", 0.0)) >= 0.85
+        if EMPLOYMENT_NEGATIVE_PATTERN.search(evidence):
+            return False
+        return bool(EMPLOYMENT_POSITIVE_PATTERN.search(evidence))
     
     def _validate_relation(self, relation: Dict, entity_names: set, entities: List[Dict] = None) -> bool:
         """Validate extracted relation has required fields and valid references.
@@ -254,17 +289,30 @@ TEXT:
                     logger.warning(f"[TypeValidation] Rejecting: {target_name} typed as PERSON (should be ORGANIZATION)")
                     return False
 
+            if self._looks_like_organization_name(source_name) and source_type == "PERSON":
+                logger.debug(f"[TypeValidation] Rejecting relation with org-like source typed PERSON: {source_name}")
+                return False
+            if self._looks_like_organization_name(target_name) and target_type == "PERSON":
+                logger.debug(f"[TypeValidation] Rejecting relation with org-like target typed PERSON: {target_name}")
+                return False
+
             # Validate WORKS_AT: source must be PERSON, target must be ORGANIZATION
-            if rel_type == "WORKS_AT":
-                if source_type != "PERSON" or target_type != "ORGANIZATION":
-                    logger.debug(f"[TypeValidation] Rejecting WORKS_AT: {source_name}({source_type}) → {target_name}({target_type})")
+            rel_type_upper = rel_type.upper()
+            if rel_type_upper in {"WORKS_AT", "WORKS_FOR", "EMPLOYED_BY"}:
+                if not self._has_employment_signal(relation):
+                    logger.debug(f"[Guardrail] Rejecting employment relation without explicit evidence: {source_name} -> {target_name}")
+                    return False
+                if source_type != "PERSON" or target_type not in {"ORGANIZATION", "BUSINESS_UNIT", "FACILITY", "LOCATION"}:
+                    logger.debug(f"[TypeValidation] Rejecting {rel_type_upper}: {source_name}({source_type}) → {target_name}({target_type})")
                     return False
 
             # Validate supply-chain relationships: both must be ORGANIZATION
             supply_chain_types = ["SUPPLIES", "CUSTOMER_OF", "PROCURES_FROM", "VENDOR_OF", "SUPPLIES_TO"]
-            if rel_type in supply_chain_types:
-                if source_type != "ORGANIZATION" or target_type != "ORGANIZATION":
-                    logger.debug(f"[TypeValidation] Rejecting {rel_type}: {source_name}({source_type}) → {target_name}({target_type})")
+            if rel_type_upper in supply_chain_types:
+                allowed_source_types = {"ORGANIZATION", "SUPPLIER", "CUSTOMER", "PARTNER"}
+                allowed_target_types = {"ORGANIZATION", "SUPPLIER", "CUSTOMER", "PARTNER"}
+                if source_type not in allowed_source_types or target_type not in allowed_target_types:
+                    logger.debug(f"[TypeValidation] Rejecting {rel_type_upper}: {source_name}({source_type}) → {target_name}({target_type})")
                     return False
 
         return True
