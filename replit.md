@@ -140,17 +140,29 @@ Architectural features include:
 - Multi-hop role traversal code (asset for future use)
 - HAS_SPEC relationships added to KG
 
+- **Tree-Based Retrieval A/B Test** (February 6, 2026):
+  - Tree ON: 72/100 (72%) vs Tree OFF: 76/100 (76%) on Ontology Vault
+  - Tree helps role lookups (+4 questions) but breaks general attributes (-8 questions)
+  - 30-second cooperative timeout added to BFS traversal (prevents 5-10min hangs)
+  - `start.sh` now respects `CF_TREE_BASED_RETRIEVAL` env var (default: true)
+- **Failure Diagnostic Audit** (February 6, 2026): See `test_results/failure_audit_24q.md`
+  - 8 CROSS_WIRING (wrong entity returned), 6 CONFLICT (competing values), 5 EXTRACTION_GAP (missing relationships), 3 RETRIEVAL_GAP (data in docs not KG), 2 FORMAT_ISSUE, 2 CORPUS_GAP
+  - Ceiling: 98/100 theoretically fixable (2 corpus gaps unfixable)
+  - Path to 88%: Fix 13 cross-wiring + extraction gaps (76→89) — all are relationship creation/correction tasks
+
 ### Key Metrics
-- **ClaudeCode Nexus Industries:** 87/100 questions passing (+3 from 84% baseline)
+- **ClaudeCode Nexus Industries (Ontology):** 76/100 (Tree OFF) / 72/100 (Tree ON) on ontology vault
+- **ClaudeCode Nexus Industries (Original):** 87/100 questions passing (+3 from 84% baseline)
 - **Hallucination Rate:** 0% (Data Gates enforced)
 - **Provenance:** 18x better than GraphRAG baseline
-- **Failure Analysis:** See `docs/ACCURACY_FAILURES_87.md`
+- **Failure Analysis:** See `test_results/failure_audit_24q.md` and `docs/ACCURACY_FAILURES_87.md`
 
 ### Next Roadmap Items
-1. Evidence Layer Phase 4: Verification dashboard and batch verification UI
-2. Tree-based retrieval architecture
-3. Ontology Integration Phase 3: Make ontology pipeline the default for extraction
-4. Enhanced role resolution pipeline
+1. KG Repair: Fix 13 cross-wiring + extraction gap failures (highest leverage for 88% target)
+2. Conflict Resolution: Temporal precedence + confidence re-weighting for 6 conflict failures
+3. Evidence Layer Phase 4: Verification dashboard and batch verification UI
+4. Ontology Integration Phase 3: Make ontology pipeline the default for extraction
+5. Enhanced role resolution pipeline
 
 ## Documentation Index
 
