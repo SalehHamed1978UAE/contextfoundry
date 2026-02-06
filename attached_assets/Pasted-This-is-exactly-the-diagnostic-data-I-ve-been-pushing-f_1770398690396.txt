@@ -1,0 +1,41 @@
+This is exactly the diagnostic data I've been pushing for — and it tells a clear story about where to focus.
+
+## What this A/B test actually reveals
+
+The +2 point lift from tree retrieval is real but marginal. The important number isn't 72 vs 70 — it's the **26 persistent failures**. Those 26 questions fail regardless of retrieval strategy, which means they're upstream of retrieval entirely. They're extraction gaps, entity resolution failures, or conflict corruption in the KG itself. No amount of query-time routing or conflict resolution will fix a question where the answer simply doesn't exist in the graph *or* the chunks.
+
+Let me break down what the failure categories tell you about your implementation plan priorities.
+
+**The 15 no_match failures (Tree ON) are your conflict-aware retrieval targets.** These are cases where the system returned *something* but it was wrong. This is where Components 0-2 of your plan (grounding validation, conflict detection, conflict resolution) will have direct impact. Cross-wiring, unresolved conflicts, and metric confusion all produce no_match failures. If the plan recovers even half of these, you go from 72 to ~79.
+
+**The 13 no_data failures are KG gaps that your plan doesn't address.** The system found nothing to return. This is the missing-relationship problem (Q25-style: entity exists but the edge to the specification doesn't). Your conflict-aware retrieval architecture is designed to work around bad data, not missing data. For no_data failures, you need either the doc fallback path (which your plan has) or the repair loop (which it doesn't yet).
+
+## Revised priority order based on these results
+
+Your plan has three workstreams of roughly equal weight. The A/B test data tells you they're not equally valuable:
+
+**Workstream B (Grounding + Doc Fallback) is your highest-leverage move.** It addresses both failure modes — it catches cross-wiring (no_match) AND provides a fallback path for missing data (no_data). The 13 no_data failures need doc fallback to have any chance of recovery. Build this first.
+
+**Workstream A (Conflict Path) is your second priority.** It targets the no_match failures where conflicting or wrong values are returned. But it only helps when data exists and is wrong, not when data is absent.
+
+**Workstream C (Metrics) is important but narrow.** It targets a specific subset of no_match failures — the ones involving numerical values, aggregation, and unit confusion. Q100 and Q76 are in this bucket. Build it third.
+
+## The latency problem is a shipping blocker you haven't planned for
+
+Tree retrieval taking 5-10 minutes on some queries isn't a performance optimization issue — it's a product viability issue. Your plan doesn't mention latency at all. The RLM circuit breaker tripping repeatedly means the tree traversal is hitting pathological cases (probably high-degree nodes or circular paths in the graph).
+
+You have two options and you need to pick one before building the conflict-aware components on top of tree retrieval:
+
+**Option A: Query timeout with graceful degradation.** Set a hard 30-second timeout on tree retrieval. If it doesn't return in 30 seconds, fall back to semantic search. This aligns with your existing routing architecture — it's just another signal (timeout_triggered → doc fallback). The 4 questions tree retrieval fixes (Q2, Q61, Q75, Q100) all likely resolve in under 30 seconds; the pathological cases (Q46, Q52, Q55) are the ones hanging.
+
+**Option B: Precompute common traversal paths.** For the relationship patterns tree retrieval is good at (person → role, entity → specification), precompute the subgraphs at ingestion time and serve them as cached lookups. This eliminates the latency problem entirely for the patterns that matter, at the cost of staleness when the KG updates.
+
+Option A is a one-hour fix. Option B is a day of work but produces a better system. I'd do Option A now and Option B when you have time.
+
+## The 26 persistent failures are your audit target
+
+This is where the diagnostic audit I've been recommending becomes concrete rather than theoretical. You now have a specific list of 26 questions to analyze. For each one, you need to know: is the answer absent from the KG entirely (extraction gap)? Is it present but attached to the wrong entity (cross-wiring)? Is it present but with a conflicting value that the system chose incorrectly (conflict)? Is it present but the retrieval simply didn't find it (retrieval gap)?
+
+That classification tells you your theoretical ceiling. If 15 of the 26 are extraction gaps where the data literally doesn't exist in the KG or the source documents, then your maximum possible score with perfect query-time logic is 85/100 — and you need the repair loop to close the remaining gap to 88.
+
+**Do the failure analysis on those 26 questions before writing component code.** It's a few hours of work and it determines whether your 88% target is reachable with query-time fixes alone or whether you need Workstream D (repair loop) running in parallel.

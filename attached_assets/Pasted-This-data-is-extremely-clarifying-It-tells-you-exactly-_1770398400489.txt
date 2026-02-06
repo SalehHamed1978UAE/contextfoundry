@@ -1,0 +1,40 @@
+This data is extremely clarifying. It tells you exactly where to focus. No research needed — let me break this down.
+
+## The headline: Tree retrieval is not your bottleneck
+
++2 points from tree retrieval means it's a nice-to-have, not the path to 88%. The 26 persistent failures are the entire game. Let's categorize them against the plan we just built.
+
+## Mapping failures to plan components
+
+**The 15 no_match failures (wrong answers)** — these are the conflict-aware retrieval plan's core target. Wrong answer means the system retrieved *something* but picked the wrong value. This breaks into:
+
+- **Cross-wiring** (Component 0) — right value, wrong entity. The entity grounding validation should catch these.
+- **Unresolved conflicts** (Components 1-2) — multiple candidates, system picked the loser. The evidence-weighted scoring + resolution cascade should fix these.
+- **Aggregation errors** (Component 4) — wrong values fed into computation. The fact coordinate classifier + structured compute should fix these.
+
+**The 13 no_data failures (missing data)** — these are NOT addressed by the conflict-aware plan at all. No amount of conflict resolution helps when the data isn't in the KG or the documents. These need a different intervention:
+
+- Missing from KG but present in docs → doc fallback quality (Component 5.3) is the fix
+- Missing from both KG and docs → corpus gap, not a system problem
+- Present but not retrievable → retrieval/embedding issue, not conflict resolution
+
+## What this means for priorities
+
+The plan targets no_match failures. If all 15 no_match become correct, you go from 72 → 87. That's nearly the 88% target. **The conflict-aware retrieval plan is the right plan for the right problem.**
+
+But you need to triage those 15 no_match failures specifically:
+
+1. **How many are aggregation errors?** (Q100 is one — how many others?) These are the ones the new Component 4 addresses.
+2. **How many are cross-wiring?** These are Component 0's target.
+3. **How many are straight conflict resolution?** (Two values, picked wrong one) These are Components 1-2's target.
+4. **How many are the "contract value ≠ revenue" type confusion?** These are the metric canonicalization/hierarchy fix.
+
+If you can get me the breakdown of those 15 no_match questions — what each one asked and what went wrong — I can map them to specific plan components and tell you which workstream to build first for maximum point recovery.
+
+## Two tactical recommendations
+
+**First — kill the latency problem now.** Tree retrieval taking 5-10 minutes per query with circuit breaker trips is a development velocity killer. Either add a hard timeout (30 seconds, then fall back to semantic search) or keep tree OFF during development of the conflict-aware system. You only lose 2 points and your iteration speed triples.
+
+**Second — triage the 13 no_data failures separately.** Run the 13 questions manually, check whether the answer exists in the source documents. If it does, those are doc fallback wins waiting to happen (Component 5.3). If it doesn't, mark them as corpus gaps and exclude from your 88% denominator — or accept that ceiling is 87/100 and plan accordingly.
+
+Want to share the 15 no_match question details so I can map them to plan components?
