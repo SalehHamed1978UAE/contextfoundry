@@ -385,7 +385,9 @@ def run_ontology_extraction(
                 log(f"    Type: {doc_type}, Entities: {len(result.entities)}, Relations: {len(result.relations)}")
                 
                 if result.staging_result:
-                    log(f"    Staged: {result.staging_result.entities_staged} entities, {result.staging_result.relationships_staged} relationships")
+                    e_count = getattr(result.staging_result, 'entities_staged', None) or getattr(result.staging_result, 'entities_created', 0)
+                    r_count = getattr(result.staging_result, 'relationships_staged', None) or getattr(result.staging_result, 'relations_created', 0)
+                    log(f"    Staged: {e_count} entities, {r_count} relationships")
                 
                 # Mark document as extracted
                 try:
