@@ -1734,6 +1734,7 @@ class RetrievalRouter:
     ) -> List[Dict[str, Any]]:
         """Search document chunks using unified DocumentSearcher with hybrid keyword fallback."""
         from src.context_foundry.search.document_searcher import DocumentSearcher
+        from src.context_foundry.grounding.doc_fallback import build_fallback_queries
         from sqlalchemy import text as sql_text
         
         search_query = query
@@ -1753,6 +1754,20 @@ class RetrievalRouter:
             }
             for r in results
         ]
+
+        # Doc fallback query construction when no results returned
+        if not chunks:
+            for fallback_query in build_fallback_queries(query):
+                fallback_results = searcher.search(fallback_query, limit=limit, use_vector=True)
+                for r in fallback_results:
+                    chunks.append({
+                        "id": r.get("id", ""),
+                        "text": r.get("text", ""),
+                        "document": r.get("document_name", "Unknown document"),
+                        "similarity": r.get("similarity", 0.6)
+                    })
+                if len(chunks) >= limit:
+                    break
         
         # DISABLED FOR RLM TEST - was: hybrid keyword search for specific metric queries
         # To restore: see git history for keyword_patterns logic
@@ -1961,12 +1976,21 @@ class RetrievalRouter:
             classified_query=classified_query
         )
 
+        # Aggregation decomposition (top-N, totals)
+        if classification.has_ranking_intent or classification.query_type == 'AGGREGATION':
+            try:
+                from src.context_foundry.aggregation.decomposition import decompose_aggregation_query
+                result.intent = decompose_aggregation_query(query)
+            except Exception as e:
+                logger.warning(f"[ROUTER] Aggregation decomposition failed: {e}")
+
         # TREE-BASED RETRIEVAL: If enabled, try hierarchical graph traversal first
         from src.context_foundry.config.feature_flags import is_tree_based_retrieval_enabled
 
         if is_tree_based_retrieval_enabled():
             try:
                 from src.context_foundry.retrieval.tree_retriever import TreeBasedRetriever
+                from src.context_foundry.grounding.validator import validate_path_contains_anchor
 
                 logger.info(f"[ROUTER] Tree-based retrieval ENABLED - attempting hierarchical traversal")
                 tree_retriever = TreeBasedRetriever(self.session, self.tenant_id)
@@ -1980,6 +2004,16 @@ class RetrievalRouter:
                     query_type=tree_query_type,
                     max_depth=3
                 )
+
+                # Entity-grounded validation: filter relationships to anchor entity if present in query
+                anchor_term = None
+                if intent and intent.target_entity:
+                    anchor_term = intent.target_entity
+                if anchor_term and tree_result.relationships:
+                    tree_result.relationships = validate_path_contains_anchor(
+                        tree_result.relationships,
+                        anchor_term
+                    )
 
                 # Use tree results if confidence is high or medium
                 if tree_result.confidence in ['high', 'medium']:
