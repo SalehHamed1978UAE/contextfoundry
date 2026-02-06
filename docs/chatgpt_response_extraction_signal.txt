@@ -1,0 +1,150 @@
+LABELED SIGNAL AND IMPLEMENTATION PREFERENCES
+==============================================
+
+1. LABELED SIGNAL FROM QUERY FAILURES
+--------------------------------------
+
+Quantity:
+- 100 test questions total
+- 26 failures in current run (74% accuracy)
+- 23 failures in baseline run (77% accuracy)
+- Each failure has: question, expected answer, actual answer, failure type (no_match/no_data)
+
+Quality of labels:
+- Questions are manually authored with ground truth answers
+- Failure types are automatically classified (exact_match, component_match, no_match, no_data)
+- NO explicit "extraction quality" labels (we infer from query failures)
+
+Examples of good vs bad extractions:
+
+GOOD (Q41 - passed after ontology extraction):
+- Question: "How many endpoints does CyberShield protect?"
+- Expected: "50,000 endpoints"
+- Ontology extracted: Entity "CyberShield", Relationship "HAS_METRIC" → "50,000 endpoints"
+- Result: PASS ✅
+
+GOOD (Q75 - passed after ontology extraction):
+- Question: "Who is the VP of Engineering for Nexus Digital Solutions?"
+- Expected: "Sarah Martinez"
+- Ontology extracted: Person "Sarah Martinez", Relationship "HOLDS_POSITION" → "VP of Engineering"
+- Result: PASS ✅
+
+BAD (Q25 - failed after ontology extraction):
+- Question: "What is the target energy density for the solid-state battery?"
+- Expected: "500 Wh/kg"
+- Ontology extracted: Entity "solid-state battery" but NO relationship to "500 Wh/kg"
+- Multi-model extraction: Found it correctly
+- Result: FAIL ❌
+
+BAD (Q100 - failed after ontology extraction):
+- Question: "What is the total value of top 3 customer relationships?"
+- Expected: "$4.7B"
+- Ontology extracted: Boeing → $2.3B AND Boeing → $1.8B (CONFLICT)
+- System picked wrong value
+- Result: FAIL ❌
+
+Traceability:
+- YES - We can trace failures to specific entities/relationships
+- Test result files include: question ID, query, expected answer, actual answer
+- We can query database to find which entities/relationships were used
+- Evidence records (when populated) link back to source documents
+
+What we DON'T have:
+- No explicit extraction quality scores
+- No human-labeled "this extraction is wrong" dataset
+- No fine-grained annotations (e.g., "this relationship should have different confidence")
+
+2. AVAILABLE TRAINING SIGNAL
+-----------------------------
+
+Implicit signal from test results:
+- 2 questions improved (Q41, Q75) → ontology extraction worked well for these
+- 2 questions regressed (Q25, Q100) → ontology extraction quality issues
+- 21 questions still failing in both runs → extraction doesn't help/hurt
+
+Additional signal sources:
+- 197 documents extracted with ontology pipeline
+- Evidence records linking extractions to source text (partially populated)
+- User query logs (if we deploy and collect feedback)
+
+What we COULD generate:
+- Compare ontology vs multi-model extractions side-by-side
+- Use LLM to score extraction quality against source text
+- Bootstrap weak labels from query success/failure patterns
+
+3. IMPLEMENTATION PREFERENCES
+------------------------------
+
+Given <1 week constraint, prefer:
+
+LIGHTWEIGHT RULE-BASED ✅ (Priority 1)
+- Pros: Fast to implement, interpretable, no training needed
+- Cons: May not generalize beyond known patterns
+- Examples: Regex patterns, heuristic scoring, graph analysis
+
+LLM-BASED REASONING ✅ (Priority 2)
+- Pros: Flexible, can handle edge cases, uses existing GPT-4o-mini
+- Cons: Latency, API cost
+- Examples: LLM judges extraction quality, LLM re-extracts on-demand
+
+LIGHTWEIGHT ML ⚠️ (Priority 3 - only if quick)
+- Pros: Can learn patterns from data
+- Cons: Need training pipeline, evaluation harness
+- Examples: Small classifier (sklearn), embedding-based similarity
+
+DEEP LEARNING ❌ (Avoid for <1 week)
+- Finetuning models requires: data prep, training, eval, deployment
+- We don't have enough labeled data (only 100 questions)
+- Timeline: 2-4 weeks minimum
+- Save for long-term improvement
+
+4. WHAT WE CAN IMPLEMENT QUICKLY
+---------------------------------
+
+Fast (<2 days):
+- Rule-based extraction quality scoring
+- LLM-based spot-checking of suspicious extractions
+- Evidence voting (if 5 chunks say "500 Wh/kg", 1 says "400 Wh/kg" → pick 500)
+
+Medium (3-5 days):
+- Query-failure-driven re-extraction (when Q25 fails, re-extract "solid-state battery" entity)
+- Extraction quality classifier using embeddings
+- Cross-validation across multiple extraction methods
+
+Slow (>1 week):
+- Finetuning extraction models
+- Active learning loops
+- Large-scale re-extraction with improved prompts
+
+5. SPECIFIC ANSWERS TO YOUR QUESTIONS
+--------------------------------------
+
+Q: How many failed queries tagged as "bad" with explanations?
+A: 26 failures with automatic classification (no_match, no_data) but NO manual quality explanations
+
+Q: Do you have good extractions explicitly labeled?
+A: NO explicit labels, but we can INFER:
+   - Q41, Q75 extractions are "good" (queries passed)
+   - Q25, Q100 extractions are "bad" (queries failed)
+   - Can generate more labels by comparing to ground truth answers
+
+Q: Are failed queries traceable to specific extraction outputs?
+A: YES - We can query database to find entities/relationships used in failed queries
+   Example: Q25 failure → trace to "solid-state battery" entity → see it has NO HAS_METRIC relationships
+
+Q: Prefer deep learning or lightweight rule-based?
+A: LIGHTWEIGHT RULE-BASED for <1 week timeline
+   Open to LLM-based approaches (we already use GPT-4o-mini)
+   Avoid finetuning/deep learning unless you have a fast trick
+
+6. WHAT WOULD BE IDEAL
+-----------------------
+
+A solution that:
+1. Uses the 26 query failures as weak supervision signal
+2. Identifies low-quality extractions automatically (no manual labeling)
+3. Fixes them via targeted re-extraction, voting, or LLM correction
+4. Runs in <1 week implementation time
+5. Improves Q25, Q100 without breaking Q41, Q75
+
+Now give me your 3+ novel solutions optimized for lightweight/fast implementation.

@@ -1,0 +1,116 @@
+TECHNICAL DETAILS FOR AGGREGATION PROBLEM
+==========================================
+
+1. STORAGE FORMAT
+-----------------
+
+Entities:
+- PostgreSQL table with columns: id, name, entity_type, properties (JSONB), confidence, lifecycle_state
+- Properties example: {"role": "President", "department": "Digital Solutions"}
+- Graph structure: entities connected via relationships table
+
+Relationships:
+- PostgreSQL table: id, source_entity_id, target_entity_id, relationship_type, properties (JSONB), confidence
+- Example: Boeing (entity) --HAS_REVENUE--> $2.3B (entity)
+- Properties can include temporal info: {"period": "annual", "year": "2024"}
+
+Evidence records:
+- Links facts to source: fact_id, fact_type (ENTITY/RELATIONSHIP), evidence_text, source_document_id, chunk_id
+- Enables provenance tracking but not always populated
+
+Document chunks:
+- Vector store with embeddings
+- Metadata: document_id, chunk_index, text content
+
+2. LLM USAGE
+------------
+
+Current pipeline uses LLMs for:
+
+Extraction:
+- GPT-4o-mini extracts entities/relationships from text chunks
+- Returns structured JSON with confidence scores
+- Ontology-guided prompts specify allowed entity/relationship types
+
+Answer synthesis:
+- GPT-4o-mini generates final answer from retrieved entities/relationships/chunks
+- Receives pre-fetched context (not iterative retrieval)
+- Single-pass synthesis (no multi-turn reasoning yet)
+
+Retrieval:
+- OpenAI embeddings for semantic search
+- Tree-based graph traversal (BFS from anchor entity)
+- Hybrid: Tree retrieval (70%) + semantic search (30%)
+
+No LLM used for:
+- Conflict resolution (currently simple scoring formula)
+- Aggregation logic (currently naive first-value selection)
+- Quality assessment of extractions
+
+3. PIPELINE OPENNESS
+--------------------
+
+YES - We're open to custom components:
+
+Already built custom modules:
+- TreeBasedRetriever (graph BFS traversal)
+- ConflictResolver (planned, not yet implemented)
+- IntentExtractor (query classification)
+- RoleResolver (entity disambiguation)
+
+Tech stack:
+- Python, PostgreSQL, SQLAlchemy
+- OpenAI API (GPT-4o-mini, text-embedding-3-small)
+- No framework lock-in (we control the full pipeline)
+
+Constraints:
+- Must integrate with existing PostgreSQL schema
+- Should reuse existing evidence_records if possible
+- Latency budget: <2s for 95th percentile queries
+- Can add new tables/indexes if needed
+
+We're VERY open to novel architectures:
+- Graph-based reasoners ✅
+- Ensemble systems ✅
+- Custom aggregation modules ✅
+- LLM-based meta-reasoning ✅
+- Anything that works within latency/cost constraints
+
+4. CURRENT AGGREGATION FLOW (BROKEN)
+-------------------------------------
+
+Step 1: Tree retrieval finds customer entities
+  → Returns: [Boeing, Airbus, DoD, ...]
+
+Step 2: For each customer, get HAS_REVENUE relationships
+  → Boeing query returns:
+     Relationship 1: Boeing --HAS_REVENUE--> "$2.3B annual contract" (confidence: 0.9, evidence_count: 3)
+     Relationship 2: Boeing --HAS_REVENUE--> "$1.8B relationship value" (confidence: 0.8, evidence_count: 1)
+
+Step 3: Pick ONE value per customer (CURRENT BUG: picks first/arbitrary)
+  → Boeing = $1.8B (WRONG, should be $2.3B)
+
+Step 4: Sort by value, sum top 3
+  → $1.8B + $1.5B + $900M = $4.2B (WRONG)
+  → Should be: $2.3B + $1.5B + $900M = $4.7B
+
+5. WHAT WE CAN CHANGE
+---------------------
+
+Database schema: YES (can add tables, indexes, columns)
+Pipeline architecture: YES (can add reasoning stages)
+LLM usage: YES (can add LLM-based components)
+Latency: Must stay <2s (95th percentile)
+Cost: OpenAI API calls are acceptable (already using GPT-4o-mini)
+
+6. WHAT SUCCESS LOOKS LIKE
+---------------------------
+
+A solution that:
+1. Correctly identifies $2.3B as the canonical Boeing revenue (not $1.8B)
+2. Generalizes to other aggregation queries (sum, count, average, top-N)
+3. Handles missing/incomplete temporal metadata gracefully
+4. Can be implemented in <1 week
+5. Improves Q100 accuracy from FAIL to PASS
+
+Now give me your 3+ novel solutions.

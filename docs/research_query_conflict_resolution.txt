@@ -1,0 +1,81 @@
+You are a world-class RAG systems researcher. I'm facing a hard technical problem that standard solutions don't solve. I need you to think DEEPLY and propose NOVEL approaches - don't give me textbook answers.
+
+Requirements:
+1. Don't suggest things we've already tried (listed below in "What We've Tried")
+2. Propose AT LEAST 3 novel approaches we haven't considered
+3. For each approach, explain: WHY it works, HOW to implement, WHAT trade-offs
+4. Prioritize approaches that can be implemented in <1 week
+5. Be specific - provide pseudocode or architecture diagrams if helpful
+
+Think step-by-step. Take your time. Be creative.
+
+=============================================================================
+RESEARCH QUERY: Multi-Source Entity Conflict Resolution
+=============================================================================
+
+THE PROBLEM
+-----------
+
+Concrete failure case:
+- Query: "Who is the President of Nexus Digital Solutions?"
+- Knowledge graph contains:
+
+  Entity A: "Kevin Chang" → President of Digital Solutions
+    - Source: Email (2024-03-15)
+    - Confidence: 0.8
+    - Evidence count: 1 document
+
+  Entity B: "Robert Kim" → President of Digital Solutions
+    - Source: Org chart + meeting notes (2024-01-10, 2024-02-20, 2024-03-01)
+    - Confidence: 0.9
+    - Evidence count: 5 documents
+
+- System picks "Kevin Chang" (WRONG) → should pick "Robert Kim"
+
+WHAT WE'VE TRIED THAT DOESN'T WORK
+-----------------------------------
+
+1. Simple evidence counting - Doesn't account for document authority/recency
+2. Confidence-only ranking - Both have high confidence, doesn't resolve conflict
+3. Recency-first - "Kevin Chang" email is MORE recent but WRONG (outdated info)
+4. Majority vote - Doesn't work when one high-authority source contradicts many low-authority sources
+
+CONSTRAINTS
+-----------
+
+- Can't always fetch original documents (latency)
+- Can't require human-in-the-loop for every conflict
+- Need to work with incomplete provenance data
+- Must handle temporal evolution (appointments change over time)
+
+CURRENT BEST APPROACH (INADEQUATE)
+-----------------------------------
+
+score = evidence_count * 0.4 + confidence * 0.3 + recency * 0.2 + lifecycle_state * 0.1
+
+Why it fails: Doesn't capture document authority, temporal validity windows, or cross-source verification patterns.
+
+WHAT WE NEED
+------------
+
+A novel ranking algorithm that:
+1. Handles authority hierarchies (org chart > email > meeting notes)
+2. Detects temporal validity windows ("appointed on 2024-01-10" → valid after that date)
+3. Cross-validates across document types (multiple sources converging on same fact)
+4. Degrades gracefully with missing metadata
+5. Runs in <50ms for real-time queries
+
+SPECIFIC QUESTIONS
+------------------
+
+1. Are there techniques from academic research (information fusion, multi-source verification) we haven't considered?
+
+2. Can we learn authority weights from the graph structure itself? (e.g., entities mentioned in org charts are more authoritative for role queries)
+
+3. How do professional fact-checkers handle conflicting sources? Can we adapt their workflows algorithmically?
+
+4. Is there a way to infer temporal validity from natural language? ("appointed", "former", "will become" → time constraints)
+
+5. What if we invert the problem? Instead of ranking entities, can we rank the QUESTIONS that led to the extractions and prefer answers from high-quality questions?
+
+GIVE ME YOUR BEST 3+ NOVEL SOLUTIONS NOW.

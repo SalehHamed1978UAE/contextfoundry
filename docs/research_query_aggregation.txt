@@ -1,0 +1,87 @@
+You are a world-class RAG systems researcher. I'm facing a hard technical problem that standard solutions don't solve. I need you to think DEEPLY and propose NOVEL approaches - don't give me textbook answers.
+
+Requirements:
+1. Don't suggest things we've already tried (listed below in "What We've Tried")
+2. Propose AT LEAST 3 novel approaches we haven't considered
+3. For each approach, explain: WHY it works, HOW to implement, WHAT trade-offs
+4. Prioritize approaches that can be implemented in <1 week
+5. Be specific - provide pseudocode or architecture diagrams if helpful
+
+Think step-by-step. Take your time. Be creative.
+
+=============================================================================
+RESEARCH QUERY: The Aggregation Problem
+=============================================================================
+
+THE PROBLEM
+-----------
+
+Concrete failure case:
+
+Q100: "What is the total value of top 3 customer relationships?"
+
+What the system needs to do:
+1. Find all customer organizations (Boeing, Airbus, DoD, etc.)
+2. Extract their revenue values ($2.3B, $1.8B, etc.)
+3. Rank by value
+4. Sum top 3
+
+What actually happens:
+Step 1: Tree retrieval finds 8 customers ✅
+Step 2: Gets revenue values:
+  - Boeing: $2.3B (from contract doc, 2024-03)
+  - Boeing: $1.8B (from financial report, 2023-11)  ❌ CONFLICT
+  - Airbus: $1.5B ✅
+  - DoD: $900M ✅
+  - ...
+Step 3: Ranks using FIRST value found (arbitrary)
+Step 4: System picks $1.8B instead of $2.3B
+         Sum = $1.8B + $1.5B + $900M = $4.2B (WRONG)
+         Correct: $2.3B + $1.5B + $900M = $4.7B
+
+WHAT WE'VE TRIED THAT DOESN'T WORK
+-----------------------------------
+
+1. Deduplication before aggregation - Loses valid multi-value cases (e.g., Q1 revenue + Q2 revenue)
+2. Pick most recent value - Doesn't work when timestamps are missing or wrong
+3. Sum ALL values - Overcounts (Boeing: $2.3B + $1.8B = $4.1B, should be $2.3B)
+4. Confidence filtering - Both values have high confidence
+
+CONSTRAINTS
+-----------
+
+- Need to distinguish "conflicting values for same metric" vs "multiple valid values"
+- Can't assume temporal ordering (documents don't always have clear dates)
+- Must work when metadata is incomplete
+- Should handle both "annual revenue" and "Q1 revenue" correctly
+
+CURRENT BEST APPROACH (INADEQUATE)
+-----------------------------------
+
+Use conflict resolution to pick highest-ranked value per entity, then aggregate.
+
+Why it fails: Breaks multi-value aggregations (e.g., "total capex for all projects" where each project has distinct capex).
+
+WHAT WE NEED
+------------
+
+A way to:
+1. Detect semantic equivalence ("Boeing contract value" = "Boeing annual revenue")
+2. Distinguish conflicting values from complementary values
+3. Handle temporal validity in aggregations
+4. Propagate uncertainty when values are ambiguous
+
+SPECIFIC QUESTIONS
+------------------
+
+1. Can we use LLM to classify relationship semantics? (e.g., "this is the SAME metric at different times" vs "these are DIFFERENT metrics")
+
+2. Is there a graph query language concept we're missing? Like SQL's GROUP BY but for ambiguous entity references?
+
+3. Can we build a "metric canonicalizer"? Map "annual revenue", "contract value", "sales" → canonical REVENUE concept, then detect conflicts?
+
+4. What if we ask the LLM to explain the aggregation logic? "I'm summing X + Y + Z because they represent distinct customers, excluding duplicate Boeing values"
+
+5. Are there techniques from financial data reconciliation we can use? How do accounting systems handle "same entity, multiple balance sheets"?
+
+GIVE ME YOUR BEST 3+ NOVEL SOLUTIONS NOW.

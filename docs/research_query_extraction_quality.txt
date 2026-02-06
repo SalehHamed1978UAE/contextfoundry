@@ -1,0 +1,81 @@
+You are a world-class RAG systems researcher. I'm facing a hard technical problem that standard solutions don't solve. I need you to think DEEPLY and propose NOVEL approaches - don't give me textbook answers.
+
+Requirements:
+1. Don't suggest things we've already tried (listed below in "What We've Tried")
+2. Propose AT LEAST 3 novel approaches we haven't considered
+3. For each approach, explain: WHY it works, HOW to implement, WHAT trade-offs
+4. Prioritize approaches that can be implemented in <1 week
+5. Be specific - provide pseudocode or architecture diagrams if helpful
+
+Think step-by-step. Take your time. Be creative.
+
+=============================================================================
+RESEARCH QUERY: Extraction Quality Without Re-Extraction
+=============================================================================
+
+THE PROBLEM
+-----------
+
+Concrete failure cases:
+
+Q25: "What is the target energy density for the solid-state battery?"
+- Document says: "Target: 500 Wh/kg at cell level"
+- Ontology extraction created: Entity "solid-state battery" but NO relationship to "500 Wh/kg"
+- Multi-model extraction: Found it correctly
+- Why? Ontology extraction prompt doesn't handle technical specifications well
+
+Q100: "What is the total value of top 3 customer relationships?"
+- Document 1: "Boeing contract: $2.3B annual revenue"
+- Document 2: "Boeing relationship valued at $1.8B" (outdated)
+- Ontology extraction created BOTH as separate HAS_REVENUE relationships
+- System aggregated using wrong value
+- Result: Wrong total
+
+WHAT WE'VE TRIED THAT DOESN'T WORK
+-----------------------------------
+
+1. Improve extraction prompts - Marginal gains, still misses technical specs
+2. Re-run full extraction - Takes 4+ hours, creates MORE conflicts (77% → 74%)
+3. Post-processor patterns - Only works for structured formats, misses narrative data
+4. Confidence thresholding - Discards too much useful data
+
+CONSTRAINTS
+-----------
+
+- Can't re-extract entire corpus repeatedly (cost, time)
+- Can't manually label training data for every entity type
+- Need to work with EXISTING extraction results (197 documents already processed)
+- Must improve without breaking what already works (Q41, Q75 improvements from ontology extraction)
+
+CURRENT BEST APPROACH (INADEQUATE)
+-----------------------------------
+
+Hybrid extraction strategy:
+- Ontology for PERSON/ROLE queries (proven good)
+- Multi-model for METRIC/SPEC queries (proven good)
+
+Why it fails: Requires knowing entity type before extraction, creates dual maintenance burden, doesn't fix EXISTING bad extractions.
+
+WHAT WE NEED
+------------
+
+A way to:
+1. Identify low-quality extractions WITHOUT re-processing
+2. Selectively improve specific entities/relationships
+3. Learn from high-quality vs low-quality extraction patterns
+4. Fix conflicts in-place rather than re-extracting
+
+SPECIFIC QUESTIONS
+------------------
+
+1. Can we build a "quality classifier" for extracted entities? Train on Q41, Q75 (good) vs Q25, Q100 (bad) to identify problematic extractions?
+
+2. Is there a way to use document embeddings to find "similar mentions" and vote on correct value? (e.g., if 5 chunks mention "500 Wh/kg" and 1 mentions "400 Wh/kg", prefer 500)
+
+3. Can we use the QUERY FAILURES as training signal? When Q25 fails, use that as feedback to improve the "solid-state battery" entity extraction?
+
+4. What if we treat extraction as an iterative refinement problem? Start with quick/dirty extraction, then refine only the entities that appear in failed queries?
+
+5. Are there techniques from data cleaning/reconciliation literature we can adapt? How do database systems handle duplicate/conflicting records at scale?
+
+GIVE ME YOUR BEST 3+ NOVEL SOLUTIONS NOW.
