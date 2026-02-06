@@ -47,11 +47,11 @@ def get_source_trust(document_type: str) -> float:
 
 ---
 
-### Task 2: Cardinality Registry (2 hours)
+### Task 2: Cardinality Registry + Metric Canonicalization (3 hours)
 
 **File:** `src/context_foundry/extraction/ontology_manager.py` (MODIFY)
 
-Add cardinality field to relationship definitions:
+Add cardinality field AND canonical metric mapping to relationship definitions:
 
 ```python
 # In YAML schema (ontologies/*.yaml)
@@ -71,6 +71,16 @@ relationships:
   HAS_REVENUE:
     description: "Organization has revenue value"
     cardinality: "1-to-1"  # One revenue per org per period
+    canonical_metric: "Revenue"  # NEW: Canonical name
+    aliases: ["contract_value", "relationship_value", "annual_revenue"]  # NEW
+    from_types: [ORGANIZATION]
+    to_types: [METRIC]
+
+  HAS_QUARTERLY_REVENUE:
+    description: "Organization has quarterly revenue"
+    cardinality: "N-to-1"  # Multiple quarters per org
+    canonical_metric: "Revenue_Quarterly"  # NEW: Different from annual
+    aliases: ["Q1_revenue", "Q2_revenue", "quarterly_sales"]  # NEW
     from_types: [ORGANIZATION]
     to_types: [METRIC]
 
@@ -83,6 +93,7 @@ relationships:
   HAS_ENERGY_DENSITY:
     description: "Product has target energy density"
     cardinality: "1-to-1"  # One target per product
+    canonical_metric: "EnergyDensity"  # NEW
     from_types: [PRODUCT]
     to_types: [METRIC]
 ```
