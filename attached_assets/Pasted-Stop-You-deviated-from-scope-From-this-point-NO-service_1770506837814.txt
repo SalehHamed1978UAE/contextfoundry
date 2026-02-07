@@ -1,0 +1,93 @@
+Stop. You deviated from scope.
+
+  From this point:
+  - NO service restarts
+  - NO workflow edits
+  - NO extraction runs
+  - NO background/nohup commands
+  - NO troubleshooting
+  - SQL investigation only, exactly as requested
+
+  Run this exact block and return raw output only:
+
+  set -euo pipefail
+  OLD=4668fc6d-c401-46d2-9797-4c8785f4d6ce
+  NEW=1d33909b-754e-4dcc-86b4-4cfb0023a6a2
+
+  echo "=== 1) Relationship type diff (OLD vs NEW) ==="
+  psql "$DATABASE_URL" -c "
+  WITH old_rel AS (
+    SELECT relationship_type, COUNT(*) c
+    FROM public.relationships
+    WHERE tenant_id = '$OLD'::uuid
+    GROUP BY relationship_type
+  ),
+  new_rel AS (
+    SELECT relationship_type, COUNT(*) c
+    FROM public.relationships
+    WHERE tenant_id = '$NEW'::uuid
+    GROUP BY relationship_type
+  )
+  SELECT
+    COALESCE(o.relationship_type, n.relationship_type) AS relationship_type,
+    COALESCE(o.c,0) AS old_count,
+    COALESCE(n.c,0) AS new_count,
+    COALESCE(n.c,0)-COALESCE(o.c,0) AS delta
+  FROM old_rel o
+  FULL OUTER JOIN new_rel n USING (relationship_type)
+  ORDER BY delta ASC, relationship_type;
+  "
+
+  echo "=== 2) Document status breakdown ==="
+  psql "$DATABASE_URL" -c "
+  SELECT tenant_id::text, status, COUNT(*)
+  FROM platform.documents
+  WHERE tenant_id IN ('$OLD'::uuid, '$NEW'::uuid)
+  GROUP BY tenant_id, status
+  ORDER BY tenant_id, status;
+  "
+
+  echo "=== 3) Lifecycle breakdown (entities + relationships) ==="
+  psql "$DATABASE_URL" -c "
+  SELECT 'entities' AS tbl, lifecycle_state, COUNT(*)
+  FROM public.entities
+  WHERE tenant_id='$NEW'::uuid
+  GROUP BY lifecycle_state
+  UNION ALL
+  SELECT 'relationships' AS tbl, lifecycle_state, COUNT(*)
+  FROM public.relationships
+  WHERE tenant_id='$NEW'::uuid
+  GROUP BY lifecycle_state
+  ORDER BY tbl, lifecycle_state;
+  "
+
+  echo "=== 4) Candidate relationships ==="
+  psql "$DATABASE_URL" -c "
+  SELECT EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema='public' AND table_name='candidate_relationships'
+  ) AS has_candidate_relationships;
+  "
+  psql "$DATABASE_URL" -c "
+  SELECT candidate_type, status, COUNT(*)
+  FROM public.candidate_relationships
+  WHERE tenant_id='$NEW'::uuid
+  GROUP BY candidate_type, status
+  ORDER BY COUNT(*) DESC;
+  " || true
+
+  echo "=== 5) Per-document relationship coverage on NEW ==="
+  psql "$DATABASE_URL" -c "
+  SELECT d.id::text AS doc_id, d.name,
+         COUNT(r.*) AS rel_count
+  FROM platform.documents d
+  LEFT JOIN public.relationships r
+    ON r.tenant_id=d.tenant_id
+   AND r.source_document_id=d.id::text
+  WHERE d.tenant_id='$NEW'::uuid
+  GROUP BY d.id, d.name
+  ORDER BY rel_count ASC, d.name
+  LIMIT 30;
+  "
+
+  Then paste me the output here and I’ll give you the exact minimal fix plan.
