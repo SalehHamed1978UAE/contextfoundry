@@ -1,0 +1,48 @@
+ Proceed with diagnostics only. No code changes, no troubleshooting, no fixes.
+
+  1) Run OLD vault baseline test now (control):
+  - vault_id: 4668fc6d-c401-46d2-9797-4c8785f4d6ce
+  - question_set_id: 67c09370-b458-4717-8244-2caa52ff6475
+  Command:
+  python -m src.test_runner.runner --vault-id "4668fc6d-c401-46d2-9797-
+  4c8785f4d6ce" --question-set-id "67c09370-b458-4717-8244-2caa52ff6475" --mode
+  auto 2>&1 | tee /tmp/eval_old.log
+
+  After completion:
+  latest=$(ls -1t test_results/*.json | head -1)
+  echo "OLD_RESULT_FILE: $latest"
+  jq -r '.vault_id, .results.passed, .results.total, .results.accuracy_pct'
+  "$latest"
+
+  2) Then run NEW vault extraction + gardener (no fixes):
+  python scripts/run_vault_extraction.py --vault-id "1d33909b-754e-4dcc-86b4-
+  4cfb0023a6a2" --use-ontology 2>&1 | tee /tmp/extract_new.log
+  curl -s -X POST http://localhost:5000/api/gardener/run | jq
+
+  3) Snapshot NEW vault after step 2:
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS docs FROM platform.documents WHERE
+  tenant_id='1d33909b-754e-4dcc-86b4-4cfb0023a6a2'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS chunks FROM public.document_chunks
+  WHERE tenant_id='1d33909b-754e-4dcc-86b4-4cfb0023a6a2'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS entities FROM public.entities
+  WHERE tenant_id='1d33909b-754e-4dcc-86b4-4cfb0023a6a2'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS rels FROM public.relationships
+  WHERE tenant_id='1d33909b-754e-4dcc-86b4-4cfb0023a6a2'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT lifecycle_state, COUNT(*) FROM public.entities
+  WHERE tenant_id='1d33909b-754e-4dcc-86b4-4cfb0023a6a2'::uuid GROUP BY
+  lifecycle_state;"
+  psql "$DATABASE_URL" -c "SELECT relationship_type, COUNT(*) FROM
+  public.relationships WHERE tenant_id='1d33909b-754e-4dcc-86b4-
+  4cfb0023a6a2'::uuid GROUP BY relationship_type ORDER BY COUNT(*) DESC LIMIT
+  20;"
+
+  4) Then run NEW vault 100Q test from UI (same question set), and report:
+  latest=$(ls -1t test_results/*.json | head -1)
+  echo "NEW_RESULT_FILE: $latest"
+  jq -r '.vault_id, .results.passed, .results.total, .results.accuracy_pct'
+  "$latest"
+
+  Return raw outputs only.
+
+  Note: the “RLS/session issue” was likely fixed by the pushed code + clean
+  restart, not just transient state.
