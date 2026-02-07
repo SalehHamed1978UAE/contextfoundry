@@ -27,6 +27,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, List, Optional, Tuple
 from uuid import UUID as UUIDType
+from uuid import uuid4
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -54,6 +55,7 @@ from src.context_foundry.extraction.ontology_centric_pipeline import (
     OntologyCentricResult,
 )
 from src.context_foundry.models.schema import LifecycleState
+from src.context_foundry.ingestion.document_loader import DocumentLoader
 
 try:
     from platform_foundation.src.tenant_service import TenantService
@@ -153,7 +155,7 @@ def get_documents_for_extraction(session, vault_id: str, limit: Optional[int] = 
     """
     if skip_multi:
         query = """
-            SELECT d.id, d.name, d.status, d.mime_type
+            SELECT d.id, d.name, d.status, d.mime_type, d.storage_path, d.original_filename
             FROM platform.documents d
             WHERE d.tenant_id = :vault_id
             AND d.status IN ('queued', 'uploaded', 'chunked', 'extracted')
@@ -162,7 +164,7 @@ def get_documents_for_extraction(session, vault_id: str, limit: Optional[int] = 
         """
     else:
         query = """
-            SELECT d.id, d.name, d.status, d.mime_type
+            SELECT d.id, d.name, d.status, d.mime_type, d.storage_path, d.original_filename
             FROM platform.documents d
             WHERE d.tenant_id = :vault_id
             AND d.status IN ('queued', 'uploaded', 'chunked')
@@ -180,6 +182,8 @@ def get_documents_for_extraction(session, vault_id: str, limit: Optional[int] = 
             "name": row[1],
             "status": row[2],
             "mime_type": row[3],
+            "storage_path": row[4],
+            "original_filename": row[5],
         })
     return documents
 
@@ -203,25 +207,285 @@ def get_extraction_stats(session, vault_id: str) -> Tuple[int, int, int]:
     return total, multi_done, remaining
 
 
-def get_document_content(session, doc_id: str) -> Optional[str]:
-    """Get document content from chunks or raw storage."""
+def _read_text_from_storage(storage_path: Optional[str], file_name: Optional[str], mime_type: Optional[str]) -> Optional[str]:
+    """Read text directly from storage_path as a last-resort content fallback."""
+    if not storage_path:
+        return None
+    if not os.path.exists(storage_path):
+        return None
+
+    loader = DocumentLoader()
+    ext = (Path(file_name).suffix.lower() if file_name else "")
+
+    try:
+        if ext == ".pdf":
+            return loader.load_pdf(storage_path).content
+        if ext == ".docx":
+            return loader.load_docx(storage_path).content
+        if ext in {".xlsx", ".xls", ".csv"}:
+            try:
+                from src.context_foundry.extraction.spreadsheet_loader import SpreadsheetLoader
+
+                spreadsheet = SpreadsheetLoader().load(storage_path, original_filename=file_name or "spreadsheet")
+                if spreadsheet.raw_text:
+                    return spreadsheet.raw_text
+                return "\n\n".join(t.markdown for t in spreadsheet.tables if t.markdown)
+            except Exception:
+                pass
+        if ext in {".txt", ".md", ".markdown", ".json", ".jsonl", ".html", ".xml", ".csv"}:
+            return loader.load_text(storage_path).content
+    except Exception:
+        # Fall through to permissive read below
+        pass
+
+    try:
+        with open(storage_path, "r", encoding="utf-8", errors="ignore") as f:
+            return f.read()
+    except Exception:
+        return None
+
+
+def _split_text_to_chunks(text_value: str, chunk_size: int = 2000, overlap: int = 400) -> List[Tuple[int, int, str]]:
+    """Split content into overlapping chunks with stable char offsets."""
+    chunks: List[Tuple[int, int, str]] = []
+    if not text_value:
+        return chunks
+
+    start_pos = 0
+    length = len(text_value)
+    while start_pos < length:
+        end_pos = min(start_pos + chunk_size, length)
+        chunk_text = text_value[start_pos:end_pos].strip()
+        if chunk_text:
+            chunks.append((start_pos, end_pos, chunk_text))
+        if end_pos >= length:
+            break
+        start_pos = max(0, end_pos - overlap)
+    return chunks
+
+
+def _ensure_public_document_row(session, vault_id: str, doc_id: str, title: str, content: str) -> str:
+    """Ensure a public.documents row exists and return its id."""
+    existing = session.execute(
+        text("""
+            SELECT id
+            FROM public.documents
+            WHERE tenant_id = CAST(:vault_id AS uuid)
+              AND source_document_id = :doc_id
+            ORDER BY created_at DESC
+            LIMIT 1
+        """),
+        {"vault_id": vault_id, "doc_id": doc_id},
+    ).fetchone()
+    if existing and existing[0]:
+        return str(existing[0])
+
+    public_doc_id = str(uuid4())
+    session.execute(
+        text("""
+            INSERT INTO public.documents
+            (id, tenant_id, title, doc_type, content, source_document_id, created_at)
+            VALUES (CAST(:id AS uuid), CAST(:vault_id AS uuid), :title, 'DOCUMENT', :content, :doc_id, NOW())
+        """),
+        {
+            "id": public_doc_id,
+            "vault_id": vault_id,
+            "title": title or "Document",
+            "content": content[:5000],
+            "doc_id": doc_id,
+        },
+    )
+    return public_doc_id
+
+
+def _create_chunks_for_document(
+    session,
+    vault_id: str,
+    doc: Dict[str, Any],
+    content: str,
+) -> int:
+    """Create document chunks for one platform document id."""
+    doc_id = doc["id"]
+    doc_name = doc.get("name") or doc.get("original_filename") or "Document"
+    _ensure_public_document_row(session, vault_id, doc_id, doc_name, content)
+    chunks = _split_text_to_chunks(content)
+    created = 0
+
+    for idx, (char_start, char_end, chunk_text) in enumerate(chunks):
+        session.execute(
+            text("""
+                INSERT INTO public.document_chunks
+                (id, document_id, tenant_id, chunk_index, text, char_start, char_end, chunk_metadata)
+                VALUES (
+                    CAST(:id AS uuid),
+                    CAST(:document_id AS uuid),
+                    CAST(:tenant_id AS uuid),
+                    :chunk_index,
+                    :text,
+                    :char_start,
+                    :char_end,
+                    CAST(:chunk_metadata AS json)
+                )
+                ON CONFLICT (document_id, chunk_index) DO NOTHING
+            """),
+            {
+                "id": str(uuid4()),
+                "document_id": doc_id,
+                "tenant_id": vault_id,
+                "chunk_index": idx,
+                "text": chunk_text,
+                "char_start": char_start,
+                "char_end": char_end,
+                "chunk_metadata": json.dumps({"source": "run_vault_extraction_preflight"}),
+            },
+        )
+        created += 1
+
+    # Keep status aligned with chunk availability.
+    session.execute(
+        text("""
+            UPDATE platform.documents
+            SET status = CASE
+                WHEN status IN ('queued', 'uploaded') THEN 'chunked'
+                ELSE status
+            END,
+            updated_at = NOW()
+            WHERE id = :doc_id
+        """),
+        {"doc_id": doc_id},
+    )
+
+    return created
+
+
+def run_preflight_checks(
+    session,
+    vault_id: str,
+    documents: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """Ensure documents have chunked content before extraction begins."""
+    report: Dict[str, Any] = {
+        "documents_total": len(documents),
+        "documents_with_chunks": 0,
+        "documents_missing_chunks": 0,
+        "queued_or_uploaded": 0,
+        "chunks_created": 0,
+        "autofixed_documents": 0,
+        "unresolved_documents": 0,
+    }
+
+    if not documents:
+        return report
+
+    for doc in documents:
+        doc_id = doc["id"]
+        doc_name = doc.get("name") or doc.get("original_filename") or doc_id
+
+        existing_chunks = session.execute(
+            text("""
+                SELECT COUNT(*)
+                FROM public.document_chunks
+                WHERE tenant_id = CAST(:vault_id AS uuid)
+                  AND document_id = CAST(:doc_id AS uuid)
+            """),
+            {"vault_id": vault_id, "doc_id": doc_id},
+        ).scalar() or 0
+
+        if existing_chunks > 0:
+            report["documents_with_chunks"] += 1
+            continue
+
+        report["documents_missing_chunks"] += 1
+        if doc.get("status") in {"queued", "uploaded"}:
+            report["queued_or_uploaded"] += 1
+
+        public_doc = session.execute(
+            text("""
+                SELECT content
+                FROM public.documents
+                WHERE tenant_id = CAST(:vault_id AS uuid)
+                  AND source_document_id = :doc_id
+                ORDER BY created_at DESC
+                LIMIT 1
+            """),
+            {"vault_id": vault_id, "doc_id": doc_id},
+        ).fetchone()
+
+        text_content = None
+        if public_doc and public_doc[0]:
+            text_content = public_doc[0]
+
+        if not text_content:
+            text_content = _read_text_from_storage(
+                doc.get("storage_path"),
+                doc.get("original_filename") or doc_name,
+                doc.get("mime_type"),
+            )
+
+        if not text_content:
+            log(f"[Preflight] Unable to backfill chunks for {doc_name}: no readable content")
+            report["unresolved_documents"] += 1
+            continue
+
+        created = _create_chunks_for_document(session, vault_id, doc, text_content)
+        report["chunks_created"] += created
+        report["autofixed_documents"] += 1
+        if created == 0:
+            report["unresolved_documents"] += 1
+            log(f"[Preflight] No chunks created for {doc_name} (content present, but empty chunk set)")
+        else:
+            log(f"[Preflight] Backfilled {created} chunks for {doc_name}")
+
+    session.commit()
+    return report
+
+
+def get_document_content(session, doc: Dict[str, Any]) -> Tuple[Optional[str], str]:
+    """Get document content with deterministic fallback order.
+
+    Order:
+      1) public.document_chunks by platform document id
+      2) public.documents by source_document_id
+      3) direct file read from storage_path
+    """
+    doc_id = doc["id"]
+
     chunks = session.execute(
-        text("SELECT text FROM document_chunks WHERE document_id = :doc_id ORDER BY chunk_index"),
+        text("""
+            SELECT text
+            FROM public.document_chunks
+            WHERE document_id = CAST(:doc_id AS uuid)
+            ORDER BY chunk_index
+        """),
         {"doc_id": doc_id}
     ).fetchall()
     
     if chunks:
-        return "\n\n".join(row[0] for row in chunks if row[0])
+        return "\n\n".join(row[0] for row in chunks if row[0]), "chunks"
     
     raw = session.execute(
-        text("SELECT content FROM public.documents WHERE id = :doc_id"),
+        text("""
+            SELECT content
+            FROM public.documents
+            WHERE source_document_id = :doc_id
+            ORDER BY created_at DESC
+            LIMIT 1
+        """),
         {"doc_id": doc_id}
     ).fetchone()
     
     if raw and raw[0]:
-        return raw[0]
+        return raw[0], "public.documents"
+
+    fallback = _read_text_from_storage(
+        doc.get("storage_path"),
+        doc.get("original_filename") or doc.get("name"),
+        doc.get("mime_type"),
+    )
+    if fallback:
+        return fallback, "storage_path"
     
-    return None
+    return None, "none"
 
 
 def run_extraction_from_db(
@@ -265,18 +529,27 @@ def run_extraction_from_db(
         "document_ids": [],
         "models": {},
         "errors": [],
+        "content_sources": {
+            "chunks": 0,
+            "public.documents": 0,
+            "storage_path": 0,
+            "none": 0,
+        },
     }
     
     for i, doc in enumerate(documents, 1):
         doc_id = doc["id"]
         doc_name = doc["name"]
         
-        content = get_document_content(session, doc_id)
+        content, content_source = get_document_content(session, doc)
+        if content_source not in stats["content_sources"]:
+            stats["content_sources"][content_source] = 0
+        stats["content_sources"][content_source] += 1
         if not content:
             log(f"  [{i}/{len(documents)}] Skipping {doc_name}: no content")
             continue
         
-        log(f"  [{i}/{len(documents)}] Extracting: {doc_name}")
+        log(f"  [{i}/{len(documents)}] Extracting: {doc_name} (content: {content_source})")
         
         try:
             doc_info = DocumentInfo(
@@ -346,18 +619,27 @@ def run_ontology_extraction(
         "new_entity_types": [],
         "new_relationship_types": [],
         "errors": [],
+        "content_sources": {
+            "chunks": 0,
+            "public.documents": 0,
+            "storage_path": 0,
+            "none": 0,
+        },
     }
     
     for i, doc in enumerate(documents, 1):
         doc_id = doc["id"]
         doc_name = doc["name"]
         
-        content = get_document_content(session, doc_id)
+        content, content_source = get_document_content(session, doc)
+        if content_source not in stats["content_sources"]:
+            stats["content_sources"][content_source] = 0
+        stats["content_sources"][content_source] += 1
         if not content:
             log(f"  [{i}/{len(documents)}] Skipping {doc_name}: no content")
             continue
         
-        log(f"  [{i}/{len(documents)}] Ontology extracting: {doc_name}")
+        log(f"  [{i}/{len(documents)}] Ontology extracting: {doc_name} (content: {content_source})")
         
         try:
             result: OntologyCentricResult = pipeline.extract(
@@ -558,6 +840,7 @@ def run_full_pipeline(
     skip_extraction: bool = False,
     list_only: bool = False,
     use_ontology: bool = False,
+    force: bool = False,
 ):
     """Run the full extraction pipeline on a vault.
     
@@ -614,10 +897,32 @@ def run_full_pipeline(
         session.close()
         return
     
-    doc_count = len(get_documents_for_extraction(session, vault_id, skip_multi=True))
+    pending_documents = get_documents_for_extraction(session, vault_id, limit=limit, skip_multi=True)
+    doc_count = len(pending_documents)
     log(f"Documents pending extraction: {doc_count}")
     if limit:
         log(f"Limit: {limit} documents")
+
+    if not skip_extraction:
+        log("")
+        log("-" * 70)
+        log("PREFLIGHT: Content & Chunk Readiness")
+        log("-" * 70)
+        preflight = run_preflight_checks(session, vault_id, pending_documents)
+        log(f"Documents inspected: {preflight['documents_total']}")
+        log(f"Documents with existing chunks: {preflight['documents_with_chunks']}")
+        log(f"Documents missing chunks (initial): {preflight['documents_missing_chunks']}")
+        log(f"Queued/uploaded docs observed: {preflight['queued_or_uploaded']}")
+        log(f"Autofixed documents: {preflight['autofixed_documents']}")
+        log(f"Chunks created by preflight: {preflight['chunks_created']}")
+        log(f"Unresolved documents after preflight: {preflight['unresolved_documents']}")
+
+        if preflight["unresolved_documents"] > 0 and not force:
+            log("")
+            log("ERROR: Preflight found unresolved documents with no readable content.")
+            log("Use --force to proceed anyway, or fix document ingestion for those files first.")
+            session.close()
+            return
     
     # Log start/resume event
     if multi_done > 0:
@@ -648,6 +953,7 @@ def run_full_pipeline(
             log(f"  Total entities: {extraction_summary.get('total_entities', 0)}")
             log(f"  Total relationships: {extraction_summary.get('total_relationships', 0)}")
             log(f"  Total chunks stored: {extraction_summary.get('total_chunks', 0)}")
+            log(f"  Content paths used: {extraction_summary.get('content_sources', {})}")
             if extraction_summary.get("document_types"):
                 log(f"  Document types: {extraction_summary['document_types']}")
             if extraction_summary.get("new_entity_types"):
@@ -679,6 +985,7 @@ def run_full_pipeline(
             log(f"  Total documents: {extraction_summary.get('total_documents', 0)}")
             log(f"  Total entities: {extraction_summary.get('total_entities', 0)}")
             log(f"  Total relationships: {extraction_summary.get('total_relationships', 0)}")
+            log(f"  Content paths used: {extraction_summary.get('content_sources', {})}")
             if extraction_summary.get("errors"):
                 log(f"  Errors: {len(extraction_summary['errors'])}")
     else:
@@ -795,6 +1102,11 @@ def main():
         action="store_true",
         help="Use ontology-centric pipeline instead of multi-model extraction"
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Proceed even if preflight finds unresolved missing-content documents"
+    )
     
     args = parser.parse_args()
     
@@ -809,6 +1121,7 @@ def main():
             limit=args.limit,
             skip_extraction=args.skip_extraction,
             use_ontology=args.use_ontology,
+            force=args.force,
         )
     else:
         parser.print_help()

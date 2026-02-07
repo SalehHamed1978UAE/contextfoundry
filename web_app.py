@@ -2776,6 +2776,37 @@ def dashboard_upload_multi():
         if not is_ajax:
             return redirect('/dashboard?error=auth')
         return jsonify({'success': False, 'error': 'Authentication required'}), 401
+
+    def _sanitize_relative_path(raw_path: str, fallback_filename: str) -> str:
+        """Normalize relative upload paths and strip traversal segments."""
+        safe_name = os.path.basename(fallback_filename or "document")
+        if not raw_path:
+            return safe_name
+
+        normalized = str(raw_path).replace("\\", "/").strip()
+        if not normalized:
+            return safe_name
+
+        parts = []
+        for part in normalized.split("/"):
+            part = part.strip()
+            if not part or part == ".":
+                continue
+            if part == "..":
+                # Drop traversal attempts entirely.
+                continue
+            parts.append(part)
+
+        if not parts:
+            return safe_name
+
+        return "/".join(parts)
+
+    def _folder_path_from_relative(relative_path: str) -> str:
+        parent = os.path.dirname(relative_path).replace("\\", "/").strip("/")
+        if not parent:
+            return "/"
+        return f"/{parent}/"
     
     try:
         print("Step 1: Getting files from request")
@@ -2783,6 +2814,16 @@ def dashboard_upload_multi():
         print(f"Step 1: Got {len(files) if files else 0} files")
         if not files or len(files) == 0:
             return jsonify({'success': False, 'error': 'No files provided'}), 400
+
+        relative_paths_raw = request.form.get('relative_paths')
+        relative_paths = []
+        if relative_paths_raw:
+            try:
+                parsed = json.loads(relative_paths_raw)
+                if isinstance(parsed, list):
+                    relative_paths = parsed
+            except Exception:
+                print("Step 1: Failed to parse relative_paths JSON; continuing without it")
         
         from uuid import UUID, uuid4
         import psycopg2
@@ -2809,7 +2850,11 @@ def dashboard_upload_multi():
                     if not file.filename:
                         continue
                     
-                    filename = file.filename
+                    filename = os.path.basename(file.filename)
+                    rel_input = relative_paths[idx] if idx < len(relative_paths) else filename
+                    safe_relative_path = _sanitize_relative_path(rel_input, filename)
+                    folder_path = _folder_path_from_relative(safe_relative_path)
+                    storage_filename = os.path.basename(safe_relative_path)
                     if any(junk in filename for junk in JUNK_PATTERNS):
                         results.append({'filename': filename, 'status': 'skipped', 'reason': 'Junk file'})
                         continue
@@ -2860,11 +2905,11 @@ def dashboard_upload_multi():
                     cur.execute("""
                         INSERT INTO platform.documents (
                             id, tenant_id, name, original_filename, mime_type, 
-                            storage_path, size_bytes, current_version, status, content_hash, created_by, created_at, updated_at
-                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
-                    """, (str(doc_id), str(tenant_id), filename, filename, 
+                            storage_path, size_bytes, current_version, status, content_hash, folder_path, created_by, created_at, updated_at
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
+                    """, (str(doc_id), str(tenant_id), storage_filename, storage_filename,
                           file.content_type or 'application/octet-stream',
-                          storage_path, file_size, version, status, content_hash, str(user_id)))
+                          storage_path, file_size, version, status, content_hash, folder_path, str(user_id)))
                     print("Step 9: Document inserted")
                     
                     print("Step 10: Inserting usage event")
@@ -2873,7 +2918,13 @@ def dashboard_upload_multi():
                             tenant_id, user_id, event_type, document_id, tokens_consumed, metadata, created_at
                         ) VALUES (%s, %s, 'upload', %s, %s, %s, NOW())
                     """, (str(tenant_id), str(user_id), str(doc_id), file_size,
-                          json.dumps({'filename': filename, 'source': 'multi_upload', 'is_spreadsheet': is_spreadsheet})))
+                          json.dumps({
+                              'filename': storage_filename,
+                              'relative_path': safe_relative_path,
+                              'folder_path': folder_path,
+                              'source': 'multi_upload',
+                              'is_spreadsheet': is_spreadsheet
+                          })))
                     print("Step 10: Usage event inserted")
                     
                     if is_spreadsheet:
@@ -2984,6 +3035,10 @@ def dashboard_upload_zip():
                             filename = os.path.basename(zip_info.filename)
                             if not filename:
                                 continue
+                            relative_path = zip_info.filename.replace("\\", "/").strip("/")
+                            relative_parts = [p for p in relative_path.split("/") if p and p not in [".", ".."]]
+                            safe_relative_path = "/".join(relative_parts) if relative_parts else filename
+                            folder_path = "/" + "/".join(relative_parts[:-1]) + "/" if len(relative_parts) > 1 else "/"
                             
                             if any(junk in zip_info.filename for junk in JUNK_PATTERNS):
                                 results.append({'filename': filename, 'status': 'skipped', 'reason': 'Junk file'})
@@ -3023,18 +3078,24 @@ def dashboard_upload_zip():
                             cur.execute("""
                                 INSERT INTO platform.documents (
                                     id, tenant_id, name, original_filename, mime_type, 
-                                    storage_path, size_bytes, current_version, status, content_hash, created_by, created_at, updated_at
-                                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'queued', %s, %s, NOW(), NOW())
+                                    storage_path, size_bytes, current_version, status, content_hash, folder_path, created_by, created_at, updated_at
+                                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'queued', %s, %s, %s, NOW(), NOW())
                             """, (str(doc_id), str(tenant_id), filename, filename, 
                                   mime_type or 'application/octet-stream',
-                                  storage_path, len(content), version, content_hash, str(user_id)))
+                                  storage_path, len(content), version, content_hash, folder_path, str(user_id)))
                             
                             cur.execute("""
                                 INSERT INTO platform.usage_events (
                                     tenant_id, user_id, event_type, document_id, tokens_consumed, metadata, created_at
                                 ) VALUES (%s, %s, 'upload', %s, %s, %s, NOW())
                             """, (str(tenant_id), str(user_id), str(doc_id), len(content),
-                                  json.dumps({'filename': filename, 'source': 'zip_upload', 'zip_name': file.filename})))
+                                  json.dumps({
+                                      'filename': filename,
+                                      'relative_path': safe_relative_path,
+                                      'folder_path': folder_path,
+                                      'source': 'zip_upload',
+                                      'zip_name': file.filename
+                                  })))
                             
                             cur.execute("""
                                 INSERT INTO platform.extraction_requests (

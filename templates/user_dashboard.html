@@ -814,10 +814,10 @@
     
     <div class="drop-zone" id="dropZone" onclick="document.getElementById('multiFileInput').click()">
         <div class="drop-zone-icon">📁</div>
-        <div class="drop-zone-text">Drop files here to upload</div>
-        <div class="drop-zone-hint">Supports PDF, DOC, TXT, MD, JSON, CSV, XLS, PPT, HTML, XML, ZIP (max 50MB each)</div>
+        <div class="drop-zone-text">Drop files or folders here to upload</div>
+        <div class="drop-zone-hint">Folder uploads are recursive. Supports PDF, DOC, TXT, MD, JSON, CSV, XLS, PPT, HTML, XML, ZIP (max 50MB each)</div>
     </div>
-    <input type="file" id="multiFileInput" multiple hidden 
+    <input type="file" id="multiFileInput" multiple webkitdirectory directory hidden 
            accept=".pdf,.doc,.docx,.txt,.md,.json,.csv,.xls,.xlsx,.ppt,.pptx,.rtf,.html,.xml,.zip">
     
     <div class="upload-progress" id="uploadProgress">
@@ -1055,8 +1055,53 @@ function preventDefaults(e) {
 dropZone.addEventListener('drop', handleDrop, false);
 multiFileInput.addEventListener('change', handleFileSelect, false);
 
-function handleDrop(e) {
-    const files = e.dataTransfer.files;
+async function traverseDirectory(entry, parentPath = "") {
+    const files = [];
+    const reader = entry.createReader();
+    const readEntries = () => new Promise(resolve => reader.readEntries(resolve));
+
+    let entries;
+    do {
+        entries = await readEntries();
+        for (const child of entries) {
+            const childPath = parentPath ? `${parentPath}/${child.name}` : child.name;
+            if (child.isFile) {
+                const file = await new Promise(resolve => child.file(resolve));
+                file.relativePath = `${entry.name}/${childPath}`;
+                files.push(file);
+            } else if (child.isDirectory) {
+                const nested = await traverseDirectory(child, childPath);
+                files.push(...nested);
+            }
+        }
+    } while (entries.length > 0);
+    return files;
+}
+
+async function extractDroppedFiles(dataTransfer) {
+    const items = Array.from(dataTransfer.items || []);
+    const directoryEntries = [];
+
+    for (const item of items) {
+        if (item.kind !== 'file' || !item.webkitGetAsEntry) continue;
+        const entry = item.webkitGetAsEntry();
+        if (entry && entry.isDirectory) directoryEntries.push(entry);
+    }
+
+    if (directoryEntries.length === 0) {
+        return Array.from(dataTransfer.files || []);
+    }
+
+    const collected = [];
+    for (const entry of directoryEntries) {
+        const folderFiles = await traverseDirectory(entry);
+        collected.push(...folderFiles);
+    }
+    return collected;
+}
+
+async function handleDrop(e) {
+    const files = await extractDroppedFiles(e.dataTransfer);
     handleFiles(files);
 }
 
@@ -1113,7 +1158,12 @@ async function handleFiles(files) {
                 showToast(data.error || 'Upload failed', 'error');
             }
         } else {
-            fileList.forEach(file => formData.append('files', file));
+            const relativePaths = [];
+            fileList.forEach(file => {
+                formData.append('files', file);
+                relativePaths.push(file.webkitRelativePath || file.relativePath || file.name);
+            });
+            formData.append('relative_paths', JSON.stringify(relativePaths));
             progressText.textContent = `Uploading ${fileList.length} file(s)...`;
             progressFill.style.width = '50%';
             

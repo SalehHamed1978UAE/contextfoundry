@@ -906,7 +906,7 @@
                     </select>
                     <button class="sort-order-btn" id="sortOrderBtn" onclick="toggleSortOrder()" title="Toggle sort order">↓</button>
                 </div>
-                <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.txt,.md,.xlsx,.xls,.csv,.json,.jsonl,.html">
+                <input type="file" id="fileInput" multiple webkitdirectory directory accept=".pdf,.doc,.docx,.txt,.md,.xlsx,.xls,.csv,.json,.jsonl,.html">
                 <div id="fileTree" class="file-list">
                     <div class="empty-files">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 8px;">
@@ -1489,11 +1489,12 @@
             dropZone.classList.remove('drag-over');
         });
         
-        dropZone.addEventListener('drop', (e) => {
+        dropZone.addEventListener('drop', async (e) => {
             e.preventDefault();
             dropZone.classList.remove('drag-over');
             if (e.dataTransfer.files.length) {
-                uploadFiles(e.dataTransfer.files);
+                const files = await extractDroppedFiles(e.dataTransfer);
+                uploadFiles(files);
             }
         });
         
@@ -1513,12 +1514,13 @@
             }
         });
         
-        sidebarDropZone.addEventListener('drop', (e) => {
+        sidebarDropZone.addEventListener('drop', async (e) => {
             e.preventDefault();
             e.stopPropagation();
             sidebarDropZone.classList.remove('drag-over');
             if (e.dataTransfer.files.length) {
-                uploadFiles(e.dataTransfer.files);
+                const files = await extractDroppedFiles(e.dataTransfer);
+                uploadFiles(files);
             }
         });
         
@@ -1527,12 +1529,63 @@
                 uploadFiles(e.target.files);
             }
         }
+
+        async function traverseDirectory(entry, parentPath = '') {
+            const files = [];
+            const reader = entry.createReader();
+            const readEntries = () => new Promise(resolve => reader.readEntries(resolve));
+            let entries;
+
+            do {
+                entries = await readEntries();
+                for (const child of entries) {
+                    const childPath = parentPath ? `${parentPath}/${child.name}` : child.name;
+                    if (child.isFile) {
+                        const file = await new Promise(resolve => child.file(resolve));
+                        file.relativePath = `${entry.name}/${childPath}`;
+                        files.push(file);
+                    } else if (child.isDirectory) {
+                        const nested = await traverseDirectory(child, childPath);
+                        files.push(...nested);
+                    }
+                }
+            } while (entries.length > 0);
+
+            return files;
+        }
+
+        async function extractDroppedFiles(dataTransfer) {
+            const items = Array.from(dataTransfer.items || []);
+            const directories = [];
+
+            for (const item of items) {
+                if (item.kind !== 'file' || !item.webkitGetAsEntry) continue;
+                const entry = item.webkitGetAsEntry();
+                if (entry && entry.isDirectory) directories.push(entry);
+            }
+
+            if (directories.length === 0) {
+                return Array.from(dataTransfer.files || []);
+            }
+
+            const files = [];
+            for (const dirEntry of directories) {
+                const dirFiles = await traverseDirectory(dirEntry);
+                files.push(...dirFiles);
+            }
+            return files;
+        }
         
         async function uploadFiles(files) {
             const formData = new FormData();
-            for (const file of files) {
+            const fileList = Array.from(files || []);
+            const relativePaths = [];
+
+            for (const file of fileList) {
                 formData.append('files', file);
+                relativePaths.push(file.webkitRelativePath || file.relativePath || file.name);
             }
+            formData.append('relative_paths', JSON.stringify(relativePaths));
             
             try {
                 const response = await fetch('/api/documents/upload/multi', {
