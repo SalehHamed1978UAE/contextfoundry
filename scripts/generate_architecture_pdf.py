@@ -34,6 +34,36 @@ def strip_markdown(text: str) -> str:
     return text
 
 
+def hard_wrap_long_tokens(line: str, max_len: int = 100) -> list[str]:
+    """
+    Break lines that contain very long tokens (e.g., separators or long code)
+    so fpdf2 can render them without throwing width errors.
+    """
+    if len(line) <= max_len:
+        return [line]
+
+    # If there are no spaces, hard-wrap the line.
+    if " " not in line:
+        return [line[i:i + max_len] for i in range(0, len(line), max_len)]
+
+    # Otherwise, wrap by words.
+    parts = []
+    current = []
+    current_len = 0
+    for word in line.split():
+        word_len = len(word)
+        if current_len + word_len + (1 if current else 0) > max_len:
+            parts.append(" ".join(current))
+            current = [word]
+            current_len = word_len
+        else:
+            current.append(word)
+            current_len += word_len + (1 if current_len else 0)
+    if current:
+        parts.append(" ".join(current))
+    return parts
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Generate PDF from architecture_summary.md")
     parser.add_argument(
@@ -73,7 +103,8 @@ def main() -> int:
     pdf.set_font("Helvetica", size=11)
 
     for line in text.splitlines():
-        pdf.multi_cell(0, 6, line)
+        for wrapped in hard_wrap_long_tokens(line, max_len=100):
+            pdf.multi_cell(0, 6, wrapped)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     pdf.output(str(output_path))
