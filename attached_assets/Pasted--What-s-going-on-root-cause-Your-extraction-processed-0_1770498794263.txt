@@ -1,0 +1,83 @@
+ # What’s going on (root cause)
+
+  Your extraction processed 0 documents:
+
+  Skipping ...: no content
+  Total documents: 0
+  Total entities: 0
+  Total relationships: 0
+
+  That means the new vault has no chunks/content available.
+  So the ontology extractor runs on empty input.
+  The test is then running on an empty KG, which explains the 51%.
+
+  This is not about the ontology flag.
+  It’s simply: documents were uploaded but never processed into chunks.
+
+  ———
+
+  # What to check (read‑only)
+
+  Run these to confirm:
+
+  # Check if document chunks exist for the vault
+  python - <<'PY'
+  import os
+  from sqlalchemy import create_engine, text
+  db = os.environ.get("DATABASE_URL")
+  engine = create_engine(db)
+  tenant = "1d33909b-754e-4dcc-86b4-4cfb0023a6a2"
+  with engine.begin() as c:
+      try:
+          print("chunks:", c.execute(text("select count(*) from document_chunks
+  where tenant_id=:t"), {"t": tenant}).scalar())
+      except Exception as e:
+          print("chunks query failed:", e)
+  PY
+
+  If that prints 0, that’s exactly the issue.
+
+  ———
+
+  # How to fix it (no code changes)
+
+  You must process/chunk the documents first.
+
+  Check if a backfill script exists:
+
+  ls scripts | grep -E "chunk|backfill|process"
+
+  If scripts/backfill_chunks.py exists:
+
+  python scripts/backfill_chunks.py --tenant-id 1d33909b-754e-4dcc-86b4-
+  4cfb0023a6a2 --dry-run
+  python scripts/backfill_chunks.py --tenant-id 1d33909b-754e-4dcc-86b4-
+  4cfb0023a6a2
+
+  If not, use the UI “Process/Extract” button for the vault (this does the same
+  chunking step).
+
+  ———
+
+  # Then re‑run extraction + test
+
+  python -u scripts/run_vault_extraction.py \
+    --vault-id "1d33909b-754e-4dcc-86b4-4cfb0023a6a2" \
+    --use-ontology
+
+  Then:
+
+  python -m src.test_runner.runner \
+    --vault-id "1d33909b-754e-4dcc-86b4-4cfb0023a6a2" \
+    --questions "src/test_questions/nexus_100q.json" \
+    --force
+
+  ———
+
+  # Bottom line
+
+  You’re testing a vault with zero extracted content, so the system is
+  effectively empty.
+  That’s the mess—not the ontology flag.
+
+  Get chunks first, then extraction will work.
