@@ -282,12 +282,8 @@ class EntityResolver:
         
         lifecycle_filter = or_(
             Entity.lifecycle_state == LifecycleState.TRUSTED,
-            Entity.lifecycle_state == LifecycleState.STAGING,
             Entity.lifecycle_state == LifecycleState.ARCHIVED
-        ) if include_archived else or_(
-            Entity.lifecycle_state == LifecycleState.TRUSTED,
-            Entity.lifecycle_state == LifecycleState.STAGING
-        )
+        ) if include_archived else Entity.lifecycle_state == LifecycleState.TRUSTED
         
         base_query = self.session.query(Entity).filter(lifecycle_filter)
         
@@ -332,12 +328,8 @@ class EntityResolver:
         
         lifecycle_filter = or_(
             Entity.lifecycle_state == LifecycleState.TRUSTED,
-            Entity.lifecycle_state == LifecycleState.STAGING,
             Entity.lifecycle_state == LifecycleState.ARCHIVED
-        ) if include_archived else or_(
-            Entity.lifecycle_state == LifecycleState.TRUSTED,
-            Entity.lifecycle_state == LifecycleState.STAGING
-        )
+        ) if include_archived else Entity.lifecycle_state == LifecycleState.TRUSTED
         
         base_query = self.session.query(Entity).filter(
             lifecycle_filter,
@@ -393,12 +385,8 @@ class EntityResolver:
         from sqlalchemy import or_
         lifecycle_filter = or_(
             Entity.lifecycle_state == LifecycleState.TRUSTED,
-            Entity.lifecycle_state == LifecycleState.STAGING,
             Entity.lifecycle_state == LifecycleState.ARCHIVED
-        ) if include_archived else or_(
-            Entity.lifecycle_state == LifecycleState.TRUSTED,
-            Entity.lifecycle_state == LifecycleState.STAGING
-        )
+        ) if include_archived else Entity.lifecycle_state == LifecycleState.TRUSTED
         
         base_query = self.session.query(Entity).filter(
             lifecycle_filter,
@@ -464,12 +452,8 @@ class EntityResolver:
         from sqlalchemy import or_
         lifecycle_filter = or_(
             Entity.lifecycle_state == LifecycleState.TRUSTED,
-            Entity.lifecycle_state == LifecycleState.STAGING,
             Entity.lifecycle_state == LifecycleState.ARCHIVED
-        ) if include_archived else or_(
-            Entity.lifecycle_state == LifecycleState.TRUSTED,
-            Entity.lifecycle_state == LifecycleState.STAGING
-        )
+        ) if include_archived else Entity.lifecycle_state == LifecycleState.TRUSTED
         
         base_query = self.session.query(Entity).join(
             EntityAlias, Entity.id == EntityAlias.entity_id
@@ -557,7 +541,7 @@ class EntityResolver:
             tenant_filter = "AND tenant_id = :tenant_id"
             params["tenant_id"] = self.tenant_id
         
-        lifecycle_filter = "lifecycle_state IN ('TRUSTED', 'STAGING', 'ARCHIVED')" if include_archived else "lifecycle_state IN ('TRUSTED', 'STAGING')"
+        lifecycle_filter = "lifecycle_state IN ('TRUSTED', 'ARCHIVED')" if include_archived else "lifecycle_state = 'TRUSTED'"
         
         embedding_str = "[" + ",".join(str(x) for x in query_embedding) + "]"
         
@@ -617,12 +601,8 @@ class EntityResolver:
         
         lifecycle_filter = or_(
             Entity.lifecycle_state == LifecycleState.TRUSTED,
-            Entity.lifecycle_state == LifecycleState.STAGING,
             Entity.lifecycle_state == LifecycleState.ARCHIVED
-        ) if include_archived else or_(
-            Entity.lifecycle_state == LifecycleState.TRUSTED,
-            Entity.lifecycle_state == LifecycleState.STAGING
-        )
+        ) if include_archived else Entity.lifecycle_state == LifecycleState.TRUSTED
         
         try:
             base_query = self.session.query(Entity).filter(lifecycle_filter)
@@ -773,12 +753,8 @@ def batch_compute_entity_embeddings(
     """
     session = session or get_session()
     
-    from sqlalchemy import or_
     query = session.query(Entity).filter(
-        or_(
-            Entity.lifecycle_state == LifecycleState.TRUSTED,
-            Entity.lifecycle_state == LifecycleState.STAGING
-        )
+        Entity.lifecycle_state == LifecycleState.TRUSTED
     )
     
     if only_missing:

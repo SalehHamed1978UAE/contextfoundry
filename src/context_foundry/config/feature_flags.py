@@ -52,7 +52,5 @@ def is_tree_based_retrieval_enabled() -> bool:
 
     Tree-based retrieval prioritizes graph proximity over semantic similarity.
     Enable with environment variable: CF_TREE_BASED_RETRIEVAL=true
-    
-    Reads env var dynamically so it can be toggled without restarting the server.
     """
-    return os.getenv("CF_TREE_BASED_RETRIEVAL", "false").lower() == "true"
+    return TREE_BASED_RETRIEVAL_ENABLED

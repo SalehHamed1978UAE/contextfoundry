@@ -444,7 +444,7 @@ def get_data_sufficiency(session: Session, entity_id: str) -> dict:
             COUNT(*) FILTER (WHERE source_id = :entity_id) as outgoing,
             COUNT(*) FILTER (WHERE target_id = :entity_id) as incoming
         FROM relationships
-        WHERE lifecycle_state IN ('TRUSTED', 'STAGING')
+        WHERE lifecycle_state = 'TRUSTED'
           AND (source_id = :entity_id OR target_id = :entity_id)
     """), {'entity_id': entity_id}).fetchone()
     

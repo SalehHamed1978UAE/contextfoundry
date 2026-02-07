@@ -930,7 +930,7 @@ class RetrievalAgent:
             # Entity is already imported at module level from ..models.schema
             entities = self.semantic.session.query(Entity).filter(
                 Entity.entity_type == entity_type,
-                Entity.lifecycle_state.in_(['TRUSTED', 'STAGING'])
+                Entity.lifecycle_state == 'TRUSTED'
             ).order_by(Entity.name).limit(50).all()
             
             # Build semantic entities list for the bundle
@@ -1547,7 +1547,7 @@ class RetrievalAgent:
             return True, entity.to_dict()
         
         # Build base query with tenant filter
-        base_filter = [Entity.lifecycle_state.in_(['TRUSTED', 'STAGING'])]
+        base_filter = [Entity.lifecycle_state == 'TRUSTED']
         if self.tenant_id:
             from uuid import UUID as PyUUID
             try:

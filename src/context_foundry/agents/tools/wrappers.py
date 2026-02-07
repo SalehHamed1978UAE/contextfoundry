@@ -559,7 +559,7 @@ class ToolExecutor:
                 FROM relationships
                 WHERE tenant_id = :tid
                   AND source_id = :eid
-                  AND lifecycle_state IN ('TRUSTED', 'STAGING')
+                  AND lifecycle_state = 'TRUSTED'
                 GROUP BY relationship_type
                 ORDER BY count DESC
             """)
@@ -578,7 +578,7 @@ class ToolExecutor:
                 FROM relationships
                 WHERE tenant_id = :tid
                   AND target_id = :eid
-                  AND lifecycle_state IN ('TRUSTED', 'STAGING')
+                  AND lifecycle_state = 'TRUSTED'
                 GROUP BY relationship_type
                 ORDER BY count DESC
             """)
@@ -683,7 +683,7 @@ class ToolExecutor:
                 LEFT JOIN platform.documents d ON e.source_document_id::text = d.id::text AND d.tenant_id = :tid
                 WHERE e.tenant_id = :tid
                   AND e.entity_type = 'SPECIFICATION'
-                  AND e.lifecycle_state IN ('TRUSTED', 'STAGING')
+                  AND e.lifecycle_state = 'TRUSTED'
                   AND ({where_clause})
                 ORDER BY e.confidence DESC, e.name
                 LIMIT :limit
@@ -731,7 +731,7 @@ class ToolExecutor:
                     FROM entities e
                     WHERE e.tenant_id = :tid
                       AND e.entity_type = 'SPECIFICATION'
-                      AND e.lifecycle_state IN ('TRUSTED', 'STAGING')
+                      AND e.lifecycle_state = 'TRUSTED'
                     ORDER BY e.confidence DESC
                     LIMIT 20
                 """)

@@ -45,19 +45,6 @@ CANONICAL_SUPPLIER_TYPES = {
 }
 AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
 
-EMPLOYMENT_POSITIVE_PATTERN = re.compile(
-    r"\b(works?\s+(at|for)|employee|employed|serves as|is (the )?(ceo|cfo|cto|coo|president|director|manager|officer)|appointed|joined)\b",
-    re.IGNORECASE,
-)
-EMPLOYMENT_NEGATIVE_PATTERN = re.compile(
-    r"\b(met with|meeting|discussed|collaborat|project with|representative|committee|steering|report)\b",
-    re.IGNORECASE,
-)
-ORG_HINT_PATTERN = re.compile(
-    r"\b(inc|corp|corporation|company|co|llc|ltd|plc|gmbh|ag|group|holdings|industries|systems|technologies|healthineers)\b",
-    re.IGNORECASE,
-)
-
 
 @dataclass
 class ExtractedRelation:
@@ -132,27 +119,18 @@ class RelationExtractor:
         return self.schema_loader.get_valid_relationship_types()
     
     def _build_relation_extraction_prompt(self, text: str, entities_str: str) -> str:
-        """Build relation extraction prompt with anti-contamination guardrails."""
+        """Build minimal open capture relation extraction prompt."""
         
         prompt = f"""Extract all relationships between the entities in this text.
 
-Use relationship types that best describe each connection.
+Use whatever relationship type best describes each connection.
 Both source and target must be from the known entities list.
-
-CRITICAL RULES:
-1. Co-occurrence is NOT employment:
-   - If a person and organization are only mentioned together in a meeting/report/project context, DO NOT create WORKS_AT/WORKS_FOR.
-   - Only create WORKS_AT/WORKS_FOR when employment is explicit ("works at", "employee of", "serves as CFO of", etc.).
-2. Prioritize supply-chain/commercial relationships:
-   - For supplier/vendor/customer/procurement language, extract supply-chain types (SUPPLIES_TO, SUPPLIER_OF, CUSTOMER_OF, PROCURES_FROM, VENDOR_OF).
-3. Validate entity typing in relationships:
-   - If a major company-like name appears as PERSON, do not create relationship from that bad typing.
 
 KNOWN ENTITIES:
 {entities_str}
 
 Return JSON array only (no markdown):
-[{{"source_name": "...", "relation_type": "...", "target_name": "...", "source_span": "...", "confidence": 0.9}}]
+[{{"source_name": "...", "relation_type": "...", "target_name": "...", "confidence": 0.9}}]
 
 TEXT:
 {text}"""
@@ -223,99 +201,26 @@ TEXT:
             if name_lower in entity_name or entity_name in name_lower:
                 return True
         return False
-
-    def _looks_like_organization_name(self, name: str) -> bool:
-        """Heuristic check for organization-like names."""
-        return bool(ORG_HINT_PATTERN.search(name or ""))
-
-    def _has_employment_signal(self, relation: Dict) -> bool:
-        """Require explicit employment evidence to avoid co-occurrence contamination."""
-        evidence = (relation.get("source_span") or relation.get("evidence") or "").strip()
-        if not evidence:
-            return float(relation.get("confidence", 0.0)) >= 0.85
-        if EMPLOYMENT_NEGATIVE_PATTERN.search(evidence):
-            return False
-        return bool(EMPLOYMENT_POSITIVE_PATTERN.search(evidence))
     
-    def _validate_relation(self, relation: Dict, entity_names: set, entities: List[Dict] = None) -> bool:
+    def _validate_relation(self, relation: Dict, entity_names: set) -> bool:
         """Validate extracted relation has required fields and valid references.
-
+        
         Note: We allow any relationship type (not just schema-defined ones) to support
         domain-agnostic extraction where the LLM creates appropriate types.
-
-        Args:
-            relation: The extracted relation to validate
-            entity_names: Set of known entity names
-            entities: Full entity list with types (optional, for type validation)
         """
         required = ["relation_type", "source_name", "target_name"]
         for fld in required:
             if fld not in relation:
                 return False
-
+        
         source_name = self._strip_type_prefix(relation["source_name"])
         target_name = self._strip_type_prefix(relation["target_name"])
         entity_names_lower = {n.lower() for n in entity_names}
-
+        
         source_found = self._fuzzy_match(source_name, entity_names_lower)
         target_found = self._fuzzy_match(target_name, entity_names_lower)
-
-        if not (source_found and target_found):
-            return False
-
-        # Entity type validation: Check for known bad patterns
-        if entities:
-            entity_map = {}
-            for entity in entities:
-                name = entity.get("canonical_name", entity.get("name", "")).lower()
-                entity_type = entity.get("entity_type", "UNKNOWN")
-                entity_map[name] = entity_type
-
-            # Check if source/target entity types are appropriate for the relationship
-            rel_type = relation["relation_type"]
-            source_type = entity_map.get(source_name.lower(), "UNKNOWN")
-            target_type = entity_map.get(target_name.lower(), "UNKNOWN")
-
-            # Known company names that should NEVER be PERSON
-            known_organizations = ["boeing", "siemens", "nexus industries", "nel hydrogen",
-                                  "airbus", "lockheed", "raytheon", "northrop grumman"]
-
-            # Validate: Major companies should be ORGANIZATION, not PERSON
-            for org_name in known_organizations:
-                if org_name in source_name.lower() and source_type == "PERSON":
-                    logger.warning(f"[TypeValidation] Rejecting: {source_name} typed as PERSON (should be ORGANIZATION)")
-                    return False
-                if org_name in target_name.lower() and target_type == "PERSON":
-                    logger.warning(f"[TypeValidation] Rejecting: {target_name} typed as PERSON (should be ORGANIZATION)")
-                    return False
-
-            if self._looks_like_organization_name(source_name) and source_type == "PERSON":
-                logger.debug(f"[TypeValidation] Rejecting relation with org-like source typed PERSON: {source_name}")
-                return False
-            if self._looks_like_organization_name(target_name) and target_type == "PERSON":
-                logger.debug(f"[TypeValidation] Rejecting relation with org-like target typed PERSON: {target_name}")
-                return False
-
-            # Validate WORKS_AT: source must be PERSON, target must be ORGANIZATION
-            rel_type_upper = rel_type.upper()
-            if rel_type_upper in {"WORKS_AT", "WORKS_FOR", "EMPLOYED_BY"}:
-                if not self._has_employment_signal(relation):
-                    logger.debug(f"[Guardrail] Rejecting employment relation without explicit evidence: {source_name} -> {target_name}")
-                    return False
-                if source_type != "PERSON" or target_type not in {"ORGANIZATION", "BUSINESS_UNIT", "FACILITY", "LOCATION"}:
-                    logger.debug(f"[TypeValidation] Rejecting {rel_type_upper}: {source_name}({source_type}) → {target_name}({target_type})")
-                    return False
-
-            # Validate supply-chain relationships: both must be ORGANIZATION
-            supply_chain_types = ["SUPPLIES", "CUSTOMER_OF", "PROCURES_FROM", "VENDOR_OF", "SUPPLIES_TO"]
-            if rel_type_upper in supply_chain_types:
-                allowed_source_types = {"ORGANIZATION", "SUPPLIER", "CUSTOMER", "PARTNER"}
-                allowed_target_types = {"ORGANIZATION", "SUPPLIER", "CUSTOMER", "PARTNER"}
-                if source_type not in allowed_source_types or target_type not in allowed_target_types:
-                    logger.debug(f"[TypeValidation] Rejecting {rel_type_upper}: {source_name}({source_type}) → {target_name}({target_type})")
-                    return False
-
-        return True
+        
+        return source_found and target_found
     
     def _normalize_relation(self, relation: Dict) -> Dict:
         """Normalize relation fields with open capture canonical mapping."""
@@ -404,7 +309,7 @@ TEXT:
                 relations = []
                 valid_types = self.get_valid_relation_types()
                 for raw in raw_relations:
-                    if not self._validate_relation(raw, entity_names, entities):
+                    if not self._validate_relation(raw, entity_names):
                         rel_type = raw.get("relation_type", "UNKNOWN").upper()
                         source = raw.get("source_name", "?")
                         target = raw.get("target_name", "?")
@@ -549,7 +454,7 @@ Given the following text and the list of known entities, extract all relationshi
 RECOMMENDED RELATIONSHIP TYPES for {document_type.upper()} documents:
 {rel_list}
 
-Use these types when they fit. If you find a relationship not covered by these types,
+Use these types when they fit. If you find a relationship not covered by these types, 
 create a descriptive relationship type in UPPERCASE_UNDERSCORE format.
 
 KNOWN ENTITIES:
@@ -562,34 +467,7 @@ For each relationship, provide:
 4. source_span: The exact text that indicates this relationship
 5. confidence: Your confidence in this extraction (0.0 to 1.0)
 
-CRITICAL EXTRACTION RULES:
-
-1. CO-OCCURRENCE IS NOT EMPLOYMENT
-   ❌ WRONG: If a person is mentioned in a meeting, report, or project involving an organization → DO NOT create WORKS_AT
-   ❌ WRONG: If a person and organization appear in the same sentence → DO NOT assume WORKS_AT
-   ✅ CORRECT: Only create WORKS_AT when the text explicitly states employment (e.g., "John works at Acme", "Sarah is an employee of Corp")
-
-   Examples:
-   - "Boeing representatives met with Nexus Industries" → NO WORKS_AT relationship (just a meeting)
-   - "Jennifer Walsh discussed the project with Siemens" → NO WORKS_AT (just collaboration)
-   - "Michael Chang serves as CFO of Nexus Industries" → YES, create HOLDS_POSITION + WORKS_AT
-
-2. PRIORITIZE SUPPLY-CHAIN RELATIONSHIPS
-   When organizations interact commercially (buying, selling, supplying, procurement), use supply-chain relationship types:
-   - SUPPLIES: "Siemens supplies turbine components to Nexus Industries"
-   - CUSTOMER_OF: "Nexus Industries is a customer of Boeing"
-   - PROCURES_FROM: "The company procures materials from Vendor Corp"
-   - VENDOR_OF: "Supplier Inc. is a vendor of parts to Manufacturing Co"
-
-   ✅ Look for: supplier, vendor, customer, purchases from, procures, provides to, delivers to, supplies
-   ❌ Don't miss commercial relationships just because they lack HR context
-
-3. VALIDATE ENTITY TYPES
-   - Major companies (Boeing, Siemens, Nexus Industries, etc.) must be ORGANIZATION, never PERSON
-   - If entity type seems wrong, skip that relationship rather than create incorrect data
-   - People are PERSON, companies are ORGANIZATION - never mix these up
-
-EXTRACTION GUIDELINES:
+IMPORTANT RULES:
 - Extract ALL relationships mentioned in the text
 - Both source and target entities must be from the KNOWN ENTITIES list
 - Use recommended relationship types when they fit the document type
@@ -628,10 +506,10 @@ Respond with ONLY valid JSON array:
                 raw_relations = self._parse_llm_response(response_text)
                 
                 print(f"[RelationExtractor] Ontology-guided: {len(raw_relations)} raw relations for {document_type}")
-
+                
                 relations = []
                 for raw in raw_relations:
-                    if not self._validate_relation(raw, entity_names, entities):
+                    if not self._validate_relation(raw, entity_names):
                         continue
                     
                     normalized = self._normalize_relation(raw)

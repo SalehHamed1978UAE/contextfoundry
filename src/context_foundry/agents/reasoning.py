@@ -771,7 +771,7 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
         try:
             entity = session.query(Entity).filter(
                 Entity.name.ilike(bundle.target_entity_name),
-                Entity.lifecycle_state.in_([LifecycleState.TRUSTED, LifecycleState.STAGING])
+                Entity.lifecycle_state == LifecycleState.TRUSTED
             ).first()
             
             if not entity:
@@ -842,7 +842,7 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
                     joinedload(Relationship.source_entity),
                     joinedload(Relationship.target_entity)
                 ).filter(
-                    Relationship.lifecycle_state.in_([LifecycleState.TRUSTED, LifecycleState.STAGING]),
+                    Relationship.lifecycle_state == LifecycleState.TRUSTED,
                     (Relationship.source_id == entity_id) | (Relationship.target_id == entity_id)
                 ).limit(10).all()
                 

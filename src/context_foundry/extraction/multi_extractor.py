@@ -14,7 +14,6 @@ Guardrail: Extraction outputs are stored as raw data; no KG writes yet.
 import json
 import os
 import hashlib
-import re
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
@@ -53,11 +52,11 @@ EXTRACTION_SYSTEM_PROMPT = """You are a knowledge extraction system. Your task i
 - OWNS: Entity owns another entity (Org→Project, BU→Project)
 - LEADS: Person leads an organization/project (Person→Org/BU/Project)
 - MANAGES: Person manages a team/project (Person→BU/Project)
-- WORKS_FOR: Person is employed by organization (Person→Organization/Business Unit)
-- WORKS_AT: Person works at a location/facility (Person→Organization/Location/Facility)
+- WORKS_FOR: Person works for organization (Person→Organization)
+- WORKS_AT: Person works at a location/facility (Person→Location/Facility)
 - REPORTS_TO: Person reports to another person (Person→Person)
-- CUSTOMER_OF: Entity buys from / is customer of organization (Customer/Org→Organization)
-- SUPPLIER_OF: Entity supplies/provides/vendors to another organization (Supplier/Org→Organization)
+- CUSTOMER_OF: Organization is a customer (Customer→Organization)
+- SUPPLIER_OF: Organization supplies to another (Supplier→Organization)
 - PARTNER_OF: Organizations are partners (Organization→Organization)
 - FUNDED_BY: Project is funded by organization (Project→Organization)
 - LOCATED_AT: Entity is located at a place (Org/Facility→Location)
@@ -99,22 +98,7 @@ EXTRACTION_SYSTEM_PROMPT = """You are a knowledge extraction system. Your task i
 5. For financial values, include the metric name, value, and period
 6. For people, always try to capture their role/title
 7. Create HOLDS_POSITION relationships for executive roles
-8. Be thorough, but do not invent unsupported relationships
-
-## Critical Guardrails (must follow):
-1. Co-occurrence is NOT employment:
-   - If a person and organization are merely mentioned together in meetings/reports/projects, do NOT create WORKS_FOR/WORKS_AT.
-   - Only create employment relationships when text explicitly indicates employment/title at organization.
-2. Prioritize supply-chain/commercial relationships:
-   - Use SUPPLIER_OF/CUSTOMER_OF for supplier, vendor, procurement, buying, delivering, or customer statements.
-3. Validate entity typing:
-   - Major companies and company-like names are ORGANIZATION, not PERSON.
-   - Do not assign PERSON to entities like "Boeing", "Siemens", "Lockheed Martin", "Nexus Industries".
-4. Example patterns:
-   - "Boeing representatives met with Nexus Industries" -> NO WORKS_FOR
-   - "Nexus Industries is a customer of Boeing" -> CUSTOMER_OF
-   - "Siemens supplies turbine components to Nexus Industries" -> SUPPLIER_OF
-   - "Michael Chang serves as CFO of Nexus Industries" -> HOLDS_POSITION + WORKS_FOR
+8. Be thorough - extract even implicit relationships
 """
 
 
@@ -208,41 +192,6 @@ class BaseExtractor(ABC):
             ))
         
         return entities, relationships
-
-    _ORG_HINT_PATTERN = re.compile(
-        r"\b(inc|corp|corporation|company|co|llc|ltd|plc|gmbh|ag|group|holdings|industries|systems|technologies|healthineers)\b",
-        re.IGNORECASE,
-    )
-    _EMPLOYMENT_POSITIVE_PATTERN = re.compile(
-        r"\b(works?\s+(at|for)|employee|employed|serves as|is (the )?(ceo|cfo|cto|coo|president|director|manager|officer)|appointed|joined)\b",
-        re.IGNORECASE,
-    )
-    _EMPLOYMENT_NEGATIVE_PATTERN = re.compile(
-        r"\b(met with|meeting|discussed|collaborat|project with|representative|committee|steering|report)\b",
-        re.IGNORECASE,
-    )
-
-    def _looks_like_organization(self, name: str) -> bool:
-        """Heuristic check for company/organization-like names."""
-        normalized = name.strip().lower()
-        if not normalized:
-            return False
-        return bool(self._ORG_HINT_PATTERN.search(normalized))
-
-    def _coerce_entity_type(self, name: str, entity_type: EntityType) -> EntityType:
-        """Apply guardrail corrections for common entity typing mistakes."""
-        if entity_type == EntityType.PERSON and self._looks_like_organization(name):
-            return EntityType.ORGANIZATION
-        return entity_type
-
-    def _has_employment_signal(self, evidence: str) -> bool:
-        """Require explicit employment evidence for WORKS_* relationships."""
-        text = (evidence or "").strip()
-        if not text:
-            return False
-        if self._EMPLOYMENT_NEGATIVE_PATTERN.search(text):
-            return False
-        return bool(self._EMPLOYMENT_POSITIVE_PATTERN.search(text))
     
     def _build_prompt(self, document: DocumentInfo) -> str:
         """Build the extraction prompt for a document."""
@@ -264,8 +213,6 @@ Extract all entities and relationships from the document above. Return valid JSO
         entities = []
         relationships = []
         used_partial_parse = False
-        entity_type_coercions = 0
-        filtered_relationships = 0
         
         try:
             if "```json" in response_text:
@@ -278,7 +225,6 @@ Extract all entities and relationships from the document above. Return valid JSO
                 response_text = response_text[json_start:json_end].strip()
             
             data = json.loads(response_text)
-            entity_type_map: Dict[str, EntityType] = {}
             
             for e in data.get("entities", []):
                 entity_type_str = e.get("entity_type", "")
@@ -286,12 +232,6 @@ Extract all entities and relationships from the document above. Return valid JSO
                 
                 if normalized_type is None:
                     normalized_type = EntityType.CONCEPT
-
-                coerced_type = self._coerce_entity_type(e.get("name", ""), normalized_type)
-                if coerced_type != normalized_type:
-                    entity_type_coercions += 1
-                normalized_type = coerced_type
-                entity_type_map[e.get("name", "").lower().strip()] = normalized_type
                 
                 entities.append(ExtractedEntity(
                     name=e.get("name", ""),
@@ -315,39 +255,12 @@ Extract all entities and relationships from the document above. Return valid JSO
                 
                 source_type = normalize_entity_type(source_type_str) or EntityType.CONCEPT
                 target_type = normalize_entity_type(target_type_str) or EntityType.CONCEPT
-
-                source_name = r.get("source_entity", "")
-                target_name = r.get("target_entity", "")
-
-                source_type = entity_type_map.get(source_name.lower().strip(), source_type)
-                target_type = entity_type_map.get(target_name.lower().strip(), target_type)
-
-                # Co-occurrence guardrail: require explicit employment language.
-                if normalized_rel in {RelationshipType.WORKS_FOR, RelationshipType.WORKS_AT}:
-                    evidence = r.get("evidence", "")
-                    if not self._has_employment_signal(evidence):
-                        filtered_relationships += 1
-                        continue
-
-                # Type validation guardrails for high-risk relationship classes.
-                if normalized_rel == RelationshipType.WORKS_FOR:
-                    if source_type != EntityType.PERSON:
-                        filtered_relationships += 1
-                        continue
-                    if target_type not in {EntityType.ORGANIZATION, EntityType.BUSINESS_UNIT}:
-                        filtered_relationships += 1
-                        continue
-
-                if normalized_rel in {RelationshipType.CUSTOMER_OF, RelationshipType.SUPPLIER_OF}:
-                    if source_type == EntityType.PERSON or target_type == EntityType.PERSON:
-                        filtered_relationships += 1
-                        continue
                 
                 relationships.append(ExtractedRelationship(
-                    source_entity=source_name,
+                    source_entity=r.get("source_entity", ""),
                     source_type=source_type,
                     relationship_type=normalized_rel,
-                    target_entity=target_name,
+                    target_entity=r.get("target_entity", ""),
                     target_type=target_type,
                     properties=r.get("properties", {}),
                     confidence=float(r.get("confidence", 0.5)),
@@ -376,8 +289,6 @@ Extract all entities and relationships from the document above. Return valid JSO
                 "raw_relationship_count": len(relationships),
                 "used_partial_parse": used_partial_parse,
                 "truncated": len(document.content) > 15000,
-                "entity_type_coercions": entity_type_coercions,
-                "filtered_relationships": filtered_relationships,
             }
         )
 

@@ -160,16 +160,6 @@ class ToolAgent:
                 rel_summary[rel_type] = rel_summary.get(rel_type, 0) + 1
             rel_str = ", ".join([f"{k}({v})" for k, v in rel_summary.items()])
             context_parts.append(f"PRE-FETCHED RELATIONSHIPS: {rel_str}")
-            
-            rel_details = []
-            for r in pipeline_result.relationships[:10]:
-                source = r.get('source', r.get('source_name', ''))
-                target = r.get('target', r.get('target_name', ''))
-                rel_type = r.get('type', '')
-                if source and target:
-                    rel_details.append(f"- {source} --[{rel_type}]--> {target}")
-            if rel_details:
-                context_parts.append("RELATIONSHIP DETAILS:\n" + "\n".join(rel_details))
         
         if pipeline_result.chunks:
             doc_names = list(set([c.get('document', 'Unknown') for c in pipeline_result.chunks[:5]]))

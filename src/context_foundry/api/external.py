@@ -257,9 +257,9 @@ def _get_entity_relationships(session, entity_id: str, max_hops: int = 2) -> dic
         JOIN entities e_source ON r.source_id = e_source.id
         JOIN entities e_target ON r.target_id = e_target.id
         WHERE (r.source_id = :entity_id OR r.target_id = :entity_id)
-          AND r.lifecycle_state IN ('TRUSTED', 'STAGING')
-          AND e_source.lifecycle_state IN ('TRUSTED', 'STAGING')
-          AND e_target.lifecycle_state IN ('TRUSTED', 'STAGING')
+          AND r.lifecycle_state = 'TRUSTED'
+          AND e_source.lifecycle_state = 'TRUSTED'
+          AND e_target.lifecycle_state = 'TRUSTED'
         ORDER BY r.confidence DESC
         LIMIT 50
     """)

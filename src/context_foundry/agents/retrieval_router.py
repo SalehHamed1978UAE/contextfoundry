@@ -230,196 +230,6 @@ class RetrievalRouter:
     def __init__(self, session: Session, tenant_id: str):
         self.session = session
         self.tenant_id = tenant_id
-
-    def _parse_numeric_value(self, raw_value: Any) -> Optional[float]:
-        """Best-effort numeric parsing for metric values."""
-        if raw_value is None:
-            return None
-        if isinstance(raw_value, (int, float)):
-            return float(raw_value)
-        if isinstance(raw_value, str):
-            cleaned = raw_value.strip().lower()
-            cleaned = cleaned.replace(",", "").replace("$", "")
-            cleaned = cleaned.replace("usd", "").strip()
-            # Handle percent values
-            if cleaned.endswith("%"):
-                cleaned = cleaned[:-1].strip()
-            try:
-                return float(cleaned)
-            except ValueError:
-                return None
-        return None
-
-    def _build_facts_from_relationships(
-        self,
-        relationships: List[Dict[str, Any]],
-    ) -> List["Fact"]:
-        """Convert relationship dicts to conflict Facts."""
-        if not relationships:
-            return []
-
-        from src.context_foundry.conflict.models import Fact, FactEvidence
-        from src.context_foundry.conflict.registry import RELATION_CARDINALITY
-        from src.context_foundry.metrics.canonical import canonicalize_metric_name
-        from src.context_foundry.metrics.temporal import normalize_period
-
-        facts: List[Fact] = []
-        for rel in relationships:
-            predicate = rel.get("relationship_type") or rel.get("predicate") or ""
-            metadata = rel.get("metadata") or {}
-
-            # Subject/object heuristics
-            subject = rel.get("source_name") or rel.get("target_name") or ""
-            obj = rel.get("target_name") or rel.get("source_name") or ""
-            if RELATION_CARDINALITY.get(predicate) == "1-to-1" and rel.get("target_name"):
-                subject = rel.get("target_name") or subject
-                obj = rel.get("source_name") or obj
-
-            raw_metric = metadata.get("metric") or metadata.get("metric_name") or metadata.get("label")
-            canonical_metric = canonicalize_metric_name(raw_metric) if raw_metric else None
-
-            raw_period = metadata.get("reporting_period") or metadata.get("time_period") or metadata.get("period")
-            normalized_period = normalize_period(raw_period) if raw_period else None
-            period_label = normalized_period.label if normalized_period else raw_period
-
-            raw_value = metadata.get("value") or metadata.get("amount") or metadata.get("metric_value")
-            value = self._parse_numeric_value(raw_value)
-
-            unit = metadata.get("unit") or metadata.get("unit_type")
-            if not unit and isinstance(raw_value, str) and "%" in raw_value:
-                unit = "%"
-
-            evidence = FactEvidence(
-                source_document_id=metadata.get("source_document_id"),
-                source_type=metadata.get("source_type") or metadata.get("document_type"),
-                source_text=metadata.get("source_text") or metadata.get("evidence"),
-                source_excerpt=metadata.get("source_excerpt"),
-                source_date=metadata.get("source_date"),
-                reporting_period=metadata.get("reporting_period"),
-            )
-
-            fact = Fact(
-                subject=subject,
-                predicate=predicate,
-                obj=obj,
-                value=value,
-                unit=unit,
-                canonical_metric=canonical_metric,
-                period=period_label,
-                confidence=rel.get("confidence", 0.5) or 0.5,
-                lifecycle_weight=metadata.get("lifecycle_weight", 0.5),
-                recency_weight=metadata.get("recency_weight", 0.5),
-                evidence_count=int(metadata.get("evidence_count", 1) or 1),
-                evidence=evidence,
-                qualifiers={"relationship_id": rel.get("id")},
-            )
-            facts.append(fact)
-
-        return facts
-
-    def _apply_conflict_pipeline(
-        self,
-        result: "RetrievalResult",
-    ) -> None:
-        """Run conflict detection/resolution on relationships and filter results in-place."""
-        if not result.relationships:
-            return
-
-        from src.context_foundry.conflict.detector import detect_conflicts
-        from src.context_foundry.conflict.resolver import resolve_conflicts
-        from src.context_foundry.conflict.registry import RELATION_CARDINALITY
-
-        facts = self._build_facts_from_relationships(result.relationships)
-        if not facts:
-            return
-
-        conflicts = detect_conflicts(facts)
-        if not conflicts:
-            return
-
-        resolutions = resolve_conflicts(conflicts)
-
-        conflict_rel_ids: set[str] = set()
-        keep_rel_ids: set[str] = set()
-        remove_rel_ids: set[str] = set()
-
-        for conflict, resolution in zip(conflicts, resolutions):
-            rel_type = conflict.facts[0].predicate if conflict.facts else ""
-            group_ids = {
-                f.qualifiers.get("relationship_id")
-                for f in conflict.facts
-                if f.qualifiers.get("relationship_id")
-            }
-            conflict_rel_ids.update(group_ids)
-
-            if resolution.selected:
-                selected_id = resolution.selected.qualifiers.get("relationship_id")
-                if selected_id:
-                    keep_rel_ids.add(selected_id)
-                remove_rel_ids.update({rid for rid in group_ids if rid != selected_id})
-            else:
-                if RELATION_CARDINALITY.get(rel_type) == "1-to-1":
-                    remove_rel_ids.update(group_ids)
-
-        if not conflict_rel_ids:
-            return
-
-        filtered: List[Dict[str, Any]] = []
-        for rel in result.relationships:
-            rel_id = rel.get("id")
-            if rel_id in conflict_rel_ids:
-                if rel_id in keep_rel_ids:
-                    filtered.append(rel)
-                elif rel_id in remove_rel_ids:
-                    continue
-                else:
-                    filtered.append(rel)
-            else:
-                filtered.append(rel)
-
-        result.relationships = filtered
-
-    def _apply_aggregation_pipeline(
-        self,
-        result: "RetrievalResult",
-        decomposition: Optional[Any],
-    ) -> None:
-        """Run fact classification + structured compute for aggregation queries."""
-        if not result.relationships:
-            return
-
-        from src.context_foundry.aggregation.fact_classifier import classify_fact_pair, FactRelation
-        from src.context_foundry.aggregation.structured_compute import ComponentValue, structured_sum, compute_top_n
-
-        facts = [f for f in self._build_facts_from_relationships(result.relationships) if f.value is not None]
-        if not facts:
-            return
-
-        # Resolve conflicts per entity/metric/period pair using classifier
-        components: List[ComponentValue] = []
-        for fact in facts:
-            if fact.canonical_metric is None:
-                continue
-            components.append(ComponentValue(entity=fact.subject, value=fact.value, metric=fact.canonical_metric))
-
-        if not components:
-            return
-
-        top_n = getattr(decomposition, "top_n", None) if decomposition else None
-        expected_count = top_n if top_n else None
-
-        if top_n:
-            components = compute_top_n(components, top_n)
-
-        compute_result = structured_sum(components, expected_count=expected_count)
-
-        if isinstance(result.intent, dict):
-            result.intent["aggregation_compute"] = compute_result
-        else:
-            result.intent = {
-                "decomposition": decomposition,
-                "aggregation_compute": compute_result,
-            }
     
     def _get_limit(self, classification: QueryClassification) -> int:
         """Get retrieval limit based on classification."""
@@ -2179,17 +1989,15 @@ class RetrievalRouter:
         # TREE-BASED RETRIEVAL: If enabled, try hierarchical graph traversal first
         from src.context_foundry.config.feature_flags import is_tree_based_retrieval_enabled
 
-        TREE_RETRIEVAL_TIMEOUT_SECONDS = 30
-
         if is_tree_based_retrieval_enabled():
             try:
                 from src.context_foundry.retrieval.tree_retriever import TreeBasedRetriever
                 from src.context_foundry.grounding.validator import validate_path_contains_anchor
 
-                logger.info(f"[ROUTER] Tree-based retrieval ENABLED - attempting hierarchical traversal (timeout={TREE_RETRIEVAL_TIMEOUT_SECONDS}s)")
+                logger.info(f"[ROUTER] Tree-based retrieval ENABLED - attempting hierarchical traversal")
                 tree_retriever = TreeBasedRetriever(self.session, self.tenant_id)
-                tree_retriever.timeout_seconds = TREE_RETRIEVAL_TIMEOUT_SECONDS
 
+                # Map classification to query_type for tree retrieval
                 tree_query_type = self._map_classification_to_tree_query_type(query, classification)
                 logger.info(f"[ROUTER] Tree query type detected: {tree_query_type} (classification: {classification.query_type})")
 
@@ -2204,15 +2012,10 @@ class RetrievalRouter:
                 if intent and intent.target_entity:
                     anchor_term = intent.target_entity
                 if anchor_term and tree_result.relationships:
-                    filtered = validate_path_contains_anchor(
+                    tree_result.relationships = validate_path_contains_anchor(
                         tree_result.relationships,
                         anchor_term
                     )
-                    removed = len(tree_result.relationships) - len(filtered)
-                    if removed > 0:
-                        logger.info(
-                            f"[ROUTER] Grounding validator would filter {removed} relationships for anchor='{anchor_term}'"
-                        )
                 # TODO(spec: CONFLICT_AWARE_RETRIEVAL_FINAL.md §5.2 rule 1): apply entity grounding
                 # validation on the non-tree/doc-search path when tree retrieval is disabled or falls back.
 
@@ -2228,10 +2031,6 @@ class RetrievalRouter:
                     # Also get document chunks for context
                     chunks = self._search_documents(query, classification, role_resolution, limit)
                     result.chunks = chunks
-
-                    # Apply conflict resolution + aggregation compute for tree results
-                    self._apply_conflict_pipeline(result)
-                    self._apply_aggregation_pipeline(result, result.intent)
 
                     logger.info(f"[ROUTER] Tree-based complete: {len(result.entities)} entities, "
                                f"{len(result.relationships)} rels, {len(result.chunks)} chunks")
@@ -2263,8 +2062,6 @@ class RetrievalRouter:
                 logger.info(f"[ROUTER] Person entity not found in KG for {detected_person_names} - using document fallback with {len(chunks)} chunks")
             
             logger.info(f"[ROUTER] Person query complete: {len(result.entities)} entities, {len(result.relationships)} rels, {len(result.chunks)} chunks")
-            self._apply_conflict_pipeline(result)
-            self._apply_aggregation_pipeline(result, result.intent)
             return result
         
         # Handle role-title queries (e.g., "Who is the CEO?") where no person name detected
@@ -2284,8 +2081,6 @@ class RetrievalRouter:
                     result.chunks = chunks
                     
                     logger.info(f"[ROUTER] Role-title query complete: {len(result.entities)} entities, {len(result.relationships)} rels, {len(result.chunks)} chunks")
-                    self._apply_conflict_pipeline(result)
-                    self._apply_aggregation_pipeline(result, result.intent)
                     return result
         
         # RELATIONSHIP QUERY ROUTING: For ownership/structure queries, use directed KG traversal
@@ -2367,8 +2162,6 @@ class RetrievalRouter:
                         result.strategy_used = "DIRECTED_RELATIONSHIP_TRAVERSAL"
                         
                         logger.info(f"[ROUTER] Relationship query: {len(entities)} entities, {len(directed_relationships)} rels, {len(chunks)} chunks")
-                        self._apply_conflict_pipeline(result)
-                        self._apply_aggregation_pipeline(result, result.intent)
                         return result
                         
                 except Exception as e:
@@ -2384,8 +2177,6 @@ class RetrievalRouter:
             result.strategy_used = "RELATIONSHIP_KG_TRAVERSAL"
             
             logger.info(f"[ROUTER] Relationship query: {len(entities)} entities, {len(relationships)} rels, {len(chunks)} chunks")
-            self._apply_conflict_pipeline(result)
-            self._apply_aggregation_pipeline(result, result.intent)
             return result
         
         if intent and intent.intent_type == "relationship" and intent.relationship_type:
@@ -2400,8 +2191,6 @@ class RetrievalRouter:
                 result.entities = entities
                 
                 result.strategy_used = "DIRECTED_RELATIONSHIP"
-                self._apply_conflict_pipeline(result)
-                self._apply_aggregation_pipeline(result, result.intent)
                 return result
             else:
                 logger.info("[ROUTER] Directed retrieval empty, falling back to standard")
@@ -2420,8 +2209,6 @@ class RetrievalRouter:
                 
                 logger.info(f"[ROUTER] Directed attribute retrieval found {len(chunks)} chunks")
                 result.strategy_used = "DIRECTED_ATTRIBUTE"
-                self._apply_conflict_pipeline(result)
-                self._apply_aggregation_pipeline(result, result.intent)
                 return result
             else:
                 logger.info("[ROUTER] Directed attribute retrieval empty, falling back to standard")
@@ -2504,10 +2291,6 @@ class RetrievalRouter:
                     result.relationships = list(result.relationships) + new_relationships
                     logger.info(f"[ROUTER] Graph-first fallback added {len(new_relationships)} role relationships")
         
-        # Apply conflict resolution + aggregation compute for standard path
-        self._apply_conflict_pipeline(result)
-        self._apply_aggregation_pipeline(result, result.intent)
-
         logger.info(f"[ROUTER] Retrieved: {len(result.entities)} entities, {len(result.relationships)} rels, {len(result.chunks)} chunks")
         
         return result
