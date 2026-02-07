@@ -145,16 +145,34 @@ def find_vault(vault_name: Optional[str] = None, vault_id: Optional[str] = None)
     return None
 
 
-def get_documents_for_extraction(session, vault_id: str, limit: Optional[int] = None, skip_multi: bool = True) -> List[Dict]:
+def get_documents_for_extraction(
+    session,
+    vault_id: str,
+    limit: Optional[int] = None,
+    skip_multi: bool = True,
+    use_ontology: bool = False
+) -> List[Dict]:
     """Get documents from vault that need extraction.
-    
+
     Args:
         session: Database session
         vault_id: Vault/tenant ID
         limit: Max documents to return
         skip_multi: If True, skip documents with extraction_level='multi' (resume capability)
+        use_ontology: If True, skip documents with extraction_level='ontology' (ontology resume)
     """
-    if skip_multi:
+    if use_ontology:
+        # For ontology mode: skip docs already extracted at ontology level
+        query = """
+            SELECT d.id, d.name, d.status, d.mime_type, d.storage_path, d.original_filename
+            FROM platform.documents d
+            WHERE d.tenant_id = :vault_id
+            AND d.status IN ('queued', 'uploaded', 'chunked', 'extracted')
+            AND (d.extraction_level IS NULL OR d.extraction_level != 'ontology')
+            ORDER BY d.created_at
+        """
+    elif skip_multi:
+        # Existing multi-model resume logic
         query = """
             SELECT d.id, d.name, d.status, d.mime_type, d.storage_path, d.original_filename
             FROM platform.documents d
@@ -164,6 +182,7 @@ def get_documents_for_extraction(session, vault_id: str, limit: Optional[int] = 
             ORDER BY d.created_at
         """
     else:
+        # No resume
         query = """
             SELECT d.id, d.name, d.status, d.mime_type, d.storage_path, d.original_filename
             FROM platform.documents d
@@ -594,8 +613,8 @@ def run_ontology_extraction(
     - Canonicalizes using embeddings
     - Stages directly to KG (no multi-model consensus needed)
     """
-    documents = get_documents_for_extraction(session, vault_id, limit, skip_multi=True)
-    
+    documents = get_documents_for_extraction(session, vault_id, limit, skip_multi=True, use_ontology=True)
+
     if not documents:
         log("No documents found needing extraction")
         return {"total_documents": 0, "total_entities": 0, "total_relationships": 0}
@@ -670,10 +689,16 @@ def run_ontology_extraction(
                 if result.staging_result:
                     log(f"    Staged: {result.staging_result.entities_staged} entities, {result.staging_result.relationships_staged} relationships")
                 
-                # Mark document as extracted
+                # Mark document as extracted AND update status
                 try:
                     session.execute(
-                        text("UPDATE platform.documents SET extraction_level = 'ontology', updated_at = NOW() WHERE id = :doc_id"),
+                        text("""
+                            UPDATE platform.documents
+                            SET extraction_level = 'ontology',
+                                status = 'extracted',
+                                updated_at = NOW()
+                            WHERE id = :doc_id
+                        """),
                         {"doc_id": doc_id}
                     )
                     session.commit()
