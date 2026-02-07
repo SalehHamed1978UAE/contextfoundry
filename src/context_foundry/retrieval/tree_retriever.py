@@ -556,7 +556,7 @@ class TreeBasedRetriever:
                 r.source_id,
                 r.target_id,
                 r.relationship_type,
-                r.metadata::jsonb as metadata,
+                r.properties::jsonb as properties,
                 r.confidence,
                 source.name as source_name,
                 target.name as target_name
@@ -578,7 +578,7 @@ class TreeBasedRetriever:
                 'source_id': str(r.source_id),
                 'target_id': str(r.target_id),
                 'relationship_type': r.relationship_type,
-                'metadata': r.metadata or {},
+                'properties': r.properties or {},
                 'confidence': r.confidence,
                 'source_name': r.source_name,
                 'target_name': r.target_name

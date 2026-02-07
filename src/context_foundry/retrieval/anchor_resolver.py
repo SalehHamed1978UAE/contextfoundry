@@ -414,24 +414,57 @@ class RelationshipFirstRetriever:
         connected_people = self._get_connected_people(anchor_id)
         logger.info(f"[REL_FIRST] Found {len(connected_people)} people connected to {anchor_name}")
         
-        matches = []
+        scored_matches = []
         for person in connected_people:
-            if self._matches_role(person, role):
-                matches.append(person)
+            score = self._score_role_match(person, role)
+            if score > 0:
+                person['_role_score'] = score
+                scored_matches.append(person)
                 edge_info = f"[edge_rank={person.get('edge_rank', 9)}, {person.get('edge_type', 'unknown')}]"
-                logger.info(f"[REL_FIRST] Role match: {person['name']} - {person.get('role_from_props', 'via relationship')} {edge_info}")
+                logger.info(f"[REL_FIRST] Role match: {person['name']} - {person.get('role_from_props', 'via relationship')} {edge_info} score={score}")
+            elif score == 0:
+                logger.info(f"[REL_FIRST] Discarded (contradicted HOLDS_POSITION): {person['name']} - props say '{person.get('role_from_props', 'unknown')}' but has HOLDS_POSITION matching '{role}'")
         
-        if matches:
-            # Sort by edge_rank (HOLDS_POSITION=1 > LEADS=2 > WORKS_FOR=3)
-            matches.sort(key=lambda x: x.get('edge_rank', 9))
-            logger.info(f"[REL_FIRST] Sorted {len(matches)} matches by edge_rank, best: {matches[0]['name']} (rank={matches[0].get('edge_rank', 9)})")
-            
-            return {
-                "entities": matches,
-                "confidence": "high",
-                "method": "graph_traversal",
-                "anchor": anchor_name
-            }
+        if scored_matches:
+            tier1 = [m for m in scored_matches if m['_role_score'] == 10]
+            tier2 = [m for m in scored_matches if m['_role_score'] == 5]
+
+            if tier1:
+                tier1.sort(key=lambda x: x.get('edge_rank', 9))
+                if len(tier1) == 1:
+                    logger.info(f"[REL_FIRST] Single Tier 1 match: {tier1[0]['name']} (property match, high confidence)")
+                    return {
+                        "entities": tier1,
+                        "confidence": "high",
+                        "method": "graph_traversal",
+                        "anchor": anchor_name
+                    }
+                else:
+                    logger.info(f"[REL_FIRST] Multiple Tier 1 matches ({len(tier1)}), returning all for downstream handling")
+                    return {
+                        "entities": tier1,
+                        "confidence": "high",
+                        "method": "graph_traversal",
+                        "anchor": anchor_name
+                    }
+            elif tier2:
+                tier2.sort(key=lambda x: x.get('edge_rank', 9))
+                if len(tier2) == 1:
+                    logger.info(f"[REL_FIRST] Single Tier 2 match: {tier2[0]['name']} (HOLDS_POSITION, no contradiction)")
+                    return {
+                        "entities": tier2,
+                        "confidence": "medium",
+                        "method": "graph_traversal",
+                        "anchor": anchor_name
+                    }
+                else:
+                    logger.info(f"[REL_FIRST] Multiple Tier 2 matches ({len(tier2)}), returning all for downstream handling")
+                    return {
+                        "entities": tier2,
+                        "confidence": "medium",
+                        "method": "graph_traversal",
+                        "anchor": anchor_name
+                    }
         
         logger.info(f"[REL_FIRST] No direct role matches for '{role}' from anchor {anchor_name}")
         return {
@@ -665,7 +698,104 @@ class RelationshipFirstRetriever:
                         return True
         
         return False
-    
+
+    def _score_role_match(self, person: Dict[str, Any], target_role: str) -> int:
+        """
+        Score how well a person matches the target role using tiered matching.
+
+        Tier 1 (Score 10): Person's properties (position, role, title, job_title)
+            directly contain the queried role.
+        Tier 2 (Score 5): Person has a matching HOLDS_POSITION relationship AND
+            their properties don't contradict (no different role in properties).
+        Tier 3 (Score 0): Person has a matching HOLDS_POSITION but their properties
+            say a DIFFERENT role (e.g., "Chief Marketing Officer" != "CEO").
+
+        Returns:
+            int score: 10 for property match, 5 for non-contradicted HOLDS_POSITION,
+            0 for contradicted HOLDS_POSITION or no match, -1 for no match at all.
+        """
+        target_lower = target_role.lower().strip()
+        target_normalized = self.ROLE_NORMALIZATIONS.get(target_lower, target_lower)
+
+        targets = {target_lower, target_normalized.lower()}
+        if target_lower in self.ROLE_NORMALIZATIONS:
+            full_title = [k for k, v in self.ROLE_NORMALIZATIONS.items() if v.lower() == target_normalized.lower()]
+            targets.update(full_title)
+        for k, v in self.ROLE_NORMALIZATIONS.items():
+            if k == target_lower:
+                targets.add(v.lower())
+
+        props = person.get('properties', {})
+        if not props:
+            props = {}
+
+        property_match = False
+        for field in ['position', 'role', 'title', 'job_title']:
+            value = props.get(field)
+            if value and isinstance(value, str) and value.strip():
+                value_lower = value.lower()
+                for target in targets:
+                    if target in value_lower or value_lower in target:
+                        property_match = True
+                        break
+                if property_match:
+                    break
+
+        if property_match:
+            return 10
+
+        held_role_match = False
+        held_roles = person.get('held_roles', [])
+        for role_info in held_roles:
+            role_name = role_info.get('name', '') if isinstance(role_info, dict) else role_info
+            if role_name and isinstance(role_name, str):
+                role_name_lower = role_name.lower()
+                for target in targets:
+                    if target in role_name_lower or role_name_lower in target:
+                        held_role_match = True
+                        break
+                if held_role_match:
+                    break
+
+        if held_role_match:
+            has_different_role_in_props = False
+            for field in ['position', 'role', 'title', 'job_title']:
+                value = props.get(field)
+                if value and isinstance(value, str) and value.strip():
+                    value_lower = value.lower()
+                    value_normalized = self.ROLE_NORMALIZATIONS.get(value_lower, value_lower)
+                    if value_normalized.lower() != target_normalized.lower() and value_lower != target_lower:
+                        is_target_variation = False
+                        for target in targets:
+                            if target in value_lower or value_lower in target:
+                                is_target_variation = True
+                                break
+                        if not is_target_variation:
+                            has_different_role_in_props = True
+                            logger.debug(
+                                f"[REL_FIRST] HOLDS_POSITION contradiction: {person['name']} "
+                                f"has prop {field}='{value}' but HOLDS_POSITION matches '{target_role}'"
+                            )
+                            break
+
+            if has_different_role_in_props:
+                return 0
+            return 5
+
+        all_edge_types = person.get('all_edge_types', [])
+        if not all_edge_types:
+            edge_type = person.get('edge_type', '')
+            all_edge_types = [edge_type] if edge_type else []
+
+        for edge_type in all_edge_types:
+            if edge_type and edge_type in self.EDGE_TYPE_TO_ROLES:
+                implied_roles = self.EDGE_TYPE_TO_ROLES[edge_type]
+                for target in targets:
+                    if any(target in implied_role or implied_role in target for implied_role in implied_roles):
+                        return 5
+
+        return -1
+
     def resolve_by_department(
         self, 
         department_names: List[str],
