@@ -722,16 +722,18 @@ def _count_phase1_files(vault_slug: str) -> dict:
 def api_extraction_metrics(vault_id):
     """Get DB-backed extraction metrics for a vault."""
     try:
-        from src.context_foundry.models.schema import get_session
+        from src.context_foundry.models.schema import get_session, set_tenant_context, reset_tenant_context
         from src.context_foundry.monitoring.vault_consistency import build_vault_metrics_report
 
         db_session = get_session(use_rls_role=False)
         try:
+            set_tenant_context(db_session, vault_id)
             report = build_vault_metrics_report(db_session, vault_id)
             if not report.get("exists", True):
                 return jsonify(report), 404
             return jsonify(report)
         finally:
+            reset_tenant_context(db_session)
             db_session.close()
     except Exception as e:
         logger.error(f"Metrics failed: {e}")
@@ -742,16 +744,18 @@ def api_extraction_metrics(vault_id):
 def api_extraction_preflight(vault_id):
     """Return vault preflight consistency report (DB source of truth)."""
     try:
-        from src.context_foundry.models.schema import get_session
+        from src.context_foundry.models.schema import get_session, set_tenant_context, reset_tenant_context
         from src.context_foundry.monitoring.vault_consistency import build_vault_preflight_report
 
         db_session = get_session(use_rls_role=False)
         try:
+            set_tenant_context(db_session, vault_id)
             report = build_vault_preflight_report(db_session, vault_id)
             if not report.get("exists"):
                 return jsonify(report), 404
             return jsonify(report)
         finally:
+            reset_tenant_context(db_session)
             db_session.close()
     except Exception as e:
         logger.error(f"Preflight failed: {e}")
