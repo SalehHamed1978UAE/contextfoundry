@@ -289,12 +289,12 @@ tr:hover {
 
 <div class="section" id="metricsSection" style="display: none;">
     <div class="section-header">
-        <h2 class="section-title">Extraction Quality</h2>
+        <h2 class="section-title">Vault Metrics (DB Source of Truth)</h2>
         <span id="metricsVaultName" style="color: #9ca3af;"></span>
     </div>
     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
         <div class="metric-card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), transparent); border-left: 3px solid #10b981;">
-            <h4 style="color: #10b981; margin: 0 0 12px 0; font-size: 14px;">GPT-4o-mini</h4>
+            <h4 style="color: #10b981; margin: 0 0 12px 0; font-size: 14px;">Knowledge Graph</h4>
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                 <span style="color: #9ca3af;">Entities:</span>
                 <span id="gpt-entities" class="stat-num" style="color: #10b981;">-</span>
@@ -305,17 +305,18 @@ tr:hover {
             </div>
         </div>
         <div class="metric-card" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), transparent); border-left: 3px solid #3b82f6;">
-            <h4 style="color: #3b82f6; margin: 0 0 12px 0; font-size: 14px;">Claude Sonnet</h4>
+            <h4 style="color: #3b82f6; margin: 0 0 12px 0; font-size: 14px;">Pipeline</h4>
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                <span style="color: #9ca3af;">Entities:</span>
+                <span style="color: #9ca3af;">Chunks:</span>
                 <span id="claude-entities" class="stat-num" style="color: #3b82f6;">-</span>
             </div>
             <div style="display: flex; justify-content: space-between;">
-                <span style="color: #9ca3af;">Relationships:</span>
+                <span style="color: #9ca3af;">Candidate Rels:</span>
                 <span id="claude-relationships" class="stat-num" style="color: #3b82f6;">-</span>
             </div>
         </div>
     </div>
+    <div style="margin-top: 12px; color: #9ca3af; font-size: 12px;" id="metricsMeta">-</div>
 </div>
 
 <div class="section">
@@ -447,7 +448,10 @@ function renderVaultQueue(vaults) {
         
         return `
             <tr>
-                <td>${v.name || v.vault_id}</td>
+                <td>
+                    <div>${v.name || v.vault_id}</div>
+                    <div style="font-size:11px; color:#6b7280; margin-top:2px;">${v.vault_id}</div>
+                </td>
                 <td><span class="status-badge ${statusClass}">${status}</span></td>
                 <td>
                     <div class="progress-container">
@@ -528,32 +532,47 @@ async function resumeVault(vaultId) {
 
 async function showMetrics(vaultId, vaultName) {
     const section = document.getElementById('metricsSection');
-    document.getElementById('metricsVaultName').textContent = vaultName;
+    document.getElementById('metricsVaultName').textContent = `${vaultName} (${vaultId})`;
     
     document.getElementById('gpt-entities').textContent = '...';
     document.getElementById('gpt-relationships').textContent = '...';
     document.getElementById('claude-entities').textContent = '...';
     document.getElementById('claude-relationships').textContent = '...';
+    document.getElementById('metricsMeta').textContent = 'Loading preflight...';
     
     section.style.display = 'block';
     section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     
     try {
+        const preflightResp = await fetch(`/api/extraction/preflight/${vaultId}`);
+        const preflight = await preflightResp.json();
+        if (!preflightResp.ok) {
+            throw new Error(preflight.error || 'Preflight failed');
+        }
+
         const resp = await fetch(`/api/extraction/metrics/${vaultId}`);
         const data = await resp.json();
         
-        if (data.gpt_4o_mini) {
-            document.getElementById('gpt-entities').textContent = data.gpt_4o_mini.entities.toLocaleString();
-            document.getElementById('gpt-relationships').textContent = data.gpt_4o_mini.relationships.toLocaleString();
+        if (data.totals) {
+            document.getElementById('gpt-entities').textContent = (data.totals.entities || 0).toLocaleString();
+            document.getElementById('gpt-relationships').textContent = (data.totals.relationships || 0).toLocaleString();
+            document.getElementById('claude-entities').textContent = (data.totals.chunks || 0).toLocaleString();
+            document.getElementById('claude-relationships').textContent = (data.totals.candidate_relationships || 0).toLocaleString();
         }
-        if (data.claude_sonnet) {
-            document.getElementById('claude-entities').textContent = data.claude_sonnet.entities.toLocaleString();
-            document.getElementById('claude-relationships').textContent = data.claude_sonnet.relationships.toLocaleString();
-        }
+        const req = data.requests || {};
+        const checks = preflight.checks || data.checks || {};
+        const checkStr = Object.entries(checks)
+            .map(([k, v]) => `${k}:${v ? 'ok' : 'fail'}`)
+            .join(' | ');
+        const db = preflight.db_identity || {};
+        const dbLabel = db.database_name ? `${db.database_name}@${db.server_addr || '-'}:${db.server_port || '-'}` : 'unknown-db';
+        document.getElementById('metricsMeta').textContent =
+            `DB: ${dbLabel} | Requests P:${req.pending || 0} R:${req.processing || 0} C:${req.completed || 0} F:${req.failed || 0} | ${checkStr}`;
     } catch (e) {
         console.error('Failed to fetch metrics:', e);
         document.getElementById('gpt-entities').textContent = '-';
         document.getElementById('claude-entities').textContent = '-';
+        document.getElementById('metricsMeta').textContent = 'Failed to load DB metrics';
     }
 }
 

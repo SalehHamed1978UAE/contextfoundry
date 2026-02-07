@@ -177,6 +177,13 @@ class VaultManager:
             "entity_count": vault.get('entity_count', 0),
             "relationship_count": vault.get('relationship_count', 0)
         }
+
+    def preflight_vault(self, vault_id: str) -> Dict:
+        """Run DB-backed preflight check for vault consistency."""
+        response = self.session.get(f"{self.api}/extraction/preflight/{vault_id}", timeout=30)
+        if response.status_code != 200:
+            raise RuntimeError(f"Preflight failed ({response.status_code}): {response.text[:300]}")
+        return response.json()
     
     def verify_extraction_complete(self, vault_id: str, timeout_minutes: int = 30, poll_interval: int = 10) -> bool:
         """Verify extraction is complete before starting Q&A.
@@ -191,6 +198,14 @@ class VaultManager:
         
         print(f"  Verifying extraction is complete (timeout: {timeout_minutes} min)...")
         print(f"  Vault ID: {vault_id}")
+        preflight = self.preflight_vault(vault_id)
+        if not preflight.get('exists'):
+            raise ValueError(f"Vault UUID not found in DB: {vault_id}")
+        doc_total = preflight.get('documents', {}).get('total', 0)
+        if doc_total <= 0:
+            raise ValueError(f"Vault has no documents in platform.documents: {vault_id}")
+        dbi = preflight.get('db_identity', {})
+        print(f"  Preflight DB: {dbi.get('database_name')}@{dbi.get('server_addr')}:{dbi.get('server_port')} | docs={doc_total}")
         
         while time.time() - start < timeout:
             status = self.get_extraction_status(vault_id)

@@ -56,6 +56,7 @@ from src.context_foundry.extraction.ontology_centric_pipeline import (
 )
 from src.context_foundry.models.schema import LifecycleState
 from src.context_foundry.ingestion.document_loader import DocumentLoader
+from src.context_foundry.monitoring.vault_consistency import build_vault_preflight_report
 
 try:
     from platform_foundation.src.tenant_service import TenantService
@@ -875,9 +876,36 @@ def run_full_pipeline(
     
     vault_id = vault["id"]
     vault_name = vault["name"]
+    run_started_at = datetime.utcnow().isoformat()
+    run_manifest: Dict[str, Any] = {
+        "run_started_at": run_started_at,
+        "vault_id": vault_id,
+        "vault_name": vault_name,
+        "mode": "ontology" if use_ontology else "multi_model",
+        "tree_based_retrieval": os.environ.get("CF_TREE_BASED_RETRIEVAL"),
+        "models": models,
+    }
     
     log(f"Vault: {vault_name}")
     log(f"Vault ID: {vault_id}")
+
+    preflight_report = build_vault_preflight_report(session, vault_id)
+    run_manifest["preflight"] = preflight_report
+    if not preflight_report.get("exists"):
+        log("ERROR: Vault UUID not found in platform.tenants for this database connection.")
+        log(f"DB identity: {preflight_report.get('db_identity', {})}")
+        session.close()
+        return
+    log("")
+    log("=" * 40)
+    log("RUN PREFLIGHT")
+    log("=" * 40)
+    log(f"DB identity: {preflight_report.get('db_identity', {})}")
+    log(f"Documents total: {preflight_report['documents']['total']}")
+    log(f"KG entities: {preflight_report['knowledge_graph']['entities_total']}")
+    log(f"KG relationships: {preflight_report['knowledge_graph']['relationships_total']}")
+    log(f"Checks: {preflight_report.get('checks', {})}")
+    log("=" * 40)
     
     # Show resume status
     total_docs, multi_done, remaining = get_extraction_stats(session, vault_id)
@@ -962,8 +990,19 @@ def run_full_pipeline(
                 log(f"  New relationship types discovered: {extraction_summary['new_relationship_types']}")
             if extraction_summary.get("errors"):
                 log(f"  Errors: {len(extraction_summary['errors'])}")
+            run_manifest["extraction_summary"] = extraction_summary
             
             session.close()
+            run_manifest["run_completed_at"] = datetime.utcnow().isoformat()
+            run_manifest["status"] = "completed"
+
+            vault_slug = vault_name.lower().replace(" ", "_")
+            summary_dir = Path(output_dir) / vault_slug
+            summary_dir.mkdir(parents=True, exist_ok=True)
+            manifest_path = summary_dir / f"run_manifest_{datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}.json"
+            with open(manifest_path, "w") as f:
+                json.dump(run_manifest, f, indent=2, default=str)
+            log(f"Run manifest saved to: {manifest_path}")
             
             log("")
             log("=" * 70)
@@ -988,6 +1027,7 @@ def run_full_pipeline(
             log(f"  Content paths used: {extraction_summary.get('content_sources', {})}")
             if extraction_summary.get("errors"):
                 log(f"  Errors: {len(extraction_summary['errors'])}")
+            run_manifest["extraction_summary"] = extraction_summary
     else:
         log("")
         log("Skipping extraction (--skip-extraction flag)")
@@ -1060,6 +1100,15 @@ def run_full_pipeline(
         }, f, indent=2, default=str)
     
     log(f"\nSummary saved to: {summary_path}")
+
+    run_manifest["consensus_ingestion_summary"] = ingest_stats
+    run_manifest["pipeline_summary_path"] = str(summary_path)
+    run_manifest["run_completed_at"] = datetime.utcnow().isoformat()
+    run_manifest["status"] = "completed"
+    manifest_path = summary_dir / f"run_manifest_{datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}.json"
+    with open(manifest_path, "w") as f:
+        json.dump(run_manifest, f, indent=2, default=str)
+    log(f"Run manifest saved to: {manifest_path}")
 
 
 def main():

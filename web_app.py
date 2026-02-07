@@ -720,55 +720,41 @@ def _count_phase1_files(vault_slug: str) -> dict:
 
 @app.route('/api/extraction/metrics/<vault_id>')
 def api_extraction_metrics(vault_id):
-    """Get entity/relationship counts from extraction JSON files."""
-    import json as json_module
-    from pathlib import Path
-    import psycopg2
-    from psycopg2.extras import RealDictCursor
-    
+    """Get DB-backed extraction metrics for a vault."""
     try:
-        database_url = os.environ.get('DATABASE_URL')
-        
-        with psycopg2.connect(database_url) as conn:
-            with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("SELECT name FROM platform.tenants WHERE id = %s", (vault_id,))
-                vault_row = cur.fetchone()
-                vault_name = vault_row['name'] if vault_row else vault_id
-        
-        vault_slug = vault_name.lower().replace(" ", "_")
-        output_dir = Path("extraction_outputs") / vault_slug
-        
-        gpt_entities = 0
-        gpt_relationships = 0
-        claude_entities = 0
-        claude_relationships = 0
-        
-        gpt_dir = output_dir / "gpt_4o_mini"
-        if gpt_dir.exists():
-            for f in gpt_dir.glob("*.json"):
-                try:
-                    data = json_module.loads(f.read_text())
-                    gpt_entities += len(data.get("entities", []))
-                    gpt_relationships += len(data.get("relationships", []))
-                except:
-                    pass
-        
-        claude_dir = output_dir / "claude_sonnet"
-        if claude_dir.exists():
-            for f in claude_dir.glob("*.json"):
-                try:
-                    data = json_module.loads(f.read_text())
-                    claude_entities += len(data.get("entities", []))
-                    claude_relationships += len(data.get("relationships", []))
-                except:
-                    pass
-        
-        return jsonify({
-            "gpt_4o_mini": {"entities": gpt_entities, "relationships": gpt_relationships},
-            "claude_sonnet": {"entities": claude_entities, "relationships": claude_relationships}
-        })
+        from src.context_foundry.models.schema import get_session
+        from src.context_foundry.monitoring.vault_consistency import build_vault_metrics_report
+
+        db_session = get_session()
+        try:
+            report = build_vault_metrics_report(db_session, vault_id)
+            if not report.get("exists", True):
+                return jsonify(report), 404
+            return jsonify(report)
+        finally:
+            db_session.close()
     except Exception as e:
         logger.error(f"Metrics failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/extraction/preflight/<vault_id>')
+def api_extraction_preflight(vault_id):
+    """Return vault preflight consistency report (DB source of truth)."""
+    try:
+        from src.context_foundry.models.schema import get_session
+        from src.context_foundry.monitoring.vault_consistency import build_vault_preflight_report
+
+        db_session = get_session()
+        try:
+            report = build_vault_preflight_report(db_session, vault_id)
+            if not report.get("exists"):
+                return jsonify(report), 404
+            return jsonify(report)
+        finally:
+            db_session.close()
+    except Exception as e:
+        logger.error(f"Preflight failed: {e}")
         return jsonify({'error': str(e)}), 500
 
 
