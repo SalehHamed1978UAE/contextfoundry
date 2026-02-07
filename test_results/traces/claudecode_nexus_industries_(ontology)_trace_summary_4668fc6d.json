@@ -1,26 +1,31 @@
 {
-  "run_timestamp": "2026-02-07T22:53:33.466258",
+  "run_timestamp": "2026-02-07T23:10:54.709886",
   "trace_file": "test_results/traces/claudecode_nexus_industries_(ontology)_traces_4668fc6d.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.140000000000001,
-    "avg_semantic_score": 0.08987299999999998,
+    "avg_chunks_retrieved": 2.9700000000000006,
+    "avg_semantic_score": 0.09717700000000001,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "exact_match": 41,
-      "no_match": 14,
-      "component_match": 26,
-      "no_data": 8,
+      "no_match": 16,
+      "exact_match": 38,
+      "no_data": 15,
+      "component_match": 21,
       "semantic_match": 2,
-      "number_match": 7,
+      "number_match": 6,
       "percentage_match": 1,
       "boolean_match": 1
     },
-    "low_score_queries": 87
+    "low_score_queries": 86
   },
   "low_score_questions": [
+    {
+      "q_id": 1,
+      "question": "Who is the CEO of Nexus Industries?",
+      "avg_score": 0.0
+    },
     {
       "q_id": 2,
       "question": "What is the name of the CFO?",
@@ -189,7 +194,7 @@
     {
       "q_id": 40,
       "question": "What is the total company backlog?",
-      "avg_score": 0.2896
+      "avg_score": 0.3206
     },
     {
       "q_id": 41,
@@ -377,11 +382,6 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 83,
-      "question": "Who is the primary customer for the SmartGrid Controller?",
-      "avg_score": 0.0
-    },
-    {
       "q_id": 84,
       "question": "What is the cybersecurity incident response investment?",
       "avg_score": 0.0
@@ -409,11 +409,6 @@
     {
       "q_id": 90,
       "question": "What is the minimum internet speed for remote work?",
-      "avg_score": 0.0
-    },
-    {
-      "q_id": 91,
-      "question": "Who is the VP Trade Compliance?",
       "avg_score": 0.0
     },
     {
@@ -460,10 +455,17 @@
   "failures_by_type": {
     "no_match": [
       {
+        "q_id": 1,
+        "question": "Who is the CEO of Nexus Industries?",
+        "expected": "Dr. Victoria Chen",
+        "actual": "I couldn't find the name of the CEO of N",
+        "files_retrieved": []
+      },
+      {
         "q_id": 2,
         "question": "What is the name of the CFO?",
         "expected": "Michael Chang",
-        "actual": "The CFO of Nexus Industries is Dr. Rober",
+        "actual": "The CFO of Nexus Industries is **Dr. Rob",
         "files_retrieved": []
       },
       {
@@ -481,36 +483,47 @@
         "files_retrieved": []
       },
       {
+        "q_id": 27,
+        "question": "Which division has the most employees?",
+        "expected": "Nexus Digital Solutions (3,500 employees",
+        "actual": "The division with the most employees is ",
+        "files_retrieved": [
+          "09_greenhydrogen_milestone.md",
+          "02_organizational_announcement.md",
+          "07_safety_alert_bulletin.md"
+        ]
+      },
+      {
+        "q_id": 29,
+        "question": "Who are the members of the Executive Leadership Team?",
+        "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
+        "actual": "The members of the Executive Leadership ",
+        "files_retrieved": [
+          "03_desert_sun_solar_farm.md",
+          "10_board_strategic_priorities.md",
+          "07_ma_strategy.md"
+        ]
+      },
+      {
         "q_id": 37,
         "question": "Who is the Project Director for the GreenHydrogen Initiative",
         "expected": "Jennifer Walsh",
         "actual": "The Project Director for the GreenHydrog",
         "files_retrieved": [
           "03_greenhydrogen_steering_committee.md",
-          "13_shell_partner.md",
-          "04_greenhydrogen_initiative.md"
-        ]
-      },
-      {
-        "q_id": 38,
-        "question": "Who is the CISO of Nexus Industries?",
-        "expected": "Jennifer Walsh (appointed January 2026, ",
-        "actual": "The Chief Information Security Officer (",
-        "files_retrieved": [
-          "05_fedramp_announcement.md",
-          "02_organizational_announcement.md",
-          "08_cybersecurity_advisory.md"
+          "04_greenhydrogen_initiative.md",
+          "13_shell_partner.md"
         ]
       },
       {
         "q_id": 40,
         "question": "What is the total company backlog?",
         "expected": "$12.4 billion",
-        "actual": "The total company backlog for Nexus Indu",
+        "actual": "The total company backlog is **$11.5 bil",
         "files_retrieved": [
-          "06_materials_division_budget.md",
+          "01_annual_report_2025.md",
           "11_product_launch_planning.md",
-          "05_digital_division_budget.md"
+          "03_aerospace_division_budget.md"
         ]
       },
       {
@@ -526,9 +539,9 @@
         "expected": "Siemens Healthineers ($65 million)",
         "actual": "The primary customer for HTS superconduc",
         "files_retrieved": [
-          "01_boeing_customer_profile.md",
+          "Unknown",
           "05_siemens_healthineers_customer.md",
-          "Unknown"
+          "01_boeing_customer_profile.md"
         ]
       },
       {
@@ -537,9 +550,9 @@
         "expected": "December 12, 2025 at 02:47 UTC",
         "actual": "The retrieved information does not menti",
         "files_retrieved": [
+          "Unknown",
           "08_cybersecurity_advisory.md",
-          "10_cybersecurity_incident_response.md",
-          "Unknown"
+          "10_cybersecurity_incident_response.md"
         ]
       },
       {
@@ -558,8 +571,8 @@
         "expected": "Caterpillar",
         "actual": "The mining automation partner is **Sieme",
         "files_retrieved": [
-          "09_competitive_intelligence.md",
-          "04_toyota_partnership_announcement.md"
+          "04_toyota_partnership_announcement.md",
+          "09_competitive_intelligence.md"
         ]
       },
       {
@@ -586,20 +599,29 @@
         "expected": "Pacific Power (pilot customer)",
         "actual": "The primary customer for the SmartGrid C",
         "files_retrieved": [
-          "Unknown"
+          "02_airbus_customer_profile.md",
+          "Unknown",
+          "11_microsoft_customer.md"
         ]
       }
     ],
     "no_data": [
+      {
+        "q_id": 7,
+        "question": "How many employees does Nexus Industries have?",
+        "expected": "12,500",
+        "actual": "Insufficient data to count",
+        "files_retrieved": []
+      },
       {
         "q_id": 14,
         "question": "When was Robert Kim appointed President of Digital Solutions",
         "expected": "January 2026 (effective January 15, 2026",
         "actual": "The appointment date was not found in th",
         "files_retrieved": [
-          "02_organizational_announcement.md",
-          "10_quarterly_newsletter.md",
-          "04_digital_division_quarterly_review.md"
+          "04_digital_division_quarterly_review.md",
+          "Unknown",
+          "02_organizational_announcement.md"
         ]
       },
       {
@@ -622,20 +644,60 @@
         "expected": "400 Wh/kg",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "06_solid_state_battery_design.md",
-          "06_toyota_partner_profile.md",
-          "04_toyota_partnership_announcement.md"
+          "11_batterytech_solid_state.md",
+          "04_toyota_partnership_announcement.md",
+          "06_solid_state_battery_design.md"
         ]
+      },
+      {
+        "q_id": 26,
+        "question": "How many business divisions does Nexus Industries have?",
+        "expected": "4 (Aerospace, Energy, Digital, Materials",
+        "actual": "Insufficient data to count",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 38,
+        "question": "Who is the CISO of Nexus Industries?",
+        "expected": "Jennifer Walsh (appointed January 2026, ",
+        "actual": "I don't have enough information to answe",
+        "files_retrieved": [
+          "10_data_privacy.md",
+          "11_treasury_report.md",
+          "09_greenhydrogen_milestone.md"
+        ]
+      },
+      {
+        "q_id": 41,
+        "question": "How many endpoints does CyberShield protect?",
+        "expected": "Over 2 million (2.1 million)",
+        "actual": "Insufficient data to count",
+        "files_retrieved": []
       },
       {
         "q_id": 45,
         "question": "When was Dr. Victoria Chen appointed CEO?",
         "expected": "2019",
-        "actual": "The appointment date was not found in th",
+        "actual": "I don't have enough information to answe",
         "files_retrieved": [
-          "09_investor_relations_call.md",
-          "05_digital_division_budget.md"
+          "02_organizational_announcement.md",
+          "04_energy_division_structure.md",
+          "03_aerospace_division_structure.md"
         ]
+      },
+      {
+        "q_id": 51,
+        "question": "How many satellites are in the Orbital Constellation project",
+        "expected": "48 satellites",
+        "actual": "Insufficient data to count",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 59,
+        "question": "How many global locations does Nexus have?",
+        "expected": "32 locations",
+        "actual": "Insufficient data to count",
+        "files_retrieved": []
       },
       {
         "q_id": 67,
@@ -643,17 +705,19 @@
         "expected": "-30\u00b0C to 60\u00b0C",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "06_solid_state_battery_design.md",
+          "11_batterytech_solid_state.md",
           "04_toyota_partnership_announcement.md",
-          "11_batterytech_solid_state.md"
+          "06_solid_state_battery_design.md"
         ]
       },
       {
         "q_id": 91,
         "question": "Who is the VP Trade Compliance?",
         "expected": "Owns the Export Control Policy (per POL-",
-        "actual": "I could not find any information regardi",
-        "files_retrieved": []
+        "actual": "The current Vice President of Trade Comp",
+        "files_retrieved": [
+          "09_export_control.md"
+        ]
       },
       {
         "q_id": 93,
@@ -662,9 +726,16 @@
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
           "11_batterytech_solid_state.md",
-          "04_toyota_partnership_announcement.md",
-          "06_toyota_jv_negotiation_summary.md"
+          "Unknown",
+          "04_toyota_partnership_announcement.md"
         ]
+      },
+      {
+        "q_id": 99,
+        "question": "How does Nexus's operating margin compare to target?",
+        "expected": "11.2% actual vs 11.5-12.0% target for FY",
+        "actual": "I could not find specific information re",
+        "files_retrieved": []
       }
     ]
   }
