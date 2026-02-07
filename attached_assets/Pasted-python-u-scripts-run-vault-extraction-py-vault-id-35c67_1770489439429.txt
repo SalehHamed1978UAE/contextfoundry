@@ -1,0 +1,134 @@
+python -u scripts/run_vault_extraction.py --vault-id "35c67c34-aa2f-4b3d-bcdf-23d024718891" --use-ontology 2>&1 | tee /tmp/extraction_run.log
+[18:36:57] ======================================================================
+[18:36:57] VAULT-CENTRIC MULTI-MODEL EXTRACTION
+[18:36:57] ======================================================================
+[18:36:57] Vault: ClaudeCode Nexus Industries (Ontology) 2
+[18:36:57] Vault ID: 35c67c34-aa2f-4b3d-bcdf-23d024718891
+[18:36:58] 
+[18:36:58] ========================================
+[18:36:58] EXTRACTION RESUME STATUS
+[18:36:58] ========================================
+[18:36:58] Total documents: 100
+[18:36:58] Already multi-extracted: 0
+[18:36:58] Remaining to process: 100
+[18:36:58] ========================================
+[18:36:58] 
+[18:36:58] Documents pending extraction: 100
+[18:36:59] 
+[18:36:59] ----------------------------------------------------------------------
+[18:36:59] PHASE 1: Ontology-Centric Extraction
+[18:36:59] ----------------------------------------------------------------------
+[18:36:59] Using OntologyCentricPipeline (document-aware, ontology-constrained)
+[18:36:59] Found 100 documents for ontology extraction
+[18:37:00] INFO     [Canonicalizer] Loaded 0 canonical relations                                                                                                                                              
+[18:37:00]   [1/100] Skipping 01_annual_report_2025.md: no content
+[18:37:00]   [2/100] Skipping 01_board_meeting_q4_2025.md: no content
+[18:37:00]   [3/100] Skipping 01_boeing_customer_profile.md: no content
+[18:37:00]   [4/100] Skipping 01_ceo_all_hands_memo.md: no content
+[18:37:00]   [5/100] Skipping 01_code_of_ethics.md: no content
+[18:37:01]   [6/100] Skipping 01_corporate_strategy_2026_2030.md: no content
+[18:37:01]   [7/100] Skipping 01_executive_team.md: no content
+[18:37:01]   [8/100] Skipping 01_falcon_x_system_architecture.md: no content
+[18:37:01]   [9/100] Skipping 02_airbus_customer_profile.md: no content
+[18:37:01]   [10/100] Skipping 02_business_divisions.md: no content
+[18:37:01]   [11/100] Skipping 01_falcon_x_uav_program.md: no content
+[18:37:01]   [12/100] Skipping 02_falcon_x_program_review.md: no content
+[18:37:01]   [13/100] Skipping 02_aerospace_division_strategy.md: no content
+[18:37:01]   [14/100] Skipping 02_greenhydrogen_process_specification.md: no content
+[18:37:01]   [15/100] Skipping 02_q4_2025_earnings.md: no content
+[18:37:01]   [16/100] Skipping 02_information_security.md: no content
+[18:37:01]   [17/100] Skipping 02_orbital_satellite_constellation.md: no content
+[18:37:01]   [18/100] Skipping 02_organizational_announcement.md: no content
+[18:37:01]   [19/100] Skipping 03_aerospace_division_budget.md: no content
+[18:37:01]   [20/100] Skipping 03_aerospace_division_structure.md: no content
+[18:37:01]   [21/100] Skipping 03_ge_aerospace_customer.md: no content
+[18:37:01]   [22/100] Skipping 03_greenhydrogen_steering_committee.md: no content
+[18:37:01]   [23/100] Skipping 03_desert_sun_solar_farm.md: no content
+[18:37:01]   [24/100] Skipping 03_digital_transformation.md: no content
+[18:37:01]   [25/100] Skipping 03_nexusconnect_api_specification.md: no content
+[18:37:01]   [26/100] Skipping 03_travel_expense.md: no content
+[18:37:01]   [27/100] Skipping 04_cybershield_architecture.md: no content
+[18:37:01]   [28/100] Skipping 03_press_release_fy2025.md: no content
+[18:37:02]   [29/100] Skipping 04_digital_division_quarterly_review.md: no content
+[18:37:02]   [30/100] Skipping 04_energy_division_budget.md: no content
+[18:37:02]   [31/100] Skipping 04_procurement_policy.md: no content
+[18:37:02]   [32/100] Skipping 04_sustainability_roadmap.md: no content
+[18:37:02]   [33/100] Skipping 04_energy_division_structure.md: no content
+[18:37:02]   [34/100] Skipping 04_greenhydrogen_initiative.md: no content
+[18:37:02]   [35/100] Skipping 04_toyota_partnership_announcement.md: no content
+[18:37:02]   [36/100] Skipping 05_intellectual_property.md: no content
+[18:37:02]   [37/100] Skipping 05_nexusconnect_platform.md: no content
+[18:37:02]   [38/100] Skipping 05_safety_committee_meeting.md: no content
+[18:37:02]   [39/100] Skipping 05_siemens_healthineers_customer.md: no content
+[18:37:02]   [40/100] Skipping 04_us_dod_customer.md: no content
+[18:37:02]   [41/100] Skipping 05_digital_division_budget.md: no content
+[18:37:02]   [42/100] Skipping 05_digital_division_structure.md: no content
+[18:37:02]   [43/100] Skipping 05_talent_strategy.md: no content
+[18:37:02]   [44/100] Skipping 06_employee_benefits_update.md: no content
+[18:37:02]   [45/100] Skipping 05_fedramp_announcement.md: no content
+[18:37:02]   [46/100] Skipping 05_hts_wire_manufacturing_spec.md: no content
+[18:37:02]   [47/100] Skipping 06_market_expansion_asia.md: no content
+[18:37:02]   [48/100] Skipping 06_materials_division_structure.md: no content
+[18:37:02]   [49/100] Skipping 06_quantumleap_computing.md: no content
+[18:37:02]   [50/100] Skipping 06_remote_work.md: no content
+[18:37:02]   [51/100] Skipping 06_solid_state_battery_design.md: no content
+[18:37:02]   [52/100] Skipping 06_toyota_jv_negotiation_summary.md: no content
+[18:37:03]   [53/100] Skipping 06_toyota_partner_profile.md: no content
+[18:37:03]   [54/100] Skipping 07_aerospace_engineering_review.md: no content
+[18:37:03]   [55/100] Skipping 07_capital_allocation_plan.md: no content
+[18:37:03]   [56/100] Skipping 06_materials_division_budget.md: no content
+[18:37:03]   [57/100] Skipping 07_cybershield_security.md: no content
+[18:37:03]   [58/100] Skipping 07_ma_strategy.md: no content
+[18:37:03]   [59/100] Skipping 07_research_development_org.md: no content
+[18:37:03]   [60/100] Skipping 07_safety_alert_bulletin.md: no content
+[18:37:03]   [61/100] Skipping 07_smartgrid_controller_specification.md: no content
+[18:37:03]   [62/100] Skipping 07_spacex_customer.md: no content
+[18:37:03]   [63/100] Skipping 08_cybersecurity_advisory.md: no content
+[18:37:03]   [64/100] Skipping 08_global_locations.md: no content
+[18:37:03]   [65/100] Skipping 08_hr_talent_review.md: no content
+[18:37:03]   [66/100] Skipping 07_environmental_health_safety.md: no content
+[18:37:03]   [67/100] Skipping 08_innovation_strategy.md: no content
+[18:37:03]   [68/100] Skipping 08_project_investment_analysis.md: no content
+[18:37:03]   [69/100] Skipping 08_quality_management.md: no content
+[18:37:03]   [70/100] Skipping 08_quantum_computing_services.md: no content
+[18:37:04]   [71/100] Skipping 08_smartgrid_controller.md: no content
+[18:37:04]   [72/100] Skipping 09_carbonzero_capture.md: no content
+[18:37:04]   [73/100] Skipping 09_competitive_intelligence.md: no content
+[18:37:04]   [74/100] Skipping 09_export_control.md: no content
+[18:37:04]   [75/100] Skipping 09_greenhydrogen_milestone.md: no content
+[18:37:04]   [76/100] Skipping 08_pacific_power_utility.md: no content
+[18:37:04]   [77/100] Skipping 09_investor_presentation_q4.md: no content
+[18:37:04]   [78/100] Skipping 09_nel_hydrogen_supplier.md: no content
+[18:37:04]   [79/100] Skipping 10_aeromaterials_composites.md: no content
+[18:37:04]   [80/100] Skipping 10_board_strategic_priorities.md: no content
+[18:37:04]   [81/100] Skipping 10_cybersecurity_incident_response.md: no content
+[18:37:04]   [82/100] Skipping 10_data_privacy.md: no content
+[18:37:04]   [83/100] Skipping 10_first_solar_supplier.md: no content
+[18:37:04]   [84/100] Skipping 10_quarterly_newsletter.md: no content
+[18:37:04]   [85/100] Skipping 10_rd_investment_report.md: no content
+[18:37:04]   [86/100] Skipping 09_investor_relations_call.md: no content
+[18:37:04]   [87/100] Skipping 11_batterytech_solid_state.md: no content
+[18:37:04]   [88/100] Skipping 11_product_launch_planning.md: no content
+[18:37:04]   [89/100] Skipping 11_treasury_report.md: no content
+[18:37:04]   [90/100] Skipping 12_project_cost_summary.md: no content
+[18:37:04]   [91/100] Skipping 12_rio_tinto_customer.md: no content
+[18:37:04]   [92/100] Skipping 12_superconductor_wire.md: no content
+[18:37:04]   [93/100] Skipping 12_supplier_performance_review.md: no content
+[18:37:04]   [94/100] Skipping 13_shell_partner.md: no content
+[18:37:05]   [95/100] Skipping 13_starliner_satellite_bus.md: no content
+[18:37:05]   [96/100] Skipping 11_microsoft_customer.md: no content
+[18:37:05]   [97/100] Skipping 14_hypersonic_propulsion.md: no content
+[18:37:05]   [98/100] Skipping 14_lockheed_martin_customer.md: no content
+[18:37:05]   [99/100] Skipping 15_caterpillar_partner.md: no content
+[18:37:05]   [100/100] Skipping 15_autonomousmining_system.md: no content
+[18:37:05] 
+Ontology extraction complete:
+[18:37:05]   Total documents: 0
+[18:37:05]   Total entities: 0
+[18:37:05]   Total relationships: 0
+[18:37:05]   Total chunks stored: 0
+[18:37:05] 
+[18:37:05] ======================================================================
+[18:37:05] ONTOLOGY PIPELINE COMPLETE
+[18:37:05] ======================================================================
+[18:37:05] Note: Ontology pipeline stages directly to KG (no consensus phase needed)
