@@ -23,7 +23,7 @@ class VaultManager:
             payload = {'email': email or 'saleh.hamed@gmail.com'}
             if tenant_id:
                 payload['tenant_id'] = tenant_id
-            response = self.session.post(f'{self.api}/api/dev/auth', json=payload)
+            response = self.session.post(f'{self.api}/dev/auth', json=payload)
             self._authenticated = response.status_code == 200
             if not self._authenticated:
                 print(f"  Auth response: {response.status_code} - {response.text[:200]}")
