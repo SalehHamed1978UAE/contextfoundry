@@ -1,20 +1,33 @@
 {
   "stages": {
     "delete": {
-      "status": "pending"
+      "status": "skipped"
     },
     "create": {
-      "status": "pending"
+      "status": "skipped"
     },
     "upload": {
-      "status": "pending"
+      "status": "skipped"
     },
     "extract": {
-      "status": "pending"
+      "status": "complete",
+      "entities": 6025
     },
     "qa": {
-      "status": "pending"
+      "status": "complete"
     }
   },
-  "updated_at": "2026-02-07T22:23:29.817461"
+  "updated_at": "2026-02-07T22:53:33.476704",
+  "status": "finished",
+  "qa_progress": {
+    "total": 100,
+    "answered": 100,
+    "passed": 78,
+    "failed": 22,
+    "accuracy_percent": 78.0
+  },
+  "current_question": {
+    "id": 100,
+    "text": "What is the total value of top 3 customer relationships?"
+  }
 }
