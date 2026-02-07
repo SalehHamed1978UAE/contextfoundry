@@ -1,0 +1,86 @@
+ Run this exact diagnostic sequence. Do not change any code, do not
+  troubleshoot, do not edit config, do not run git commands, do not propose
+  fixes. Only execute commands and return raw outputs.
+
+  CONSTRAINTS:
+  - NO code changes.
+  - NO file edits.
+  - NO git pull/push/checkout/reset/revert.
+  - NO “investigation” outside requested commands.
+  - If a command fails, stop and report the error only.
+
+  STEP A — Start services with tree OFF
+  pkill -f "python web_app.py" || true
+  pkill -f "python brain/app.py" || true
+  export CF_TREE_BASED_RETRIEVAL=false
+  python brain/app.py >/tmp/brain.log 2>&1 &
+  python web_app.py >/tmp/web.log 2>&1 &
+  sleep 8
+  pid=$(pgrep -f "python web_app.py" | head -1)
+  echo "TREE FLAG:"
+  ps eww "$pid" | tr ' ' '\n' | grep '^CF_TREE_BASED_RETRIEVAL='
+
+  STEP B — Baseline DB comparison (old vs new vault)
+  NEW=1d33909b-754e-4dcc-86b4-4cfb0023a6a2
+  OLD=4668fc6d-c401-46d2-9797-4c8785f4d6ce
+
+  for V in "$OLD" "$NEW"; do
+    echo "=== $V ==="
+    psql "$DATABASE_URL" -c "SELECT COUNT(*) AS docs FROM platform.documents
+  WHERE tenant_id='$V'::uuid;"
+    psql "$DATABASE_URL" -c "SELECT COUNT(*) AS chunks FROM
+  public.document_chunks WHERE tenant_id='$V'::uuid;"
+    psql "$DATABASE_URL" -c "SELECT COUNT(*) AS entities FROM public.entities
+  WHERE tenant_id='$V'::uuid;"
+    psql "$DATABASE_URL" -c "SELECT COUNT(*) AS rels FROM public.relationships
+  WHERE tenant_id='$V'::uuid;"
+    psql "$DATABASE_URL" -c "SELECT relationship_type, COUNT(*) FROM
+  public.relationships WHERE tenant_id='$V'::uuid GROUP BY relationship_type
+  ORDER BY COUNT(*) DESC LIMIT 20;"
+    psql "$DATABASE_URL" -c "SELECT lifecycle_state, COUNT(*) FROM
+  public.entities WHERE tenant_id='$V'::uuid GROUP BY lifecycle_state;"
+  done
+
+  STEP C — Pause and wait for my manual UI run on OLD vault
+  Print exactly:
+  READY_FOR_OLD_UI_TEST
+
+  (Wait until I reply DONE_OLD)
+
+  After I reply DONE_OLD, run:
+  latest=$(ls -1t test_results/*.json | head -1)
+  echo "LATEST_RESULT_FILE_OLD: $latest"
+  jq -r '.vault_id, .results.passed, .results.total, .results.accuracy_pct'
+  "$latest"
+
+  STEP D — Re-extract NEW vault and run Gardener once
+  python scripts/run_vault_extraction.py --vault-id "$NEW" --use-ontology
+  curl -s -X POST http://localhost:5000/api/gardener/run | jq
+
+  STEP E — Post-extraction DB snapshot for NEW vault
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS entities FROM public.entities
+  WHERE tenant_id='$NEW'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS rels FROM public.relationships
+  WHERE tenant_id='$NEW'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT lifecycle_state, COUNT(*) FROM public.entities
+  WHERE tenant_id='$NEW'::uuid GROUP BY lifecycle_state;"
+  psql "$DATABASE_URL" -c "SELECT relationship_type, COUNT(*) FROM
+  public.relationships WHERE tenant_id='$NEW'::uuid GROUP BY relationship_type
+  ORDER BY COUNT(*) DESC LIMIT 20;"
+
+  STEP F — Pause and wait for my manual UI run on NEW vault
+  Print exactly:
+  READY_FOR_NEW_UI_TEST
+
+  (Wait until I reply DONE_NEW)
+
+  After I reply DONE_NEW, run:
+  latest=$(ls -1t test_results/*.json | head -1)
+  echo "LATEST_RESULT_FILE_NEW: $latest"
+  jq -r '.vault_id, .results.passed, .results.total, .results.accuracy_pct'
+  "$latest"
+
+  FINAL OUTPUT REQUIRED:
+  - Full command outputs from Steps A, B, D, E
+  - OLD and NEW latest result file paths + jq output
+  - Nothing else
