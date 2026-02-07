@@ -114,7 +114,29 @@ class StagingLoader:
         self.duplicate_detector = DuplicateDetector(session, similarity_threshold, tenant_id=tenant_id)
         self._candidate_normalizer = CandidateNormalizer()
         self._known_relationship_types_cache: Optional[set] = None
-    
+
+        # Validate ontology map on initialization
+        if tenant_id:
+            self._validate_ontology_map()
+
+    def _validate_ontology_map(self):
+        """Validate that all LLM_TO_ONTOLOGY_TYPE_MAP targets are valid ontology types."""
+        try:
+            known_types = self._get_known_relationship_types()
+            invalid_targets = []
+
+            for llm_type, ontology_type in self.LLM_TO_ONTOLOGY_TYPE_MAP.items():
+                if ontology_type not in known_types:
+                    invalid_targets.append(f"{llm_type} → {ontology_type}")
+
+            if invalid_targets:
+                logger.warning(
+                    f"[OntologyFoundry] LLM_TO_ONTOLOGY_TYPE_MAP contains {len(invalid_targets)} "
+                    f"invalid target types:\n  " + "\n  ".join(invalid_targets)
+                )
+        except Exception as e:
+            logger.debug(f"Could not validate ontology map: {e}")
+
     def _create_evidence_record(
         self,
         fact_type: FactType,
@@ -286,19 +308,20 @@ class StagingLoader:
     
     def _get_known_relationship_types(self) -> set:
         """Get all known relationship types from schema + approved candidates.
-        
+
         Ontology Foundry Phase 1: Types not in this set will be stored as candidates.
-        All types are normalized to ensure consistent matching.
+        For ontology extraction, preserve raw schema types without synonym normalization.
         """
         if self._known_relationship_types_cache is not None:
             return self._known_relationship_types_cache
-        
+
         base_types = set()
         try:
             from ..config.domain_schema import get_schema_loader
             loader = get_schema_loader()
             schema_types = loader.schema.get_relationship_type_names()
-            base_types = {self._candidate_normalizer.normalize_relationship(t) for t in schema_types}
+            # FIXED: Use raw uppercase ontology types, no synonym collapse
+            base_types = {t.upper() for t in schema_types}
         except Exception as e:
             logger.debug(f"Could not load schema types: {e}")
         
@@ -532,9 +555,17 @@ class StagingLoader:
         Returns:
             Tuple of (relationship, action) where action is 'created', 'updated', 'skipped', 'candidate', or 'error'
         """
+        # Map LLM type to ontology type
         mapped_type = self._normalize_relation_type(extracted.relation_type)
-        canonical_type = self._candidate_normalizer.normalize_relationship(mapped_type)
-        
+
+        # Preserve mapped ontology type as-is if it's a known type
+        known_types = self._get_known_relationship_types()
+        if mapped_type in known_types:
+            canonical_type = mapped_type  # Use mapped type directly, no synonym normalization
+        else:
+            # Only normalize through synonyms if type is truly unknown
+            canonical_type = self._candidate_normalizer.normalize_relationship(mapped_type)
+
         if not self._is_known_relationship_type(canonical_type):
             normalized_type = canonical_type
             if self.tenant_id:
