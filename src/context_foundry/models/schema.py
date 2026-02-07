@@ -1474,7 +1474,9 @@ def set_tenant_context(session, tenant_id: str, role: str = 'user'):
         role: 'user' (default) or 'admin' (bypasses RLS)
     """
     if tenant_id:
+        # Support both legacy and current RLS policy variable names.
         session.execute(text(f"SET app.current_tenant_id = '{tenant_id}'"))
+        session.execute(text(f"SET app.current_tenant = '{tenant_id}'"))
     if role == 'admin':
         session.execute(text("SET app.role = 'admin'"))
 
@@ -1486,6 +1488,7 @@ def reset_tenant_context(session):
     """
     try:
         session.execute(text("RESET app.current_tenant_id"))
+        session.execute(text("RESET app.current_tenant"))
         session.execute(text("RESET app.role"))
     except Exception:
         pass

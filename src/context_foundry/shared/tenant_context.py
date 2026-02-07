@@ -46,6 +46,7 @@ def tenant_session(session, tenant_id: str):
     
     def set_tenant():
         session.execute(text("SET app.current_tenant_id = :tid"), {"tid": tenant_id})
+        session.execute(text("SET app.current_tenant = :tid"), {"tid": tenant_id})
     
     try:
         set_tenant()
@@ -94,6 +95,10 @@ def require_tenant(func):
             text("SET app.current_tenant_id = :tid"), 
             {"tid": str(self.tenant_id)}
         )
+        self.session.execute(
+            text("SET app.current_tenant = :tid"),
+            {"tid": str(self.tenant_id)}
+        )
         return func(self, *args, **kwargs)
     return wrapper
 
@@ -121,4 +126,5 @@ def ensure_tenant_context(session, tenant_id: str) -> None:
         raise TenantContextError(f"Invalid tenant_id format: {tenant_id}")
     
     session.execute(text("SET app.current_tenant_id = :tid"), {"tid": tenant_id})
+    session.execute(text("SET app.current_tenant = :tid"), {"tid": tenant_id})
     logger.debug(f"Set tenant context: {tenant_id}")
