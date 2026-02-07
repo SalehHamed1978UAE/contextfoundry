@@ -725,7 +725,7 @@ def api_extraction_metrics(vault_id):
         from src.context_foundry.models.schema import get_session
         from src.context_foundry.monitoring.vault_consistency import build_vault_metrics_report
 
-        db_session = get_session()
+        db_session = get_session(use_rls_role=False)
         try:
             report = build_vault_metrics_report(db_session, vault_id)
             if not report.get("exists", True):
@@ -745,7 +745,7 @@ def api_extraction_preflight(vault_id):
         from src.context_foundry.models.schema import get_session
         from src.context_foundry.monitoring.vault_consistency import build_vault_preflight_report
 
-        db_session = get_session()
+        db_session = get_session(use_rls_role=False)
         try:
             report = build_vault_preflight_report(db_session, vault_id)
             if not report.get("exists"):
