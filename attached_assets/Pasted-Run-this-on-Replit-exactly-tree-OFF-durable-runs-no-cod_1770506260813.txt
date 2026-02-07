@@ -1,0 +1,98 @@
+Run this on Replit exactly (tree OFF, durable runs, no code changes):
+
+  cd /home/runner/workspace
+  export CF_TREE_BASED_RETRIEVAL=false
+
+  NEW=1d33909b-754e-4dcc-86b4-4cfb0023a6a2
+  QSID=67c09370-b458-4717-8244-2caa52ff6475
+
+  # 1) restart services cleanly
+  pkill -f "python web_app.py" || true
+  pkill -f "python brain/app.py" || true
+  python3 brain/app.py >/tmp/brain.log 2>&1 &
+  python3 web_app.py >/tmp/web.log 2>&1 &
+  sleep 8
+  grep -m1 "Tree-based retrieval" /tmp/web.log
+
+  # 2) run NEW extraction detached
+  pkill -f "scripts/run_vault_extraction.py" || true
+  nohup python3 -u scripts/run_vault_extraction.py \
+    --vault-id "$NEW" \
+    --use-ontology > /tmp/extract_new.log 2>&1 &
+  echo $! > /tmp/extract_new.pid
+  echo "EXTRACT_PID=$(cat /tmp/extract_new.pid)"
+
+  # 3) monitor extraction until process exits
+  while kill -0 "$(cat /tmp/extract_new.pid)" 2>/dev/null; do
+    echo "---- extraction progress ----"
+    grep -E "Ontology extracting|Staged:|Error:|Documents inspected|Autofixed|
+  Unresolved|Total entities|Total relationships|COMPLETE|SUCCESS" /tmp/
+  extract_new.log | tail -n 12
+    sleep 30
+  done
+
+  echo "---- extraction done ----"
+  tail -n 120 /tmp/extract_new.log
+
+  # 4) gardener once
+  curl -s -X POST http://localhost:5000/api/gardener/run | jq
+  sleep 10
+
+  # 5) snapshot NEW vault post-extraction
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS docs FROM platform.documents WHERE
+  tenant_id='$NEW'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS chunks FROM public.document_chunks
+  WHERE tenant_id='$NEW'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS entities FROM public.entities
+  WHERE tenant_id='$NEW'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS rels FROM public.relationships
+  WHERE tenant_id='$NEW'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT lifecycle_state, COUNT(*) FROM public.entities
+  WHERE tenant_id='$NEW'::uuid GROUP BY lifecycle_state ORDER BY COUNT(*) DESC;"
+  psql "$DATABASE_URL" -c "SELECT lifecycle_state, COUNT(*) FROM
+  public.relationships WHERE tenant_id='$NEW'::uuid GROUP BY lifecycle_state
+  ORDER BY COUNT(*) DESC;"
+  psql "$DATABASE_URL" -c "SELECT relationship_type, COUNT(*) FROM
+  public.relationships WHERE tenant_id='$NEW'::uuid GROUP BY relationship_type
+  ORDER BY COUNT(*) DESC LIMIT 20;"
+
+  # 6) run NEW 100Q detached
+  pkill -f "src.test_runner.runner" || true
+  nohup python3 -u -m src.test_runner.runner \
+    --vault-id "$NEW" \
+    --question-set-id "$QSID" \
+    --mode auto > /tmp/eval_new.log 2>&1 &
+  echo $! > /tmp/eval_new.pid
+  echo "EVAL_PID=$(cat /tmp/eval_new.pid)"
+
+  # 7) monitor eval until done
+  while kill -0 "$(cat /tmp/eval_new.pid)" 2>/dev/null; do
+    echo "---- eval progress ----"
+    grep -E "Processing Q|\\[[0-9]+/100\\]|TIMEOUT|FAIL|PASS|TEST COMPLETE|
+  Score:" /tmp/eval_new.log | tail -n 12
+    sleep 30
+  done
+
+  echo "---- eval done ----"
+  tail -n 120 /tmp/eval_new.log
+
+  # 8) print latest result summary
+  latest=$(ls -1t test_results/*.json | head -1)
+  echo "NEW_RESULT_FILE: $latest"
+  python3 - <<PY
+  import json
+  p="$latest"
+  d=json.load(open(p))
+  print("vault_id:", d.get("vault_id"))
+  r=d.get("results",{})
+  print("passed:", r.get("passed"))
+  print("total:", r.get("total"))
+  print("accuracy_pct:", r.get("accuracy_pct"))
+  PY
+
+  After this, paste:
+
+  1. /tmp/extract_new.log tail section,
+  2. post-extraction SQL outputs,
+  3. /tmp/eval_new.log tail section,
+  4. final result summary.
