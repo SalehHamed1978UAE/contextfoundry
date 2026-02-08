@@ -1,0 +1,241 @@
+ # ═══════════════════════════════════════════════════════════════════
+  # PHASE 1, STEP 1.2 ITERATION: RE-EXTRACT WITH ENHANCED PROMPT
+  # DO NOT DEVIATE. PROMPT-ONLY CHANGE. SAME 5 DOCS. SAME CRITERIA.
+  # ═══════════════════════════════════════════════════════════════════
+
+  set -euo pipefail
+
+  SLICE="151298d4-52e9-4192-856a-26158daccabd"
+  BASE="4668fc6d-c401-46d2-9797-4c8785f4d6ce"
+
+  echo "RUN_START $(date -u +%FT%TZ)"
+
+  # ═══ STEP 1: Pull updated extraction prompt ═══
+  echo "=== Pulling enhanced prompt from GitHub ==="
+  git fetch origin
+  git reset --hard origin/main
+  git status
+
+  # ═══ STEP 2: Clear existing extraction data for slice vault ═══
+  echo "=== Clearing slice vault extraction data ==="
+  psql "$DATABASE_URL" -c "DELETE FROM public.entities WHERE 
+  tenant_id='$SLICE'::uuid;"
+  psql "$DATABASE_URL" -c "DELETE FROM public.relationships WHERE 
+  tenant_id='$SLICE'::uuid;"
+  psql "$DATABASE_URL" -c "UPDATE platform.documents SET extraction_level=NULL
+   WHERE tenant_id='$SLICE'::uuid;"
+
+  echo "Slice vault cleared. Documents remain with chunks intact."
+
+  # ═══ STEP 3: Re-run extraction with enhanced prompt ═══
+  echo "=== Running extraction with SUPPLIER PROFILE DIRECTIONALITY 
+  enhancement ==="
+  python3 -u scripts/run_vault_extraction.py \
+    --vault-id "$SLICE" \
+    --use-ontology \
+    2>&1 | tee /tmp/slice_extract_iter2.log
+
+  EXTRACT_EXIT=$?
+  echo "Extraction exit code: $EXTRACT_EXIT"
+
+  if [ $EXTRACT_EXIT -ne 0 ]; then
+    echo "WARNING: Extraction exited with non-zero code. Checking results 
+  anyway..."
+  fi
+
+  # ═══ STEP 4: Run validation (SAME 5 CRITERIA) ═══
+  echo ""
+  echo "═══════════════════════════════════════════════════════════════"
+  echo "PHASE 1, STEP 1.3: VALIDATION (ITERATION 2)"
+  echo "═══════════════════════════════════════════════════════════════"
+
+  echo ""
+  echo "=== Basic counts ==="
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS docs FROM platform.documents 
+  WHERE tenant_id='$SLICE'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS chunks FROM 
+  public.document_chunks WHERE tenant_id='$SLICE'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS entities FROM public.entities 
+  WHERE tenant_id='$SLICE'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS rels FROM public.relationships 
+  WHERE tenant_id='$SLICE'::uuid;"
+
+  echo ""
+  echo "=== Criterion 1: Supply-chain edges (only 
+  SUPPLIES/CUSTOMER_OF/PROCURES_FROM) ==="
+  echo "Per-document breakdown:"
+  psql "$DATABASE_URL" -c "
+  SELECT d.name,
+         COUNT(*) FILTER (WHERE r.relationship_type IN 
+  ('SUPPLIES','CUSTOMER_OF','PROCURES_FROM')) AS sc_edges
+  FROM platform.documents d
+  LEFT JOIN public.relationships r
+    ON r.source_document_id=d.id::text AND r.tenant_id=d.tenant_id
+  WHERE d.tenant_id='$SLICE'::uuid
+  GROUP BY d.name
+  ORDER BY sc_edges DESC, d.name;
+  "
+
+  SUPPLY_CHAIN_DOCS=$(psql "$DATABASE_URL" -tA -c "
+  SELECT COUNT(DISTINCT d.id)
+  FROM platform.documents d
+  JOIN public.relationships r
+    ON r.source_document_id=d.id::text AND r.tenant_id=d.tenant_id
+  WHERE d.tenant_id='$SLICE'::uuid
+    AND r.relationship_type IN ('SUPPLIES','CUSTOMER_OF','PROCURES_FROM');
+  ")
+  echo "Documents with supply-chain edges: $SUPPLY_CHAIN_DOCS (need ≥3)"
+
+  echo ""
+  echo "=== Criterion 2: Boeing typed as ORGANIZATION (no PERSON) ==="
+  psql "$DATABASE_URL" -c "
+  SELECT entity_type, name, COUNT(*) AS n
+  FROM public.entities
+  WHERE tenant_id='$SLICE'::uuid
+    AND (name ILIKE '%boeing%' OR name ILIKE '%the boeing company%')
+  GROUP BY entity_type, name
+  ORDER BY n DESC, entity_type, name;
+  "
+
+  BOEING_PERSON=$(psql "$DATABASE_URL" -tA -c "
+  SELECT COUNT(*)
+  FROM public.entities
+  WHERE tenant_id='$SLICE'::uuid
+    AND (name ILIKE '%boeing%' OR name ILIKE '%the boeing company%')
+    AND entity_type='PERSON';
+  ")
+  echo "Boeing as PERSON: $BOEING_PERSON (must be 0)"
+
+  echo ""
+  echo "=== Criterion 3: Co-occurrence WORKS_AT reduction (>50%) ==="
+  NEW_WORKS_AT=$(psql "$DATABASE_URL" -tA -c "
+  SELECT COUNT(*)
+  FROM public.relationships r
+  JOIN platform.documents d
+    ON r.source_document_id=d.id::text AND r.tenant_id=d.tenant_id
+  WHERE d.tenant_id='$SLICE'::uuid
+    AND d.name='12_supplier_performance_review.md'
+    AND r.relationship_type='WORKS_AT';
+  ")
+
+  BASE_WORKS_AT=$(psql "$DATABASE_URL" -tA -c "
+  SELECT COUNT(*)
+  FROM public.relationships r
+  JOIN platform.documents d
+    ON r.source_document_id=d.id::text AND r.tenant_id=d.tenant_id
+  WHERE d.tenant_id='$BASE'::uuid
+    AND d.name='12_supplier_performance_review.md'
+    AND r.relationship_type='WORKS_AT';
+  ")
+
+  echo "Slice: $NEW_WORKS_AT WORKS_AT in supplier review"
+  echo "Baseline: $BASE_WORKS_AT WORKS_AT in supplier review"
+  if [ "$BASE_WORKS_AT" -gt 0 ]; then
+    REDUCTION=$(awk "BEGIN {printf \"%.1f\", (($BASE_WORKS_AT - $NEW_WORKS_AT)
+   / $BASE_WORKS_AT) * 100}")
+    echo "Reduction: $REDUCTION% (need >50%)"
+  else
+    echo "Baseline was 0, slice is $NEW_WORKS_AT (PASS if slice ≤ baseline)"
+  fi
+
+  echo ""
+  echo "=== Criterion 4: No degree anomalies (>15 edges) ==="
+  psql "$DATABASE_URL" -c "
+  SELECT e.name, e.entity_type, COUNT(r.id) AS degree
+  FROM public.entities e
+  LEFT JOIN public.relationships r
+    ON (r.source_id=e.id OR r.target_id=e.id)
+  WHERE e.tenant_id='$SLICE'::uuid
+  GROUP BY e.id, e.name, e.entity_type
+  HAVING COUNT(r.id) > 15
+  ORDER BY degree DESC
+  LIMIT 20;
+  "
+
+  HIGH_DEGREE=$(psql "$DATABASE_URL" -tA -c "
+  SELECT COUNT(*)
+  FROM (
+    SELECT e.id
+    FROM public.entities e
+    LEFT JOIN public.relationships r
+      ON (r.source_id=e.id OR r.target_id=e.id)
+    WHERE e.tenant_id='$SLICE'::uuid
+    GROUP BY e.id
+    HAVING COUNT(r.id) > 15
+  ) t;
+  ")
+  echo "Entities with >15 edges: $HIGH_DEGREE (must be 0)"
+
+  echo ""
+  echo "=== Criterion 5: Regression diff vs baseline ==="
+  psql "$DATABASE_URL" -c "
+  WITH b AS (
+    SELECT relationship_type, COUNT(*) c
+    FROM public.relationships r
+    JOIN platform.documents d ON r.source_document_id=d.id::text AND 
+  r.tenant_id=d.tenant_id
+    WHERE d.tenant_id='$BASE'::uuid
+      AND d.name IN 
+  ('01_boeing_customer_profile.md','09_nel_hydrogen_supplier.md',
+                     
+  '12_supplier_performance_review.md','14_lockheed_martin_customer.md',
+                     '10_first_solar_supplier.md')
+    GROUP BY relationship_type
+  ),
+  s AS (
+    SELECT relationship_type, COUNT(*) c
+    FROM public.relationships
+    WHERE tenant_id='$SLICE'::uuid
+    GROUP BY relationship_type
+  )
+  SELECT COALESCE(b.relationship_type,s.relationship_type) AS 
+  relationship_type,
+         COALESCE(b.c,0) AS base_count,
+         COALESCE(s.c,0) AS slice_count,
+         COALESCE(s.c,0)-COALESCE(b.c,0) AS delta
+  FROM b FULL OUTER JOIN s USING (relationship_type)
+  ORDER BY delta ASC, relationship_type;
+  "
+
+  echo ""
+  echo "=== Extra: Documents with zero relationships ==="
+  psql "$DATABASE_URL" -c "
+  SELECT d.name
+  FROM platform.documents d
+  LEFT JOIN public.relationships r
+    ON r.source_document_id=d.id::text AND r.tenant_id=d.tenant_id
+  WHERE d.tenant_id='$SLICE'::uuid
+  GROUP BY d.id, d.name
+  HAVING COUNT(r.id)=0
+  ORDER BY d.name;
+  "
+
+  ZERO_REL_DOCS=$(psql "$DATABASE_URL" -tA -c "
+  SELECT COUNT(*)
+  FROM (
+    SELECT d.id
+    FROM platform.documents d
+    LEFT JOIN public.relationships r
+      ON r.source_document_id=d.id::text AND r.tenant_id=d.tenant_id
+    WHERE d.tenant_id='$SLICE'::uuid
+    GROUP BY d.id
+    HAVING COUNT(r.id)=0
+  ) t;
+  ")
+
+  echo ""
+  echo "═══════════════════════════════════════════════════════════════"
+  echo "PASS/FAIL SUMMARY (ITERATION 2)"
+  echo "═══════════════════════════════════════════════════════════════"
+  echo "1. Supply-chain docs: $SUPPLY_CHAIN_DOCS (PASS if ≥3)"
+  echo "2. Boeing as PERSON: $BOEING_PERSON (PASS if 0)"
+  echo "3. Co-occurrence: NEW=$NEW_WORKS_AT, BASE=$BASE_WORKS_AT (PASS if 
+  reduction >50% or NEW ≤ BASE)"
+  echo "4. Degree anomalies: $HIGH_DEGREE (PASS if 0)"
+  echo "5. Regressions: See delta table above (PASS if no unacceptable 
+  losses)"
+  echo "6. Zero-rel docs: $ZERO_REL_DOCS (lower is better)"
+  echo ""
+  echo "RUN_END $(date -u +%FT%TZ)"
+  echo ""
+  echo "Extraction log: /tmp/slice_extract_iter2.log"
