@@ -244,11 +244,32 @@ class OntologyCentricPipeline:
                 text, all_entities, all_relations, document_id
             )
             all_entities.extend(post_processor_entities)
-            all_relations.extend(post_processor_relations)
 
-            if post_processor_entities or post_processor_relations:
+            # Convert ExtractedRelationshipFromPattern to ExtractedRelation and apply sanity filter
+            converted_relations = []
+            for pp_rel in post_processor_relations:
+                extracted_rel = ExtractedRelation(
+                    id=str(uuid.uuid4()),
+                    relation_type=pp_rel.relationship_type,
+                    source_name=pp_rel.source_name,
+                    target_name=pp_rel.target_name,
+                    source_span=pp_rel.source_text,
+                    source_document_id=document_id,
+                    source_chunk_id=chunks_stored[0].id if chunks_stored else str(uuid.uuid4()),
+                    confidence=pp_rel.confidence,
+                )
+                converted_relations.append(extracted_rel)
+
+            # Apply sanity filter to post-processor output
+            if converted_relations:
+                filtered_pp_relations = self.relation_extractor._apply_sanity_filter(converted_relations)
+                logger.info(f"[OntologyCentricPipeline] Post-processor: {len(post_processor_relations)} raw, "
+                           f"{len(filtered_pp_relations)} after sanity filter")
+                all_relations.extend(filtered_pp_relations)
+
+            if post_processor_entities or filtered_pp_relations:
                 logger.info(f"[OntologyCentricPipeline] Post-processor added: {len(post_processor_entities)} entities, "
-                           f"{len(post_processor_relations)} relations")
+                           f"{len(filtered_pp_relations)} relations")
 
             canonical_triplets = []
             if self.enable_canonicalization and self.canonicalizer and all_relations:

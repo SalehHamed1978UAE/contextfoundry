@@ -248,7 +248,9 @@ class StagingLoader:
             pass
     
     LLM_TO_ONTOLOGY_TYPE_MAP = {
-        'HAS_CONTRACT': 'OWNS',
+        # FIXED: Changed from OWNS to RELATED_TO to prevent meaningless ownership edges
+        # Context: "HAS_CONTRACT" should not map to OWNS (e.g., "Boeing HAS_CONTRACT $730M" → "Boeing OWNS $730M" is wrong)
+        'HAS_CONTRACT': 'RELATED_TO',
         'HAS_DIVISION': 'PART_OF',
         'GENERATES_REVENUE': 'EARNS',
         'INVOLVED_IN': 'MEMBER_OF',
@@ -258,7 +260,8 @@ class StagingLoader:
         'WORKS_FOR': 'WORKS_AT',
         'EMPLOYED_BY': 'WORKS_AT',
         'EMPLOYED_AT': 'WORKS_AT',
-        'CONTRACTED_BY': 'OWNS',
+        # FIXED: Changed from OWNS to RELATED_TO
+        'CONTRACTED_BY': 'RELATED_TO',
         'HAS_ROLE': 'HOLDS_POSITION',
         'HAS_POSITION': 'HOLDS_POSITION',
         'PROVIDES': 'SUPPLIES',
@@ -286,7 +289,8 @@ class StagingLoader:
         'HAS_KEY_CONTACT': 'AFFILIATED_WITH',
         'HAS_FINANCIAL_METRIC': 'EARNS',
         'HAS_METRIC': 'EARNS',
-        'HAS_BUDGET': 'OWNS',
+        # FIXED: Changed from OWNS to HAS_METRIC (budget is a metric, not ownership)
+        'HAS_BUDGET': 'HAS_METRIC',
         'HAS_STATUS': 'RELATED_TO',
         'ATTENDS': 'MEMBER_OF',
         'HAS_RATING': 'RELATED_TO',

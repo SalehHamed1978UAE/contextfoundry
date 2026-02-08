@@ -142,8 +142,10 @@ ROLE_PATTERNS = [
 REPORTING_PATTERNS = [
     (r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s+report(?:s|ing)\s+to\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)',
      0.90, "reports_to"),
-    (r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s+(?:manages|oversees|supervises|leads)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)',
-     0.85, "manages"),
+    # DISABLED: creates false relationships from prose phrases like "manages supplier relationships"
+    # Context: supplier review docs use "manages" to describe oversight, not org-to-org hierarchy
+    # (r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s+(?:manages|oversees|supervises|leads)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)',
+    #  0.85, "manages"),
     (r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s+works?\s+under\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)',
      0.85, "reports_to"),
 ]
@@ -547,14 +549,17 @@ class ExtractionPostProcessor:
         new_entities.extend(supplier_entities)
         patterns_matched += len(supplier_rels)
 
+        # DISABLED: creates meaningless OWNS edges from dollar amounts found near entity names
+        # Context: "$730M" in customer profile becomes "Boeing OWNS $730M" which is semantically wrong
+        # Financial metrics should be properties, not entities with OWNS relationships
         # Financial metric and agreement extraction (org-linked)
-        primary_org = self._get_primary_organization(existing_entities)
-        fin_entities, fin_rels = self._extract_financial_metrics(
-            document_text, existing_entity_names, existing_rel_keys, primary_org
-        )
-        new_entities.extend(fin_entities)
-        new_relationships.extend(fin_rels)
-        patterns_matched += len(fin_rels)
+        # primary_org = self._get_primary_organization(existing_entities)
+        # fin_entities, fin_rels = self._extract_financial_metrics(
+        #     document_text, existing_entity_names, existing_rel_keys, primary_org
+        # )
+        # new_entities.extend(fin_entities)
+        # new_relationships.extend(fin_rels)
+        # patterns_matched += len(fin_rels)
 
         # Extract technical specifications (energy density, temperature ranges, capacities, etc.)
         spec_entities = self._extract_specification_entities(
