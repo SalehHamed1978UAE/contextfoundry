@@ -247,6 +247,8 @@ class OntologyCentricPipeline:
 
             # Convert ExtractedRelationshipFromPattern to ExtractedRelation and apply sanity filter
             converted_relations = []
+            filtered_pp_relations = []  # Initialize to prevent UnboundLocalError
+
             for pp_rel in post_processor_relations:
                 extracted_rel = ExtractedRelation(
                     id=str(uuid.uuid4()),
