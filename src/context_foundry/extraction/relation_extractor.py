@@ -185,12 +185,13 @@ CRITICAL RULES:
    - Do NOT create SUPPLIES edges between peer suppliers (e.g. First Solar → JinkoSolar) unless explicit sourcing language exists.
    - Downstream customer mentions (e.g. "Nexus supplies Boeing") should create CUSTOMER_OF(source=Boeing, target=Nexus) NOT supplier→Boeing edges.
 
-5. CUSTOMER PROFILE CONTEXT:
-   - In customer profile documents (e.g. "boeing_customer_profile.md"), the profiled company IS the customer.
-   - For "Boeing Customer Profile", Boeing → CUSTOMER_OF → Nexus Industries (Nexus is the supplier).
-   - Extract CUSTOMER_OF(source=<ProfiledCompany>, target=Nexus Industries) when customer relationship is evident.
-   - If document mentions "X purchases from Nexus" or "Nexus supplies X", create CUSTOMER_OF(source=X, target=Nexus).
-   - Contract/revenue fields are attributes, not ownership edges.
+5. CUSTOMER PROFILE CONTEXT - MANDATORY EXTRACTION:
+   - If document title/header contains "Customer Profile: <Company>" or filename is "<company>_customer_profile.md", ALWAYS extract CUSTOMER_OF.
+   - The profiled company (e.g. Boeing, Lockheed Martin) is the CUSTOMER.
+   - Nexus/Nexus Industries/Nexus Aerospace/Nexus Advanced Materials are the SUPPLIER.
+   - REQUIRED: Extract CUSTOMER_OF(source=<ProfiledCompany>, target=Nexus Industries).
+   - Revenue/contract amounts (e.g. "$730M", "FY2025 Business") indicate customer relationship strength, not ownership.
+   - Do NOT extract random SUPPLIES edges from mentions of Nexus divisions serving the customer.
 
 6. TABLE ATTRIBUTION RULE:
    - If row/field indicates "<Org> Contact" or "Nexus Contact", that person is a contact for the anchor org context.
