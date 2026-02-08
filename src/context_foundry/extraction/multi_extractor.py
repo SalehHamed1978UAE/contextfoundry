@@ -116,6 +116,24 @@ EXTRACTION_SYSTEM_PROMPT = """You are a knowledge extraction system. Your task i
    - "Siemens supplies turbine components to Nexus Industries" -> SUPPLIER_OF(source="Siemens", target="Nexus Industries")
    - Supplier profile document for "Nel Hydrogen" -> SUPPLIER_OF(source="Nel Hydrogen", target=<customer org>)
    - "Michael Chang serves as CFO of Nexus Industries" -> HOLDS_POSITION + WORKS_FOR
+5. MEETS_SPEC extraction (do not downgrade):
+   - Use MEETS_SPEC when text explicitly states compliance/conformance to a requirement, standard, tolerance, certification, or test threshold.
+   - Trigger phrases include: "meets spec", "complies with", "certified to", "conforms to", "within tolerance", "passes standard", "meets requirement".
+   - Example: "Component X is certified to MIL-STD-810 and meets vibration tolerance requirements"
+     -> MEETS_SPEC(source="Component X", target="MIL-STD-810 / vibration tolerance requirement")
+   - Do NOT map explicit spec/compliance statements to OWNS, MANAGES, or PART_OF.
+6. AFFILIATED_WITH extraction (non-employment association):
+   - Use AFFILIATED_WITH for association/contact/liaison language when employment is not explicit.
+   - Trigger phrases include: "key contact", "liaison", "point of contact", "associated with", "account contact".
+   - Example: "Jane Doe is the key contact for Boeing account coordination"
+     -> AFFILIATED_WITH(source="Jane Doe", target="Boeing")
+   - Do NOT emit WORKS_FOR/WORKS_AT unless explicit employment evidence exists.
+7. Generic relationship anti-inflation:
+   - Do not emit OWNS / MANAGES / PART_OF unless explicit lexical evidence appears.
+   - OWNS requires: "owns", "owner of", "ownership"
+   - MANAGES requires: "manages", "managed by", "manager of"
+   - PART_OF requires: "part of", "belongs to", "subset of"
+   - Prefer no edge over generic edge inflation when evidence is weak.
 """
 
 

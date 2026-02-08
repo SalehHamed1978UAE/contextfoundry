@@ -613,6 +613,42 @@ CRITICAL EXTRACTION RULES:
    ❌ DON'T create generic OWNS/MEMBER_OF when supplier profile context is clear
    ❌ DON'T reverse the direction: for SUPPLIES, supplier is source; for CUSTOMER_OF, customer is source
 
+5. MEETS_SPEC EXTRACTION (DO NOT DOWNGRADE)
+   Use MEETS_SPEC when text explicitly states compliance/conformance to a requirement, standard, tolerance,
+   certification, or test threshold.
+
+   ✅ Trigger phrases:
+   - "meets spec", "meets specification", "complies with", "certified to", "conforms to", "within tolerance",
+     "passes standard", "meets requirement", "qualified to"
+
+   ✅ Example:
+   - "Component X is certified to MIL-STD-810 and meets vibration tolerance requirements"
+     → MEETS_SPEC(source="Component X", target="MIL-STD-810 / vibration tolerance requirement")
+
+   ❌ DON'T map explicit spec/compliance evidence to OWNS, MANAGES, or PART_OF
+
+6. AFFILIATED_WITH EXTRACTION (NON-EMPLOYMENT ASSOCIATION)
+   Use AFFILIATED_WITH for contact/association/liaison relationships when employment is NOT explicit.
+
+   ✅ Trigger phrases:
+   - "key contact", "liaison", "point of contact", "associated with", "account contact", "works with" (without payroll/title evidence)
+
+   ✅ Example:
+   - "Jane Doe is the key contact for Boeing account coordination"
+     → AFFILIATED_WITH(source="Jane Doe", target="Boeing")
+
+   ❌ DON'T emit WORKS_AT / WORKS_FOR unless explicit employment evidence is present
+
+7. GENERIC RELATIONSHIP ANTI-INFLATION
+   Do not emit generic OWNS / MANAGES / PART_OF unless explicit lexical evidence appears.
+
+   ✅ Required lexical evidence:
+   - OWNS: "owns", "owner of", "ownership"
+   - MANAGES: "manages", "managed by", "manager of"
+   - PART_OF: "part of", "belongs to", "subset of"
+
+   If evidence is weak/indirect, prefer no edge over generic edge inflation.
+
 EXTRACTION GUIDELINES:
 - Extract ALL relationships mentioned in the text
 - Both source and target entities must be from the KNOWN ENTITIES list
