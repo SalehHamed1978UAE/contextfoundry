@@ -355,11 +355,11 @@ def _handle_multipart_upload():
                 category='uncategorized'
             ))
         
-        vault_id = request.form.get('vault_id') or str(uuid.uuid4())
+        vault_id_str = request.form.get('vault_id') or str(uuid.uuid4())
         sync_extract = request.form.get('sync_extract', 'true').lower() == 'true'
-        
+
         result = upload_corpus(
-            vault_id=vault_id,
+            vault_id=vault_id_str,
             corpus_name=vault_name,
             anchor_org=anchor_org or vault_name,
             folder_mappings=folder_mappings,
@@ -508,8 +508,10 @@ def api_create_vault():
                 ext = file_path.suffix.lower()
                 mime_type = mime_types.get(ext, 'application/octet-stream')
                 
+                from uuid import UUID as UUIDType
+
                 doc_service.upload_document(
-                    tenant_id=vault_id,
+                    tenant_id=UUIDType(vault_id) if isinstance(vault_id, str) else vault_id,
                     filename=file_path.name,
                     mime_type=mime_type,
                     file_content=content,
@@ -517,7 +519,7 @@ def api_create_vault():
                 )
                 return True
             except Exception as doc_err:
-                logger.warning(f"Failed to upload {file_path}: {doc_err}")
+                logger.error(f"Failed to upload {file_path}: {doc_err}", exc_info=True)
                 return False
         
         if manifest and manifest.get('documents'):
