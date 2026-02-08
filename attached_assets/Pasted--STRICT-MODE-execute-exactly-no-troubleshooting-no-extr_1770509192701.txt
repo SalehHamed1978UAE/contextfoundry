@@ -1,0 +1,47 @@
+ # STRICT MODE: execute exactly, no troubleshooting, no extra steps
+  set -euo pipefail
+
+  NEW=1d33909b-754e-4dcc-86b4-4cfb0023a6a2
+  echo "BEGIN_RUN $(date -u +%FT%TZ)"
+
+  echo "STEP1_GARDENER_PRE"
+  curl -sS --max-time 20 -X POST http://localhost:5000/api/gardener/run | tee /
+  tmp/gardener_pre.json || echo "GARDENER_PRE_TIMEOUT"
+
+  echo "STEP2_EXTRACT_NEW"
+  python3 -u scripts/run_vault_extraction.py --vault-id "$NEW" --use-ontology
+  2>&1 | tee /tmp/new_extract.log
+
+  echo "STEP3_GARDENER_POST"
+  curl -sS --max-time 20 -X POST http://localhost:5000/api/gardener/run | tee /
+  tmp/gardener_post.json || echo "GARDENER_POST_TIMEOUT"
+
+  echo "STEP4_POSTCHECK_SQL"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS extracted_docs FROM
+  platform.documents WHERE tenant_id='$NEW'::uuid AND status='extracted';"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS rels FROM public.relationships
+  WHERE tenant_id='$NEW'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT COUNT(DISTINCT relationship_type) AS rel_types
+  FROM public.relationships WHERE tenant_id='$NEW'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT relationship_type, COUNT(*) FROM
+  public.relationships WHERE tenant_id='$NEW'::uuid GROUP BY relationship_type
+  ORDER BY COUNT(*) DESC LIMIT 25;"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS zero_rel_docs FROM
+  platform.documents d LEFT JOIN (SELECT source_document_id, COUNT(*) c FROM
+  public.relationships WHERE tenant_id='$NEW'::uuid GROUP BY source_document_id)
+  r ON d.id::text=r.source_document_id WHERE d.tenant_id='$NEW'::uuid AND
+  COALESCE(r.c,0)=0;"
+  psql "$DATABASE_URL" -c "SELECT lifecycle_state, COUNT(*) FROM public.entities
+  WHERE tenant_id='$NEW'::uuid GROUP BY lifecycle_state;"
+
+  echo "STEP5_ARTIFACTS"
+  ls -l /tmp/new_extract.log /tmp/gardener_pre.json /tmp/gardener_post.json 2>/
+  dev/null || true
+  echo "END_RUN $(date -u +%FT%TZ)"
+
+  Then require Replit to return only:
+
+  1. Full stdout/stderr from this block
+  2. /tmp/new_extract.log
+  3. /tmp/gardener_pre.json
+  4. /tmp/gardener_post.json

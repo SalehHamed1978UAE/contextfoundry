@@ -1,0 +1,53 @@
+ Use this exact execution plan (no code changes, no troubleshooting):
+
+  # PRECONDITION: run on the patched commit (you push/pull manually first)
+  NEW=1d33909b-754e-4dcc-86b4-4cfb0023a6a2
+  QSET=67c09370-b458-4717-8244-2caa52ff6475
+
+  # 0) Ensure tree OFF for eval path
+  export CF_TREE_BASED_RETRIEVAL=false
+
+  # 1) Run Gardener once
+  curl -s -X POST http://localhost:5000/api/gardener/run
+
+  # 2) Re-extract NEW vault with ontology
+  python3 -u scripts/run_vault_extraction.py --vault-id "$NEW" --use-ontology
+  2>&1 | tee /tmp/new_extract.log
+
+  # 3) Post-checks (decision gate)
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS extracted_docs FROM
+  platform.documents WHERE tenant_id='$NEW'::uuid AND status='extracted';"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS rels FROM public.relationships
+  WHERE tenant_id='$NEW'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT COUNT(DISTINCT relationship_type) AS rel_types
+  FROM public.relationships WHERE tenant_id='$NEW'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT relationship_type, COUNT(*) FROM
+  public.relationships WHERE tenant_id='$NEW'::uuid GROUP BY relationship_type
+  ORDER BY COUNT(*) DESC LIMIT 25;"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS zero_rel_docs FROM
+  platform.documents d LEFT JOIN (SELECT source_document_id, COUNT(*) c FROM
+  public.relationships WHERE tenant_id='$NEW'::uuid GROUP BY source_document_id)
+  r ON d.id::text=r.source_document_id WHERE d.tenant_id='$NEW'::uuid AND
+  COALESCE(r.c,0)=0;"
+  psql "$DATABASE_URL" -c "SELECT lifecycle_state, COUNT(*) FROM public.entities
+  WHERE tenant_id='$NEW'::uuid GROUP BY lifecycle_state;"
+
+  Gate to proceed:
+
+  1. extracted_docs = 100
+  2. relationship types materially recovered (not ~10; key missing types
+     reappear)
+  3. zero-relationship docs reduced significantly
+  4. relationship total materially improved vs 685
+
+  Only if those pass, run 100Q:
+
+  python3 -m src.test_runner.runner --vault-id "$NEW" --question-set-id "$QSET"
+  --mode auto 2>&1 | tee /tmp/eval_new.log
+
+  Return only raw artifacts:
+
+  - /tmp/new_extract.log
+  - SQL outputs above
+  - /tmp/eval_new.log (if run)
+  - latest test_results/*.json
