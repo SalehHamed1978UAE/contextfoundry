@@ -34,34 +34,36 @@ def strip_markdown(text: str) -> str:
     return text
 
 
-def hard_wrap_long_tokens(line: str, max_len: int = 100) -> list[str]:
-    """
-    Break lines that contain very long tokens (e.g., separators or long code)
-    so fpdf2 can render them without throwing width errors.
-    """
-    if len(line) <= max_len:
-        return [line]
-
-    # If there are no spaces, hard-wrap the line.
-    if " " not in line:
-        return [line[i:i + max_len] for i in range(0, len(line), max_len)]
-
-    # Otherwise, wrap by words.
-    parts = []
-    current = []
-    current_len = 0
-    for word in line.split():
-        word_len = len(word)
-        if current_len + word_len + (1 if current else 0) > max_len:
-            parts.append(" ".join(current))
-            current = [word]
-            current_len = word_len
+def wrap_to_width(pdf, line: str, max_width: float) -> list[str]:
+    """Wrap a line based on rendered width in the active PDF font."""
+    if not line:
+        return [""]
+    words = line.split(" ")
+    lines = []
+    current = ""
+    for word in words:
+        candidate = f"{current} {word}".strip()
+        if pdf.get_string_width(candidate) <= max_width:
+            current = candidate
         else:
-            current.append(word)
-            current_len += word_len + (1 if current_len else 0)
+            if current:
+                lines.append(current)
+            # Hard-break a single oversized word
+            if pdf.get_string_width(word) > max_width:
+                chunk = ""
+                for ch in word:
+                    if pdf.get_string_width(chunk + ch) <= max_width:
+                        chunk += ch
+                    else:
+                        if chunk:
+                            lines.append(chunk)
+                        chunk = ch
+                current = chunk
+            else:
+                current = word
     if current:
-        parts.append(" ".join(current))
-    return parts
+        lines.append(current)
+    return lines
 
 
 def main() -> int:
@@ -105,14 +107,15 @@ def main() -> int:
     pdf.add_page()
     pdf.set_font("Helvetica", size=11)
 
-    # Safely emit lines; if fpdf cannot render a line, truncate and continue.
+    max_width = pdf.w - pdf.l_margin - pdf.r_margin
     for line in text.splitlines():
-        for wrapped in hard_wrap_long_tokens(line, max_len=100):
-            try:
-                pdf.multi_cell(0, 6, wrapped)
-            except Exception:
-                # Skip lines that still fail to render (rare Unicode/formatting edge cases)
+        for wrapped in wrap_to_width(pdf, line, max_width=max_width):
+            if wrapped == "":
+                pdf.ln(6)
                 continue
+            # Ensure cursor is at left margin before writing a line.
+            pdf.set_x(pdf.l_margin)
+            pdf.cell(max_width, 6, wrapped, ln=1)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     pdf.output(str(output_path))
