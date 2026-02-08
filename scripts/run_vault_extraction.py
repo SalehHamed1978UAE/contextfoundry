@@ -696,7 +696,7 @@ def run_ontology_extraction(
                 log(f"    Type: {doc_type}, Entities: {len(result.entities)}, Relations: {len(result.relations)}")
                 
                 if result.staging_result:
-                    log(f"    Staged: {result.staging_result.entities_staged} entities, {result.staging_result.relationships_staged} relationships")
+                    log(f"    Staged: {result.staging_result.entities_created} entities, {result.staging_result.relations_created} relationships")
                 
                 # Mark document as extracted AND update status
                 try:
