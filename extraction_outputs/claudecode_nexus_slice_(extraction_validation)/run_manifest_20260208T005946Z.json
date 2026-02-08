@@ -1,0 +1,75 @@
+{
+  "run_started_at": "2026-02-08T00:58:17.000666",
+  "vault_id": "b158cd16-810a-484d-99a8-8de786602c35",
+  "vault_name": "ClaudeCode Nexus Slice (Extraction Validation)",
+  "mode": "ontology",
+  "tree_based_retrieval": "false",
+  "models": [
+    "gpt-4o-mini",
+    "claude-sonnet"
+  ],
+  "preflight": {
+    "ok": true,
+    "exists": true,
+    "vault_id": "b158cd16-810a-484d-99a8-8de786602c35",
+    "vault_name": "ClaudeCode Nexus Slice (Extraction Validation)",
+    "created_at": "2026-02-06T21:27:47.835208+00:00",
+    "db_identity": {
+      "database_name": "neondb",
+      "database_user": "neondb_owner",
+      "server_addr": "169.254.254.254/32",
+      "server_port": 5432
+    },
+    "documents": {
+      "total": 5,
+      "queued": 4,
+      "processing": 0,
+      "extracted_or_completed": 0
+    },
+    "extraction_requests": {
+      "pending": 0,
+      "processing": 0,
+      "completed": 0,
+      "failed": 0,
+      "total": 0
+    },
+    "knowledge_graph": {
+      "entities_total": 0,
+      "entities_staging": 0,
+      "entities_trusted": 0,
+      "relationships_total": 0,
+      "relationships_staging": 0,
+      "relationships_trusted": 0,
+      "chunks_total": 24,
+      "candidate_relationships_total": 0
+    },
+    "checks": {
+      "vault_exists": true,
+      "has_documents": true,
+      "document_queue_resolvable": true,
+      "db_identity_available": true
+    }
+  },
+  "extraction_summary": {
+    "total_documents": 1,
+    "total_entities": 77,
+    "total_relationships": 14,
+    "total_chunks": 4,
+    "document_types": {
+      "customer_profile": 1
+    },
+    "new_entity_types": [],
+    "new_relationship_types": [],
+    "errors": [
+      "01_boeing_customer_profile.md: 'StagingResult' object has no attribute 'entities_staged'"
+    ],
+    "content_sources": {
+      "chunks": 1,
+      "public.documents": 0,
+      "storage_path": 0,
+      "none": 0
+    }
+  },
+  "run_completed_at": "2026-02-08T00:59:46.914300",
+  "status": "completed"
+}

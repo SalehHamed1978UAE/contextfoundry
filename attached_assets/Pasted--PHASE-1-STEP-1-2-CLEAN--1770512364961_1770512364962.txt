@@ -1,0 +1,264 @@
+ # ═══════════════════════════════════════════════════════════════════
+  # PHASE 1, STEP 1.2: CLEAN 5-DOC SLICE EXTRACTION
+  # DO NOT DEVIATE. DO NOT IMPROVISE. DO NOT MODIFY DB SCHEMA.
+  # ═══════════════════════════════════════════════════════════════════
+
+  set -euo pipefail
+
+  echo "RUN_START $(date -u +%FT%TZ)"
+
+  # ═══ STEP 1: Stop competing processes ═══
+  echo "=== Stopping extraction processes ==="
+  pkill -f "python.*run_vault_extraction" || true
+  pkill -f "python brain/app.py" || true
+  sleep 2
+
+  # ═══ STEP 2: Create new vault via API ═══
+  echo "=== Creating new vault via API ==="
+  VAULT_RESPONSE=$(curl -sS -X POST http://localhost:5000/api/tenants \
+    -H "Content-Type: application/json" \
+    -d '{
+      "name": "Phase1_Slice_Test",
+      "description": "5-document extraction validation slice"
+    }')
+
+  SLICE_VAULT=$(echo "$VAULT_RESPONSE" | jq -r '.id')
+
+  if [ -z "$SLICE_VAULT" ] || [ "$SLICE_VAULT" = "null" ]; then
+    echo "FATAL: Failed to create vault. Response: $VAULT_RESPONSE"
+    exit 1
+  fi
+
+  echo "Created vault: $SLICE_VAULT"
+
+  # ═══ STEP 3: Upload 5 documents via proper pipeline ═══
+  echo "=== Uploading 5 documents ==="
+
+  OLD_VAULT=4668fc6d-c401-46d2-9797-4c8785f4d6ce
+
+  # Document names for the slice
+  DOCS=(
+    "01_boeing_customer_profile.md"
+    "09_nel_hydrogen_supplier.md"
+    "12_supplier_performance_review.md"
+    "14_lockheed_martin_customer.md"
+    "15_first_solar_partner.md"
+  )
+
+  # Find storage paths from OLD vault
+  for doc_name in "${DOCS[@]}"; do
+    STORAGE_PATH=$(psql "$DATABASE_URL" -tA -c "
+      SELECT storage_path 
+      FROM platform.documents 
+      WHERE tenant_id='$OLD_VAULT'::uuid 
+        AND name='$doc_name' 
+      LIMIT 1;
+    ")
+
+    if [ -z "$STORAGE_PATH" ]; then
+      echo "ERROR: Could not find storage path for $doc_name"
+      continue
+    fi
+
+    if [ ! -f "$STORAGE_PATH" ]; then
+      echo "ERROR: File not found at $STORAGE_PATH"
+      continue
+    fi
+
+    echo "Uploading $doc_name..."
+
+    curl -sS -X POST
+  "http://localhost:5000/api/tenants/$SLICE_VAULT/documents" \
+      -F "file=@$STORAGE_PATH" \
+      -F "filename=$doc_name" \
+      || echo "WARNING: Upload failed for $doc_name"
+
+    sleep 1
+  done
+
+  echo "Upload complete. Waiting 5s for processing..."
+  sleep 5
+
+  # ═══ STEP 4: Verify chunks exist ═══
+  echo "=== Verifying chunks ==="
+
+  psql "$DATABASE_URL" -c "
+  SELECT d.name, 
+         d.status,
+         COUNT(c.id) as chunk_count
+  FROM platform.documents d
+  LEFT JOIN public.document_chunks c ON c.document_id = d.id
+  WHERE d.tenant_id='$SLICE_VAULT'::uuid
+  GROUP BY d.name, d.status
+  ORDER BY d.name;
+  "
+
+  CHUNK_CHECK=$(psql "$DATABASE_URL" -tA -c "
+  SELECT COUNT(DISTINCT d.id) as docs_with_chunks
+  FROM platform.documents d
+  JOIN public.document_chunks c ON c.document_id = d.id
+  WHERE d.tenant_id='$SLICE_VAULT'::uuid;
+  ")
+
+  if [ "$CHUNK_CHECK" != "5" ]; then
+    echo "FATAL: Expected 5 docs with chunks, got $CHUNK_CHECK"
+    echo "Check document upload/processing status above"
+    exit 1
+  fi
+
+  echo "✓ All 5 documents have chunks"
+
+  # ═══ STEP 5: Run extraction ═══
+  echo "=== Running ontology extraction on 5-doc slice ==="
+
+  python3 -u scripts/run_vault_extraction.py \
+    --vault-id "$SLICE_VAULT" \
+    --use-ontology \
+    2>&1 | tee /tmp/slice_extract_clean.log
+
+  EXTRACT_EXIT=$?
+  echo "Extraction exit code: $EXTRACT_EXIT"
+
+  if [ $EXTRACT_EXIT -ne 0 ]; then
+    echo "FATAL: Extraction failed with exit code $EXTRACT_EXIT"
+    echo "Check /tmp/slice_extract_clean.log"
+    exit 1
+  fi
+
+  # ═══ STEP 6: Phase 1, Step 1.3 Validation ═══
+  echo ""
+  echo "═══════════════════════════════════════════════════════════════"
+  echo "PHASE 1, STEP 1.3: VALIDATION AGAINST PRE-COMMITTED CRITERIA"
+  echo "═══════════════════════════════════════════════════════════════"
+
+  echo ""
+  echo "=== CRITERION 1: Supply-chain edges extracted (need ≥3 of 5 docs) ==="
+  psql "$DATABASE_URL" -c "
+  SELECT d.name,
+         COUNT(CASE WHEN r.relationship_type IN ('SUPPLIES', 'CUSTOMER_OF', 
+  'PROCURES_FROM', 'SUPPLIER_OF', 'PARTNER_OF') THEN 1 END) as 
+  supply_chain_edges
+  FROM platform.documents d
+  LEFT JOIN public.relationships r ON r.source_document_id = d.id::text AND 
+  r.tenant_id = d.tenant_id
+  WHERE d.tenant_id='$SLICE_VAULT'::uuid
+  GROUP BY d.name
+  ORDER BY supply_chain_edges DESC;
+  "
+
+  SUPPLY_CHAIN_DOCS=$(psql "$DATABASE_URL" -tA -c "
+  SELECT COUNT(DISTINCT d.id)
+  FROM platform.documents d
+  JOIN public.relationships r ON r.source_document_id = d.id::text AND 
+  r.tenant_id = d.tenant_id
+  WHERE d.tenant_id='$SLICE_VAULT'::uuid
+    AND r.relationship_type IN ('SUPPLIES', 'CUSTOMER_OF', 'PROCURES_FROM', 
+  'SUPPLIER_OF', 'PARTNER_OF');
+  ")
+  echo "Documents with supply-chain edges: $SUPPLY_CHAIN_DOCS (need ≥3)"
+
+  echo ""
+  echo "=== CRITERION 2: Boeing typed as ORGANIZATION (not PERSON) ==="
+  psql "$DATABASE_URL" -c "
+  SELECT entity_type, name, COUNT(*)
+  FROM public.entities
+  WHERE tenant_id='$SLICE_VAULT'::uuid
+    AND (name ILIKE '%boeing%' OR name ILIKE '%the boeing company%')
+  GROUP BY entity_type, name;
+  "
+
+  BOEING_PERSON=$(psql "$DATABASE_URL" -tA -c "
+  SELECT COUNT(*)
+  FROM public.entities
+  WHERE tenant_id='$SLICE_VAULT'::uuid
+    AND (name ILIKE '%boeing%' OR name ILIKE '%the boeing company%')
+    AND entity_type = 'PERSON';
+  ")
+  echo "Boeing typed as PERSON: $BOEING_PERSON (must be 0)"
+
+  echo ""
+  echo "=== CRITERION 3: Co-occurrence reduction (WORKS_AT in supplier review)
+   ==="
+  psql "$DATABASE_URL" -c "
+  SELECT d.name, COUNT(*) as works_at_count
+  FROM public.relationships r
+  JOIN platform.documents d ON r.source_document_id = d.id::text AND 
+  r.tenant_id = d.tenant_id
+  WHERE d.tenant_id='$SLICE_VAULT'::uuid
+    AND d.name = '12_supplier_performance_review.md'
+    AND r.relationship_type = 'WORKS_AT'
+  GROUP BY d.name;
+  "
+
+  echo ""
+  echo "=== CRITERION 4: No degree anomalies (no entity > 15 edges) ==="
+  psql "$DATABASE_URL" -c "
+  SELECT e.name, e.entity_type, COUNT(r.id) as edge_count
+  FROM public.entities e
+  LEFT JOIN public.relationships r ON (r.source_id = e.id OR r.target_id = 
+  e.id)
+  WHERE e.tenant_id='$SLICE_VAULT'::uuid
+  GROUP BY e.name, e.entity_type
+  HAVING COUNT(r.id) > 15
+  ORDER BY edge_count DESC
+  LIMIT 10;
+  "
+
+  HIGH_DEGREE=$(psql "$DATABASE_URL" -tA -c "
+  SELECT COUNT(DISTINCT e.id)
+  FROM public.entities e
+  LEFT JOIN public.relationships r ON (r.source_id = e.id OR r.target_id = 
+  e.id)
+  WHERE e.tenant_id='$SLICE_VAULT'::uuid
+  GROUP BY e.id
+  HAVING COUNT(r.id) > 15;
+  ")
+  echo "Entities with >15 edges: $HIGH_DEGREE (must be 0)"
+
+  echo ""
+  echo "=== CRITERION 5: Relationship type distribution ==="
+  psql "$DATABASE_URL" -c "
+  SELECT relationship_type, COUNT(*) as count
+  FROM public.relationships
+  WHERE tenant_id='$SLICE_VAULT'::uuid
+  GROUP BY relationship_type
+  ORDER BY count DESC;
+  "
+
+  echo ""
+  echo "=== Additional: Documents with zero relationships ==="
+  psql "$DATABASE_URL" -c "
+  SELECT d.name
+  FROM platform.documents d
+  LEFT JOIN public.relationships r ON r.source_document_id = d.id::text AND 
+  r.tenant_id = d.tenant_id
+  WHERE d.tenant_id='$SLICE_VAULT'::uuid
+  GROUP BY d.name
+  HAVING COUNT(r.id) = 0;
+  "
+
+  ZERO_REL_DOCS=$(psql "$DATABASE_URL" -tA -c "
+  SELECT COUNT(DISTINCT d.id)
+  FROM platform.documents d
+  LEFT JOIN public.relationships r ON r.source_document_id = d.id::text AND 
+  r.tenant_id = d.tenant_id
+  WHERE d.tenant_id='$SLICE_VAULT'::uuid
+  GROUP BY d.id
+  HAVING COUNT(r.id) = 0;
+  ")
+  echo "Documents with 0 relationships: $ZERO_REL_DOCS"
+
+  echo ""
+  echo "═══════════════════════════════════════════════════════════════"
+  echo "PASS/FAIL SUMMARY"
+  echo "═══════════════════════════════════════════════════════════════"
+  echo "1. Supply-chain docs: $SUPPLY_CHAIN_DOCS (PASS if ≥3)"
+  echo "2. Boeing as PERSON: $BOEING_PERSON (PASS if 0)"
+  echo "3. Co-occurrence: Check WORKS_AT count above (PASS if reduced)"
+  echo "4. Degree anomalies: $HIGH_DEGREE (PASS if 0)"
+  echo "5. Zero-rel docs: $ZERO_REL_DOCS (PASS if low)"
+  echo ""
+  echo "RUN_END $(date -u +%FT%TZ)"
+  echo ""
+  echo "Vault ID: $SLICE_VAULT"
+  echo "Extraction log: /tmp/slice_extract_clean.log"
