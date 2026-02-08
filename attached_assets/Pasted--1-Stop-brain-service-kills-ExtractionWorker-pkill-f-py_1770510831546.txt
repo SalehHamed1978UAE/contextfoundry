@@ -1,0 +1,61 @@
+ # 1. Stop brain service (kills ExtractionWorker)
+  pkill -f "python brain/app.py"
+
+  # 2. Run extraction script cleanly (no worker interference)
+  python3 -u scripts/run_vault_extraction.py --vault-id
+  "1d33909b-754e-4dcc-86b4-4cfb0023a6a2" --use-ontology 2>&1 | tee
+  /tmp/clean_extract.log
+
+  # 3. Restart brain service after extraction completes
+  python brain/app.py > /tmp/brain.log 2>&1 &
+
+ set -euo pipefail
+
+  NEW=1d33909b-754e-4dcc-86b4-4cfb0023a6a2
+
+  # Stop services that run ExtractionWorker
+  pkill -f "python brain/app.py" || true
+  pkill -f "python web_app.py" || true
+  sleep 2
+
+  # Verify no conflicting workers
+  pgrep -af "brain/app.py|web_app.py|run_vault_extraction.py" || true
+
+  # Clean extraction with full logs
+  python3 -u scripts/run_vault_extraction.py --vault-id "$NEW" --use-ontology
+  2>&1 | tee /tmp/clean_extract.log
+
+  # Restart services after extraction
+  python3 brain/app.py >/tmp/brain.log 2>&1 &
+  python3 web_app.py >/tmp/web.log 2>&1 &
+  sleep 8
+
+  # Gardener
+  curl -sS --max-time 30 -X POST http://localhost:5000/api/gardener/run > /tmp/
+  gardener_post.json || echo "GARDENER_TIMEOUT"
+
+  # Post-checks
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS extracted_docs FROM
+  platform.documents WHERE tenant_id='$NEW'::uuid AND status='extracted';"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS rels FROM public.relationships
+  WHERE tenant_id='$NEW'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT COUNT(DISTINCT relationship_type) AS rel_types
+  FROM public.relationships WHERE tenant_id='$NEW'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT relationship_type, COUNT(*) FROM
+  public.relationships WHERE tenant_id='$NEW'::uuid GROUP BY relationship_type
+  ORDER BY COUNT(*) DESC LIMIT 25;"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS zero_rel_docs FROM
+  platform.documents d LEFT JOIN (SELECT source_document_id, COUNT(*) c FROM
+  public.relationships WHERE tenant_id='$NEW'::uuid GROUP BY source_document_id)
+  r ON d.id::text=r.source_document_id WHERE d.tenant_id='$NEW'::uuid AND
+  COALESCE(r.c,0)=0;"
+  psql "$DATABASE_URL" -c "SELECT lifecycle_state, COUNT(*) FROM public.entities
+  WHERE tenant_id='$NEW'::uuid GROUP BY lifecycle_state;"
+
+  Return only:
+
+  1. full terminal output
+  2. /tmp/clean_extract.log
+  3. /tmp/gardener_post.json
+
+
