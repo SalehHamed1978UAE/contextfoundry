@@ -457,7 +457,7 @@ def start_test():
     corpus_folder = data.get('corpus_folder')
     resume_run_id = data.get('resume_run_id')
     run_extraction = bool(data.get('run_extraction', False))
-    tree_based_retrieval = data.get('tree_based_retrieval')
+    tree_based_retrieval = bool(data.get('tree_based_retrieval', False))
     
     if not vault_id:
         return jsonify({'error': 'vault_id is required'}), 400
