@@ -7342,6 +7342,12 @@ def get_inference_metrics():
 
 
 if __name__ == '__main__':
+    run_mode = os.environ.get('CF_RUN_MODE', 'serve')
+    print(f"[Platform] CF_RUN_MODE={run_mode}")
+    if run_mode != 'serve':
+        print(f"[Platform] Not in serve mode, exiting web_app.py")
+        sys.exit(0)
+
     port = 5000
     
     # Check if port is available (skip if started via start.sh)

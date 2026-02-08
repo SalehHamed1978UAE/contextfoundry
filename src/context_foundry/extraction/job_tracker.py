@@ -25,11 +25,25 @@ class JobStatus(str, Enum):
     TIMEOUT = "TIMEOUT"
 
 
+VALID_TRANSITIONS = {
+    'PENDING': {'RUNNING', 'FAILED'},
+    'RUNNING': {'COMPLETE', 'PARTIAL', 'FAILED', 'TIMEOUT'},
+    'FAILED': {'PENDING'},
+    'TIMEOUT': {'PENDING'},
+}
+
+
 class ExtractionJobTracker:
     """Track and manage extraction jobs"""
     
     def __init__(self, db_session):
         self.db = db_session
+    
+    def _guard_transition(self, job_id, current_status, new_status):
+        if current_status not in VALID_TRANSITIONS or new_status not in VALID_TRANSITIONS[current_status]:
+            msg = f"ILLEGAL TRANSITION: {current_status} → {new_status} for job {job_id}"
+            logger.error(msg)
+            raise ValueError(msg)
     
     def create_job(
         self, 
@@ -80,9 +94,18 @@ class ExtractionJobTracker:
         logger.info(f"[JobTracker] Created extraction job {job_id} for document {document_id}")
         return job_id
     
+    def _read_job_status(self, job_id: UUID) -> Optional[str]:
+        row = self.db.execute(text("""
+            SELECT status FROM extraction_jobs WHERE id = :job_id
+        """), {"job_id": job_id}).fetchone()
+        return row[0] if row else None
+
     def start_job(self, job_id: UUID, chunks_total: Optional[int] = None) -> None:
         """Mark job as running with dynamic timeout"""
         
+        current = self._read_job_status(job_id)
+        self._guard_transition(job_id, current, 'RUNNING')
+
         started_at = datetime.utcnow()
         
         if chunks_total:
@@ -141,7 +164,9 @@ class ExtractionJobTracker:
     ) -> None:
         """Mark job as complete or partial"""
         
+        current = self._read_job_status(job_id)
         status = JobStatus.PARTIAL if partial else JobStatus.COMPLETE
+        self._guard_transition(job_id, current, status.value)
         
         self.db.execute(text("""
             UPDATE extraction_jobs 
@@ -164,6 +189,9 @@ class ExtractionJobTracker:
     def fail_job(self, job_id: UUID, error_message: str) -> None:
         """Mark job as failed"""
         
+        current = self._read_job_status(job_id)
+        self._guard_transition(job_id, current, 'FAILED')
+
         self.db.execute(text("""
             UPDATE extraction_jobs 
             SET status = 'FAILED',
@@ -182,6 +210,9 @@ class ExtractionJobTracker:
     def timeout_job(self, job_id: UUID) -> None:
         """Mark job as timed out"""
         
+        current = self._read_job_status(job_id)
+        self._guard_transition(job_id, current, 'TIMEOUT')
+
         self.db.execute(text("""
             UPDATE extraction_jobs 
             SET status = 'TIMEOUT',

@@ -1282,6 +1282,12 @@ def health():
 
 
 if __name__ == '__main__':
+    run_mode = os.environ.get('CF_RUN_MODE', 'serve')
+    logger.info(f"[Brain] CF_RUN_MODE={run_mode}")
+    if run_mode != 'serve':
+        logger.info(f"[Brain] Not in serve mode, exiting brain/app.py")
+        sys.exit(0)
+
     port = int(os.environ.get('BRAIN_PORT', 3000))
     
     # Check if port is available (skip if started via start.sh)

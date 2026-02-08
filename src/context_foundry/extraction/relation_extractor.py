@@ -599,16 +599,19 @@ CRITICAL EXTRACTION RULES:
    - "Strategic Supplier: X" for project/org Y → SUPPLIES(source=X, target=Y)
    - Table with "Supplier Name | Contract Value" → SUPPLIES from supplier to customer
 
-   Examples:
+   Few-shot examples (supplier-profile):
    - Document titled "Nel Hydrogen - Supplier Profile" with "Components: PEM Electrolyzers" for Nexus
      → SUPPLIES(source="Nel Hydrogen", target="Nexus Industries")
    - "First Solar - Supplier Type: Strategic Solar Component Provider"
      → SUPPLIES(source="First Solar", target="Nexus Industries")
-   - "Nexus Industries procures solar panels from First Solar"
-     → SUPPLIES(source="First Solar", target="Nexus Industries") [NOT procures_from]
+
+   Few-shot example (customer-profile control):
+   - "Nexus Industries is a customer of Boeing for aircraft components"
+     → CUSTOMER_OF(source="Nexus Industries", target="Boeing")
+     [Customer is source, supplier is target — opposite direction from SUPPLIES]
 
    ❌ DON'T create generic OWNS/MEMBER_OF when supplier profile context is clear
-   ❌ DON'T reverse the direction: supplier is source, customer is target
+   ❌ DON'T reverse the direction: for SUPPLIES, supplier is source; for CUSTOMER_OF, customer is source
 
 EXTRACTION GUIDELINES:
 - Extract ALL relationships mentioned in the text

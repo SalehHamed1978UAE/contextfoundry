@@ -22,6 +22,7 @@ Usage:
 import argparse
 import json
 import os
+import struct
 import sys
 from pathlib import Path
 from datetime import datetime
@@ -57,12 +58,20 @@ from src.context_foundry.extraction.ontology_centric_pipeline import (
 from src.context_foundry.models.schema import LifecycleState
 from src.context_foundry.ingestion.document_loader import DocumentLoader
 from src.context_foundry.monitoring.vault_consistency import build_vault_preflight_report
+from src.context_foundry.workers.verification_worker import VerificationWorker
+from src.context_foundry.agents.gardener import GardenerAgent, GardenerConfig
 
 try:
     from platform_foundation.src.tenant_service import TenantService
     HAS_TENANT_SERVICE = True
 except ImportError:
     HAS_TENANT_SERVICE = False
+
+
+def vault_lock_key(vault_uuid_str: str) -> int:
+    clean = vault_uuid_str.replace('-', '')
+    first_8_bytes = bytes.fromhex(clean[:16])
+    return struct.unpack('>q', first_8_bytes)[0]
 
 
 def log(msg: str):
@@ -901,7 +910,49 @@ def run_full_pipeline(
     
     vault_id = vault["id"]
     vault_name = vault["name"]
+
+    lock_key = vault_lock_key(vault_id)
+    log(f"[Lock] Vault advisory lock key: {lock_key}")
+    lock_acquired = session.execute(
+        text("SELECT pg_try_advisory_lock(:key)"), {"key": lock_key}
+    ).scalar()
+    if not lock_acquired:
+        log(f"[Lock] ERROR: Could not acquire advisory lock for vault {vault_id}. Another extraction is running.")
+        session.close()
+        return
+
+    log(f"[Lock] Advisory lock acquired for vault {vault_id}")
+
+    try:
+        _run_full_pipeline_body(
+            session, vault_id, vault_name, output_dir, models, limit,
+            skip_extraction, use_ontology, force, lock_key,
+        )
+    finally:
+        session.execute(text("SELECT pg_advisory_unlock(:key)"), {"key": lock_key})
+        log(f"[Lock] Advisory lock released for vault {vault_id}")
+        session.close()
+
+
+def _run_full_pipeline_body(
+    session,
+    vault_id: str,
+    vault_name: str,
+    output_dir: str,
+    models: List[str],
+    limit: Optional[int],
+    skip_extraction: bool,
+    use_ontology: bool,
+    force: bool,
+    lock_key: int,
+):
     run_started_at = datetime.utcnow().isoformat()
+    import subprocess
+    try:
+        git_rev = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], text=True).strip()
+    except Exception:
+        git_rev = "git_unavailable"
+
     run_manifest: Dict[str, Any] = {
         "run_started_at": run_started_at,
         "vault_id": vault_id,
@@ -909,6 +960,9 @@ def run_full_pipeline(
         "mode": "ontology" if use_ontology else "multi_model",
         "tree_based_retrieval": os.environ.get("CF_TREE_BASED_RETRIEVAL"),
         "models": models,
+        "git_rev": git_rev,
+        "is_valid": True,
+        "status": "running",
     }
     
     log(f"Vault: {vault_name}")
@@ -919,7 +973,6 @@ def run_full_pipeline(
     if not preflight_report.get("exists"):
         log("ERROR: Vault UUID not found in platform.tenants for this database connection.")
         log(f"DB identity: {preflight_report.get('db_identity', {})}")
-        session.close()
         return
     log("")
     log("=" * 40)
@@ -947,7 +1000,6 @@ def run_full_pipeline(
     if remaining == 0:
         log("All documents already have multi-model extraction complete!")
         log("Use --skip-extraction to only run consensus/ingestion on existing extractions.")
-        session.close()
         return
     
     pending_documents = get_documents_for_extraction(session, vault_id, limit=limit, skip_multi=True)
@@ -972,9 +1024,20 @@ def run_full_pipeline(
 
         if preflight["unresolved_documents"] > 0 and not force:
             log("")
-            log("ERROR: Preflight found unresolved documents with no readable content.")
+            log("FATAL: Preflight found unresolved documents with no readable content.")
+            log("Chunking failed for at least one document. Run marked INVALID.")
             log("Use --force to proceed anyway, or fix document ingestion for those files first.")
-            session.close()
+            run_manifest["is_valid"] = False
+            run_manifest["invalid_reason"] = f"Preflight: {preflight['unresolved_documents']} docs have 0 chunks and chunking failed"
+            run_manifest["status"] = "invalid"
+            run_manifest["run_completed_at"] = datetime.utcnow().isoformat()
+            vault_slug = vault_name.lower().replace(" ", "_")
+            invalid_dir = Path(output_dir) / vault_slug
+            invalid_dir.mkdir(parents=True, exist_ok=True)
+            invalid_manifest_path = invalid_dir / f"run_manifest_{datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}.json"
+            with open(invalid_manifest_path, "w") as f:
+                json.dump(run_manifest, f, indent=2, default=str)
+            log(f"Invalid run manifest saved to: {invalid_manifest_path}")
             return
     
     # Log start/resume event
@@ -1017,7 +1080,6 @@ def run_full_pipeline(
                 log(f"  Errors: {len(extraction_summary['errors'])}")
             run_manifest["extraction_summary"] = extraction_summary
             
-            session.close()
             run_manifest["run_completed_at"] = datetime.utcnow().isoformat()
             run_manifest["status"] = "completed"
 
@@ -1057,8 +1119,6 @@ def run_full_pipeline(
         log("")
         log("Skipping extraction (--skip-extraction flag)")
     
-    session.close()
-    
     log("")
     log("-" * 70)
     log("PHASE 2-4: Consensus, Validation & Ingestion")
@@ -1093,23 +1153,72 @@ def run_full_pipeline(
                 f"Relationships: {ingest_stats['total_relationships_created']}"
     )
     
-    session = get_db_session()
+    update_session = get_db_session()
     try:
         doc_ids = ingest_stats.get('document_ids', [])
         if doc_ids:
             log(f"Updating extraction_level to 'multi' for {len(doc_ids)} documents...")
-            session.execute(text("""
+            update_session.execute(text("""
                 UPDATE platform.documents
                 SET extraction_level = 'multi', updated_at = NOW()
                 WHERE id = ANY(:doc_ids)
             """), {"doc_ids": doc_ids})
-            session.commit()
+            update_session.commit()
             log("Extraction level updated successfully.")
     except Exception as e:
         log(f"Warning: Failed to update extraction_level: {e}")
     finally:
-        session.close()
+        update_session.close()
     
+    log("")
+    log("-" * 70)
+    log("POST-EXTRACTION: Verification + Promotion")
+    log("-" * 70)
+
+    verification_stats = {}
+    promotion_stats = {}
+
+    verify_session = None
+    try:
+        verify_session = get_db_session()
+        worker = VerificationWorker(session=verify_session, tenant_id=vault_id)
+        verification_stats = worker.run(limit=200)
+        log(f"Verification: {verification_stats.get('facts_processed', 0)} facts processed, "
+            f"{verification_stats.get('verified', 0)} verified, "
+            f"{verification_stats.get('rejected', 0)} rejected")
+    except Exception as e:
+        log(f"WARNING: Verification step failed (non-fatal): {e}")
+        verification_stats = {"error": str(e)}
+    finally:
+        if verify_session:
+            verify_session.close()
+
+    gardener_session = None
+    try:
+        gardener_session = get_db_session()
+        gardener_config = GardenerConfig(
+            require_verification_for_promotion=True,
+            validate_against_ontology=True,
+        )
+        gardener = GardenerAgent(session=gardener_session, config=gardener_config)
+        cycle_id = f"post_extraction_{datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}"
+        promotion_result = gardener.promotion_pass(cycle_id=cycle_id)
+        promotion_stats = promotion_result.to_dict()
+        log(f"Promotion: {promotion_result.entities_promoted} entities promoted, "
+            f"{promotion_result.relationships_promoted} relationships promoted, "
+            f"{promotion_result.entities_blocked} entities blocked, "
+            f"{promotion_result.relationships_blocked} relationships blocked")
+        gardener_session.commit()
+    except Exception as e:
+        log(f"WARNING: Promotion step failed (non-fatal): {e}")
+        promotion_stats = {"error": str(e)}
+    finally:
+        if gardener_session:
+            gardener_session.close()
+
+    run_manifest["verification_stats"] = verification_stats
+    run_manifest["promotion_stats"] = promotion_stats
+
     vault_slug = vault_name.lower().replace(" ", "_")
     summary_dir = Path(output_dir) / vault_slug
     summary_dir.mkdir(parents=True, exist_ok=True)
