@@ -963,6 +963,9 @@ def _run_full_pipeline_body(
         "git_rev": git_rev,
         "is_valid": True,
         "status": "running",
+        "invalid_reason": None,
+        "verification_stats": {},
+        "promotion_stats": {},
     }
     
     log(f"Vault: {vault_name}")
@@ -1079,24 +1082,12 @@ def _run_full_pipeline_body(
             if extraction_summary.get("errors"):
                 log(f"  Errors: {len(extraction_summary['errors'])}")
             run_manifest["extraction_summary"] = extraction_summary
-            
-            run_manifest["run_completed_at"] = datetime.utcnow().isoformat()
-            run_manifest["status"] = "completed"
 
-            vault_slug = vault_name.lower().replace(" ", "_")
-            summary_dir = Path(output_dir) / vault_slug
-            summary_dir.mkdir(parents=True, exist_ok=True)
-            manifest_path = summary_dir / f"run_manifest_{datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}.json"
-            with open(manifest_path, "w") as f:
-                json.dump(run_manifest, f, indent=2, default=str)
-            log(f"Run manifest saved to: {manifest_path}")
-            
+            # Note: Do NOT return here - continue to verification/promotion phase
             log("")
             log("=" * 70)
-            log("ONTOLOGY PIPELINE COMPLETE")
+            log("ONTOLOGY EXTRACTION COMPLETE - PROCEEDING TO VERIFICATION")
             log("=" * 70)
-            log("Note: Ontology pipeline stages directly to KG (no consensus phase needed)")
-            return  # Ontology pipeline is complete - no consensus phase needed
         else:
             log("")
             log("-" * 70)
@@ -1118,57 +1109,59 @@ def _run_full_pipeline_body(
     else:
         log("")
         log("Skipping extraction (--skip-extraction flag)")
-    
-    log("")
-    log("-" * 70)
-    log("PHASE 2-4: Consensus, Validation & Ingestion")
-    log("-" * 70)
-    
-    ingest_stats = run_consensus_and_ingest(vault_id, vault_name, output_dir, limit)
-    
-    if "error" in ingest_stats:
-        log(f"ERROR: {ingest_stats['error']}")
-        return
-    
-    log("")
-    log("=" * 70)
-    log("PIPELINE COMPLETE")
-    log("=" * 70)
-    log(f"Documents processed: {ingest_stats['documents_processed']}")
-    log(f"Entity reduction: {ingest_stats['total_entities_input']} -> {ingest_stats['total_entities_consensus']} ({ingest_stats['entity_reduction_pct']}% reduction)")
-    log(f"Entities created: {ingest_stats['total_entities_created']}")
-    log(f"Entities updated: {ingest_stats['total_entities_updated']}")
-    log(f"Relationships created: {ingest_stats['total_relationships_created']}")
-    log(f"Relationships updated: {ingest_stats['total_relationships_updated']}")
-    log(f"Average quality score: {ingest_stats.get('avg_quality_score', 0):.3f}")
-    if ingest_stats['errors']:
-        log(f"Errors: {len(ingest_stats['errors'])}")
-    log("=" * 70)
-    
-    # Log vault completion event
-    log_extraction_event(
-        vault_id, vault_name, None, None, 'vault_complete',
-        details=f"All {ingest_stats['documents_processed']} documents multi-model extracted. "
-                f"Entities: {ingest_stats['total_entities_created']}, "
-                f"Relationships: {ingest_stats['total_relationships_created']}"
-    )
-    
-    update_session = get_db_session()
-    try:
-        doc_ids = ingest_stats.get('document_ids', [])
-        if doc_ids:
-            log(f"Updating extraction_level to 'multi' for {len(doc_ids)} documents...")
-            update_session.execute(text("""
-                UPDATE platform.documents
-                SET extraction_level = 'multi', updated_at = NOW()
-                WHERE id = ANY(:doc_ids)
-            """), {"doc_ids": doc_ids})
-            update_session.commit()
-            log("Extraction level updated successfully.")
-    except Exception as e:
-        log(f"Warning: Failed to update extraction_level: {e}")
-    finally:
-        update_session.close()
+
+    # Consensus phase only applies to multi-model extraction, not ontology
+    if not use_ontology:
+        log("")
+        log("-" * 70)
+        log("PHASE 2-4: Consensus, Validation & Ingestion")
+        log("-" * 70)
+
+        ingest_stats = run_consensus_and_ingest(vault_id, vault_name, output_dir, limit)
+
+        if "error" in ingest_stats:
+            log(f"ERROR: {ingest_stats['error']}")
+            return
+
+        log("")
+        log("=" * 70)
+        log("PIPELINE COMPLETE")
+        log("=" * 70)
+        log(f"Documents processed: {ingest_stats['documents_processed']}")
+        log(f"Entity reduction: {ingest_stats['total_entities_input']} -> {ingest_stats['total_entities_consensus']} ({ingest_stats['entity_reduction_pct']}% reduction)")
+        log(f"Entities created: {ingest_stats['total_entities_created']}")
+        log(f"Entities updated: {ingest_stats['total_entities_updated']}")
+        log(f"Relationships created: {ingest_stats['total_relationships_created']}")
+        log(f"Relationships updated: {ingest_stats['total_relationships_updated']}")
+        log(f"Average quality score: {ingest_stats.get('avg_quality_score', 0):.3f}")
+        if ingest_stats['errors']:
+            log(f"Errors: {len(ingest_stats['errors'])}")
+        log("=" * 70)
+
+        # Log vault completion event
+        log_extraction_event(
+            vault_id, vault_name, None, None, 'vault_complete',
+            details=f"All {ingest_stats['documents_processed']} documents multi-model extracted. "
+                    f"Entities: {ingest_stats['total_entities_created']}, "
+                    f"Relationships: {ingest_stats['total_relationships_created']}"
+        )
+
+        update_session = get_db_session()
+        try:
+            doc_ids = ingest_stats.get('document_ids', [])
+            if doc_ids:
+                log(f"Updating extraction_level to 'multi' for {len(doc_ids)} documents...")
+                update_session.execute(text("""
+                    UPDATE platform.documents
+                    SET extraction_level = 'multi', updated_at = NOW()
+                    WHERE id = ANY(:doc_ids)
+                """), {"doc_ids": doc_ids})
+                update_session.commit()
+                log("Extraction level updated successfully.")
+        except Exception as e:
+            log(f"Warning: Failed to update extraction_level: {e}")
+        finally:
+            update_session.close()
     
     log("")
     log("-" * 70)
@@ -1219,26 +1212,36 @@ def _run_full_pipeline_body(
     run_manifest["verification_stats"] = verification_stats
     run_manifest["promotion_stats"] = promotion_stats
 
+    # Mark run invalid if verification or promotion failed
+    if verification_stats.get("error") or promotion_stats.get("error"):
+        run_manifest["is_valid"] = False
+        run_manifest["invalid_reason"] = f"Verification/Promotion failed: verify={verification_stats.get('error', 'ok')}, promote={promotion_stats.get('error', 'ok')}"
+        run_manifest["status"] = "invalid"
+
     vault_slug = vault_name.lower().replace(" ", "_")
     summary_dir = Path(output_dir) / vault_slug
     summary_dir.mkdir(parents=True, exist_ok=True)
-    summary_path = summary_dir / "pipeline_summary.json"
-    
-    with open(summary_path, 'w') as f:
-        json.dump({
-            **ingest_stats,
-            "vault_name": vault_name,
-            "vault_id": vault_id,
-            "models": models,
-            "completed_at": datetime.utcnow().isoformat(),
-        }, f, indent=2, default=str)
-    
-    log(f"\nSummary saved to: {summary_path}")
 
-    run_manifest["consensus_ingestion_summary"] = ingest_stats
-    run_manifest["pipeline_summary_path"] = str(summary_path)
+    # Save consensus summary only for multi-model mode
+    if not use_ontology:
+        summary_path = summary_dir / "pipeline_summary.json"
+        with open(summary_path, 'w') as f:
+            json.dump({
+                **ingest_stats,
+                "vault_name": vault_name,
+                "vault_id": vault_id,
+                "models": models,
+                "completed_at": datetime.utcnow().isoformat(),
+            }, f, indent=2, default=str)
+        log(f"\nSummary saved to: {summary_path}")
+        run_manifest["consensus_ingestion_summary"] = ingest_stats
+        run_manifest["pipeline_summary_path"] = str(summary_path)
+
     run_manifest["run_completed_at"] = datetime.utcnow().isoformat()
-    run_manifest["status"] = "completed"
+    # Only set completed if not already marked invalid
+    if run_manifest["status"] != "invalid":
+        run_manifest["status"] = "completed"
+
     manifest_path = summary_dir / f"run_manifest_{datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}.json"
     with open(manifest_path, "w") as f:
         json.dump(run_manifest, f, indent=2, default=str)
