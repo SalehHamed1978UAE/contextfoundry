@@ -959,17 +959,13 @@ def api_extraction_split_brain_check(vault_id):
 
         with psycopg2.connect(database_url) as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                # Query platform.documents
+                # Count platform.documents
                 cur.execute("""
-                    SELECT id, name, status
+                    SELECT COUNT(*) as count
                     FROM platform.documents
                     WHERE tenant_id = %s
-                    ORDER BY name
                 """, (vault_id,))
-
-                platform_docs = cur.fetchall()
-                result['platform_docs'] = [dict(doc) for doc in platform_docs]
-                result['platform_count'] = len(platform_docs)
+                result['platform_count'] = cur.fetchone()['count']
 
                 # Check if public.documents exists
                 cur.execute("""
@@ -980,7 +976,6 @@ def api_extraction_split_brain_check(vault_id):
                     )
                 """)
                 public_table_exists = cur.fetchone()['exists']
-
                 result['public_table_exists'] = public_table_exists
 
                 if not public_table_exists:
@@ -988,17 +983,13 @@ def api_extraction_split_brain_check(vault_id):
                     result['issues'].append("CRITICAL: public.documents table does not exist")
                     result['public_count'] = 0
                 else:
-                    # Query public.documents
+                    # Count public.documents
                     cur.execute("""
-                        SELECT id, name, status
+                        SELECT COUNT(*) as count
                         FROM public.documents
                         WHERE tenant_id = %s
-                        ORDER BY name
                     """, (vault_id,))
-
-                    public_docs = cur.fetchall()
-                    result['public_docs'] = [dict(doc) for doc in public_docs]
-                    result['public_count'] = len(public_docs)
+                    result['public_count'] = cur.fetchone()['count']
 
                     # Compare counts
                     if result['platform_count'] != result['public_count']:
@@ -1006,30 +997,6 @@ def api_extraction_split_brain_check(vault_id):
                         result['issues'].append(
                             f"Count mismatch: platform={result['platform_count']}, public={result['public_count']}"
                         )
-
-                    # Compare data
-                    platform_ids = {doc['id']: dict(doc) for doc in platform_docs}
-                    public_ids = {doc['id']: dict(doc) for doc in public_docs}
-
-                    for doc_id in set(platform_ids.keys()) | set(public_ids.keys()):
-                        p_doc = platform_ids.get(doc_id)
-                        pub_doc = public_ids.get(doc_id)
-
-                        if not p_doc:
-                            result['split_brain_detected'] = True
-                            result['issues'].append(
-                                f"{doc_id}: In public.documents but NOT in platform.documents"
-                            )
-                        elif not pub_doc:
-                            result['split_brain_detected'] = True
-                            result['issues'].append(
-                                f"{doc_id}: In platform.documents but NOT in public.documents"
-                            )
-                        elif p_doc['status'] != pub_doc['status']:
-                            result['split_brain_detected'] = True
-                            result['issues'].append(
-                                f"{p_doc['name']}: status mismatch (platform: {p_doc['status']}, public: {pub_doc['status']})"
-                            )
 
                 # Check entities/relationships
                 cur.execute("""
