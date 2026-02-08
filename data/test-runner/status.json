@@ -1,13 +1,22 @@
 {
+  "status": "running",
+  "vault_id": "2dc7516e-9863-4b0a-a7d3-9f63bb7a23ca",
+  "question_set_id": "3ae50773-8747-4a69-a0e7-94dcec6e4843",
+  "test_run_id": "e2a1077f-4bb8-41b0-9c85-90f49c470ca8",
+  "mode": "auto",
+  "run_extraction": true,
+  "corpus_folder": null,
+  "started_at": "2026-02-08T04:43:37.973538",
+  "pid": 4496,
   "stages": {
     "delete": {
-      "status": "pending"
+      "status": "skipped"
     },
     "create": {
-      "status": "pending"
+      "status": "skipped"
     },
     "upload": {
-      "status": "pending"
+      "status": "skipped"
     },
     "extract": {
       "status": "pending"
@@ -16,5 +25,12 @@
       "status": "pending"
     }
   },
-  "updated_at": "2026-02-08T04:16:45.911770"
+  "qa_progress": {
+    "total": 0,
+    "answered": 0,
+    "passed": 0,
+    "failed": 0,
+    "accuracy_percent": 0
+  },
+  "current_question": null
 }
