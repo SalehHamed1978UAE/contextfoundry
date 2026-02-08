@@ -418,6 +418,8 @@ def start_test():
         mode: 'auto' or 'fresh' (default: 'auto')
             - auto: Use existing vault, run Q&A against it
             - fresh: Delete vault, upload from corpus_folder, extract, then run Q&A
+        run_extraction: bool (optional, auto mode only)
+            - true: Re-queue extraction for all documents before Q&A
         corpus_folder: Path to corpus folder (required for fresh mode)
         resume_run_id: UUID of a previous run to resume (optional)
     """
@@ -434,6 +436,7 @@ def start_test():
     mode = data.get('mode', 'auto')
     corpus_folder = data.get('corpus_folder')
     resume_run_id = data.get('resume_run_id')
+    run_extraction = bool(data.get('run_extraction', False))
     
     if not vault_id:
         return jsonify({'error': 'vault_id is required'}), 400
@@ -499,6 +502,8 @@ def start_test():
     
     if mode == 'auto' and vault_id:
         cmd.extend(['--vault-id', vault_id])
+        if run_extraction:
+            cmd.append('--run-extraction')
     
     if corpus_folder:
         cmd.extend(['--corpus-folder', corpus_folder])
@@ -507,7 +512,7 @@ def start_test():
         'delete': {'status': 'pending' if mode == 'fresh' else 'skipped'},
         'create': {'status': 'pending' if mode == 'fresh' else 'skipped'},
         'upload': {'status': 'pending' if mode == 'fresh' else 'skipped'},
-        'extract': {'status': 'pending' if mode == 'fresh' else 'skipped'},
+        'extract': {'status': 'pending' if (mode == 'fresh' or run_extraction) else 'skipped'},
         'qa': {'status': 'pending'}
     }
     
@@ -517,6 +522,7 @@ def start_test():
         'question_set_id': question_set_id,
         'test_run_id': test_run_id,
         'mode': mode,
+        'run_extraction': run_extraction if mode == 'auto' else False,
         'corpus_folder': corpus_folder,
         'started_at': datetime.now().isoformat(),
         'pid': None,
@@ -742,6 +748,59 @@ def stop_test():
             'test_run_id': test_run_id,
             'status': 'interrupted'
         })
+    except Exception as e:
+        return jsonify({'error': f'Failed to stop test: {str(e)}'}), 500
+
+
+@test_runner_api.route('/stop/<test_run_id>', methods=['POST'])
+@require_auth
+def stop_test_by_id(test_run_id):
+    """Stop a specific test by its ID.
+
+    Args:
+        test_run_id: UUID of the test run to stop
+    """
+    try:
+        # Get the specific test run from database
+        db = persistence_get_db_session()
+        try:
+            result = db.execute(text("""
+                SELECT id, pid, status, vault_name
+                FROM test_runs
+                WHERE id = :test_id
+            """), {'test_id': test_run_id})
+            row = result.fetchone()
+
+            if not row:
+                return jsonify({'error': f'Test run {test_run_id} not found'}), 404
+
+            test_id, pid, status, vault_name = row
+
+            # Check if test is actually running
+            if status not in ACTIVE_STATUSES:
+                return jsonify({
+                    'error': f'Test is not running (status: {status})',
+                    'current_status': status
+                }), 400
+
+            # Kill process if PID available
+            if pid:
+                try:
+                    os.killpg(os.getpgid(pid), signal.SIGTERM)
+                except (ProcessLookupError, OSError):
+                    pass  # Process already dead
+
+            # Update status in database
+            transition_to(str(test_id), TestRunStatus.INTERRUPTED, error_message='Manually stopped by user')
+
+            return jsonify({
+                'message': f'Test stopped: {vault_name or test_id}',
+                'test_run_id': str(test_id),
+                'status': 'interrupted'
+            })
+        finally:
+            db.close()
+
     except Exception as e:
         return jsonify({'error': f'Failed to stop test: {str(e)}'}), 500
 

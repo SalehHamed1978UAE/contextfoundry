@@ -1007,6 +1007,16 @@
                             </label>
                         </div>
                     </div>
+                    <div class="form-group conditional-group" id="runExtractionGroup" style="margin-top: 8px;">
+                        <label class="form-label">Extraction (Auto Mode)</label>
+                        <label class="radio-option" style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="runExtractionCheckbox">
+                            <span>Run extraction before Q&amp;A</span>
+                        </label>
+                        <div style="margin-top: 4px; font-size: 12px; color: var(--text-muted);">
+                            Queues extraction requests for all documents in the selected vault.
+                        </div>
+                    </div>
                     <div class="form-group conditional-group" id="corpusFolderGroup">
                         <label class="form-label">Corpus Folder (for Fresh mode)</label>
                         <select id="corpusSelect" class="form-select">
@@ -1398,8 +1408,11 @@
                 const status = (run.status || '').toLowerCase();
                 const resultsFile = run.results_file || '';
                 
-                if (status === 'running') {
-                    actionButtons = `<button class="btn btn-sm btn-ghost" onclick="scrollToCurrentTest()">View Progress</button>`;
+                if (status === 'running' || status === 'in_progress' || status === 'creating_vault' || status === 'uploading' || status === 'extracting' || status === 'running_qa') {
+                    actionButtons = `
+                        <button class="btn btn-sm btn-danger" onclick="stopTestById('${run.id}', '${escapeHtml(run.vault_name || '')}')">Stop</button>
+                        <button class="btn btn-sm btn-ghost" onclick="scrollToCurrentTest()">View Progress</button>
+                    `;
                 } else if (status === 'completed' || status === 'complete' || status === 'finished') {
                     actionButtons = `
                         <button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View Results</button>
@@ -2132,6 +2145,7 @@
             const questionSetId = document.getElementById('questionSetSelect').value;
             const mode = document.querySelector('input[name="mode"]:checked').value;
             const corpusFolder = document.getElementById('corpusSelect').value;
+            const runExtraction = document.getElementById('runExtractionCheckbox')?.checked || false;
             
             if (!vaultId) {
                 alert('Please select a vault');
@@ -2151,7 +2165,8 @@
             const body = {
                 vault_id: vaultId,
                 question_set_id: questionSetId,
-                mode: mode
+                mode: mode,
+                run_extraction: mode === 'auto' ? runExtraction : false
             };
             
             if (mode === 'fresh' && corpusFolder) {
@@ -2185,9 +2200,9 @@
                 const response = await fetch('/api/test-runner/stop', {
                     method: 'POST'
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (response.ok) {
                     addLog('Test stopped', 'warning');
                     fetchStatus();
@@ -2199,7 +2214,31 @@
                 addLog(`Error: ${error.message}`, 'error');
             }
         }
-        
+
+        async function stopTestById(testRunId, vaultName) {
+            if (!confirm(`Stop test for "${vaultName}"?\n\nThis will interrupt the extraction/Q&A process.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/test-runner/stop/${testRunId}`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    addLog(`Test stopped: ${vaultName || testRunId}`, 'warning');
+                    fetchStatus();
+                    fetchHistory();
+                } else {
+                    addLog(`Failed to stop test: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Error stopping test: ${error.message}`, 'error');
+            }
+        }
+
         async function uploadQuestionSet() {
             const fileInput = document.getElementById('questionFile');
             const file = fileInput.files[0];
@@ -2244,11 +2283,14 @@
         function toggleCorpusFolderVisibility() {
             const mode = document.querySelector('input[name="mode"]:checked').value;
             const corpusGroup = document.getElementById('corpusFolderGroup');
+            const extractionGroup = document.getElementById('runExtractionGroup');
             
             if (mode === 'fresh') {
                 corpusGroup.classList.add('visible');
+                extractionGroup.classList.remove('visible');
             } else {
                 corpusGroup.classList.remove('visible');
+                extractionGroup.classList.add('visible');
             }
         }
         
