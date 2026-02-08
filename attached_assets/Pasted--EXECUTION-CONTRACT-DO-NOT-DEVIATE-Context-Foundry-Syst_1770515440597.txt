@@ -1,0 +1,239 @@
+ # ✅ EXECUTION CONTRACT — DO NOT DEVIATE
+
+  Context Foundry System Repair
+
+  Authority: Saleh (Product Owner)
+  Rule: If any step fails, STOP and report. No improvisation.
+
+  ———
+
+  ## GLOBAL RULES
+
+  - No retrieval/routing changes.
+  - No manual KG SQL surgery outside app/script codepaths.
+  - Only listed files per phase may be edited.
+  - No git pull/reset/rebase unless explicitly requested by Saleh.
+  - Every phase output must include git rev-parse --short HEAD.
+  - No evals before Phase 6 passes.
+
+  ———
+
+  ## GLOBAL FORBIDDEN SCOPE
+
+  Do NOT edit:
+
+  - src/context_foundry/agents/retrieval*.py
+  - src/context_foundry/agents/query_classifier.py
+  - src/context_foundry/agents/reasoning.py
+  - src/context_foundry/retrieval/tree_retriever.py
+
+  ———
+
+  # PHASE 1 — Runtime Modes
+
+  Allowed files:
+
+  - start.sh
+  - brain/app.py
+  - web_app.py
+
+  Tasks:
+
+  1. Add CF_RUN_MODE=serve|extract|verify
+  2. serve: API/UI only (no extraction worker)
+  3. extract: extraction worker only
+  4. verify: promotion/verifier only
+  5. Ensure CF_TREE_BASED_RETRIEVAL is never overridden
+
+  Stop Condition:
+
+  - If you cannot enforce run modes without side‑effects, STOP.
+
+  Required Outputs:
+
+  - Commit PHASE1
+  - git rev-parse --short HEAD
+  - pgrep -af "brain/app.py|web_app.py" output in each mode
+  - Log snippet showing mode at startup
+
+  ———
+
+  # PHASE 2 — Extraction Lock + FSM + Status
+
+  Allowed files:
+
+  - scripts/run_vault_extraction.py
+  - extraction worker entrypoint
+
+  Tasks:
+
+  1. Add vault advisory lock (fail if locked).
+  2. Enforce job FSM: PENDING→RUNNING→COMPLETE/FAILED
+  3. Standardize doc status writes (no invalid status).
+  4. On success: status='extracted', extraction_level='ontology'
+  5. Skip docs already extraction_level='ontology'
+
+  Stop Condition:
+
+  - If you cannot enforce lock and FSM, STOP.
+
+  Required Outputs:
+
+  - Commit PHASE2
+  - git rev-parse --short HEAD
+  - SQL proof:
+
+  SELECT status, COUNT(*) FROM extraction_jobs GROUP BY status;
+  SELECT COUNT(*) FROM platform.documents WHERE tenant_id='<vault>' AND
+  status='extracted';
+  SELECT COUNT(*) FROM platform.documents WHERE tenant_id='<vault>' AND
+  extraction_level='ontology';
+
+  ———
+
+  # PHASE 3 — Ingestion Unification
+
+  Allowed files:
+
+  - upload API handlers in web_app.py
+  - upload utilities used by UI/API
+  - preflight in scripts/run_vault_extraction.py
+
+  Tasks:
+
+  1. UI/API upload is canonical ingestion route
+  2. Recursive folder upload works in UI/API path
+  3. Preflight guarantees chunks before extraction
+
+  Stop Condition:
+
+  - If you cannot guarantee chunks without DB edits, STOP.
+
+  Required Outputs:
+
+  - Commit PHASE3
+  - git rev-parse --short HEAD
+  - SQL proof:
+
+  SELECT COUNT(*) FROM platform.documents WHERE tenant_id='<vault>';
+  SELECT COUNT(*) FROM public.document_chunks WHERE tenant_id='<vault>';
+  SELECT d.name
+  FROM platform.documents d
+  LEFT JOIN public.document_chunks c ON c.document_id=d.id
+  WHERE d.tenant_id='<vault>'::uuid
+  GROUP BY d.id,d.name
+  HAVING COUNT(c.id)=0;
+
+  ———
+
+  # PHASE 4 — Extraction Correctness (Prompt + Mapping)
+
+  Allowed files:
+
+  - src/context_foundry/extraction/relation_extractor.py
+  - src/context_foundry/extraction/multi_extractor.py
+  - src/context_foundry/extraction/staging_loader.py
+
+  Tasks:
+
+  1. Keep ontology type preservation (no synonym collapse).
+  2. Add supplier‑profile directionality rules + examples.
+  3. No retrieval/routing changes.
+
+  Stop Condition:
+
+  - If supplier‑profile changes touch downstream files, STOP.
+
+  Required Outputs:
+
+  - Commit PHASE4
+  - git rev-parse --short HEAD
+  - Slice SQL proof:
+
+  SELECT relationship_type, COUNT(*)
+  FROM public.relationships
+  WHERE tenant_id='<slice>'::uuid
+  GROUP BY relationship_type
+  ORDER BY COUNT(*) DESC;
+
+  SELECT COUNT(*) AS docs_with_sc
+  FROM (
+    SELECT d.id
+    FROM platform.documents d
+    JOIN public.relationships r ON r.source_document_id=d.id::text AND
+  r.tenant_id=d.tenant_id
+    WHERE d.tenant_id='<slice>'::uuid
+      AND r.relationship_type IN ('SUPPLIES','CUSTOMER_OF','PROCURES_FROM')
+    GROUP BY d.id
+  ) t;
+
+  ———
+
+  # PHASE 5 — Promotion / Verification
+
+  Allowed files:
+
+  - promotion/verifier module
+  - scheduler/trigger entrypoints
+
+  Tasks:
+
+  1. Deterministic promotion after extraction
+  2. Verified facts → TRUSTED
+  3. No STAGING‑only vaults after run
+
+  Stop Condition:
+
+  - If TRUSTED remains 0 after clean run, STOP.
+
+  Required Outputs:
+
+  - Commit PHASE5
+  - git rev-parse --short HEAD
+  - SQL proof:
+
+  SELECT lifecycle_state, COUNT(*) FROM public.entities WHERE
+  tenant_id='<vault>'::uuid GROUP BY lifecycle_state;
+  SELECT lifecycle_state, COUNT(*) FROM public.relationships WHERE
+  tenant_id='<vault>'::uuid GROUP BY lifecycle_state;
+
+  ———
+
+  # PHASE 6 — Observability + Run Validity
+
+  Allowed files:
+
+  - run manifest writer
+  - extraction pipeline status outputs
+
+  Tasks:
+
+  1. Emit run manifest (commit SHA, vault_id, mode, flags, start/end, processed
+     docs, failures)
+  2. Mark invalid runs explicitly if partial/contended
+
+  Stop Condition:
+
+  - If run manifest missing required keys, STOP.
+
+  Required Outputs:
+
+  - Commit PHASE6
+  - git rev-parse --short HEAD
+  - Manifest file path + sample content
+
+  ———
+
+  # REQUIRED MORNING DELIVERABLES
+
+  1. Commit list by phase
+  2. Diffstat by phase
+  3. Run manifest
+  4. System health SQL outputs
+  5. Extraction logs
+  6. Promotion logs
+  7. Eval result only if Phase 6 passes
+
+  ———
+
+  Do not deviate. If anything is unclear or blocked, STOP and report.
