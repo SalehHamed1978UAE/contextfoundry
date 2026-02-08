@@ -109,10 +109,6 @@ def startup_cleanup():
         logger.warning(f"[Startup Cleanup] Failed to cleanup running tests: {e}")
 
 
-# Run startup cleanup when module is imported
-startup_cleanup()
-
-
 def require_auth(f):
     """Decorator to require authentication for API endpoints."""
     @wraps(f)
@@ -131,6 +127,27 @@ def get_db_session():
     engine = create_engine(database_url)
     Session = sessionmaker(bind=engine)
     return Session()
+
+
+def ensure_test_runner_schema():
+    """Ensure test_runs has required config columns for deterministic test runs."""
+    try:
+        session = get_db_session()
+        try:
+            session.execute(text("""
+                ALTER TABLE IF EXISTS test_runs
+                ADD COLUMN IF NOT EXISTS tree_based_retrieval BOOLEAN NOT NULL DEFAULT FALSE
+            """))
+            session.commit()
+        finally:
+            session.close()
+    except Exception as e:
+        logger.warning(f"[Startup Schema] Failed to ensure test_runner schema: {e}")
+
+
+# Run one-time schema check and startup cleanup when module is imported
+ensure_test_runner_schema()
+startup_cleanup()
 
 
 def read_status_file():
@@ -420,6 +437,9 @@ def start_test():
             - fresh: Delete vault, upload from corpus_folder, extract, then run Q&A
         run_extraction: bool (optional, auto mode only)
             - true: Re-queue extraction for all documents before Q&A
+        tree_based_retrieval: bool (required)
+            - true: enable tree-based retrieval for this run
+            - false: disable tree-based retrieval for this run
         corpus_folder: Path to corpus folder (required for fresh mode)
         resume_run_id: UUID of a previous run to resume (optional)
     """
@@ -437,6 +457,7 @@ def start_test():
     corpus_folder = data.get('corpus_folder')
     resume_run_id = data.get('resume_run_id')
     run_extraction = bool(data.get('run_extraction', False))
+    tree_based_retrieval = data.get('tree_based_retrieval')
     
     if not vault_id:
         return jsonify({'error': 'vault_id is required'}), 400
@@ -449,6 +470,9 @@ def start_test():
     
     if mode == 'fresh' and not corpus_folder:
         return jsonify({'error': 'corpus_folder is required for fresh mode'}), 400
+
+    if not isinstance(tree_based_retrieval, bool):
+        return jsonify({'error': 'tree_based_retrieval must be a boolean'}), 400
     
     db_session = get_db_session()
     try:
@@ -470,7 +494,7 @@ def start_test():
         db_session = get_db_session()
         try:
             verify_result = db_session.execute(text("""
-                SELECT vault_id, question_set_id, status 
+                SELECT vault_id, question_set_id, status, tree_based_retrieval
                 FROM test_runs WHERE id = :id
             """), {'id': resume_run_id})
             row = verify_result.fetchone()
@@ -480,6 +504,11 @@ def start_test():
                 return jsonify({'error': 'Resume run does not match vault/question set'}), 400
             if row[2] != 'interrupted':
                 return jsonify({'error': f'Cannot resume a {row[2]} test. Start a new test instead.'}), 400
+            original_tree_flag = bool(row[3])
+            if tree_based_retrieval != original_tree_flag:
+                return jsonify({
+                    'error': f'resume must use original tree_based_retrieval={original_tree_flag}'
+                }), 400
         finally:
             db_session.close()
         
@@ -492,13 +521,15 @@ def start_test():
             vault_name=vault_name,
             question_set_id=question_set_id,
             question_set_name=question_set_name,
-            questions_total=0
+            questions_total=0,
+            tree_based_retrieval=tree_based_retrieval
         )
     
     cmd = ['python', '-m', 'src.test_runner.runner', 
            '--question-set-id', question_set_id,
            '--mode', mode,
-           '--test-run-id', test_run_id]
+           '--test-run-id', test_run_id,
+           '--tree-based-retrieval', 'true' if tree_based_retrieval else 'false']
     
     if mode == 'auto' and vault_id:
         cmd.extend(['--vault-id', vault_id])
@@ -523,6 +554,7 @@ def start_test():
         'test_run_id': test_run_id,
         'mode': mode,
         'run_extraction': run_extraction if mode == 'auto' else False,
+        'tree_based_retrieval': tree_based_retrieval,
         'corpus_folder': corpus_folder,
         'started_at': datetime.now().isoformat(),
         'pid': None,
@@ -553,6 +585,7 @@ def start_test():
         
         env = os.environ.copy()
         env['PYTHONUNBUFFERED'] = '1'
+        env['CF_TREE_BASED_RETRIEVAL'] = 'true' if tree_based_retrieval else 'false'
         
         process = subprocess.Popen(
             cmd,
@@ -582,6 +615,7 @@ def start_test():
             'vault_id': vault_id,
             'test_run_id': test_run_id,
             'mode': mode,
+            'tree_based_retrieval': tree_based_retrieval,
             'command': ' '.join(cmd)
         }), 202
     except Exception as e:
@@ -668,6 +702,7 @@ def get_test_status():
             'vault_name': db_test['vault_name'],
             'question_set_id': db_test['question_set_id'],
             'question_set_name': db_test['question_set_name'],
+            'tree_based_retrieval': db_test.get('tree_based_retrieval', False),
             'stage': db_test['stage'],
             'started_at': format_timestamp(db_test.get('started_at')),
             'qa_progress': {
@@ -981,7 +1016,7 @@ def get_test_history():
                 id, vault_id, vault_name, question_set_id, question_set_name,
                 mode, corpus_folder, status, stage, started_at, completed_at,
                 questions_total, questions_answered, questions_passed, questions_failed,
-                error_message, results_file
+                tree_based_retrieval, error_message, results_file
             FROM test_runs
             ORDER BY COALESCE(started_at, created_at) DESC
             LIMIT :limit OFFSET :offset
@@ -1005,8 +1040,9 @@ def get_test_history():
                 'questions_answered': row[12],
                 'questions_passed': row[13],
                 'questions_failed': row[14],
-                'error_message': row[15],
-                'results_file': row[16]
+                'tree_based_retrieval': bool(row[15]),
+                'error_message': row[16],
+                'results_file': row[17]
             })
         
         count_result = session.execute(text("SELECT COUNT(*) FROM test_runs"))
@@ -1033,7 +1069,7 @@ def get_test_results(test_id: UUID):
                 id, vault_id, vault_name, question_set_id, question_set_name,
                 mode, corpus_folder, status, stage, started_at, completed_at,
                 questions_total, questions_answered, questions_passed, questions_failed,
-                checkpoint, error_message
+                checkpoint, tree_based_retrieval, error_message
             FROM test_runs
             WHERE id = :id
         """), {'id': str(test_id)})
@@ -1092,7 +1128,8 @@ def get_test_results(test_id: UUID):
                 'questions_passed': run_row[13],
                 'questions_failed': run_row[14],
                 'checkpoint': run_row[15],
-                'error_message': run_row[16]
+                'tree_based_retrieval': bool(run_row[16]),
+                'error_message': run_row[17]
             },
             'results': results,
             'failure_breakdown': failure_breakdown

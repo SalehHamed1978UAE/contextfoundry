@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 import time
 from datetime import datetime
@@ -291,6 +292,9 @@ class TestExecutor:
             "timestamp": datetime.now().isoformat(),
             "corpus": corpus_name,
             "vault_id": vault_id,
+            "config": {
+                "tree_based_retrieval": os.environ.get("CF_TREE_BASED_RETRIEVAL", "false").lower() == "true"
+            },
             "vault_stats": {
                 "chunks": chunk_count,
                 "entities": entity_count,

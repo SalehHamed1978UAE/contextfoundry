@@ -83,7 +83,8 @@ def create_test_run(
     vault_name: Optional[str],
     question_set_id: str,
     question_set_name: str,
-    questions_total: int
+    questions_total: int,
+    tree_based_retrieval: bool = False,
 ) -> str:
     """
     Create a new test run with appropriate initial status.
@@ -109,10 +110,12 @@ def create_test_run(
                 INSERT INTO test_runs (
                     status, mode, vault_id, vault_name, question_set_id, question_set_name,
                     questions_total, questions_answered, questions_passed, questions_failed,
+                    tree_based_retrieval,
                     created_at, heartbeat_at, started_at
                 ) VALUES (
                     :status, :mode, :vault_id, :vault_name, :question_set_id, :question_set_name,
                     :questions_total, 0, 0, 0,
+                    :tree_based_retrieval,
                     :created_at, :heartbeat_at, :started_at
                 ) RETURNING id
             """),
@@ -124,6 +127,7 @@ def create_test_run(
                 'question_set_id': question_set_id,
                 'question_set_name': question_set_name,
                 'questions_total': questions_total,
+                'tree_based_retrieval': tree_based_retrieval,
                 'created_at': now,
                 'heartbeat_at': now,
                 'started_at': now if mode == 'auto' else None,
@@ -292,6 +296,7 @@ def get_running_test() -> Optional[Dict[str, Any]]:
                 SELECT id, status, mode, vault_id, vault_name, question_set_id, question_set_name,
                        questions_total, questions_answered, questions_passed, questions_failed,
                        current_question, created_at, started_at, completed_at, heartbeat_at,
+                       tree_based_retrieval,
                        error_message, results_file
                 FROM test_runs
                 WHERE status IN ('creating_vault', 'uploading', 'extracting', 'running_qa')
@@ -330,8 +335,9 @@ def get_running_test() -> Optional[Dict[str, Any]]:
             'started_at': row[13],
             'completed_at': row[14],
             'heartbeat_at': row[15],
-            'error_message': row[16],
-            'results_file': row[17],
+            'tree_based_retrieval': bool(row[16]),
+            'error_message': row[17],
+            'results_file': row[18],
             'stage': stage,
             'checkpoint': row[8],  # questions_answered is the checkpoint
         }
@@ -384,6 +390,7 @@ def get_test_run(run_id: str) -> Optional[Dict[str, Any]]:
                 SELECT id, status, mode, vault_id, vault_name, question_set_id,
                        questions_total, questions_answered, questions_passed, questions_failed,
                        current_question, created_at, started_at, completed_at, heartbeat_at,
+                       tree_based_retrieval,
                        error_message, results_file
                 FROM test_runs
                 WHERE id = :id
@@ -410,8 +417,9 @@ def get_test_run(run_id: str) -> Optional[Dict[str, Any]]:
             'started_at': row[12],
             'completed_at': row[13],
             'heartbeat_at': row[14],
-            'error_message': row[15],
-            'results_file': row[16],
+            'tree_based_retrieval': bool(row[15]),
+            'error_message': row[16],
+            'results_file': row[17],
         }
     finally:
         session.close()

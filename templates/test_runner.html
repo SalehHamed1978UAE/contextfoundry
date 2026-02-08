@@ -1007,6 +1007,13 @@
                             </label>
                         </div>
                     </div>
+                    <div class="form-group" style="margin-top: 8px;">
+                        <label class="form-label">Tree Retrieval</label>
+                        <select id="treeFlagSelect" class="form-select">
+                            <option value="false" selected>OFF (recommended)</option>
+                            <option value="true">ON</option>
+                        </select>
+                    </div>
                     <div class="form-group conditional-group" id="runExtractionGroup" style="margin-top: 8px;">
                         <label class="form-label">Extraction (Auto Mode)</label>
                         <label class="radio-option" style="display: flex; align-items: center; gap: 8px;">
@@ -1062,6 +1069,10 @@
                         <div class="status-item">
                             <div class="status-label">Started</div>
                             <div class="status-value" id="startedValue" style="font-size: 16px;">-</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">Tree</div>
+                            <div class="status-value" id="treeFlagValue" style="font-size: 16px;">-</div>
                         </div>
                     </div>
                     
@@ -1407,6 +1418,7 @@
                 let actionButtons = '';
                 const status = (run.status || '').toLowerCase();
                 const resultsFile = run.results_file || '';
+                const treeFlag = !!run.tree_based_retrieval;
                 
                 if (status === 'running' || status === 'in_progress' || status === 'creating_vault' || status === 'uploading' || status === 'extracting' || status === 'running_qa') {
                     actionButtons = `
@@ -1420,14 +1432,14 @@
                     `;
                 } else if (status === 'interrupted' || status === 'stopped') {
                     actionButtons = `
-                        <button class="btn btn-sm btn-primary" onclick="resumeTest('${run.vault_id}', '${run.question_set_id}', '${run.id}')">Resume</button>
+                        <button class="btn btn-sm btn-primary" onclick="resumeTest('${run.vault_id}', '${run.question_set_id}', '${run.id}', ${treeFlag})">Resume</button>
                         <button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View Results</button>
                         <button class="btn btn-sm btn-ghost" onclick="downloadResultsFile('${run.vault_id}', '${escapeHtml(run.vault_name || '')}')">Download</button>
                     `;
                 } else if (status === 'failed') {
                     actionButtons = `
                         <button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View Logs</button>
-                        <button class="btn btn-sm btn-primary" onclick="retryTest('${run.vault_id}', '${run.question_set_id}', '${run.corpus_folder || ''}')">Retry</button>
+                        <button class="btn btn-sm btn-primary" onclick="retryTest('${run.vault_id}', '${run.question_set_id}', '${run.corpus_folder || ''}', ${treeFlag})">Retry</button>
                     `;
                 } else {
                     actionButtons = `<button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View</button>`;
@@ -1436,7 +1448,7 @@
                 const startedAt = run.started_at || '-';
                 const outputFile = resultsFile ? resultsFile.split('/').pop() : '-';
                 const progressHtml = run.questions_answered > 0 
-                    ? `${progress} <span style="color: var(--success);">&check;${run.questions_passed || 0}</span> <span style="color: var(--error);">&times;${(run.questions_answered || 0) - (run.questions_passed || 0)}</span>`
+                    ? `${progress} <span style="color: var(--success);">&check;${run.questions_passed || 0}</span> <span style="color: var(--error);">&times;${(run.questions_answered || 0) - (run.questions_passed || 0)}</span> <span style="color: var(--text-muted); margin-left: 6px;">Tree ${treeFlag ? 'ON' : 'OFF'}</span>`
                     : progress;
                 
                 return `
@@ -1471,7 +1483,7 @@
             document.getElementById('currentTestPanel').scrollIntoView({ behavior: 'smooth' });
         }
         
-        async function resumeTest(vaultId, questionSetId, resumeRunId, buttonEl) {
+        async function resumeTest(vaultId, questionSetId, resumeRunId, treeBasedRetrieval = false, buttonEl) {
             if (!vaultId || !questionSetId) {
                 addLog('Cannot resume: missing vault or question set ID', 'error');
                 return;
@@ -1492,7 +1504,8 @@
                 const body = {
                     vault_id: vaultId,
                     question_set_id: questionSetId,
-                    mode: 'auto'
+                    mode: 'auto',
+                    tree_based_retrieval: !!treeBasedRetrieval
                 };
                 if (resumeRunId) {
                     body.resume_run_id = resumeRunId;
@@ -1530,7 +1543,7 @@
             }
         }
         
-        async function restartInterruptedTest(vaultId, questionSetId) {
+        async function restartInterruptedTest(vaultId, questionSetId, treeBasedRetrieval = false) {
             if (!vaultId || !questionSetId) {
                 addLog('Cannot restart: missing vault or question set ID', 'error');
                 return;
@@ -1543,7 +1556,8 @@
                     body: JSON.stringify({
                         vault_id: vaultId,
                         question_set_id: questionSetId,
-                        mode: 'auto'
+                        mode: 'auto',
+                        tree_based_retrieval: !!treeBasedRetrieval
                     })
                 });
                 
@@ -1562,7 +1576,7 @@
             }
         }
         
-        async function retryTest(vaultId, questionSetId, corpusFolder) {
+        async function retryTest(vaultId, questionSetId, corpusFolder, treeBasedRetrieval = false) {
             if (!vaultId || !questionSetId) {
                 addLog('Cannot retry: missing vault or question set ID', 'error');
                 return;
@@ -1571,7 +1585,8 @@
             const body = {
                 vault_id: vaultId,
                 question_set_id: questionSetId,
-                mode: corpusFolder ? 'fresh' : 'auto'
+                mode: corpusFolder ? 'fresh' : 'auto',
+                tree_based_retrieval: !!treeBasedRetrieval
             };
             
             if (corpusFolder) {
@@ -1948,6 +1963,7 @@
             const vaultNameValue = document.getElementById('vaultNameValue');
             const qsNameValue = document.getElementById('qsNameValue');
             const startedValue = document.getElementById('startedValue');
+            const treeFlagValue = document.getElementById('treeFlagValue');
             const passedValue = document.getElementById('passedValue');
             const failedValue = document.getElementById('failedValue');
             const accuracyValue = document.getElementById('accuracyValue');
@@ -1986,6 +2002,7 @@
             
             // started_at is already formatted as DD/MM/YYYY HH:MM by the API
             startedValue.textContent = status.started_at || '-';
+            treeFlagValue.textContent = status.tree_based_retrieval ? 'ON' : 'OFF';
             
             updatePipelineStages(status.stages || {});
             
@@ -2025,18 +2042,18 @@
                 if (status.message) {
                     currentQuestionBox.style.display = 'block';
                     if (status.test_run_id) {
-                        currentQuestionText.innerHTML = `
+                            currentQuestionText.innerHTML = `
                             <span style="color: var(--accent-warning);">${status.message}</span>
                             <button class="btn btn-sm btn-primary" style="margin-left: 12px;" 
-                                    onclick="resumeTest('${status.vault_id}', '${status.question_set_id}', '${status.test_run_id}')">
+                                    onclick="resumeTest('${status.vault_id}', '${status.question_set_id}', '${status.test_run_id}', ${!!status.tree_based_retrieval})">
                                 Resume Test
                             </button>
                         `;
                     } else {
-                        currentQuestionText.innerHTML = `
+                            currentQuestionText.innerHTML = `
                             <span style="color: var(--accent-warning);">${status.message}</span>
                             <button class="btn btn-sm btn-primary" style="margin-left: 12px;" 
-                                    onclick="restartInterruptedTest('${status.vault_id}', '${status.question_set_id}')">
+                                    onclick="restartInterruptedTest('${status.vault_id}', '${status.question_set_id}', ${!!status.tree_based_retrieval})">
                                 Restart Test
                             </button>
                         `;
@@ -2146,6 +2163,7 @@
             const mode = document.querySelector('input[name="mode"]:checked').value;
             const corpusFolder = document.getElementById('corpusSelect').value;
             const runExtraction = document.getElementById('runExtractionCheckbox')?.checked || false;
+            const treeBasedRetrieval = (document.getElementById('treeFlagSelect')?.value || 'false') === 'true';
             
             if (!vaultId) {
                 alert('Please select a vault');
@@ -2166,7 +2184,8 @@
                 vault_id: vaultId,
                 question_set_id: questionSetId,
                 mode: mode,
-                run_extraction: mode === 'auto' ? runExtraction : false
+                run_extraction: mode === 'auto' ? runExtraction : false,
+                tree_based_retrieval: treeBasedRetrieval
             };
             
             if (mode === 'fresh' && corpusFolder) {

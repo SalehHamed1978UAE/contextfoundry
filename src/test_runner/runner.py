@@ -125,7 +125,15 @@ def list_corpora(config: TestConfig):
     print("\n" + "=" * 60)
 
 
-def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder: str = None, config: TestConfig = None, test_run_id: str = None):
+def run_vault_test(
+    vault_id: str,
+    question_set_id: str,
+    mode: str,
+    corpus_folder: str = None,
+    config: TestConfig = None,
+    test_run_id: str = None,
+    expected_tree_based_retrieval: bool | None = None,
+):
     """
     Run test for a vault with 5-stage status tracking.
     
@@ -154,6 +162,16 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
     log(f"TEST RUNNER: Vault {vault_display}... ({mode.upper()} mode)")
     if test_run_id:
         log(f"Test Run ID: {test_run_id}")
+    effective_tree = os.environ.get("CF_TREE_BASED_RETRIEVAL", "false").lower() == "true"
+    log(f"Effective CF_TREE_BASED_RETRIEVAL={effective_tree}")
+    if expected_tree_based_retrieval is not None and effective_tree != expected_tree_based_retrieval:
+        msg = (
+            f"retrieval_flag_mismatch: expected={expected_tree_based_retrieval} "
+            f"effective={effective_tree}"
+        )
+        log(f"ERROR: {msg}")
+        update_status('qa', stage_status='failed', overall_status='failed', error=msg)
+        return None
     log("=" * 70)
     
     update_status(overall_status='running')
@@ -644,6 +662,12 @@ Examples:
     parser.add_argument('--resume', action='store_true', help='Resume from previous progress (only use for interrupted tests)')
     parser.add_argument('--config', type=str, default='src/test_config.json', help='Config file path')
     parser.add_argument('--test-run-id', type=str, help='Database test run ID (for persistence)')
+    parser.add_argument(
+        '--tree-based-retrieval',
+        type=str,
+        choices=['true', 'false'],
+        help='Expected retrieval flag for this run (must match effective env)'
+    )
     
     args = parser.parse_args()
     
@@ -652,13 +676,17 @@ Examples:
     if args.list:
         list_corpora(config)
     elif args.question_set_id:
+        expected_tree_flag = None
+        if args.tree_based_retrieval is not None:
+            expected_tree_flag = args.tree_based_retrieval.lower() == 'true'
         run_vault_test(
             vault_id=args.vault_id,
             question_set_id=args.question_set_id,
             mode=args.mode,
             corpus_folder=args.corpus_folder,
             config=config,
-            test_run_id=args.test_run_id
+            test_run_id=args.test_run_id,
+            expected_tree_based_retrieval=expected_tree_flag
         )
     elif args.corpus:
         run_corpus_test(args.corpus, config, 
