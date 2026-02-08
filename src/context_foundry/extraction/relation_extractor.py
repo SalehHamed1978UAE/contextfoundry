@@ -589,6 +589,27 @@ CRITICAL EXTRACTION RULES:
    - If entity type seems wrong, skip that relationship rather than create incorrect data
    - People are PERSON, companies are ORGANIZATION - never mix these up
 
+4. SUPPLIER PROFILE DIRECTIONALITY
+   Supplier profiles describe relationships FROM the supplier's perspective. Extract these as supply-chain edges:
+
+   ✅ CORRECT patterns:
+   - "Supplier Name: X" in organizational context → SUPPLIES(source=X, target=org/project)
+   - "X supplies to Y" → SUPPLIES(source=X, target=Y)
+   - "Y procures from X" → SUPPLIES(source=X, target=Y) [same direction as "X supplies to Y"]
+   - "Strategic Supplier: X" for project/org Y → SUPPLIES(source=X, target=Y)
+   - Table with "Supplier Name | Contract Value" → SUPPLIES from supplier to customer
+
+   Examples:
+   - Document titled "Nel Hydrogen - Supplier Profile" with "Components: PEM Electrolyzers" for Nexus
+     → SUPPLIES(source="Nel Hydrogen", target="Nexus Industries")
+   - "First Solar - Supplier Type: Strategic Solar Component Provider"
+     → SUPPLIES(source="First Solar", target="Nexus Industries")
+   - "Nexus Industries procures solar panels from First Solar"
+     → SUPPLIES(source="First Solar", target="Nexus Industries") [NOT procures_from]
+
+   ❌ DON'T create generic OWNS/MEMBER_OF when supplier profile context is clear
+   ❌ DON'T reverse the direction: supplier is source, customer is target
+
 EXTRACTION GUIDELINES:
 - Extract ALL relationships mentioned in the text
 - Both source and target entities must be from the KNOWN ENTITIES list
