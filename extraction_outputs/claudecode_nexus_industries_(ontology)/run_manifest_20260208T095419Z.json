@@ -1,0 +1,112 @@
+{
+  "run_started_at": "2026-02-08T09:49:39.629558",
+  "vault_id": "4668fc6d-c401-46d2-9797-4c8785f4d6ce",
+  "vault_name": "ClaudeCode Nexus Industries (Ontology)",
+  "mode": "ontology",
+  "tree_based_retrieval": "false",
+  "models": [
+    "gpt-4o-mini",
+    "claude-sonnet"
+  ],
+  "git_rev": "17150ace",
+  "is_valid": true,
+  "status": "completed",
+  "invalid_reason": null,
+  "verification_stats": {
+    "facts_processed": 0,
+    "verified": 0,
+    "rejected": 0,
+    "needs_review": 0,
+    "errors": 0,
+    "tokens_used": 0
+  },
+  "promotion_stats": {
+    "entities_promoted": 0,
+    "relationships_promoted": 0,
+    "entities_blocked": 12827,
+    "relationships_blocked": 5836,
+    "block_reasons": {
+      "evidence_not_verified": 12625,
+      "pending_duplicate": 137,
+      "confidence_too_low_DATA_BREACH": 1,
+      "confidence_too_low_START_DATE": 2,
+      "confidence_too_low_FINANCIAL_METRIC": 40,
+      "confidence_too_low_FACILITY": 23,
+      "confidence_too_low_POLICY": 2,
+      "confidence_too_low_LOCATION": 7,
+      "confidence_too_low_CONCEPT": 1,
+      "confidence_too_low_SUPPLIER": 1,
+      "confidence_too_low_PRODUCT": 1,
+      "confidence_too_low_BUSINESS_UNIT": 2,
+      "confidence_too_low_PERSON": 2,
+      "confidence_too_low_REVENUE_TARGET": 1,
+      "confidence_too_low_PROJECT": 7,
+      "confidence_too_low_SERVICE": 1,
+      "endpoints_not_trusted": 5432,
+      "confidence_too_low": 378
+    },
+    "errors": [],
+    "duration_seconds": 257.101559
+  },
+  "preflight": {
+    "ok": true,
+    "exists": true,
+    "vault_id": "4668fc6d-c401-46d2-9797-4c8785f4d6ce",
+    "vault_name": "ClaudeCode Nexus Industries (Ontology)",
+    "created_at": "2026-02-03T20:13:27.600999+00:00",
+    "db_identity": {
+      "database_name": "neondb",
+      "database_user": "neondb_owner",
+      "server_addr": "169.254.254.254/32",
+      "server_port": 5432
+    },
+    "documents": {
+      "total": 100,
+      "queued": 0,
+      "processing": 0,
+      "extracted_or_completed": 0
+    },
+    "extraction_requests": {
+      "pending": 0,
+      "processing": 0,
+      "completed": 100,
+      "failed": 1,
+      "total": 101
+    },
+    "knowledge_graph": {
+      "entities_total": 0,
+      "entities_staging": 0,
+      "entities_trusted": 0,
+      "relationships_total": 0,
+      "relationships_staging": 0,
+      "relationships_trusted": 0,
+      "chunks_total": 501,
+      "candidate_relationships_total": 0
+    },
+    "checks": {
+      "vault_exists": true,
+      "has_documents": true,
+      "document_queue_resolvable": true,
+      "db_identity_available": true
+    }
+  },
+  "extraction_summary": {
+    "total_documents": 100,
+    "total_entities": 0,
+    "total_relationships": 0,
+    "total_chunks": 0,
+    "document_types": {
+      "cached": 100
+    },
+    "new_entity_types": [],
+    "new_relationship_types": [],
+    "errors": [],
+    "content_sources": {
+      "chunks": 100,
+      "public.documents": 0,
+      "storage_path": 0,
+      "none": 0
+    }
+  },
+  "run_completed_at": "2026-02-08T09:54:19.137595"
+}
