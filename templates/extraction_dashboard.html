@@ -156,6 +156,13 @@ tr:hover {
 
 .btn-primary:hover { background: #2563eb; }
 
+.btn-danger {
+    background: #ef4444;
+    color: #fff;
+}
+
+.btn-danger:hover { background: #dc2626; }
+
 .btn-secondary {
     background: transparent;
     border: 1px solid #334155;
@@ -471,7 +478,11 @@ function renderVaultQueue(vaults) {
                 <td class="stat-num">${failedCount}</td>
                 <td>${formatTimeAgo(v.last_updated)}</td>
                 <td class="action-btns">
-                    <button class="btn btn-primary btn-sm" onclick="resumeVault('${v.vault_id}')">Resume</button>
+                    ${status === 'in_progress' ? `
+                        <button class="btn btn-danger btn-sm" onclick="stopVault('${v.vault_id}', '${(v.name || v.vault_id).replace(/'/g, "\\'")}')">Stop</button>
+                    ` : `
+                        <button class="btn btn-primary btn-sm" onclick="resumeVault('${v.vault_id}')">Resume</button>
+                    `}
                     <button class="btn btn-secondary btn-sm" onclick="showMetrics('${v.vault_id}', '${(v.name || v.vault_id).replace(/'/g, "\\'")}')">Metrics</button>
                 </td>
             </tr>
@@ -527,6 +538,28 @@ async function resumeVault(vaultId) {
         }
     } catch (e) {
         console.error('Failed to resume vault:', e);
+    }
+}
+
+async function stopVault(vaultId, vaultName) {
+    if (!confirm(`Stop extraction for "${vaultName}"?\n\nThis will kill the extraction worker process.`)) {
+        return;
+    }
+
+    try {
+        const resp = await fetch(`/api/extraction/stop/${vaultId}`, { method: 'POST' });
+        const data = await resp.json();
+
+        if (resp.ok) {
+            alert(`Extraction stopped for ${vaultName}`);
+            fetchOverview();
+            fetchEvents();
+        } else {
+            alert(`Failed to stop extraction: ${data.error || 'Unknown error'}`);
+        }
+    } catch (e) {
+        console.error('Failed to stop vault:', e);
+        alert(`Error stopping extraction: ${e.message}`);
     }
 }
 

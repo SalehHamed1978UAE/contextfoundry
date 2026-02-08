@@ -872,6 +872,72 @@ def api_extraction_cancel(vault_id):
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/extraction/stop/<vault_id>', methods=['POST'])
+def api_extraction_stop(vault_id):
+    """Stop extraction worker processes for a vault by killing them."""
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    import psutil
+    import signal
+
+    try:
+        database_url = os.environ.get('DATABASE_URL')
+
+        # Log stop event
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT name FROM platform.tenants WHERE id = %s
+                """, (vault_id,))
+                vault = cur.fetchone()
+                vault_name = vault['name'] if vault else None
+
+                cur.execute("""
+                    INSERT INTO platform.extraction_events
+                    (vault_id, vault_name, event_type, details)
+                    VALUES (%s, %s, 'stopped', 'Extraction worker killed via Stop button')
+                    RETURNING id
+                """, (vault_id, vault_name))
+                event_id = cur.fetchone()['id']
+                conn.commit()
+
+        # Find and kill extraction worker processes
+        killed_pids = []
+        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+            try:
+                cmdline = proc.info.get('cmdline') or []
+                cmdline_str = ' '.join(cmdline)
+
+                # Look for Python processes running extraction_worker
+                if ('python' in proc.info['name'].lower() and
+                    'extraction_worker' in cmdline_str and
+                    vault_id in cmdline_str):
+                    logger.info(f"Killing extraction worker PID {proc.info['pid']} for vault {vault_id}")
+                    proc.send_signal(signal.SIGTERM)
+                    killed_pids.append(proc.info['pid'])
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
+
+        if killed_pids:
+            return jsonify({
+                'success': True,
+                'event_id': event_id,
+                'killed_pids': killed_pids,
+                'message': f'Killed {len(killed_pids)} extraction worker(s)'
+            })
+        else:
+            return jsonify({
+                'success': True,
+                'event_id': event_id,
+                'killed_pids': [],
+                'message': 'No running extraction workers found for this vault'
+            })
+
+    except Exception as e:
+        logger.error(f"Stop extraction failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 doc_service = None
 
 def get_document_service():
