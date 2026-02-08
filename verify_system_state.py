@@ -84,7 +84,7 @@ def verify_vault_state(vault_id: str):
                     status,
                     COUNT(*) as count,
                     array_agg(name ORDER BY name) as doc_names
-                FROM public.documents
+                FROM platform.documents
                 WHERE tenant_id = %s
                 GROUP BY status
                 ORDER BY status
