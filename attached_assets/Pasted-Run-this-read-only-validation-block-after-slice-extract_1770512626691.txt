@@ -1,0 +1,148 @@
+Run this read-only validation block after slice extraction finishes:
+
+  set -euo pipefail
+  SLICE="<YOUR_SLICE_VAULT_ID>"
+  BASE="<OLD_BASELINE_SLICE_VAULT_ID>"   # if available for criterion 3/5 diff
+
+  echo "=== Basic counts ==="
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS docs FROM platform.documents WHERE
+  tenant_id='$SLICE'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS chunks FROM public.document_chunks
+  WHERE tenant_id='$SLICE'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS entities FROM public.entities
+  WHERE tenant_id='$SLICE'::uuid;"
+  psql "$DATABASE_URL" -c "SELECT COUNT(*) AS rels FROM public.relationships
+  WHERE tenant_id='$SLICE'::uuid;"
+
+  echo "=== Criterion 1: Supply-chain edges (only SUPPLIES/CUSTOMER_OF/
+  PROCURES_FROM) ==="
+  psql "$DATABASE_URL" -c "
+  SELECT d.name,
+         COUNT(*) FILTER (WHERE r.relationship_type IN
+  ('SUPPLIES','CUSTOMER_OF','PROCURES_FROM')) AS sc_edges
+  FROM platform.documents d
+  LEFT JOIN public.relationships r
+    ON r.source_document_id=d.id::text AND r.tenant_id=d.tenant_id
+  WHERE d.tenant_id='$SLICE'::uuid
+  GROUP BY d.name
+  ORDER BY sc_edges DESC, d.name;
+  "
+  psql "$DATABASE_URL" -c "
+  SELECT COUNT(*) AS docs_with_sc
+  FROM (
+    SELECT d.id
+    FROM platform.documents d
+    JOIN public.relationships r
+      ON r.source_document_id=d.id::text AND r.tenant_id=d.tenant_id
+    WHERE d.tenant_id='$SLICE'::uuid
+      AND r.relationship_type IN ('SUPPLIES','CUSTOMER_OF','PROCURES_FROM')
+    GROUP BY d.id
+  ) t;
+  "
+
+  echo "=== Criterion 2: Boeing must be ORGANIZATION (no PERSON) ==="
+  psql "$DATABASE_URL" -c "
+  SELECT entity_type, name, COUNT(*) AS n
+  FROM public.entities
+  WHERE tenant_id='$SLICE'::uuid
+    AND name ILIKE '%boeing%'
+  GROUP BY entity_type, name
+  ORDER BY n DESC, entity_type, name;
+  "
+  psql "$DATABASE_URL" -c "
+  SELECT COUNT(*) AS boeing_as_person
+  FROM public.entities
+  WHERE tenant_id='$SLICE'::uuid
+    AND name ILIKE '%boeing%'
+    AND entity_type='PERSON';
+  "
+
+  echo "=== Criterion 3: Co-occurrence WORKS_AT reduction (>50%) ==="
+  psql "$DATABASE_URL" -c "
+  SELECT COUNT(*) AS works_at_supplier_review
+  FROM public.relationships r
+  JOIN platform.documents d
+    ON r.source_document_id=d.id::text AND r.tenant_id=d.tenant_id
+  WHERE d.tenant_id='$SLICE'::uuid
+    AND d.name='12_supplier_performance_review.md'
+    AND r.relationship_type='WORKS_AT';
+  "
+  # baseline compare (requires BASE vault with same doc)
+  psql "$DATABASE_URL" -c "
+  SELECT COUNT(*) AS baseline_works_at_supplier_review
+  FROM public.relationships r
+  JOIN platform.documents d
+    ON r.source_document_id=d.id::text AND r.tenant_id=d.tenant_id
+  WHERE d.tenant_id='$BASE'::uuid
+    AND d.name='12_supplier_performance_review.md'
+    AND r.relationship_type='WORKS_AT';
+  "
+
+  echo "=== Criterion 4: No degree anomalies (>15 edges) ==="
+  psql "$DATABASE_URL" -c "
+  SELECT e.name, e.entity_type, COUNT(r.id) AS degree
+  FROM public.entities e
+  LEFT JOIN public.relationships r
+    ON (r.source_id=e.id OR r.target_id=e.id)
+  WHERE e.tenant_id='$SLICE'::uuid
+  GROUP BY e.id, e.name, e.entity_type
+  HAVING COUNT(r.id) > 15
+  ORDER BY degree DESC
+  LIMIT 20;
+  "
+  psql "$DATABASE_URL" -c "
+  SELECT COUNT(*) AS entities_gt_15
+  FROM (
+    SELECT e.id
+    FROM public.entities e
+    LEFT JOIN public.relationships r
+      ON (r.source_id=e.id OR r.target_id=e.id)
+    WHERE e.tenant_id='$SLICE'::uuid
+    GROUP BY e.id
+    HAVING COUNT(r.id) > 15
+  ) t;
+  "
+
+  echo "=== Criterion 5: Regression diff vs baseline slice (relationship type
+  mix) ==="
+  psql "$DATABASE_URL" -c "
+  WITH b AS (
+    SELECT relationship_type, COUNT(*) c
+    FROM public.relationships
+    WHERE tenant_id='$BASE'::uuid
+    GROUP BY relationship_type
+  ),
+  s AS (
+    SELECT relationship_type, COUNT(*) c
+    FROM public.relationships
+    WHERE tenant_id='$SLICE'::uuid
+    GROUP BY relationship_type
+  )
+  SELECT COALESCE(b.relationship_type,s.relationship_type) AS relationship_type,
+         COALESCE(b.c,0) AS base_count,
+         COALESCE(s.c,0) AS slice_count,
+         COALESCE(s.c,0)-COALESCE(b.c,0) AS delta
+  FROM b FULL OUTER JOIN s USING (relationship_type)
+  ORDER BY delta ASC, relationship_type;
+  "
+
+  echo "=== Extra: docs with zero relationships ==="
+  psql "$DATABASE_URL" -c "
+  SELECT d.name
+  FROM platform.documents d
+  LEFT JOIN public.relationships r
+    ON r.source_document_id=d.id::text AND r.tenant_id=d.tenant_id
+  WHERE d.tenant_id='$SLICE'::uuid
+  GROUP BY d.id, d.name
+  HAVING COUNT(r.id)=0
+  ORDER BY d.name;
+  "
+
+  Pass/fail gate:
+
+  1. docs_with_sc >= 3
+  2. boeing_as_person = 0
+  3. works_at_supplier_review <= 50% of baseline_works_at_supplier_review
+  4. entities_gt_15 = 0
+  5. No unacceptable regressions in relationship types that previously worked
+
