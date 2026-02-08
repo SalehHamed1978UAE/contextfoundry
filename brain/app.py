@@ -6,7 +6,7 @@ import threading
 import time
 import signal
 import socket
-from datetime import datetime
+from datetime import datetime, timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -53,7 +53,7 @@ def shutdown_handler(signum, frame):
 signal.signal(signal.SIGTERM, shutdown_handler)
 signal.signal(signal.SIGINT, shutdown_handler)
 
-from flask import Flask
+from flask import Flask, request
 from brain.routes.internal import internal_bp
 from src.decision_trace_layer.api import dtl_bp
 from src.context_foundry.dtl.dtl_http import dtl_core_bp
@@ -75,12 +75,22 @@ app.register_blueprint(learning_bp)
 scheduler = None
 extraction_worker_thread = None
 extraction_worker_running = False
+extraction_supervisor_thread = None
+extraction_supervisor_running = False
+extraction_worker_lock = threading.Lock()
 extraction_worker_stats = {
     "last_run": None,
+    "last_heartbeat": None,
     "requests_processed": 0,
     "last_error": None,
-    "is_running": False
+    "is_running": False,
+    "last_restart_at": None,
+    "restart_count": 0
 }
+
+EXTRACTION_SUPERVISOR_ENABLED = os.environ.get("CF_EXTRACTION_SUPERVISOR_ENABLED", "true").lower() in ("1", "true", "yes")
+EXTRACTION_SUPERVISOR_INTERVAL_SECONDS = int(os.environ.get("CF_EXTRACTION_SUPERVISOR_INTERVAL_SECONDS", "15"))
+EXTRACTION_WORKER_STALE_SECONDS = int(os.environ.get("CF_EXTRACTION_WORKER_STALE_SECONDS", "180"))
 
 VISION_CHARS_PER_PAGE_THRESHOLD = 800
 VISION_GARBAGE_RATIO_THRESHOLD = 0.3
@@ -1119,17 +1129,62 @@ def claim_batch_requests(batch_size: int = 3) -> list:
     return requests
 
 
+def recover_stale_extraction_requests(stale_minutes: int = 10) -> int:
+    """
+    Recover requests stuck in processing state after worker interruption.
+    """
+    import psycopg2
+
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        return 0
+
+    recovered = 0
+    try:
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    UPDATE platform.extraction_requests
+                    SET status = 'pending',
+                        retry_count = LEAST(retry_count + 1, max_retries),
+                        submitted_at = NOW()
+                    WHERE status = 'processing'
+                      AND submitted_at < NOW() - MAKE_INTERVAL(mins => %s)
+                      AND retry_count < max_retries
+                    """,
+                    (stale_minutes,),
+                )
+                recovered = cur.rowcount or 0
+            conn.commit()
+    except Exception as e:
+        logger.warning(f"[ExtractionWorker] Failed to recover stale requests: {e}")
+        return 0
+
+    if recovered > 0:
+        logger.warning(f"[ExtractionWorker] Recovered {recovered} stale request(s)")
+    return recovered
+
+
 def extraction_worker_loop():
     """Background thread that processes extraction queue with parallel workers."""
     global extraction_worker_running, extraction_executor
     
     logger.info(f"[ExtractionWorker] Starting with {EXTRACTION_WORKERS} parallel workers")
     extraction_worker_stats["is_running"] = True
+    extraction_worker_stats["last_heartbeat"] = datetime.utcnow().isoformat()
     extraction_executor = ThreadPoolExecutor(max_workers=EXTRACTION_WORKERS, thread_name_prefix="extractor")
+    next_recovery_at = datetime.utcnow()
     
     while extraction_worker_running:
         try:
             extraction_worker_stats["last_run"] = datetime.utcnow().isoformat()
+            extraction_worker_stats["last_heartbeat"] = datetime.utcnow().isoformat()
+
+            now = datetime.utcnow()
+            if now >= next_recovery_at:
+                recover_stale_extraction_requests(stale_minutes=10)
+                next_recovery_at = now + timedelta(minutes=1)
             
             requests = claim_batch_requests(batch_size=EXTRACTION_WORKERS)
             
@@ -1144,12 +1199,15 @@ def extraction_worker_loop():
                         future.result()
                     except Exception as e:
                         logger.error(f"[ExtractionWorker] Future error: {e}")
+                    finally:
+                        extraction_worker_stats["last_heartbeat"] = datetime.utcnow().isoformat()
                 
                 time.sleep(0.5)
             else:
                 for _ in range(3):
                     if not extraction_worker_running:
                         break
+                    extraction_worker_stats["last_heartbeat"] = datetime.utcnow().isoformat()
                     time.sleep(1)
                     
         except Exception as e:
@@ -1166,36 +1224,145 @@ def extraction_worker_loop():
 def start_extraction_worker():
     """Start the extraction worker background thread."""
     global extraction_worker_thread, extraction_worker_running
-    
-    if extraction_worker_thread and extraction_worker_thread.is_alive():
-        return
-    
-    extraction_worker_running = True
-    extraction_worker_thread = threading.Thread(target=extraction_worker_loop, daemon=True)
-    extraction_worker_thread.start()
-    logger.info("[Brain] Extraction worker started (5-second cycles)")
+
+    with extraction_worker_lock:
+        if extraction_worker_thread and extraction_worker_thread.is_alive():
+            return False
+
+        extraction_worker_running = True
+        extraction_worker_thread = threading.Thread(target=extraction_worker_loop, daemon=True, name="extraction-worker")
+        extraction_worker_thread.start()
+        extraction_worker_stats["last_restart_at"] = datetime.utcnow().isoformat()
+        extraction_worker_stats["restart_count"] = extraction_worker_stats.get("restart_count", 0) + 1
+        logger.info("[Brain] Extraction worker started (5-second cycles)")
+        return True
 
 
 def stop_extraction_worker():
     """Stop the extraction worker background thread."""
-    global extraction_worker_running
-    extraction_worker_running = False
+    global extraction_worker_running, extraction_worker_thread
+
+    with extraction_worker_lock:
+        extraction_worker_running = False
+        thread = extraction_worker_thread
+
+    if thread and thread.is_alive():
+        thread.join(timeout=10)
+
+    with extraction_worker_lock:
+        extraction_worker_thread = None
+
+
+def restart_extraction_worker(reason: str = "manual restart"):
+    """Restart extraction worker safely."""
+    logger.warning(f"[Brain] Restarting extraction worker: {reason}")
+    stop_extraction_worker()
+    time.sleep(0.5)
+    return start_extraction_worker()
+
+
+def extraction_supervisor_loop():
+    """Monitor extraction worker health and auto-restart when stale/dead."""
+    global extraction_supervisor_running
+
+    logger.info(
+        f"[ExtractionSupervisor] Started (interval={EXTRACTION_SUPERVISOR_INTERVAL_SECONDS}s, "
+        f"stale_threshold={EXTRACTION_WORKER_STALE_SECONDS}s)"
+    )
+
+    while extraction_supervisor_running:
+        try:
+            status = get_extraction_worker_status()
+            now = datetime.utcnow()
+
+            should_restart = False
+            reason = None
+
+            if not status["is_running"]:
+                should_restart = True
+                reason = "worker not alive"
+            else:
+                hb = status.get("last_heartbeat")
+                if hb:
+                    try:
+                        hb_dt = datetime.fromisoformat(hb)
+                        stale_seconds = (now - hb_dt).total_seconds()
+                        if stale_seconds > EXTRACTION_WORKER_STALE_SECONDS:
+                            should_restart = True
+                            reason = f"stale heartbeat ({int(stale_seconds)}s)"
+                    except Exception:
+                        # Ignore malformed heartbeat and let next cycle correct it.
+                        pass
+
+            if should_restart:
+                restart_extraction_worker(reason=reason or "health check")
+
+            # Also recover stale DB requests even when worker is healthy.
+            recover_stale_extraction_requests(stale_minutes=10)
+        except Exception as e:
+            logger.error(f"[ExtractionSupervisor] Error: {e}")
+
+        for _ in range(EXTRACTION_SUPERVISOR_INTERVAL_SECONDS):
+            if not extraction_supervisor_running:
+                break
+            time.sleep(1)
+
+    logger.info("[ExtractionSupervisor] Stopped")
+
+
+def start_extraction_supervisor():
+    """Start worker supervisor thread."""
+    global extraction_supervisor_thread, extraction_supervisor_running
+    if not EXTRACTION_SUPERVISOR_ENABLED:
+        logger.info("[ExtractionSupervisor] Disabled by config")
+        return False
+
+    with extraction_worker_lock:
+        if extraction_supervisor_thread and extraction_supervisor_thread.is_alive():
+            return False
+        extraction_supervisor_running = True
+        extraction_supervisor_thread = threading.Thread(
+            target=extraction_supervisor_loop,
+            daemon=True,
+            name="extraction-supervisor",
+        )
+        extraction_supervisor_thread.start()
+    return True
+
+
+def stop_extraction_supervisor():
+    """Stop worker supervisor thread."""
+    global extraction_supervisor_running, extraction_supervisor_thread
+    extraction_supervisor_running = False
+    thread = extraction_supervisor_thread
+    if thread and thread.is_alive():
+        thread.join(timeout=10)
+    extraction_supervisor_thread = None
 
 
 def get_extraction_worker_status():
     """Get the current status of the extraction worker."""
-    global extraction_worker_thread, extraction_worker_running
+    global extraction_worker_thread, extraction_worker_running, extraction_supervisor_thread
     
     is_actually_running = (
         extraction_worker_thread is not None 
         and extraction_worker_thread.is_alive()
     )
+    is_supervisor_running = (
+        extraction_supervisor_thread is not None
+        and extraction_supervisor_thread.is_alive()
+    )
     
     return {
         "is_running": is_actually_running,
+        "supervisor_running": is_supervisor_running,
+        "configured_running": extraction_worker_running,
         "last_run": extraction_worker_stats.get("last_run"),
+        "last_heartbeat": extraction_worker_stats.get("last_heartbeat"),
         "requests_processed": extraction_worker_stats.get("requests_processed", 0),
-        "last_error": extraction_worker_stats.get("last_error")
+        "last_error": extraction_worker_stats.get("last_error"),
+        "last_restart_at": extraction_worker_stats.get("last_restart_at"),
+        "restart_count": extraction_worker_stats.get("restart_count", 0)
     }
 
 
@@ -1269,6 +1436,7 @@ def shutdown_scheduler():
 
 def shutdown_all():
     """Shutdown all background processes."""
+    stop_extraction_supervisor()
     stop_extraction_worker()
     shutdown_scheduler()
 
@@ -1279,6 +1447,38 @@ atexit.register(shutdown_all)
 @app.route('/health')
 def health():
     return 'OK', 200
+
+
+@app.route('/internal/v1/extraction/worker/status', methods=['GET'])
+def extraction_worker_status():
+    """Worker status endpoint for platform control plane."""
+    return get_extraction_worker_status(), 200
+
+
+@app.route('/internal/v1/extraction/worker/start', methods=['POST'])
+def extraction_worker_start():
+    """Start extraction worker without restarting brain service."""
+    started = start_extraction_worker()
+    start_extraction_supervisor()
+    return {"success": True, "started": started, "status": get_extraction_worker_status()}, 200
+
+
+@app.route('/internal/v1/extraction/worker/stop', methods=['POST'])
+def extraction_worker_stop():
+    """Stop extraction worker without restarting brain service."""
+    stop_extraction_supervisor()
+    stop_extraction_worker()
+    return {"success": True, "status": get_extraction_worker_status()}, 200
+
+
+@app.route('/internal/v1/extraction/worker/restart', methods=['POST'])
+def extraction_worker_restart():
+    """Restart extraction worker without restarting brain service."""
+    payload = request.get_json(silent=True) or {}
+    reason = payload.get("reason", "platform restart request")
+    restart_extraction_worker(reason=reason)
+    start_extraction_supervisor()
+    return {"success": True, "status": get_extraction_worker_status()}, 200
 
 
 if __name__ == '__main__':
@@ -1313,6 +1513,7 @@ if __name__ == '__main__':
     
     init_scheduler()
     start_extraction_worker()
+    start_extraction_supervisor()
     seed_aggregation_definitions(tenant_id='7627d577-e07c-484f-893a-ed2f464d28b9')  # Seed aggregation framework definitions
     logger.info(f"[Brain] Starting on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)

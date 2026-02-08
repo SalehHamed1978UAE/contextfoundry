@@ -808,9 +808,39 @@ def api_extraction_events():
         return jsonify({'error': str(e), 'events': []})
 
 
+def _brain_worker_control(method: str, path: str, payload: dict = None, timeout: int = 10):
+    """Call brain worker control endpoint and return JSON-safe response."""
+    import requests as http_requests
+
+    brain_base = os.environ.get('BRAIN_BASE_URL', 'http://localhost:3000')
+    url = f"{brain_base}{path}"
+
+    try:
+        resp = http_requests.request(method, url, json=payload, timeout=timeout)
+    except Exception as e:
+        return {
+            "ok": False,
+            "status_code": 503,
+            "error": f"Brain service unavailable: {e}",
+            "body": None,
+        }
+
+    try:
+        body = resp.json()
+    except Exception:
+        body = {"raw": resp.text[:500]}
+
+    return {
+        "ok": resp.ok,
+        "status_code": resp.status_code,
+        "error": None if resp.ok else f"Brain worker call failed: {resp.status_code}",
+        "body": body,
+    }
+
+
 @app.route('/api/extraction/resume/<vault_id>', methods=['POST'])
 def api_extraction_resume(vault_id):
-    """Log a manual resume event for a vault."""
+    """Resume extraction for a vault and ensure worker is running."""
     import psycopg2
     from psycopg2.extras import RealDictCursor
     
@@ -828,13 +858,60 @@ def api_extraction_resume(vault_id):
                 cur.execute("""
                     INSERT INTO platform.extraction_events 
                     (vault_id, vault_name, event_type, details)
-                    VALUES (%s, %s, 'resume', 'Manual resume triggered')
+                    VALUES (%s, %s, 'resume', 'Manual resume triggered: recovering stale requests and starting worker')
                     RETURNING id
                 """, (vault_id, vault_name))
                 event_id = cur.fetchone()['id']
+
+                # Recover stale processing requests for this vault.
+                cur.execute("""
+                    UPDATE platform.extraction_requests
+                    SET status = 'pending',
+                        retry_count = LEAST(retry_count + 1, max_retries),
+                        submitted_at = NOW()
+                    WHERE tenant_id = %s
+                      AND status = 'processing'
+                      AND submitted_at < NOW() - INTERVAL '3 minutes'
+                      AND retry_count < max_retries
+                """, (vault_id,))
+                recovered_processing = cur.rowcount or 0
+
+                # Touch stale pending rows to prioritize pickup.
+                cur.execute("""
+                    UPDATE platform.extraction_requests
+                    SET submitted_at = NOW()
+                    WHERE tenant_id = %s
+                      AND status = 'pending'
+                      AND submitted_at < NOW() - INTERVAL '3 minutes'
+                """, (vault_id,))
+                refreshed_pending = cur.rowcount or 0
+
+                cur.execute("""
+                    SELECT
+                        COUNT(*) FILTER (WHERE status='pending') AS pending,
+                        COUNT(*) FILTER (WHERE status='processing') AS processing,
+                        COUNT(*) FILTER (WHERE status='completed') AS completed,
+                        COUNT(*) FILTER (WHERE status='failed') AS failed
+                    FROM platform.extraction_requests
+                    WHERE tenant_id = %s
+                """, (vault_id,))
+                queue_counts = dict(cur.fetchone())
                 conn.commit()
-        
-        return jsonify({'success': True, 'event_id': event_id})
+
+        brain_resp = _brain_worker_control('POST', '/internal/v1/extraction/worker/start', payload={"vault_id": vault_id})
+
+        response_payload = {
+            'success': True,
+            'event_id': event_id,
+            'recovered_processing': recovered_processing,
+            'refreshed_pending': refreshed_pending,
+            'queue_counts': queue_counts,
+            'worker': brain_resp.get('body'),
+        }
+        if not brain_resp.get('ok'):
+            response_payload['worker_warning'] = brain_resp.get('error')
+
+        return jsonify(response_payload)
     except Exception as e:
         logger.error(f"Resume event failed: {e}")
         return jsonify({'error': str(e)}), 500
@@ -874,16 +951,14 @@ def api_extraction_cancel(vault_id):
 
 @app.route('/api/extraction/stop/<vault_id>', methods=['POST'])
 def api_extraction_stop(vault_id):
-    """Stop extraction worker processes for a vault by killing them."""
+    """Stop extraction worker safely and prevent stale request state."""
     import psycopg2
     from psycopg2.extras import RealDictCursor
-    import psutil
-    import signal
 
     try:
         database_url = os.environ.get('DATABASE_URL')
 
-        # Log stop event
+        # Log stop event and normalize queue state for paused execution.
         with psycopg2.connect(database_url) as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("""
@@ -895,47 +970,72 @@ def api_extraction_stop(vault_id):
                 cur.execute("""
                     INSERT INTO platform.extraction_events
                     (vault_id, vault_name, event_type, details)
-                    VALUES (%s, %s, 'stopped', 'Extraction worker killed via Stop button')
+                    VALUES (%s, %s, 'stopped', 'Manual stop triggered: worker paused and processing requests reset to pending')
                     RETURNING id
                 """, (vault_id, vault_name))
                 event_id = cur.fetchone()['id']
+                cur.execute("""
+                    UPDATE platform.extraction_requests
+                    SET status = 'pending',
+                        submitted_at = NOW()
+                    WHERE tenant_id = %s
+                      AND status = 'processing'
+                """, (vault_id,))
+                reset_processing = cur.rowcount or 0
+
+                cur.execute("""
+                    SELECT
+                        COUNT(*) FILTER (WHERE status='pending') AS pending,
+                        COUNT(*) FILTER (WHERE status='processing') AS processing,
+                        COUNT(*) FILTER (WHERE status='completed') AS completed,
+                        COUNT(*) FILTER (WHERE status='failed') AS failed
+                    FROM platform.extraction_requests
+                    WHERE tenant_id = %s
+                """, (vault_id,))
+                queue_counts = dict(cur.fetchone())
                 conn.commit()
 
-        # Find and kill extraction worker processes
-        killed_pids = []
-        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-            try:
-                cmdline = proc.info.get('cmdline') or []
-                cmdline_str = ' '.join(cmdline)
+        brain_resp = _brain_worker_control('POST', '/internal/v1/extraction/worker/stop', payload={"vault_id": vault_id})
+        response_payload = {
+            'success': True,
+            'event_id': event_id,
+            'reset_processing': reset_processing,
+            'queue_counts': queue_counts,
+            'worker': brain_resp.get('body'),
+            'message': 'Extraction worker stopped'
+        }
+        if not brain_resp.get('ok'):
+            response_payload['worker_warning'] = brain_resp.get('error')
 
-                # Look for Python processes running extraction_worker
-                if ('python' in proc.info['name'].lower() and
-                    'extraction_worker' in cmdline_str and
-                    vault_id in cmdline_str):
-                    logger.info(f"Killing extraction worker PID {proc.info['pid']} for vault {vault_id}")
-                    proc.send_signal(signal.SIGTERM)
-                    killed_pids.append(proc.info['pid'])
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                pass
-
-        if killed_pids:
-            return jsonify({
-                'success': True,
-                'event_id': event_id,
-                'killed_pids': killed_pids,
-                'message': f'Killed {len(killed_pids)} extraction worker(s)'
-            })
-        else:
-            return jsonify({
-                'success': True,
-                'event_id': event_id,
-                'killed_pids': [],
-                'message': 'No running extraction workers found for this vault'
-            })
+        return jsonify(response_payload)
 
     except Exception as e:
         logger.error(f"Stop extraction failed: {e}")
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/extraction/worker/status', methods=['GET'])
+def api_extraction_worker_status():
+    """Get extraction worker health from brain service."""
+    brain_resp = _brain_worker_control('GET', '/internal/v1/extraction/worker/status')
+    if brain_resp.get('ok'):
+        return jsonify(brain_resp.get('body', {}))
+    return jsonify({'error': brain_resp.get('error'), 'details': brain_resp.get('body')}), brain_resp.get('status_code', 500)
+
+
+@app.route('/api/extraction/worker/restart', methods=['POST'])
+def api_extraction_worker_restart():
+    """Restart extraction worker without restarting the platform."""
+    payload = request.get_json(silent=True) or {}
+    reason = payload.get('reason', 'manual restart from extraction dashboard')
+    brain_resp = _brain_worker_control(
+        'POST',
+        '/internal/v1/extraction/worker/restart',
+        payload={'reason': reason},
+    )
+    if brain_resp.get('ok'):
+        return jsonify({'success': True, 'worker': brain_resp.get('body')})
+    return jsonify({'success': False, 'error': brain_resp.get('error'), 'details': brain_resp.get('body')}), brain_resp.get('status_code', 500)
 
 
 @app.route('/api/extraction/split-brain-check/<vault_id>', methods=['GET'])
