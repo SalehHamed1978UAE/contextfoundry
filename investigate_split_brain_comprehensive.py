@@ -407,10 +407,17 @@ def main():
             trusted_count = 0
 
             for row in entity_data[schema]:
-                stage_value = str(row[0]).lower()
-                if 'staging' in stage_value:
+                # Get the stage value from whichever column exists (could be 'stage', 'status', etc.)
+                # row is a dict with keys: the stage column name and 'count'
+                stage_value = None
+                for key in row.keys():
+                    if key != 'count':
+                        stage_value = str(row[key]).lower()
+                        break
+
+                if stage_value and 'staging' in stage_value:
                     staging_count = row['count']
-                elif 'trusted' in stage_value:
+                elif stage_value and 'trusted' in stage_value:
                     trusted_count = row['count']
 
             if staging_count > 0 and trusted_count == 0:
@@ -424,10 +431,16 @@ def main():
             trusted_count = 0
 
             for row in relationship_data[schema]:
-                stage_value = str(row[0]).lower()
-                if 'staging' in stage_value:
+                # Get the stage value from whichever column exists
+                stage_value = None
+                for key in row.keys():
+                    if key != 'count':
+                        stage_value = str(row[key]).lower()
+                        break
+
+                if stage_value and 'staging' in stage_value:
                     staging_count = row['count']
-                elif 'trusted' in stage_value:
+                elif stage_value and 'trusted' in stage_value:
                     trusted_count = row['count']
 
             if staging_count > 0 and trusted_count == 0:
