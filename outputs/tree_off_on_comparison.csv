@@ -1,0 +1,663 @@
+q,off_passed,on_passed,off_match_type,on_match_type,off_failure_category,on_failure_category,query,expected,off_actual,on_actual
+1,True,True,component_match,component_match,,,Who is the CEO of Nexus Industries?,Dr. Victoria Chen,"The retrieved information does not specify who the CEO of Nexus Industries is. It only mentions that Victoria Chen works at Nexus Industries, but it does not indicate her role or if she is the CEO. Therefore, the information regarding the CEO of Nexus Industries is incomplete.","The retrieved information does not specify who the CEO of Nexus Industries is. It only mentions that Victoria Chen works at Nexus Industries, but it does not indicate her role or if she is the CEO. Therefore, the information regarding the CEO of Nexus Industries is incomplete."
+2,False,False,no_match,no_match,MISMATCH,MISMATCH,What is the name of the CFO?,Michael Chang,The name of the CFO is Hedging Policy. This is the authoritative answer based on the current organizational structure.,The name of the CFO is Hedging Policy.
+3,True,True,exact_match,exact_match,,,Who is the President of Nexus Digital Solutions?,Robert Kim,"The retrieved information does not specify who the President of Nexus Digital Solutions is. It only indicates that Robert Kim works at Nexus Digital Solutions, but it does not clarify his role or position within the organization. Therefore, I cannot provide the name of the President of Nexus Digital Solutions based on the available data.","The retrieved information does not specify who the President of Nexus Digital Solutions is. It only indicates that Robert Kim works at Nexus Digital Solutions, but it does not clarify his role or position within the organization. Therefore, I cannot provide the name of the President of Nexus Digital Solutions based on the available data."
+4,True,True,exact_match,exact_match,,,Who is the Chief Engineer for the Falcon X program?,Dr. Elena Rodriguez,"The Chief Engineer for the Falcon X program is Dr. Elena Rodriguez. She is mentioned in multiple documents related to the program, including engineering reviews and technical specifications.","The Chief Engineer for the Falcon X program is Dr. Elena Rodriguez. She is mentioned in multiple documents related to the program, including engineering review minutes and technical specifications."
+5,True,True,exact_match,exact_match,,,Who is the Empowered Official for ITAR compliance?,Col. (Ret.) James Foster,"The Empowered Official for ITAR compliance is Col. (Ret.) James Foster, who serves as the VP of Government Programs. He is responsible for signing export license applications, approving ITAR agreements, and overseeing the compliance program.","The Empowered Official for ITAR compliance is Col. (Ret.) James Foster, who serves as the VP of Government Programs. His responsibilities include signing export license applications, approving ITAR agreements, and overseeing the compliance program."
+6,True,True,exact_match,exact_match,,,What was Nexus Industries' revenue in FY2025?,$8.45 billion,"Nexus Industries' revenue in FY2025 was **$8.45 billion**. This represents a growth of approximately **10.9%** compared to FY2024, where the revenue was **$7.62 billion**.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['5.2%', '13.7%', '22%', '11.7%', '10.6%', '8.1%', '23.0%', '20.0%', '34.0%', '19.8%', '10.7%', '17.6%', '17.9%', '5%', '8.5%', '12.3%', '34%', '3.5%', '2.0%', '11.5%', '15.2%', '20.6%', '8%', '16.0%', '14.4%', '16%', '8.3%', '6.5%', '22.8%","Nexus Industries' revenue in FY2025 was **$8.45 billion**. This represents a growth of **10.9%** compared to FY2024, where the revenue was **$7.62 billion**.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['5.2%', '13.7%', '22%', '11.7%', '10.6%', '8.1%', '23.0%', '20.0%', '34.0%', '19.8%', '10.7%', '17.6%', '17.9%', '5%', '8.5%', '12.3%', '34%', '3.5%', '2.0%', '11.5%', '15.2%', '20.6%', '8%', '16.0%', '14.4%', '16%', '8.3%', '6.5%', '22.8%', '4.6%', '10"
+7,True,True,exact_match,exact_match,,,How many employees does Nexus Industries have?,"12,500","Nexus Industries employs a total of **12,500 employees** worldwide. This figure is broken down by region as follows: 1. **North America**: 10,850 employees - **Headquarters in Phoenix, Arizona**: 2,500 employees - **Nexus Aerospace Division in Tucson, Arizona**: 3,200 employees - **Nexus Energy Systems Division in Houston, Texas**: 850 employees - **Nexus Energy Systems Division in El Paso, Texas**: 45 employees (at full operation) - **Flight Test Center in Mojave, California**: 180 employees 2.","Nexus Industries employs a total of **12,500 employees** worldwide. This figure is broken down by region as follows: 1. **North America**: 10,850 employees - **Headquarters in Phoenix, Arizona**: 2,500 employees - **Nexus Aerospace Division in Tucson, Arizona**: 3,200 employees - **Nexus Energy Systems Division in Houston, Texas**: 850 employees - **Nexus Energy Systems Division in El Paso, Texas**: 45 employees (at full operation) - **Flight Test Center in Mojave, California**: 180 employees 2."
+8,True,True,exact_match,exact_match,,,What is the budget for the Falcon X UAV program?,$145 million,"The budget for the Falcon X UAV program is **$145 million**, which has been approved. The program is currently reported to be on schedule and under budget, with a status indicating it is approximately **$3.2 million under budget** as of the latest review.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple currency values found in source: ['$78M', '$67M', '$22M', '$7M', '$145.0M', '$225M', '$11.5M', '$15M', '$0M', '$14M', '$0.5M', '$525M', '$3.2M', '$14.7M', '$65M', '$59M', '$1.8M', '$35 millio","The budget for the Falcon X UAV program is **$145 million**, which has been approved. The program is currently reported to be on schedule and under budget, with a status indicating it is approximately **$3.2 million under budget** as of the latest review.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple currency values found in source: ['$78M', '$67M', '$22M', '$7M', '$145.0M', '$225M', '$11.5M', '$15M', '$0M', '$14M', '$0.5M', '$525M', '$3.2M', '$14.7M', '$65M', '$59M', '$1.8M', '$35 millio"
+9,True,True,exact_match,exact_match,,,What is the total investment in the Toyota joint venture?,$312 million,"The total investment in the Toyota joint venture, named **NextGen Battery Technologies LLC**, is **$312 million**. This investment is split between Nexus Industries, which contributes **$159 million**, and Toyota, which contributes **$153 million**. ---
+**Confidence: High (90%)** **Why:** The investment details were explicitly stated in multiple documents related to the joint venture agreement.","The total investment in the Toyota joint venture, named NextGen Battery Technologies LLC, is **$312 million**. This investment is split between Nexus Industries, which contributes **$159 million**, and Toyota, which contributes **$153 million**. ---
+**Confidence: High (90%)** **Why:** The investment details are clearly outlined in multiple sources, confirming the total and individual contributions from both companies."
+10,True,True,component_match,component_match,,,What is the value of the Shell hydrogen offtake agreement?,$450 million over 10 years,"The value of the Shell hydrogen offtake agreement is approximately **$450 million** over a term of 15 years, from 2028 to 2043. The agreement includes a guaranteed annual volume of **5,475 tonnes** of hydrogen, with a base price set at **$4.50 per kilogram**, which will escalate by **2% annually**. The total contract value reflects the projected payments based on the agreed pricing and volume terms.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['50%', '","The value of the Shell hydrogen offtake agreement is approximately **$450 million** over a term of 15 years, from 2028 to 2043. The agreement includes a guaranteed minimum volume of 15 tonnes of hydrogen per day, which translates to an annual volume of 5,475 tonnes. The pricing mechanism features a base price of $4.50 per kilogram, with a 2% annual escalation. The total contract value reflects the expected revenue from this hydrogen supply arrangement.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:**"
+11,True,True,component_match,component_match,,,When is the first flight of the Falcon X UAV expected?,May 2026 (or Q2 2026),"The first flight of the Falcon X UAV is expected to take place in May 2026. The program is currently on schedule and under budget, with all technical milestones achieved leading up to this target.","The first flight of the Falcon X UAV is expected to take place in May 2026. The program is currently on schedule and under budget, with all technical milestones achieved leading up to this target."
+12,True,True,exact_match,exact_match,,,When did the GreenHydrogen facility produce its first hydrogen?,"March 20, 2026","The GreenHydrogen facility produced its first hydrogen on March 20, 2026, at 10:47 AM CDT. This milestone marks a significant achievement for Nexus Industries and its Energy Systems Division, as the facility is now operational and capable of producing hydrogen at an initial rate of 85 kg H₂/hour with a purity of 99.9997%.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['99.9997%', '100%', '10.0%', '99.999%', '15.7%', '14.4%', '9.8%', '95%', '15.6%', '92%'","The GreenHydrogen facility produced its first hydrogen on March 20, 2026, at 10:47 AM CDT. This milestone marks a significant achievement for Nexus Industries and its Energy Systems Division, as the facility is now operational and capable of producing hydrogen at an initial rate of 85 kg H₂/hour with a purity of 99.9997%.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['99.9997%', '100%', '10.0%', '99.999%', '15.7%', '14.4%', '9.8%', '95%', '15.6%', '92%'"
+13,True,True,number_match,number_match,,,When is BatteryTech solid-state battery commercial production expected?,Q4 2027,"BatteryTech's solid-state battery commercial production is expected to begin in the fourth quarter of 2027. This timeline is part of a joint venture between Nexus Industries and Toyota Motor Corporation, which aims to leverage Nexus's solid electrolyte materials and Toyota's manufacturing expertise to bring this technology to market.","BatteryTech's solid-state battery commercial production is expected to begin in the fourth quarter of 2027. This timeline is part of a joint venture between Nexus Industries and Toyota Motor Corporation, which aims to leverage Nexus's solid electrolyte materials and Toyota's manufacturing expertise to bring this technology to market."
+14,False,False,no_data,no_data,NOT_FOUND,NOT_FOUND,When was Robert Kim appointed President of Digital Solutions?,"January 2026 (effective January 15, 2026)",The appointment date was not found in the available documents.,The appointment date was not found in the available documents.
+15,False,False,no_data,no_data,NOT_FOUND,NOT_FOUND,Who does Michael Chang report to?,Dr. Victoria Chen (CEO),"The retrieved information does not specify who Michael Chang reports to. It only indicates that he holds the role of CFO. Therefore, I cannot provide a definitive answer regarding his reporting structure. If you have additional context or information about the organization, I may be able to assist further.","The retrieved information does not specify who Michael Chang reports to. It only indicates that he holds the role of CFO. Therefore, we do not have enough information to determine his reporting structure."
+16,True,True,exact_match,exact_match,,,What company is Nexus partnering with for solid-state batteries?,Toyota Motor Corporation,"Nexus Industries is partnering with Toyota Motor Corporation to develop solid-state batteries. They have established a joint venture named ""NextGen Battery Technologies LLC,"" which will leverage Nexus's proprietary solid electrolyte materials alongside Toyota's battery manufacturing expertise. The joint venture is structured with a 51% ownership by Nexus and 49% by Toyota, and it aims to commercialize solid-state battery technology primarily for electric vehicles, with plans to expand into grid ","Nexus Industries is partnering with Toyota Motor Corporation to develop solid-state batteries. They have established a joint venture named ""NextGen Battery Technologies LLC,"" which will leverage Nexus's proprietary solid electrolyte materials alongside Toyota's battery manufacturing expertise. The joint venture is structured with a 51% ownership by Nexus and 49% by Toyota, and it aims to commercialize solid-state battery technology primarily for electric vehicles, with plans to expand into grid "
+17,False,False,no_match,no_match,MISMATCH,MISMATCH,Who supplied the electrolyzers for the GreenHydrogen facility?,Nel Hydrogen,"The electrolyzers for the GreenHydrogen facility were supplied by Honeywell, Boeing, Lockheed, and Northrop.","The electrolyzers for the GreenHydrogen facility were supplied by Honeywell, Boeing, Lockheed, and Northrop."
+18,False,False,no_data,no_data,NOT_FOUND,NOT_FOUND,Which company has a green hydrogen offtake agreement with Nexus?,Shell,"The retrieved information does not specify which company has a green hydrogen offtake agreement with Nexus. It mentions various entities related to Nexus, such as Nexus Industries, Nexus Aerospace, and Nexus Advanced Materials, but there is no direct reference to a specific company involved in a green hydrogen offtake agreement. Therefore, I cannot provide the name of the company in question based on the available information.","The retrieved information does not specify which company has a green hydrogen offtake agreement with Nexus. It mentions various entities related to Nexus, such as Nexus Industries, Nexus Aerospace, and Nexus Advanced Materials, but there is no direct reference to a specific company involved in a green hydrogen offtake agreement. Therefore, I cannot provide a definitive answer regarding the company associated with that agreement."
+19,True,True,component_match,component_match,,,Who is the largest aerospace customer of Nexus by relationship value?,Boeing ($730 million),"The largest aerospace customer of Nexus by relationship value is **The Boeing Company**, with a total relationship value of **$730 million** for FY2025. This includes $485 million from Nexus Aerospace and $245 million from Nexus Advanced Materials.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple currency values found in source: ['$78M', '$71B', '$22M', '$7M', '$635M', '$812M', '$500M', '$185M', '$15M', '$1.5M', '$445M', '$65M', '$95M', '$145M', '$350M', '$545M', '$220M', '$42M', '$84M', '$1","The largest aerospace customer of Nexus by relationship value is **The Boeing Company**, with a total relationship value of **$730 million** for FY2025. This includes $485 million from Nexus Aerospace and $245 million from Nexus Advanced Materials.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple currency values found in source: ['$78M', '$71B', '$22M', '$7M', '$635M', '$812M', '$500M', '$185M', '$15M', '$1.5M', '$445M', '$65M', '$95M', '$145M', '$350M', '$545M', '$220M', '$42M', '$84M', '$1"
+20,True,True,exact_match,exact_match,,,Which supplier is rated Red and at risk?,General Atomics,The supplier rated Red and at risk is **General Atomics**.,"The supplier rated Red and at risk is **General Atomics**. They have been escalated to a Red rating due to performance issues, and actions are being taken to address these concerns."
+21,True,True,exact_match,exact_match,,,Where is Nexus Industries headquartered?,"Phoenix, Arizona","Nexus Industries is headquartered in Phoenix, Arizona. The corporate headquarters is located at 1000 Innovation Drive, Phoenix, AZ 85001. This facility serves various functions, including corporate operations, research and development, and digital solutions, and it spans 650,000 square feet with a workforce of approximately 2,500 employees.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['6.50', '25', '1,200', '12.0', '680', '1.3', '12,000', '45', '00', '40',","Nexus Industries is headquartered in Phoenix, Arizona. The corporate headquarters is located at 1000 Innovation Drive, Phoenix, AZ 85001. This facility serves various functions, including corporate operations, research and development, and digital solutions, and it employs approximately 2,500 people.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['6.50', '25', '1,200', '12.0', '680', '1.3', '12,000', '45', '00', '40', '180', '6.20', '500', '2.02', '4', '85',"
+22,True,True,component_match,component_match,,,What is the capacity of the Desert Sun Solar Farm?,450 MW (full buildout),"The capacity of the Desert Sun Solar Farm is 450 MW (megawatts) for the solar photovoltaic installation. Additionally, it includes a 200 MWh (megawatt-hour) battery storage system.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['0.03', '0.32', '003', '45', '850,000', '002', '4', '8', '0', '100', '20', '5', '0.3', '450', '200', '1', '121', '0.30', '0.26', '18', '99.2', '250', '7,500', '2.2', '30', '212,500', '98', '50', '0.28', '0.1', '385', '1.8', '0.5', '2'","The capacity of the Desert Sun Solar Farm is 450 megawatts (MW) for the solar photovoltaic installation. Additionally, it includes a 200 megawatt-hour (MWh) battery storage system.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['0.03', '0.32', '003', '45', '850,000', '002', '4', '8', '0', '100', '20', '5', '0.3', '450', '200', '1', '121', '0.30', '0.26', '18', '99.2', '250', '7,500', '2.2', '30', '212,500', '98', '50', '0.28', '0.1', '385', '1.8', '0.5', '2'"
+23,True,True,exact_match,exact_match,,,How many qubits does the QuantumLeap system have?,127 qubits,"The QuantumLeap system has the following configurations with their respective number of qubits: 1. **QL-27**: 27 qubits
+2. **QL-65**: 65 qubits
+3. **QL-127**: 127 qubits Additionally, there is a mention of a custom tier for partnerships that offers ""127+"" qubits, indicating that there may be systems with more than 127 qubits available for custom arrangements.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['4.2', '400', '4.4', '70', '4.6', '64', '99.93', '350","The QuantumLeap system has the following configurations with their respective number of qubits: 1. **QL-27**: 27 qubits
+2. **QL-65**: 65 qubits
+3. **QL-127**: 127 qubits Additionally, there is a mention of a custom tier for partnerships that offers ""127+"" qubits, indicating that there may be systems with more than 127 qubits available for custom arrangements.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['4.2', '400', '4.4', '70', '4.6', '64', '99.93', '350"
+24,True,True,component_match,component_match,,,What is the hydrogen production capacity of the GreenHydrogen facility?,"425 kg/hour (Phase 1) or 10,200 kg/day","The GreenHydrogen facility has a hydrogen production capacity of 850 kg per hour at full capacity. This translates to a daily production of 20,400 kg and an annual production capacity of 7.0 million kg. Currently, during Phase 1, the facility is capable of producing 425 kg per hour, which amounts to 10,200 kg per day and 3.5 million kg annually. The facility is located in El Paso, Texas, and is operational as of March 2026.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found","The GreenHydrogen facility has a hydrogen production capacity of 850 kg per hour at full capacity. This translates to a daily production of 20,400 kg and an annual production capacity of 7.0 million kg. Currently, during Phase 1, the facility is capable of producing 425 kg per hour, which amounts to 10,200 kg per day and 3.5 million kg annually. The facility is located in El Paso, Texas, and is operational as of March 2026.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found"
+25,True,True,exact_match,exact_match,,,What is the target energy density for the solid-state battery?,400 Wh/kg,"The target energy density for the solid-state battery is designed to achieve 2 times the energy density compared to lithium-ion batteries. Additionally, a solid-state battery prototype is reported to achieve a performance of 400 Wh/kg. This indicates that the solid-state battery aims to significantly improve upon the current standards set by lithium-ion technology.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['4.2', '400', '70', '4.6', '156', '00', '350', ","The target energy density for the solid-state battery is designed to achieve 2 times the energy density compared to traditional lithium-ion batteries. While the specific energy density value in watt-hours per kilogram (Wh/kg) is not explicitly stated for the target, it is noted that a solid-state battery prototype is aiming for a performance of 400 Wh/kg. Therefore, the target energy density for the solid-state battery is expected to be significantly higher than this prototype performance, align"
+26,True,True,component_match,component_match,,,How many business divisions does Nexus Industries have?,"4 (Aerospace, Energy, Digital, Materials)","Nexus Industries operates through **four strategic business divisions**. These divisions are: 1. **Nexus Aerospace**
+2. **Nexus Energy Systems**
+3. **Nexus Digital Solutions**
+4. **Nexus Advanced Materials** Each division serves distinct markets while leveraging shared capabilities in technology, manufacturing, and innovation.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['12.3', '12.1', '4.6', '680', '20.8', '00', '500', '4.95', '19.7', '17.9', '8.8', '10.","Nexus Industries operates through **four strategic business divisions**. These divisions are: 1. **Nexus Aerospace**
+2. **Nexus Energy Systems**
+3. **Nexus Digital Solutions**
+4. **Nexus Advanced Materials** Each division serves distinct markets while leveraging shared capabilities in technology, manufacturing, and innovation.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['12.3', '12.1', '4.6', '680', '20.8', '00', '500', '4.95', '19.7', '17.9', '8.8', '10."
+27,True,True,component_match,component_match,,,Which division has the most employees?,"Nexus Digital Solutions (3,500 employees)","Based on the retrieved information, the division with the most employees is: 1. **Nexus Digital Solutions** - 3,500 employees
+2. **Nexus Aerospace** - 3,200 employees
+3. **Nexus Advanced Materials** - 3,000 employees
+4. **Nexus Energy Systems** - 2,800 employees Thus, the **Nexus Digital Solutions Division** has the most employees, with a total of **3,500 employees**.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['12.3', '400', '70', '36', '680', '340', '35","Based on the retrieved information, the division with the most employees is: 1. **Nexus Digital Solutions** - 3,500 employees
+2. **Nexus Aerospace** - 3,200 employees
+3. **Nexus Advanced Materials** - 3,000 employees
+4. **Nexus Energy Systems** - 2,800 employees Thus, the **Nexus Digital Solutions Division** has the most employees, with a total of **3,500 employees**.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['12.3', '400', '70', '36', '680', '340', '35"
+28,True,True,component_match,component_match,,,Which division has the highest revenue?,Nexus Aerospace ($2.78 billion),"The division with the highest revenue is the **Nexus Aerospace Division**, which has a total revenue of **$3.12 billion** for FY2026. This is followed by the Nexus Energy Systems Division with **$2.78 billion** and the Nexus Digital Solutions Division with **$2.18 billion**.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple currency values found in source: ['$372M', '$0.47B', '$1.10B', '$2.22B', '$0.48B', '$225M', '$0.33B', '$185M', '$15M', '$2.08B', '$0.58B', '$1.06B', '$2.85B', '$1.20B', '$","The division with the highest revenue is the **Nexus Aerospace Division**, which has a total revenue of **$3.12 billion** for FY2026. This is followed by the Nexus Energy Systems Division with **$2.78 billion** and the Nexus Digital Solutions Division with **$2.18 billion**.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple currency values found in source: ['$372M', '$0.47B', '$1.10B', '$2.22B', '$0.48B', '$225M', '$0.33B', '$185M', '$15M', '$2.08B', '$0.58B', '$1.06B', '$2.85B', '$1.20B', '$"
+29,False,False,no_match,no_match,MISMATCH,NOT_FOUND,Who are the members of the Executive Leadership Team?,"Dr. Victoria Chen (CEO), Michael Chang (CFO), Dr. James Wilson (CTO), Lisa Thompson (GC), Maria Santos (CHRO), Robert Harrison, Dr. Sarah Park, Robert Kim, John Williams","The members of the Executive Leadership Team at Nexus Industries are: 1. **Dr. Victoria Chen** - Chief Executive Officer (CEO)
+2. **Robert Martinez** - Chief Financial Officer (CFO)
+3. **Dr. Aisha Patel** - Chief Technology Officer (CTO)
+4. **James Wilson** - Chief Operating Officer (COO)
+5. **Maria Santos** - Chief Human Resources Officer (CHRO)
+6. **Michael Torres** - President, Nexus Aerospace Division
+7. **Dr. Elena Rodriguez** - President, Nexus Energy Systems Division
+8. **Robert Kim** - P","The members of the Executive Leadership Team at Nexus Industries are: 1. **Dr. Victoria Chen** - Chief Executive Officer (CEO)
+2. **Robert Martinez** - Chief Financial Officer (CFO)
+3. **Dr. Aisha Patel** - Chief Technology Officer (CTO)
+4. **James Wilson** - Chief Operating Officer (COO)
+5. **Maria Santos** - Chief Human Resources Officer (CHRO)
+6. **Michael Torres** - President, Nexus Aerospace
+7. **Dr. Elena Rodriguez** - President, Nexus Energy Systems
+8. **Robert Kim** - President, Nexus Di"
+30,True,True,component_match,component_match,,,What is the R&D investment as a percentage of revenue for FY2026?,11.4% ($966 million of ~$9.5-9.8 billion),"For FY2026, the R&D investment as a percentage of revenue is 11.4%. This figure is derived from a total R&D budget of $966 million, which represents this percentage of the company's revenue for that fiscal year.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['22%', '6%', '40%', '13.0%', '17%', '28.3%', '5%', '19.7%', '11.5%', '15.0%', '8%', '16.0%', '10.4%', '0.5%', '22.6%', '8.6%', '19%', '11.4%', '2.1%', '3%', '21%', '55%', '100%', '42%', '4%', '14.0%'","For FY2026, the total R&D investment is projected to be **$1.05 billion**, which represents **11.4%** of the revenue target range of **$9.5 billion to $9.8 billion**. This aligns with the board's expectation to sustain R&D investment at **11% or more** of revenue.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['22%', '6%', '40%', '13.0%', '17%', '28.3%', '5%', '19.7%', '11.5%', '15.0%', '8%', '16.0%', '10.4%', '0.5%', '22.6%', '8.6%', '19%', '11.4%', '2."
+31,True,True,exact_match,exact_match,,,What is Nexus's ownership percentage in the Toyota battery joint venture?,51%,"Nexus Industries holds a 51% ownership stake in the joint venture with Toyota, while Toyota holds a 49% stake. This joint venture, named ""NextGen Battery Technologies LLC,"" aims to commercialize solid-state battery technology.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['60%', '40%', '51%', '95%', '80%', '70%', '10%', '98%', '45%', '3%', '2%', '1%', '55%', '75%', '90%', '100%', '50%', '99.97%', '65%', '54%', '99.9%', '15%', '20%', '35%', '85%', '49%']","Nexus Industries holds a 51% ownership stake in the joint venture with Toyota, while Toyota holds a 49% stake. This joint venture, named ""NextGen Battery Technologies LLC,"" aims to commercialize solid-state battery technology.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['60%', '40%', '51%', '95%', '80%', '70%', '10%', '98%', '45%', '3%', '2%', '1%', '55%', '75%', '90%', '100%', '50%', '99.97%', '65%', '54%', '99.9%', '15%', '20%', '35%', '85%', '49%']"
+32,True,True,exact_match,exact_match,,,Who will be the CEO of the Toyota JV (NextGen Battery Technologies)?,Dr. Robert Martinez,"Dr. Robert Martinez, currently Nexus's BatteryTech Program Director, has been named the CEO of NextGen Battery Technologies, the joint venture with Toyota. Hiroshi Tanaka, Toyota's EVP of Battery Technology, will serve as COO. ---
+**Confidence: High (90%)** **Why:** This information is confirmed in multiple authoritative sources detailing the joint venture's leadership structure.","Dr. Robert Martinez, currently Nexus's BatteryTech Program Director, has been named the CEO of NextGen Battery Technologies, the joint venture with Toyota. Hiroshi Tanaka, Toyota's EVP of Battery Technology, will serve as COO. ---
+**Confidence: High (90%)** **Why:** This information is sourced from an official announcement regarding the joint venture, detailing the leadership appointments."
+33,True,True,number_match,number_match,,,How much hydrogen will Shell purchase annually under the offtake agreement?,"Minimum 300,000 kg/year initially, ramping to 2.5M kg/year by Year 3","Under the offtake agreement, Shell will purchase **15 tonnes of hydrogen per day**. This translates to an **annual volume of 5,475 tonnes** of hydrogen. The agreement is set for a term of **15 years**, from 2028 to 2043.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['25', '70', '5.71', '45', '350', '5.17', '002', '300,000', '4', '8', '0', '100', '20', '5', '16,400', '80', '1', '5,475', '31', '4.68', '10', '4.50', '6.00', '0.0', '14', '18', '15', '24', '30',","Under the offtake agreement, Shell will purchase **15 tonnes of hydrogen per day**. This translates to an **annual volume of 5,475 tonnes** of hydrogen. The agreement is set for a term of **15 years**, from 2028 to 2043.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['25', '70', '5.71', '45', '350', '5.17', '002', '300,000', '4', '8', '0', '100', '20', '5', '16,400', '80', '1', '5,475', '31', '4.68', '10', '4.50', '6.00', '0.0', '14', '18', '15', '24', '30',"
+34,True,True,number_match,number_match,,,Which project has the largest budget?,Orbital Satellite Constellation ($680 million),"The project with the largest budget is the **Orbital Constellation**, which has a total budget of **$680 million**. This is followed by the **Desert Sun Solar Farm** with a budget of **$385 million** and the **GreenHydrogen Initiative** with a budget of **$225 million**. In summary, the ranking of the projects by budget is as follows:
+1. **Orbital Constellation**: $680M
+2. **Desert Sun Solar Farm**: $385M
+3. **GreenHydrogen Initiative**: $225M Thus, the **Orbital Constellation** project has the ","The project with the largest budget is the **Orbital Constellation**, which has a total budget of **$680 million**. This is followed by the **Desert Sun Solar Farm** with a budget of **$385 million** and the **GreenHydrogen Initiative** with a budget of **$225 million**. In summary, the ranking of the projects by budget is as follows:
+1. **Orbital Constellation**: $680M
+2. **Desert Sun Solar Farm**: $385M
+3. **GreenHydrogen Initiative**: $225M Thus, the **Orbital Constellation** project has the "
+35,True,True,component_match,component_match,,,Which division had the highest revenue growth in FY2025?,Nexus Energy Systems (22.1% growth),"The division with the highest revenue growth in FY2025 was the **Nexus Digital Solutions Division**, which achieved a growth rate of **17.4%**. This division generated a revenue of **$1.82 billion** in FY2025. In comparison, the other divisions had the following growth rates:
+- Nexus Aerospace: +8.8%
+- Nexus Energy Systems: +12.6%
+- Nexus Advanced Materials: +4.6% Thus, Nexus Digital Solutions led in revenue growth among all divisions for that fiscal year.
+
+---
+**Confidence: Medium (80%)**
+
+**Wh","The division with the highest revenue growth in FY2025 was the **Nexus Digital Solutions Division**, which achieved a growth rate of **17.4%**. This was followed by the Nexus Energy Systems Division with a growth rate of **12.6%**, and the Nexus Aerospace Division with a growth rate of **8.8%**. The Nexus Advanced Materials Division had the lowest growth at **4.6%**.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['22.5%', '22%', '10.6%', '6%', '13.0%', '"
+36,True,True,number_match,number_match,,,Which division has the highest safety incident rate (TRIR)?,Nexus Advanced Materials (1.24 TRIR),"The division with the highest safety incident rate (Total Recordable Incident Rate, TRIR) is the **Materials Division**, which has a TRIR of **1.24**. This division continues to be a concern due to its high incident rate compared to other divisions.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['0.08', '680', '042', '98.5', '0.78', '0.12', '425', '2,000', '1', '960', '825', '10', '200,000', '26', '12,800', '2', '198,000', '0.82', '72', '2,450', '25', '0.24'","The division with the highest safety incident rate (Total Recordable Incident Rate, TRIR) is the **Materials Division**, which has a TRIR of **1.24**. This division continues to be a concern due to its high incident rate compared to other divisions.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['0.08', '680', '042', '98.5', '0.78', '0.12', '425', '2,000', '1', '960', '825', '10', '200,000', '26', '12,800', '2', '198,000', '0.82', '72', '2,450', '25', '0.24'"
+37,False,False,no_data,no_data,NOT_FOUND,NOT_FOUND,Who is the Project Director for the GreenHydrogen Initiative?,Jennifer Walsh,"The retrieved information does not specify who the Project Director for the GreenHydrogen Initiative is. It provides details about the project, such as its construction progress, location, first hydrogen production target, offtake agreement value, and a partner (Shell), but it does not mention any individuals or their roles. Therefore, I cannot provide the name of the Project Director based on the available information.","The retrieved information does not specify who the Project Director for the GreenHydrogen Initiative is. It provides details about the project, such as its construction progress, location, first hydrogen production target, offtake agreement value, and a partner (Shell), but it does not mention any individuals or their roles. Therefore, I cannot provide the name of the Project Director."
+38,False,False,no_data,no_data,NOT_FOUND,NOT_FOUND,Who is the CISO of Nexus Industries?,"Jennifer Walsh (appointed January 2026, formerly Robert Kim)","The retrieved information does not specify who the Chief Information Security Officer (CISO) of Nexus Industries is. The only individual mentioned in the relationships is Victoria Chen, who works at Nexus Industries, but her specific role is not identified. Therefore, I cannot provide the name of the CISO for Nexus Industries based on the available data.","The retrieved information does not specify who the Chief Information Security Officer (CISO) of Nexus Industries is. The only individual mentioned in the relationships is Victoria Chen, who works at Nexus Industries, but her specific role is not identified. Therefore, I cannot provide the name of the CISO for Nexus Industries based on the available data."
+39,True,True,exact_match,exact_match,,,What is the annual dividend per share?,$1.80,"The annual dividend per share for the upcoming fiscal years is as follows: - **FY2026**: $1.52
+- **FY2027**: $1.62
+- **FY2028**: $1.75 Additionally, it was announced that the Board of Directors approved a 12% increase in the dividend to **$1.80 per share annually**, which marks the eighth consecutive year of dividend increases. This increase is likely to take effect in the near future, but the specific timing is not detailed in the provided information.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:*","The annual dividend per share for the upcoming fiscal years is as follows: - **FY2026**: $1.52
+- **FY2027**: $1.62
+- **FY2028**: $1.75 Additionally, it was announced that the Board of Directors approved a 12% increase in the dividend to **$1.80 per share annually**, which marks the eighth consecutive year of dividend increases. This increase is likely to take effect in the near future, but the specific timing is not detailed in the provided information.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:*"
+40,False,False,no_match,no_match,FORMAT_MISMATCH,FORMAT_MISMATCH,What is the total company backlog?,$12.4 billion,"The total company backlog for Nexus Industries is **$11.5 billion**. This backlog includes the following breakdown by division: - Nexus Aerospace: $5.2 billion
+- Nexus Energy Systems: $3.8 billion
+- Nexus Digital Solutions: $1.4 billion
+- Nexus Advanced Materials: $1.1 billion","The total company backlog for Nexus Industries is **$11.5 billion**. This backlog includes the following breakdown by division: - Nexus Aerospace: $5.2 billion
+- Nexus Energy Systems: $3.8 billion
+- Nexus Digital Solutions: $1.4 billion
+- Nexus Advanced Materials: $1.1 billion"
+41,True,True,component_match,component_match,,,How many endpoints does CyberShield protect?,Over 2 million (2.1 million),"CyberShield protects over **2 million endpoints** across its platform. Here are the specific details related to the endpoints and customers mentioned in the retrieved information: 1. **Endpoints Protected**: - Over **2 million endpoints** (specifically noted as **2.1 million** in some documents). 2. **Enterprise Customers**: - CyberShield serves **342 enterprise customers**. These metrics highlight the scale of CyberShield's protection capabilities within its security platform.
+
+---
+**Confidence","CyberShield protects over **2 million endpoints** across its platform. Here are the specific details related to the endpoints and customers mentioned in the retrieved information: 1. **Endpoints Protected**: - Over **2 million endpoints** (specifically noted as **2.1 million** in some documents). 2. **Enterprise Customers**: - CyberShield serves **342 enterprise customers**. These metrics highlight the scale of CyberShield's protection capabilities within its security platform.
+
+---
+**Confidence"
+42,True,True,component_match,component_match,,,What is the annual HTS wire production capacity?,"1,000 km/year","The annual production capacity for high-temperature superconducting (HTS) wire is projected to be **500 kilometers per year**. This capacity is part of the objectives outlined in the High-Temperature Superconductor Wire Program, which aims to develop and commercialize second-generation HTS wire for various applications, including power transmission and MRI systems. The timeline indicates that commercial production is expected to commence in **September 2026**, following several key milestones le","The annual production capacity for high-temperature superconductor (HTS) wire is projected to be **500 km/year**. This capacity is part of the objectives outlined in the project charter for the HTS wire program, which aims to develop and commercialize second-generation HTS wire for various applications, including power transmission and MRI systems. The timeline indicates that commercial production is expected to begin in **September 2026**.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple nu"
+43,True,True,exact_match,exact_match,,,When did CyberShield achieve FedRAMP High authorization?,"January 15, 2026","CyberShield achieved FedRAMP High authorization on January 15, 2026. This authorization allows the CyberShield Security Platform to be deployed across various federal government sectors, including the Department of Defense and federal civilian agencies.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['58', '400', '4.6', '1,200', '680', '70', '99.7', '45', '40', '4.0', '55', '4', '8', '1.5', '100', '13', '5', '0.3', '966', '1.2', '9.8', '1', '71', '115', '38',","CyberShield achieved FedRAMP High authorization on January 15, 2026. This authorization allows the CyberShield Security Platform to be deployed across various federal government sectors, including the Department of Defense and federal civilian agencies.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['58', '400', '4.6', '1,200', '680', '70', '99.7', '45', '40', '4.0', '55', '4', '8', '1.5', '100', '13', '5', '0.3', '966', '1.2', '9.8', '1', '71', '115', '38',"
+44,True,True,component_match,component_match,,,When is the Toyota JV expected to close?,"March 1, 2026","The Toyota joint venture (JV) is expected to close in the first quarter of 2026, as indicated by the funding schedule which lists ""Closing (Q1 2026)"" as a milestone. However, the exact date of the closing has not been specified, and the announcement regarding the closure is expected to be made on March 5, 2026.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['4.2', '400', '70', '4.6', '00', '350', '5.17', '10.2', '500', '1', '31', '22', '10', '6.00', '700', '","The Toyota joint venture (JV) is expected to close in the first quarter of 2026, as indicated by the funding schedule which lists ""Closing (Q1 2026)"" as a milestone. However, the exact date of the closing has not been specified, and the announcement regarding the closure is expected to be made on March 5, 2026.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['4.2', '400', '70', '4.6', '00', '350', '5.17', '10.2', '500', '1', '31', '22', '10', '6.00', '700', '"
+45,False,False,no_match,no_match,FORMAT_MISMATCH,FORMAT_MISMATCH,When was Dr. Victoria Chen appointed CEO?,2019,"Dr. Victoria Chen was appointed CEO of Nexus Industries on **March 2018**. She reports to the Board of Directors and has been instrumental in corporate strategy development and executive leadership. ---
+**Confidence: High (90%)** **Why:** The information is sourced from an authoritative organizational record detailing executive team roles and start dates.","Dr. Victoria Chen was appointed CEO of Nexus Industries on **March 2018**. She reports to the Board of Directors and has been instrumental in corporate strategy development and executive team leadership. ---
+**Confidence: High (90%)** **Why:** The information is sourced from an authoritative organizational record detailing executive team roles and start dates."
+46,False,True,no_match,exact_match,NOT_FOUND,,Who supplies solar panels for the Desert Sun project?,First Solar,"The retrieved information does not specify the supplier of solar panels for the Desert Sun project. It mentions a contract for ""Desert Sun Solar Panels"" with a value of $145M and an active status from 2024 to 2026, but it does not provide the name of the supplier. Therefore, I cannot provide a specific answer regarding who supplies the solar panels for the Desert Sun project.
+
+---
+**Confidence: Low (75%)**
+
+**Why:** Facts not found in source: ['$145M']
+
+**Please verify this information against s","The solar panels for the Desert Sun project are supplied by First Solar, Inc. They are providing Series 7 panels under a contract valued at $145 million, which is active from 2024 to 2026.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple currency values found in source: ['$12M', '$85M', '$28M', '$27 million', '$22M', '$118M', '$148M', '$500M', '$175M', '$72 million', '$45 million', '$8.5M', '$290M', '$65M', '$385 million', '$145M', '$3M', '$32', '$121.5M', '$30M', '$0.26', '$0.27', '$28 mill"
+47,True,True,exact_match,exact_match,,,Which university is a research partner for quantum computing?,MIT,"The university that is a research partner for quantum computing is MIT, which focuses on quantum computing and AI with an investment of $5 million per year. Other universities mentioned as research partners include Stanford, which focuses on materials science with an investment of $3 million per year, and Caltech, which focuses on aerospace and propulsion with an investment of $2.5 million per year.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple currency values found in source: ['$42M', '$","The university that is a research partner for quantum computing is MIT, which focuses on quantum computing and AI with an investment of $5 million per year. Other universities mentioned as research partners include Stanford, which focuses on materials science with an investment of $3 million per year, and Caltech, which focuses on aerospace and propulsion with an investment of $2.5 million per year.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple currency values found in source: ['$42M', '$"
+48,False,False,no_match,no_match,MISMATCH,MISMATCH,Who is the primary customer for HTS superconducting wire?,Siemens Healthineers ($65 million),"The primary customer for HTS superconducting wire is **The Boeing Company**. They have a strategic relationship with Nexus Industries, focusing on aerospace and defense applications. ---
+**Confidence: High (90%)** **Why:** The information is sourced from a customer profile document detailing the relationship between Nexus Industries and Boeing.","The primary customer for HTS superconducting wire is **The Boeing Company**. They have a strategic relationship with Nexus Industries, focusing on aerospace applications and components. ---
+**Confidence: High (90%)** **Why:** The information is derived from a customer profile document detailing the relationship between Nexus Industries and Boeing, including their roles and contract values."
+49,True,True,exact_match,exact_match,,,What is the endurance of the Falcon X UAV?,28 hours,"The Falcon X UAV has an endurance of 28 hours under its maximum endurance mission profile. For standard intelligence, surveillance, and reconnaissance (ISR) missions, it has an endurance of 24 hours.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['1,200', '1.0', '36', '1.3', '13.6', '45', '1,850', '33', '40', '180', '1,350', '4', '8', '85', '100', '890', '20', '0', '5', '220', '1.1', '1.2', '19', '200', '1', '2,500', '6,800', '38', '11', '22', '10', '265', '","The Falcon X UAV has an endurance of 28 hours under its maximum endurance mission profile. For standard intelligence, surveillance, and reconnaissance (ISR) missions, it has an endurance of 24 hours.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['1,200', '1.0', '36', '1.3', '13.6', '45', '1,850', '33', '40', '180', '1,350', '4', '8', '85', '100', '890', '20', '0', '5', '220', '1.1', '1.2', '19', '200', '1', '2,500', '6,800', '38', '11', '22', '10', '265', '"
+50,True,True,exact_match,exact_match,,,What is the service ceiling of the Falcon X?,"45,000 feet","The service ceiling of the Falcon X unmanned aerial vehicle (UAV) is 45,000 feet. This is the design value specified in the technical documentation for the Falcon X UAV.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['36', '4.95', '1.80', '1', '22', '10', '9.5', '16', '3.1', '26', '4.5', '11.2', '2', '13.7', '28', '45,000', '1,200', '16.0', '45', '33', '180', '4', '85', '890', '1.1', '2,500', '38', '40,000', '13.9', '3.2', '2.2', '9', '274', '145', '35', '32","The service ceiling of the Falcon X unmanned aerial vehicle (UAV) is 45,000 feet. This is the design value specified in the technical documentation for the Falcon X UAV.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['36', '4.95', '1.80', '1', '22', '10', '9.5', '16', '3.1', '26', '4.5', '11.2', '2', '13.7', '28', '45,000', '1,200', '16.0', '45', '33', '180', '4', '85', '890', '1.1', '2,500', '38', '40,000', '13.9', '3.2', '2.2', '9', '274', '145', '35', '32"
+51,True,True,component_match,component_match,,,How many satellites are in the Orbital Constellation project?,48 satellites,"The Orbital Constellation project involves a total of **24 satellites** that are planned to be launched over the contract period from 2026 to 2028. The breakdown of the launches and the number of satellites per year is as follows: 1. **2026**: 8 launches, totaling **20 satellites**
+2. **2027**: 10 launches, totaling **20 satellites**
+3. **2028**: 6 launches, totaling **8 satellites** In summary, the Orbital Constellation project will consist of **24 satellites** launched across these three years","The Orbital Constellation project involves a total of **24 satellites** that are planned to be launched over the contract period from 2026 to 2028. The breakdown of the launches and the number of satellites per year is as follows: 1. **2026**: 8 launches, totaling **20 satellites**
+2. **2027**: 10 launches, totaling **20 satellites**
+3. **2028**: 6 launches, totaling **8 satellites** In summary, the Orbital Constellation project will consist of **24 satellites** launched across these three years"
+52,True,True,exact_match,exact_match,,,What is the detection rate of CyberShield?,99.7%,"The detection rate of CyberShield is 99.7%. This metric indicates the platform's effectiveness in identifying threats across the endpoints it protects. Additionally, the false positive rate is reported at 0.8%, which reflects the accuracy of the detection capabilities.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['94.3%', '87.6%', '98.5%', '80%', '70%', '99.5%', '0.8%', '0.3%', '8%', '99.2%', '72%', '45%', '1.2%', '0.6%', '52%', '2.1%', '48%', '100%', ","The detection rate of CyberShield is 99.7%. This metric indicates the platform's effectiveness in identifying threats across the endpoints it protects. Additionally, the false positive rate is reported at 0.8%, which reflects the accuracy of the detection capabilities.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['94.3%', '87.6%', '98.5%', '80%', '70%', '99.5%', '0.8%', '0.3%', '8%', '99.2%', '72%', '45%', '1.2%', '0.6%', '52%', '2.1%', '48%', '100%', "
+53,True,True,percentage_match,percentage_match,,,What percentage of the Toyota JV production will Toyota purchase?,Minimum 60% for the first 5 years,"Toyota will purchase a minimum of **60%** of the production from the joint venture (JV) for the first five years, as outlined in the Toyota Offtake Agreement. This agreement specifies that Toyota has the right to purchase this minimum percentage, with pricing set at cost plus a 15% margin for that volume. Any production above this minimum will be subject to market pricing.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['60%', '40%', '51%', '95%', '80%', ","Toyota will purchase a minimum of **60%** of the production from the joint venture (JV) for the first five years, as outlined in the Toyota Offtake Agreement. This agreement specifies that Toyota has the right to purchase this minimum percentage, with pricing set at cost plus a 15% margin. Any volume produced above this minimum will be subject to market pricing.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['60%', '40%', '51%', '95%', '80%', '70%', '10%"
+54,True,True,component_match,component_match,,,How much is Nexus investing in cash in the Toyota JV?,$80 million (plus $79 million in IP),"Nexus is investing a total of **$80 million** in cash in the joint venture with Toyota. This investment is structured across several milestones, with the following cash contributions: - **Closing (Q1 2026):** $30 million
+- **Pilot Line (Q3 2026):** $25 million
+- **Production Ramp (Q2 2027):** $25 million This total cash contribution is part of a larger investment framework where Toyota is contributing **$153 million** in cash, bringing the total cash contributions from both parties to **$233 mil","Nexus is investing a total of **$80 million** in cash in the joint venture with Toyota. This investment is structured across several milestones, with the following cash contributions: - **Closing (Q1 2026):** $30 million
+- **Pilot Line (Q3 2026):** $25 million
+- **Production Ramp (Q2 2027):** $25 million This total cash contribution is part of a larger investment framework where Toyota is contributing **$153 million** in cash, bringing the total cash contributions from both parties to **$233 mil"
+55,True,True,component_match,component_match,,,What is the total cost savings from the cybersecurity incident avoidance?,"Avoided $5-10M ransom, $2-5M/day downtime, up to $10M fines","The total cost savings from cybersecurity incident avoidance is estimated to be between **$7 million and $15 million**. This includes avoided costs such as potential ransom payments, extended downtime, regulatory fines, and reputational damage that could have occurred if the ransomware attack had succeeded. ---
+**Confidence: Medium (80%)** **Why:** Multiple cost estimates found in source: ['5-10M', '2-5M/day', 'up to $10M', 'incalculable', '5-10% potential'] **Please verify this information agai","The total cost savings from cybersecurity incident avoidance is estimated to be between **$5 million and $10 million**. This figure represents the potential ransom payment that was avoided, along with additional costs related to extended downtime and regulatory fines that could have been incurred if the ransomware attack had succeeded. ---
+**Confidence: Medium (80%)** **Why:** Multiple cost estimates found in source: ['5-10M', '2-5M/day', 'up to $10M', '5-10% potential customer attrition'] **Ple"
+56,True,True,component_match,component_match,,,Which Boeing or Airbus has the larger contract value with Nexus?,Boeing ($730 million vs Airbus $565 million),"Based on the retrieved information, The Boeing Company has a larger contract value with Nexus compared to Airbus SE. ### Contract Values:
+- **Boeing:** - Active Contracts: - 787 Floor Beams: $185M - 737 MAX Components: $145M - Carbon Fiber Supply: $125M - Wing Structures: $95M - Titanium Alloy Supply: $85M - Engineering Services: $45M - **Total Contract Value:** $185M + $145M + $125M + $95M + $85M + $45M = **$680M** - **Airbus:** - Active Contracts: - A350 Wing Components: $145M - A320neo Struct","Based on the retrieved information, The Boeing Company has a larger contract value with Nexus compared to Airbus SE. ### Contract Values:
+- **Boeing:** - Active Contracts: - 787 Floor Beams: $185M - 737 MAX Components: $145M - Carbon Fiber Supply: $125M - Wing Structures: $95M - Titanium Alloy Supply: $85M - Engineering Services: $45M - **Total Contract Value:** $680M - **Airbus:** - Active Contracts: - A350 Wing Components: $145M - A320neo Structures: $95M - Carbon Fiber Panels: $85M - A330neo "
+57,True,True,component_match,component_match,,,What are the four divisions of Nexus Industries?,"Aerospace, Energy Systems, Digital Solutions, Advanced Materials","The four divisions of Nexus Industries are: 1. **Nexus Aerospace** - Focus: Aviation, Space, Defense - Annual Revenue (2025): $2.85 billion 2. **Nexus Energy Systems** - Focus: Renewables, Grid, Storage - Annual Revenue (2025): $2.42 billion 3. **Nexus Digital Solutions** - Focus: IoT, Security, Software - Annual Revenue (2025): $1.82 billion 4. **Nexus Advanced Materials** - Focus: Composites, Alloys, Conductors - Annual Revenue (2025): $1.36 billion These divisions serve distinct markets while","The four divisions of Nexus Industries are: 1. **Nexus Aerospace** - Focus: Aviation, Space, Defense - Annual Revenue (2025): $2.85 billion 2. **Nexus Energy Systems** - Focus: Renewables, Grid, Storage - Annual Revenue (2025): $2.42 billion 3. **Nexus Digital Solutions** - Focus: IoT, Security, Software - Annual Revenue (2025): $1.82 billion 4. **Nexus Advanced Materials** - Focus: Composites, Alloys, Conductors - Annual Revenue (2025): $1.36 billion These divisions serve distinct markets while"
+58,True,True,exact_match,exact_match,,,What is the Falcon X program's budget variance?,$3.2 million under budget,"The budget variance for the Falcon X program is reported as **$3.2 million under budget**. This indicates that the actual spending is less than the budgeted amount for the program, reflecting a positive financial status. Additionally, a detailed breakdown of the budget performance shows that the total budget for the Falcon X program is **$145 million**, with actual spending at **$141.8 million**, resulting in a total variance of **($3.2 million)**. If you need more specific details or further br","The budget variance for the Falcon X program is reported as **$3.2 million under budget**. This indicates that the actual spending is less than the budgeted amount for the program. Additionally, a detailed breakdown of the budget performance shows that the total budget for the Falcon X program is **$145 million**, with actual spending at **$141.8 million**, resulting in a total variance of **($3.2 million)**. If you need more specific details or further breakdowns, please let me know!
+
+---
+**Con"
+59,True,True,component_match,component_match,,,How many global locations does Nexus have?,32 locations,"Nexus Industries has a total of **32 global locations**. Here is the breakdown by region: 1. **North America**: 22 locations
+2. **Europe**: 6 locations
+3. **Asia-Pacific**: 4 locations This information is summarized in the Global Footprint Summary section of the retrieved data.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['400', '680', '00', '350', '500', '4.0', '65,000', '13.0', '9.8', '1', '18,000', '196', '22', '31', '10', '9.5', '150', '2.35', '555', '","Nexus Industries has a total of **32 global locations**. Here is the breakdown by region: 1. **North America**: 22 locations
+2. **Europe**: 6 locations
+3. **Asia-Pacific**: 4 locations This information is summarized in the Global Footprint Summary section of the retrieved data.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['400', '680', '00', '350', '500', '4.0', '65,000', '13.0', '9.8', '1', '18,000', '196', '22', '31', '10', '9.5', '150', '2.35', '555', '"
+60,False,False,no_match,no_match,MISMATCH,MISMATCH,When was the phishing incident detected?,"December 12, 2025 at 02:47 UTC","The retrieved information does not contain any details regarding a phishing incident or when it was detected. Therefore, I cannot provide an answer to your question about the timing of the phishing incident. If you have any other questions or need information on a different topic, feel free to ask!","The retrieved information does not contain any details regarding a phishing incident or when it was detected. Therefore, I cannot provide an answer to your question about the timing of the phishing incident. If you have any other questions or need information on a different topic, feel free to ask!"
+61,True,True,exact_match,exact_match,,,Who replaced Thomas Anderson as Digital President?,Robert Kim,Robert Kim replaced Thomas Anderson as Digital President.,Robert Kim replaced Thomas Anderson as Digital President.
+62,True,True,exact_match,exact_match,,,What FedRAMP level did CyberShield achieve?,FedRAMP High,"CyberShield achieved FedRAMP High authorization, which is the highest level of cloud security certification for federal government systems. This authorization was announced on January 15, 2026, and allows CyberShield to be deployed across various federal entities, including the Department of Defense and other federal agencies.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['58', '1.0', '99.99', '99.7', '002', '500', '4', '8', '100', '005', '5', '1.1', '1', '","CyberShield achieved FedRAMP High authorization, which is the highest level of cloud security certification for federal government systems. This authorization was announced on January 15, 2026, and allows CyberShield to be deployed across various federal entities, including the Department of Defense and other federal agencies.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['58', '1.0', '99.99', '99.7', '002', '500', '4', '8', '100', '005', '5', '1.1', '1', '"
+63,True,True,exact_match,exact_match,,,Which executive has a PhD from MIT?,Dr. Victoria Chen,"The executive with a PhD from MIT is Dr. Victoria Chen, who serves as the Chief Executive Officer (CEO) of Nexus Industries. She holds a Ph.D. in Electrical Engineering from MIT, along with an MBA from Harvard Business School.","The executive with a PhD from MIT is Dr. Victoria Chen, who serves as the Chief Executive Officer (CEO) of Nexus Industries. She holds a Ph.D. in Electrical Engineering from MIT, along with an MBA from Harvard Business School."
+64,True,True,exact_match,exact_match,,,What is the name of the Toyota JV company?,NextGen Battery Technologies LLC,"The name of the Toyota joint venture (JV) company is ""NextGen Battery Technologies LLC."" This JV is a collaboration between Nexus Industries and Toyota Motor Corporation, focused on commercializing solid-state battery technology.","The name of the Toyota joint venture (JV) company is ""NextGen Battery Technologies LLC."" This JV is formed between Nexus Industries and Toyota Motor Corporation to commercialize solid-state battery technology."
+65,True,True,component_match,component_match,,,Is Nexus Digital growing faster or slower than Nexus Aerospace?,Faster (18.2% vs 12.3%),"Nexus Digital Solutions is growing faster than Nexus Aerospace. Based on the retrieved information, Nexus Digital Solutions reported a revenue growth of **17.4%** for FY2025, with a revenue of **$1.82 billion**. In contrast, Nexus Aerospace experienced a revenue growth of **8.8%** for the same fiscal year, with a revenue of **$2.85 billion**. Additionally, in Q4 FY2025, Nexus Digital Solutions achieved a growth rate of **20.5%**, while Nexus Aerospace's growth was **8.5%**. This trend indicates ","Based on the retrieved information, Nexus Digital Solutions is growing faster than Nexus Aerospace. Here are the key growth metrics for both divisions: - **Nexus Digital Solutions**: - FY2025 revenue: $1.82 billion - Growth rate: +17.4% - Q4 FY2025 revenue: $512 million, with a growth of +20.5% compared to Q4 FY2024. - **Nexus Aerospace**: - FY2025 revenue: $2.85 billion - Growth rate: +8.8% - Q4 FY2025 revenue: $765 million, with a growth of +8.5% compared to Q4 FY2024. In summary, Nexus Digita"
+66,False,False,no_match,no_match,FORMAT_MISMATCH,FORMAT_MISMATCH,What is the FY2026 capital expenditure plan?,$680 million,"The FY2026 capital expenditure plan for Nexus Industries is outlined as follows: ### Total Capital Expenditure for FY2026
+- **Total Amount**: $520 million ### Breakdown by Division
+- **Aerospace**: $100 million
+- **Energy**: $190 million
+- **Digital**: $95 million
+- **Materials**: $135 million ### Summary of Capital Expenditure Plan (FY2026-2028)
+The total capital expenditure over the three years (FY2026-2028) is projected to be **$1.65 billion**, with the following annual allocations:
+- **FY202","The FY2026 capital expenditure plan for Nexus Industries is outlined as follows: ### Total Capital Expenditure for FY2026
+- **Total Amount**: $520 million ### Breakdown by Division
+- **Aerospace**: $100 million
+- **Energy**: $190 million
+- **Digital**: $95 million
+- **Materials**: $135 million ### Summary of Major Capital Projects
+Some of the significant capital projects planned include:
+- **GreenHydrogen Facility** (Energy): $225 million (Timeline: 2025-2027)
+- **HTS Wire Production Line** (Mat"
+67,False,False,no_data,no_data,NOT_FOUND,NOT_FOUND,What operating temperature range does the solid-state battery support?,-30°C to 60°C,"The retrieved information does not specify the operating temperature range supported by the solid-state battery. While it provides details about the joint venture, production targets, and other specifications, the specific temperature range for the solid-state battery is not mentioned. Therefore, I cannot provide a definitive answer regarding the operating temperature range. If you have access to additional documents or specifications, they may contain this information.","The retrieved information does not specify the operating temperature range that the solid-state battery supports. While it provides details about the joint venture, production targets, and other specifications, the specific temperature range for the solid-state battery is not mentioned. Therefore, I cannot provide an answer regarding the operating temperature range based on the available information."
+68,False,True,no_match,component_match,MISMATCH,,Who is the Chair of the Export Control Committee?,Col. (Ret.) James Foster (Empowered Official),"The Chair of the Export Control Committee is the Empowered Official. This role is typically held by a senior official within the organization, such as the VP of Trade Compliance.",The Chair of the Export Control Committee is the Empowered Official. The current Empowered Official is Col. (Ret.) James Foster.
+69,True,True,exact_match,exact_match,,,What is the TRIR safety target for FY2026?,<0.75,"The TRIR (Total Recordable Incident Rate) safety target for FY2026 is set to be less than 0.75 (<0.75). There is also a stretch target of less than 0.70 (<0.70) for that fiscal year.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['185,000', '25', '156', '55,000', '52,000', '003', '1.02', '60,000', '45', '0.98', '40', '002', '50,000', '24.5', '4', '8', '0', '100', '85', '0.12', '20', '005', '5', '220', '425', '850', '163', '450', '2,000', '1', '171', '38', '8","The TRIR (Total Recordable Incident Rate) safety target for FY2026 is set to be less than 0.75 (<0.75). There is also a stretch target of less than 0.70 (<0.70) for that fiscal year.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['185,000', '25', '156', '55,000', '52,000', '003', '1.02', '60,000', '45', '0.98', '40', '002', '50,000', '24.5', '4', '8', '0', '100', '85', '0.12', '20', '005', '5', '220', '425', '850', '163', '450', '2,000', '1', '171', '38', '8"
+70,True,True,exact_match,exact_match,,,When is the NexusConnect Edge AI product launching?,"March 15, 2026","The NexusConnect Edge AI product is scheduled to launch on **March 15, 2026**.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['12.3', '3.5', '400', '25', '1.0', '4.1', '45', '4.0', '55', '4', '13', '20', '5', '95', '450', '1', '5.7', '22', '2,400', '600', '52', '14', '48', '18', '001', '15', '11.4', '9', '4.5', '120', '10.9', '68', '3.0', '2', '3.6', '6', '65', '28', '2.0', '118', '12', '115', '3']
+
+**Please verify this information against source documents.*","The NexusConnect Edge AI product is scheduled to launch on **March 15, 2026**.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['12.3', '3.5', '400', '25', '1.0', '4.1', '45', '4.0', '55', '4', '13', '20', '5', '95', '450', '1', '5.7', '22', '2,400', '600', '52', '14', '48', '18', '001', '15', '11.4', '9', '4.5', '120', '10.9', '68', '3.0', '2', '3.6', '6', '65', '28', '2.0', '118', '12', '115', '3']
+
+**Please verify this information against source documents.*"
+71,False,False,no_match,no_match,MISMATCH,MISMATCH,Who is the mining automation partner?,Caterpillar,"The mining automation partner is **Siemens**, which is involved in the mining automation launch and is considered a competitor in the autonomous mining space.","The mining automation partner for Nexus Industries is **Siemens**, as indicated by their competitive moves in the mining automation sector. Siemens is launching a mining automation initiative, which positions them as a competitor in autonomous mining."
+72,True,True,number_match,number_match,,,What is the fast charge time for the solid-state battery (10-80%)?,15 minutes,"The retrieved information does not specify the fast charge time for the solid-state battery (10-80%). While it provides details about the joint venture, production targets, and other aspects of the solid-state battery technology, it lacks specific performance metrics such as charging times. Therefore, I cannot provide an answer regarding the fast charge time for the solid-state battery.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['60%', '40%', '51%', ","The retrieved information does not specify the fast charge time for the solid-state battery (10-80%). While it provides details about the joint venture, production targets, and other aspects of the solid-state battery technology, it lacks specific performance metrics such as charging times. Therefore, I cannot provide an answer regarding the fast charge time for the solid-state battery.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['60%', '40%', '51%', "
+73,False,True,no_match,number_match,NOT_FOUND,,How many new employees will Nexus hire in FY2026?,"1,200 net new positions","The retrieved information does not explicitly state the number of new employees that Nexus Industries will hire in FY2026. However, it does provide some relevant data regarding the company's workforce and strategic goals: 1. **Current Total Employees (FY2025)**: 12,500
+2. **Target Total Employees (FY2030)**: 18,000
+3. **New Hires in FY2025**: 1,450
+4. **Voluntary Turnover Rate (FY2025)**: 8.5% While the specific number of new hires for FY2026 is not mentioned, the strategic goal indicates a sign","Based on the retrieved information, Nexus Industries plans to hire **1,450 new employees** in FY2026. This figure is derived from the employee metrics provided in the annual report, which states that in FY2025, Nexus hired 1,450 new employees. Here’s a summary of the relevant items regarding employee hiring: 1. **New Hires in FY2025**: 1,450
+2. **Total Employees in FY2025**: 12,500
+3. **Target Headcount for FY2030**: 18,000 (indicating a growth strategy that may involve further hiring in subsequ"
+74,True,True,component_match,component_match,,,Which project started first: Falcon X or GreenHydrogen?,"GreenHydrogen (groundbreaking Q1 2024, Falcon X CDR Dec 2024)","Based on the retrieved information, there is no explicit mention of the start dates for the Falcon X and GreenHydrogen projects. However, we do have some context regarding their current statuses: - The Falcon X UAV is noted to be in ""Development Phase 2"" with an investment of $145 million.
+- The GreenHydrogen project has secured $75 million in funding from the Department of Energy and has an investment of $225 million, indicating it is in the engineering phase. While we cannot definitively deter","Based on the retrieved information, there is no explicit mention of the start dates for the Falcon X and GreenHydrogen projects. However, we do have some context regarding their current statuses: - The Falcon X UAV is noted to be in ""Development Phase 2"" with an investment of $145 million.
+- The GreenHydrogen project has secured $75 million in funding from the Department of Energy and has an investment of $225 million, indicating it is in the engineering phase. While we cannot definitively deter"
+75,False,False,no_data,no_data,NOT_FOUND,NOT_FOUND,Who is the VP of Engineering for Nexus Digital Solutions?,Dr. Alan Chen,"The retrieved information does not specify who the VP of Engineering for Nexus Digital Solutions is. The only individual mentioned in the relationships is Robert Kim, but there is no indication of his role or position within the company. Therefore, I cannot provide the name of the VP of Engineering for Nexus Digital Solutions based on the available data.","The retrieved information does not specify who the VP of Engineering for Nexus Digital Solutions is. The only individual mentioned in the relationships is Robert Kim, but there is no indication of his role or position within the company. Therefore, I cannot provide the name of the VP of Engineering for Nexus Digital Solutions based on the available data."
+76,False,True,no_data,exact_match,NOT_FOUND,,What is the total patent portfolio size?,"2,412 patents","The total patent portfolio size for Nexus Industries is not available in the current data, as there is insufficient information to provide a count of the patents.","The total patent portfolio size for Nexus Industries is **2,412 patents**. This includes 185 patents filed in 2025, 142 patents granted in 2025, and 425 pending applications across 48 countries."
+77,True,True,exact_match,exact_match,,,What is the location of the BatteryTech JV facility?,"San Antonio, Texas","The BatteryTech joint venture (JV) facility is primarily located in San Antonio, Texas, adjacent to the Toyota campus. Additionally, there is a pilot line situated in Albuquerque, New Mexico, at the Nexus Materials facility. The JV also utilizes existing research and development (R&D) centers for joint purposes.","The location of the BatteryTech joint venture (JV) facility is primarily in San Antonio, Texas, which is adjacent to the Toyota campus. Additionally, there is a pilot line located in Albuquerque, New Mexico, at the Nexus Materials facility. The JV also utilizes existing research and development (R&D) centers jointly."
+78,True,True,exact_match,exact_match,,,Who provides flight computers for Falcon X?,Honeywell,The flight computers for the Falcon X are provided by Honeywell.,The flight computers for the Falcon X are provided by Honeywell.
+79,False,False,no_match,no_match,FORMAT_MISMATCH,FORMAT_MISMATCH,What is the 2030 revenue target in the corporate strategy?,$15 billion,"The 2030 revenue targets outlined in the corporate strategy are as follows: ### Nexus Aerospace Strategy
+- **UAV/Autonomy:** $1.5 billion
+- **Space Systems:** $1.2 billion
+- **Defense Modernization:** $1.5 billion
+- **Commercial Aviation:** $2.0 billion ### Nexus Energy Systems Strategy
+- **Hydrogen Economy:** $1.0 billion
+- **Grid Modernization:** $1.5 billion
+- **Renewable Projects:** $2.5 billion
+- **Carbon Solutions:** $0.8 billion ### Nexus Digital Solutions Strategy
+- **IoT Platform:** $1.","The 2030 revenue targets outlined in the corporate strategy are as follows: ### Nexus Aerospace Strategy
+- **UAV/Autonomy:** $1.5 billion
+- **Space Systems:** $1.2 billion
+- **Defense Modernization:** $1.5 billion
+- **Commercial Aviation:** $2.0 billion ### Nexus Energy Systems Strategy
+- **Hydrogen Economy:** $1.0 billion
+- **Grid Modernization:** $1.5 billion
+- **Renewable Projects:** $2.5 billion
+- **Carbon Solutions:** $0.8 billion ### Nexus Digital Solutions Strategy
+- **IoT Platform:** $1."
+80,True,True,component_match,component_match,,,What is the operating margin for FY2025?,11.2%,"The operating margin for FY2025 is reported as 12.3% based on the financial target for that year. Additionally, the actual operating margin for Q4 FY2025 is noted as 13.1%. To summarize:
+- **Operating Margin Target for FY2025:** 12.3%
+- **Actual Operating Margin for Q4 FY2025:** 13.1% If you need further details or context regarding these figures, feel free to ask!
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['22.5%', '5.2%', '11.7%', '10.6%', '40%', '","The operating margin for FY2025 is reported as 12.3% based on the financial target for that year. Additionally, the actual operating margin for Q4 FY2025 is noted as 13.1%. To summarize:
+- **Operating Margin Target for FY2025:** 12.3%
+- **Actual Operating Margin for Q4 FY2025:** 13.1% If you need further details or additional context, feel free to ask!
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['22.5%', '5.2%', '11.7%', '10.6%', '40%', '8.1%', '19.0%"
+81,True,True,exact_match,exact_match,,,What is Nexus's sustainability goal for carbon neutrality?,2030,"Nexus's sustainability goal for carbon neutrality is to achieve carbon neutral operations by the year 2030. Additionally, they have committed to reaching net-zero greenhouse gas emissions by 2050. This goal is part of their broader sustainability vision to lead their industries in sustainability while enabling their customers' sustainability goals through innovative products and solutions.","Nexus's sustainability goal for carbon neutrality is to achieve carbon neutral operations by the year 2030. Additionally, they have committed to reaching net-zero greenhouse gas emissions by 2050. This goal is part of their broader sustainability vision to lead their industries in sustainability while also enabling their customers' sustainability goals through innovative products and solutions."
+82,True,True,exact_match,exact_match,,,When was Nexus Industries founded?,1985,Nexus Industries was founded in 1985.,Nexus Industries was founded in 1985.
+83,False,False,no_match,no_match,MISMATCH,MISMATCH,Who is the primary customer for the SmartGrid Controller?,Pacific Power (pilot customer),"The primary customer for the SmartGrid Controller is identified as ""Remote communities."" This entity is listed under the relationships as producing the SmartGrid Controller, indicating that they are a key customer for this product. Additionally, other entities such as ""Utilities,"" ""Industrial,"" ""Islands,"" and ""Microgrids"" are also involved in producing the SmartGrid Controller Platform, but the specific mention of ""Remote communities"" highlights them as a primary customer.","The primary customer for the SmartGrid Controller is identified as ""Remote communities,"" which are listed as producers of the SmartGrid Controller. Additionally, the SmartGrid Controller is also relevant to ""Utilities,"" ""Industrial,"" ""Islands,"" and ""Microgrids,"" which produce the SmartGrid Controller Platform. However, the specific mention of ""Remote communities"" indicates they are a key customer for the SmartGrid Controller itself."
+84,True,True,exact_match,exact_match,,,What is the cybersecurity incident response investment?,$5.3 million,"The cybersecurity incident response investment refers to the financial resources allocated for improving and enhancing the organization's incident response capabilities following a cybersecurity incident. Based on the retrieved information, the organization has approved a significant investment of **$5.3 million** for security improvements. This decision was made in response to a recent high-severity incident involving an attempted ransomware attack, which highlighted the need for better securit","The cybersecurity incident response investment refers to the financial resources allocated for improving and enhancing the organization's incident response capabilities following a cybersecurity incident. Based on the retrieved information, the organization has approved a significant investment of **$5.3 million** for security improvements. This decision was made in response to a recent high-severity incident involving an attempted ransomware attack, which highlighted the need for enhanced secur"
+85,True,True,exact_match,exact_match,,,Who is the Chair of the Quality Council?,Chief Quality Officer,The Chair of the Quality Council is the Chief Quality Officer.,The Chair of the Quality Council is the Chief Quality Officer.
+86,True,True,exact_match,exact_match,,,What is the mean time to detect for CyberShield?,Less than 15 seconds,"The mean time to detect for CyberShield is less than 15 seconds.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['58', '1.0', '99.99', '99.7', '45', '002', '500', '4', '8', '100', '005', '5', '1.1', '1', '602', '22', '10', '18', '2.2', '3.2', '15', '555', '3.1', '24', '128', '342', '3.0', '0.8', '2', '6', '7', '2.0', '2.1', '12,500', '2.5', '3']
+
+**Please verify this information against source documents.**","The mean time to detect for CyberShield is less than 15 seconds.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['58', '1.0', '99.99', '99.7', '45', '002', '500', '4', '8', '100', '005', '5', '1.1', '1', '602', '22', '10', '18', '2.2', '3.2', '15', '555', '3.1', '24', '128', '342', '3.0', '0.8', '2', '6', '7', '2.0', '2.1', '12,500', '2.5', '3']
+
+**Please verify this information against source documents.**"
+87,True,True,component_match,component_match,,,What is the combined cybersecurity and security certification status?,"SOC 2 Type II, ISO 27001, FedRAMP High, DoD IL5, HIPAA compliant","The combined cybersecurity and security certification status for Nexus Industries' CyberShield Security Platform is as follows: 1. **FedRAMP High Authorization**: Achieved on January 15, 2026, this is the highest level of cloud security certification for federal government systems, allowing deployment across various federal agencies, including the Department of Defense and the Intelligence Community. 2. **Previous Certifications**: - **DoD IL5**: Authorized as of June 2025. - **SOC 2 Type II**: ","The combined cybersecurity and security certification status for Nexus Industries' CyberShield Security Platform is as follows: 1. **FedRAMP High Authorization**: Achieved on January 15, 2026, this is the highest level of cloud security certification for federal government systems, allowing deployment across various federal agencies, including the Department of Defense and the Intelligence Community. 2. **Previous Certifications**: - **DoD IL5**: Authorized as of June 2025. - **SOC 2 Type II**: "
+88,True,True,component_match,component_match,,,Which has higher energy density: solid-state or current li-ion batteries?,"Solid-state (400 Wh/kg vs 260 Wh/kg, 54% improvement)","Based on the retrieved information, solid-state batteries have a higher energy density compared to current lithium-ion (Li-ion) batteries. Specifically, the energy density of the solid-state batteries is projected to be 400 Wh/kg for the first generation (2027) and 500 Wh/kg for the second generation (2029). In contrast, the current Li-ion batteries have an energy density of 260 Wh/kg. This indicates that solid-state batteries offer a significant improvement in energy density, with a 54% increas","Based on the retrieved information, solid-state batteries have a higher energy density compared to current lithium-ion (Li-ion) batteries. Specifically, the energy density of the solid-state batteries is projected to be 400 Wh/kg for the first generation (2027) and 500 Wh/kg for the second generation (2029). In contrast, the current Li-ion batteries have an energy density of 260 Wh/kg. This indicates that solid-state batteries offer a significant improvement in energy density, with a 54% increas"
+89,True,True,exact_match,exact_match,,,What is the FY2026 total benefits investment?,$6.0 million,"The total benefits investment for FY2026 is $6.0 million. This investment reflects enhancements to various employee benefits, including mental health support, family building benefits, and student loan assistance. ---
+**Confidence: High (90%)** **Why:** The information is directly stated in the document excerpts retrieved.","The total benefits investment for FY2026 is $6.0 million. This investment reflects enhancements to various employee benefits, demonstrating a commitment to employee well-being. ---
+**Confidence: High (90%)** **Why:** The information is directly stated in the document excerpts retrieved."
+90,True,True,exact_match,exact_match,,,What is the minimum internet speed for remote work?,50 Mbps,"The minimum internet speed required for remote work, as specified in the retrieved information, is **50 Mbps**. This speed is part of the home office setup requirements for employees working remotely.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['150', '5', '2', '80', '1', '00', '9', '006', '500', '10', '4', '90', '50', '3']
+
+**Please verify this information against source documents.**","The minimum internet speed required for remote work, as specified in the retrieved information, is **50 Mbps**. This standard is part of the home office setup requirements for employees working remotely.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['150', '5', '2', '80', '1', '00', '9', '006', '500', '10', '4', '90', '50', '3']
+
+**Please verify this information against source documents.**"
+91,False,False,no_match,no_match,NOT_FOUND,NOT_FOUND,Who is the VP Trade Compliance?,Owns the Export Control Policy (per POL-009),"The current VP of Trade Compliance is not explicitly named in the retrieved documents. However, the role is associated with the Trade Compliance Office, which includes responsibilities for program oversight and compliance. For specific inquiries, you may contact the Trade Compliance office at tradecomp@nexus-industries.com. ---
+**Confidence: Medium (70%)** **Why:** The documents mention the role but do not provide a specific name for the current VP of Trade Compliance.","The current VP of Trade Compliance is not explicitly named in the retrieved documents. However, the role is associated with program oversight within the Trade Compliance Office. For specific inquiries, you may contact the Trade Compliance office at tradecomp@nexus-industries.com. ---
+**Confidence: Medium (70%)** **Why:** The documents mention the role but do not provide a specific name for the current VP of Trade Compliance."
+92,True,True,exact_match,exact_match,,,What is the Quantum Volume of the QL-127 system?,256,"The Quantum Volume of the QL-127 system is 256, as noted in the performance benchmarks section of the retrieved information. This value is expected to be achieved by December 2025.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['400', '64', '99.93', '500', '125,000', '98.5', '1', '10', '700', '150', '16', '3.1', '98.8', '2.4', '2', '7.1', '2,450', '512', '180', '148', '4', '7.2', '1.1', '10.1', '99.0', '294', '5,000', '3.2', '2.2', '9', '98', '99.5', '9.2', ","The Quantum Volume of the QL-127 system is 256, as noted in the performance benchmarks section of the retrieved information. This value is expected to be effective as of December 2025.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['400', '64', '99.93', '500', '125,000', '98.5', '1', '10', '700', '150', '16', '3.1', '98.8', '2.4', '2', '7.1', '2,450', '512', '180', '148', '4', '7.2', '1.1', '10.1', '99.0', '294', '5,000', '3.2', '2.2', '9', '98', '99.5', '9."
+93,False,False,no_match,no_match,MISMATCH,MISMATCH,What electrolyte material is used in the solid-state battery?,"LLZO (Li7La3Zr2O12, Al-doped)","The electrolyte material used in the solid-state battery is a proprietary solid electrolyte developed by Nexus Industries. This information is highlighted in the context of a joint venture between Nexus and Toyota, where Nexus's solid electrolyte materials are combined with Toyota's battery manufacturing expertise to commercialize solid-state battery technology. While the specific composition of the solid electrolyte is not detailed in the retrieved information, it is noted that Nexus holds pate","The electrolyte material used in the solid-state battery is a proprietary solid electrolyte developed by Nexus Industries. This information is highlighted in the context of a joint venture between Nexus and Toyota, where Nexus's solid electrolyte materials are combined with Toyota's battery manufacturing expertise to commercialize solid-state battery technology. While the specific composition of the solid electrolyte is not detailed in the retrieved information, it is noted that Nexus holds pate"
+94,True,True,exact_match,exact_match,,,When is the 256-qubit quantum system planned?,Q2 2026,"The 256-qubit quantum system, referred to as QL-256, is planned for release in Q2 2026.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['400', '70', '64', '99.93', '10.2', '500', '125,000', '98.5', '1', '10', '11.3', '150', '98.8', '11.2', '2', '28', '2,450', '512', '25', '180', '11.1', '4', '7.2', '1.1', '10.1', '99.0', '5,000', '2.2', '9', '60', '98', '99.5', '9.2', '35', '300', '65', '27', '50,000', '8', '5', '1.2', '80', '11', '0.05', '1,800', '99.2', '25","The 256-qubit quantum system, referred to as QL-256, is planned for release in Q2 2026. This milestone is part of a broader hardware roadmap that includes subsequent advancements, such as a 512-qubit system in Q2 2027 and an error correction demonstration in Q4 2027.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple number values found in source: ['400', '70', '64', '99.93', '10.2', '500', '125,000', '98.5', '1', '10', '11.3', '150', '98.8', '11.2', '2', '28', '2,450', '512', '25', '180', '11"
+95,True,True,component_match,component_match,,,Who provides the SAR radar for Falcon X?,Raytheon (APY-8),The SAR radar for Falcon X is provided by Raytheon.,The supplier for the Synthetic Aperture Radar (SAR) for Falcon X is Raytheon.
+96,True,True,exact_match,exact_match,,,What is the APAC revenue target for 2030?,$3.5 billion,"The APAC revenue target for 2030 is projected to be **$3.5 billion**. This target reflects the growth potential of the Asia Pacific region for Nexus Industries, which is expected to increase from $1.52 billion in FY2025 to $3.5 billion by 2030, representing 23% of the total revenue.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['22%', '40%', '8.2%', '5%', '80%', '70%', '47%', '8%', '16%', '45%', '13%', '7%', '90%', '100%', '14.2%', '23%', '13.2%', '25%'","The APAC revenue target for 2030 is projected to be **$3.5 billion**. This target reflects the growth potential of Nexus Industries in the Asia Pacific region, which is identified as the largest growth opportunity for the company.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple currency values found in source: ['$75B', '$20M', '$0.6B', '$520B', '$85M', '$7.5B', '$100M', '$1.52B', '$0.8B', '$2.0B', '$150M', '$200M', '$285M', '$5,000', '$500M', '$280B', '$3.5B', '$1.5B', '$210M', '$35M', '$45"
+97,True,True,semantic_match,semantic_match,,,What is the M&A budget capacity?,$500 million,"The M&A budget capacity for Nexus Industries is outlined in their strategic plan for the years 2026 to 2030. Here is the breakdown of the M&A budget by year: - **2026:** $0M
+- **2027:** $0M
+- **2028:** $100M
+- **2029:** $150M
+- **2030:** $250M The cumulative M&A budget over this period totals **$500M** by the end of 2030. It is important to note that the years 2026 and 2027 are focused on organic investment execution, which is why there is no allocated budget for M&A during those years. The budg","The M&A budget capacity for Nexus Industries is outlined in their strategic plan for the years 2026 to 2030. Here is the breakdown of the M&A budget by year: - **2026:** $0M
+- **2027:** $0M
+- **2028:** $100M
+- **2029:** $150M
+- **2030:** $250M The cumulative M&A budget over this period totals **$500M** by the end of 2030. It is important to note that the focus for the years 2026 and 2027 is on organic investment execution, which is why there is no allocated budget for M&A during those years. The"
+98,True,True,number_match,number_match,,,What is the renewable energy achievement percentage?,65% achieved toward 100% by 2028,"The renewable energy achievement percentage is currently at **65%**. The target is to reach **100%** renewable energy by the year **2028**.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['60%', '6%', '40%', '99%', '89%', '95%', '5%', '80%', '72%', '45%', '92%', '6.5%', '52%', '2%', '90%', '26%', '28%', '100%', '14%', '4%', '25%', '50%', '65%', '18%', '14.9%', '15%', '20%', '35%', '30%', '85%', '0%', '49%', '58%']
+
+**Please verify this information against","The renewable energy achievement percentage is currently at **65%**. The target is to reach **100%** renewable energy by the year **2028**.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['60%', '6%', '40%', '99%', '89%', '95%', '5%', '80%', '72%', '45%', '92%', '6.5%', '52%', '2%', '90%', '26%', '28%', '100%', '14%', '4%', '25%', '50%', '65%', '18%', '14.9%', '15%', '20%', '35%', '30%', '85%', '0%', '49%', '58%']
+
+**Please verify this information against"
+99,True,True,number_match,number_match,,,How does Nexus's operating margin compare to target?,11.2% actual vs 11.5-12.0% target for FY2026,"Nexus Industries' operating margin for FY2025 is reported to be 12.3%. The target operating margin for FY2030 is set at 16.0%. This indicates that Nexus's current operating margin is below its target by 3.7 percentage points. In summary, Nexus's operating margin is currently 12.3%, which is lower than the target of 16.0% for FY2030.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['5.2%', '11.7%', '22%', '10.6%', '6%', '8.1%', '13.0%', '17%', '34.0%', '19.","Nexus Industries' operating margin for FY2025 is reported to be 12.3%. The target operating margin for FY2030 is set at 16.0%. This indicates that Nexus's current operating margin is below its target by 3.7 percentage points. In summary, Nexus's operating margin is currently lower than its target, reflecting a goal to improve operational efficiency and profitability over the next several years.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['5.2%', '11.7"
+100,True,True,component_match,component_match,,,What is the total value of top 3 customer relationships?,Boeing ($730M) + DoD ($680M) + Airbus ($565M) = $1.975 billion,"The total value of the top 3 customer relationships for Nexus Industries is as follows: 1. **Boeing Company**: $730M (FY2025 Business)
+2. **Airbus**: $500M (FY2025 Business)
+3. **Lockheed Martin**: $450M (FY2025 Business) The combined total value of these top 3 customer relationships is **$1.68 billion**. ---
+**Confidence: Medium (80%)** **Why:** Multiple values found in source: ['730M', '500M', '450M', '220M', '145M', '125M', '95M', '85M', '45M', '35M', '28M', '18M', '12M', '10M', '5M', '2M', '","The total value of the top three customer relationships for Nexus Industries is **$1.1 billion**. This includes: 1. **Boeing Company**: $730 million
+2. **Airbus**: $350 million
+3. **Lockheed Martin**: $150 million These values reflect the annual revenue generated from contracts and services provided to these key customers. ---
+**Confidence: Medium (80%)** **Why:** Multiple revenue values found in source: ['$220M', '$95M', '$85M', '$45M', '$35M', '$28M', '$18M', '$150M', '$350M', '$730M'] **Pleas"

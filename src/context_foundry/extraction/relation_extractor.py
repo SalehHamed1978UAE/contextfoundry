@@ -179,15 +179,17 @@ CRITICAL RULES:
    - If a major company-like name appears as PERSON, do not create relationship from that bad typing.
 
 4. SUPPLIER REVIEW CONTEXT:
-   - If document context indicates supplier/vendor/procurement review (e.g. "supplier performance review", "vendor review", "procurement review"), treat listed external organizations as suppliers to the reviewed organization/anchor org.
-   - Do NOT infer MANAGES between supplier peers.
-   - Do NOT infer supplier->supplier edges unless explicit.
-   - Prefer SUPPLIES(supplier -> anchor_org) when supplier relationship is explicit.
+   - In supplier/vendor/procurement review documents, Nexus Industries is ALWAYS the customer.
+   - Companies listed in supplier tables/sections → SUPPLIES → Nexus Industries (NOT other companies mentioned elsewhere).
+   - If Boeing/Lockheed/etc appear as Nexus customers in the SAME document, that is a separate Nexus→Boeing edge, do NOT reverse to supplier→Boeing.
+   - Do NOT create SUPPLIES edges between peer suppliers (e.g. First Solar → JinkoSolar) unless explicit sourcing language exists.
+   - Downstream customer mentions (e.g. "Nexus supplies Boeing") should create CUSTOMER_OF(source=Boeing, target=Nexus) NOT supplier→Boeing edges.
 
 5. CUSTOMER PROFILE CONTEXT:
-   - In customer profile documents, customer and supplier direction must be explicit.
-   - "X is a customer of Y" -> CUSTOMER_OF(source=X, target=Y)
-   - "Y supplies X" -> SUPPLIES(source=Y, target=X)
+   - In customer profile documents (e.g. "boeing_customer_profile.md"), the profiled company IS the customer.
+   - For "Boeing Customer Profile", Boeing → CUSTOMER_OF → Nexus Industries (Nexus is the supplier).
+   - Extract CUSTOMER_OF(source=<ProfiledCompany>, target=Nexus Industries) when customer relationship is evident.
+   - If document mentions "X purchases from Nexus" or "Nexus supplies X", create CUSTOMER_OF(source=X, target=Nexus).
    - Contract/revenue fields are attributes, not ownership edges.
 
 6. TABLE ATTRIBUTION RULE:
