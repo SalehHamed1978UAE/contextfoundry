@@ -96,15 +96,23 @@ def main() -> int:
 
     raw = input_path.read_text(encoding="utf-8")
     text = strip_markdown(raw)
+    # fpdf2 default fonts do not support box-drawing or other unicode glyphs.
+    # Replace non-ASCII characters to avoid render errors.
+    text = text.encode("ascii", "replace").decode("ascii")
 
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
     pdf.set_font("Helvetica", size=11)
 
+    # Safely emit lines; if fpdf cannot render a line, truncate and continue.
     for line in text.splitlines():
         for wrapped in hard_wrap_long_tokens(line, max_len=100):
-            pdf.multi_cell(0, 6, wrapped)
+            try:
+                pdf.multi_cell(0, 6, wrapped)
+            except Exception:
+                # Skip lines that still fail to render (rare Unicode/formatting edge cases)
+                continue
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     pdf.output(str(output_path))
