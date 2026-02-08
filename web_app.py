@@ -938,6 +938,139 @@ def api_extraction_stop(vault_id):
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/extraction/split-brain-check/<vault_id>', methods=['GET'])
+def api_extraction_split_brain_check(vault_id):
+    """Check if platform.documents and public.documents are in sync for a vault."""
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+
+    try:
+        database_url = os.environ.get('DATABASE_URL')
+
+        result = {
+            'vault_id': vault_id,
+            'platform_docs': [],
+            'public_docs': [],
+            'split_brain_detected': False,
+            'issues': [],
+            'entities': {},
+            'relationships': {}
+        }
+
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                # Query platform.documents
+                cur.execute("""
+                    SELECT id, name, status, extraction_level,
+                           single_extracted_at, multi_extracted_at
+                    FROM platform.documents
+                    WHERE tenant_id = %s
+                    ORDER BY name
+                """, (vault_id,))
+
+                platform_docs = cur.fetchall()
+                result['platform_docs'] = [dict(doc) for doc in platform_docs]
+                result['platform_count'] = len(platform_docs)
+
+                # Check if public.documents exists
+                cur.execute("""
+                    SELECT EXISTS (
+                        SELECT FROM information_schema.tables
+                        WHERE table_schema = 'public'
+                        AND table_name = 'documents'
+                    )
+                """)
+                public_table_exists = cur.fetchone()['exists']
+
+                result['public_table_exists'] = public_table_exists
+
+                if not public_table_exists:
+                    result['split_brain_detected'] = True
+                    result['issues'].append("CRITICAL: public.documents table does not exist")
+                    result['public_count'] = 0
+                else:
+                    # Query public.documents
+                    cur.execute("""
+                        SELECT id, name, status, extraction_level,
+                               single_extracted_at, multi_extracted_at
+                        FROM public.documents
+                        WHERE tenant_id = %s
+                        ORDER BY name
+                    """, (vault_id,))
+
+                    public_docs = cur.fetchall()
+                    result['public_docs'] = [dict(doc) for doc in public_docs]
+                    result['public_count'] = len(public_docs)
+
+                    # Compare counts
+                    if result['platform_count'] != result['public_count']:
+                        result['split_brain_detected'] = True
+                        result['issues'].append(
+                            f"Count mismatch: platform={result['platform_count']}, public={result['public_count']}"
+                        )
+
+                    # Compare data
+                    platform_ids = {doc['id']: dict(doc) for doc in platform_docs}
+                    public_ids = {doc['id']: dict(doc) for doc in public_docs}
+
+                    for doc_id in set(platform_ids.keys()) | set(public_ids.keys()):
+                        p_doc = platform_ids.get(doc_id)
+                        pub_doc = public_ids.get(doc_id)
+
+                        if not p_doc:
+                            result['split_brain_detected'] = True
+                            result['issues'].append(
+                                f"{doc_id}: In public.documents but NOT in platform.documents"
+                            )
+                        elif not pub_doc:
+                            result['split_brain_detected'] = True
+                            result['issues'].append(
+                                f"{doc_id}: In platform.documents but NOT in public.documents"
+                            )
+                        elif (p_doc['status'] != pub_doc['status'] or
+                              p_doc['extraction_level'] != pub_doc['extraction_level']):
+                            result['split_brain_detected'] = True
+                            result['issues'].append(
+                                f"{p_doc['name']}: status/level mismatch (platform: {p_doc['status']}/{p_doc['extraction_level']}, public: {pub_doc['status']}/{pub_doc['extraction_level']})"
+                            )
+
+                # Check entities/relationships
+                cur.execute("""
+                    SELECT
+                        COUNT(*) FILTER (WHERE stage = 'staging') as staging_entities,
+                        COUNT(*) FILTER (WHERE stage = 'trusted') as trusted_entities
+                    FROM entities
+                    WHERE tenant_id = %s
+                """, (vault_id,))
+
+                entities = cur.fetchone()
+                result['entities'] = dict(entities)
+
+                cur.execute("""
+                    SELECT
+                        COUNT(*) FILTER (WHERE stage = 'staging') as staging_rels,
+                        COUNT(*) FILTER (WHERE stage = 'trusted') as trusted_rels
+                    FROM relationships
+                    WHERE tenant_id = %s
+                """, (vault_id,))
+
+                rels = cur.fetchone()
+                result['relationships'] = dict(rels)
+
+                # Check for missing promotion
+                if result['entities']['trusted_entities'] == 0 and result['entities']['staging_entities'] > 0:
+                    result['issues'].append("Entities in STAGING but NONE in TRUSTED - promotion did not execute")
+
+                if result['relationships']['trusted_rels'] == 0 and result['relationships']['staging_rels'] > 0:
+                    result['issues'].append("Relationships in STAGING but NONE in TRUSTED - promotion did not execute")
+
+        return jsonify(result)
+
+    except Exception as e:
+        logger.error(f"Split-brain check failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 doc_service = None
 
 def get_document_service():
