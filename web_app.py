@@ -961,8 +961,7 @@ def api_extraction_split_brain_check(vault_id):
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 # Query platform.documents
                 cur.execute("""
-                    SELECT id, name, status, extraction_level,
-                           single_extracted_at, multi_extracted_at
+                    SELECT id, name, status
                     FROM platform.documents
                     WHERE tenant_id = %s
                     ORDER BY name
@@ -991,8 +990,7 @@ def api_extraction_split_brain_check(vault_id):
                 else:
                     # Query public.documents
                     cur.execute("""
-                        SELECT id, name, status, extraction_level,
-                               single_extracted_at, multi_extracted_at
+                        SELECT id, name, status
                         FROM public.documents
                         WHERE tenant_id = %s
                         ORDER BY name
@@ -1027,11 +1025,10 @@ def api_extraction_split_brain_check(vault_id):
                             result['issues'].append(
                                 f"{doc_id}: In platform.documents but NOT in public.documents"
                             )
-                        elif (p_doc['status'] != pub_doc['status'] or
-                              p_doc['extraction_level'] != pub_doc['extraction_level']):
+                        elif p_doc['status'] != pub_doc['status']:
                             result['split_brain_detected'] = True
                             result['issues'].append(
-                                f"{p_doc['name']}: status/level mismatch (platform: {p_doc['status']}/{p_doc['extraction_level']}, public: {pub_doc['status']}/{pub_doc['extraction_level']})"
+                                f"{p_doc['name']}: status mismatch (platform: {p_doc['status']}, public: {pub_doc['status']})"
                             )
 
                 # Check entities/relationships
