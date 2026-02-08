@@ -65,8 +65,8 @@ class TestExecutor:
             f.write(json.dumps(result) + '\n')
     
     def run_test(
-        self, 
-        vault_id: str, 
+        self,
+        vault_id: str,
         questions_file: Optional[Path] = None,
         questions_data: Optional[List[Dict]] = None,
         results_dir: Path = None,
@@ -74,7 +74,8 @@ class TestExecutor:
         min_chunks: int = 50,
         resume: bool = True,
         test_run_id: str = None,
-        enable_tracing: bool = True
+        enable_tracing: bool = True,
+        tree_based_retrieval: bool = False
     ) -> dict:
         """Run all questions, evaluate answers, save results. Supports resume.
         
@@ -166,10 +167,10 @@ class TestExecutor:
             
             if trace_logger:
                 actual, error_type, retrieval_metadata = self.vm.query(
-                    vault_id, query, timeout=60, return_metadata=True
+                    vault_id, query, timeout=60, return_metadata=True, tree_based_retrieval=tree_based_retrieval
                 )
             else:
-                actual, error_type = self.vm.query(vault_id, query, timeout=60)
+                actual, error_type = self.vm.query(vault_id, query, timeout=60, tree_based_retrieval=tree_based_retrieval)
                 retrieval_metadata = {}
             
             duration_ms = int((time.time() - start_time) * 1000)
@@ -293,7 +294,7 @@ class TestExecutor:
             "corpus": corpus_name,
             "vault_id": vault_id,
             "config": {
-                "tree_based_retrieval": os.environ.get("CF_TREE_BASED_RETRIEVAL", "false").lower() == "true"
+                "tree_based_retrieval": tree_based_retrieval
             },
             "vault_stats": {
                 "chunks": chunk_count,

@@ -350,20 +350,21 @@ class VaultManager:
         
         raise TimeoutError(f"Extraction did not complete within {timeout_minutes} minutes")
     
-    def query(self, vault_id: str, question: str, timeout: int = 60, return_metadata: bool = False, max_retries: int = 3) -> tuple:
+    def query(self, vault_id: str, question: str, timeout: int = 60, return_metadata: bool = False, max_retries: int = 3, tree_based_retrieval: bool = None) -> tuple:
         """Query the vault and return (answer, error_type) or (answer, error_type, metadata).
-        
+
         Args:
             vault_id: The vault to query
             question: The question to ask
             timeout: Timeout in seconds (default 60)
             return_metadata: If True, also return retrieval metadata for tracing
             max_retries: Maximum number of retry attempts for connection failures (default 3)
-            
+            tree_based_retrieval: If provided, override tree retrieval setting for this request
+
         Returns:
             If return_metadata=False: Tuple of (answer, error_type)
             If return_metadata=True: Tuple of (answer, error_type, metadata_dict)
-            
+
             error_type is None on success, 'timeout' on timeout, or 'error' on other failures.
         """
         import sys
@@ -391,9 +392,16 @@ class VaultManager:
                 
                 print(f"    [VM.query] Sending POST to {self.api}/vault/chat...", flush=True)
                 sys.stdout.flush()
+
+                # Build request payload
+                request_data = {"query": question, "vault_id": vault_id}
+                if tree_based_retrieval is not None:
+                    request_data["tree_based_retrieval"] = tree_based_retrieval
+                    print(f"    [VM.query] Tree-based retrieval: {tree_based_retrieval}", flush=True)
+
                 response = self.session.post(
                     f"{self.api}/vault/chat",
-                    json={"query": question, "vault_id": vault_id},
+                    json=request_data,
                     timeout=timeout
                 )
                 print(f"    [VM.query] Response: {response.status_code}", flush=True)

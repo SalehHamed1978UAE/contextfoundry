@@ -4325,7 +4325,12 @@ def vault_chat():
     use_tool_agent = request.args.get('agent', 'true').lower() != 'false'
     debug_mode = request.args.get('debug', 'false').lower() == 'true'
     session_id = data.get('session_id')
-    
+
+    # Tree-based retrieval override (request-scoped, overrides env var)
+    tree_based_retrieval = data.get('tree_based_retrieval')
+    if tree_based_retrieval is not None:
+        logger.info(f"[vault_chat] Tree-based retrieval override: {tree_based_retrieval}")
+
     if use_tool_agent:
         try:
             from sqlalchemy import text
@@ -4361,9 +4366,15 @@ def vault_chat():
             for i, msg in enumerate(history[-4:]):
                 logger.info(f"[TOOL_AGENT]   History[{i}]: {msg['role']}: {msg['content'][:100]}...")
             
-            # Run tool agent with debug mode and vault context
+            # Run tool agent with debug mode, vault context, and tree retrieval override
             agent = ToolAgent(db_session, tenant_id)
-            agent_result = agent.query(resolved_query, conversation_history=history, debug=debug_mode, vault_context=vault_context)
+            agent_result = agent.query(
+                resolved_query,
+                conversation_history=history,
+                debug=debug_mode,
+                vault_context=vault_context,
+                tree_based_retrieval=tree_based_retrieval
+            )
             
             # Store messages
             conv_store.add_message("user", query_text)

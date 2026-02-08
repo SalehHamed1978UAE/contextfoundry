@@ -1925,23 +1925,25 @@ class RetrievalRouter:
         classification: QueryClassification,
         role_resolution: Optional[RoleResolution] = None,
         intent: Optional[QueryIntent] = None,
-        classified_query: Optional[ClassifiedQuery] = None
+        classified_query: Optional[ClassifiedQuery] = None,
+        tree_based_retrieval: bool = None
     ) -> RetrievalResult:
         """
         Route query to optimal retrieval strategy with intent-based entity filtering.
-        
+
         Enhanced with query type classification for person/relationship routing:
         - 'person' queries: Call _lookup_person_role() FIRST to get KG relationships
         - 'relationship' queries: Use directed KG traversal
         - Always include KG results in the answer synthesis context
-        
+
         Args:
             query: The user's query
             classification: Query classification result
             role_resolution: Optional resolved role info
             intent: Optional QueryIntent for directed retrieval
             classified_query: Optional ClassifiedQuery for intent-based filtering
-            
+            tree_based_retrieval: Optional request-scoped tree retrieval override
+
         Returns:
             RetrievalResult with combined data
         """
@@ -1989,7 +1991,7 @@ class RetrievalRouter:
         # TREE-BASED RETRIEVAL: If enabled, try hierarchical graph traversal first
         from src.context_foundry.config.feature_flags import is_tree_based_retrieval_enabled
 
-        if is_tree_based_retrieval_enabled():
+        if is_tree_based_retrieval_enabled(override=tree_based_retrieval):
             try:
                 from src.context_foundry.retrieval.tree_retriever import TreeBasedRetriever
                 from src.context_foundry.grounding.validator import validate_path_contains_anchor
@@ -2370,20 +2372,21 @@ class QueryPipeline:
         else:
             return f"Tell me about {person_name}"
     
-    def process(self, query: str, vault_context: str = None) -> RetrievalResult:
+    def process(self, query: str, vault_context: str = None, tree_based_retrieval: bool = None) -> RetrievalResult:
         """
         Process a query through the full pipeline.
-        
+
         1. Classify the query
         2. Detect intent early (for role→attribute chaining)
         3. Resolve any role references (using vault_context if no explicit entity)
         4. Chain attribute queries if role resolves to single person
         5. Route to optimal retrieval strategy
-        
+
         Args:
             query: User's query
             vault_context: Name of the current vault for entity resolution
-            
+            tree_based_retrieval: Optional request-scoped tree retrieval override
+
         Returns:
             RetrievalResult with all retrieved data
         """
@@ -2489,7 +2492,7 @@ class QueryPipeline:
                 )
                 
                 logger.info(f"[PIPELINE] Chaining role→{intent.intent_type} (dir={intent.direction}): '{query}' → '{rewritten_query}'")
-                return self.process(rewritten_query, vault_context)
+                return self.process(rewritten_query, vault_context, tree_based_retrieval)
             
             if role_resolution.has_multiple_matches:
                 if intent and intent.intent_type in ("attribute", "relationship") and vault_context:
@@ -2510,7 +2513,7 @@ class QueryPipeline:
                                     query, person_name, intent_key, direction=intent.direction
                                 )
                                 logger.info(f"[PIPELINE] Chaining role→{intent.intent_type} (dir={intent.direction}, vault match): '{query}' → '{rewritten_query}'")
-                                return self.process(rewritten_query, vault_context)
+                                return self.process(rewritten_query, vault_context, tree_based_retrieval)
                 
                 logger.info(f"[PIPELINE] Multiple matches for role '{classification.role_referenced}': {len(role_resolution.all_matches)} - disambiguation required")
                 
@@ -2551,7 +2554,7 @@ class QueryPipeline:
             supplier_entities, supplier_relationships = self.router._lookup_suppliers(query)
             if supplier_entities or supplier_relationships:
                 logger.info(f"[PIPELINE] Supplier lookup found: {len(supplier_entities)} entities, {len(supplier_relationships)} relationships")
-                result = self.router.route(query, classification, role_resolution, intent, classified_query)
+                result = self.router.route(query, classification, role_resolution, intent, classified_query, tree_based_retrieval)
                 result.entities = supplier_entities + result.entities
                 result.relationships = supplier_relationships + result.relationships
                 result.strategy_used = f"HYBRID+SUPPLIER ({result.strategy_used})"
@@ -2565,7 +2568,7 @@ class QueryPipeline:
             customer_chunks = self.router._fetch_all_customer_profiles()
             if customer_chunks:
                 logger.info(f"[PIPELINE] Customer ranking: fetched {len(customer_chunks)} profile chunks")
-                result = self.router.route(query, classification, role_resolution, intent, classified_query)
+                result = self.router.route(query, classification, role_resolution, intent, classified_query, tree_based_retrieval)
                 # Add customer profile chunks to the result
                 result.chunks = customer_chunks + (result.chunks or [])
                 result.strategy_used = f"CUSTOMER_RANKING ({result.strategy_used})"
@@ -2578,7 +2581,7 @@ class QueryPipeline:
             customer_entities, customer_relationships = self.router._lookup_customers_for_product(query)
             if customer_entities or customer_relationships:
                 logger.info(f"[PIPELINE] Customer lookup found: {len(customer_entities)} entities, {len(customer_relationships)} relationships")
-                result = self.router.route(query, classification, role_resolution, intent, classified_query)
+                result = self.router.route(query, classification, role_resolution, intent, classified_query, tree_based_retrieval)
                 result.entities = customer_entities + result.entities
                 result.relationships = customer_relationships + result.relationships
                 result.strategy_used = f"HYBRID+CUSTOMER ({result.strategy_used})"
@@ -2591,7 +2594,7 @@ class QueryPipeline:
             jv_chunks = self.router._fetch_jv_partnership_documents()
             if jv_chunks:
                 logger.info(f"[PIPELINE] JV/partnership: fetched {len(jv_chunks)} document chunks")
-                result = self.router.route(query, classification, role_resolution, intent, classified_query)
+                result = self.router.route(query, classification, role_resolution, intent, classified_query, tree_based_retrieval)
                 # Add JV/partnership chunks to the result
                 result.chunks = jv_chunks + (result.chunks or [])
                 result.strategy_used = f"JV_PARTNERSHIP ({result.strategy_used})"
@@ -2604,7 +2607,7 @@ class QueryPipeline:
             overview_chunks = self.router._fetch_company_overview_documents()
             if overview_chunks:
                 logger.info(f"[PIPELINE] Company overview: fetched {len(overview_chunks)} document chunks")
-                result = self.router.route(query, classification, role_resolution, intent, classified_query)
+                result = self.router.route(query, classification, role_resolution, intent, classified_query, tree_based_retrieval)
                 # Add company overview chunks to the result
                 result.chunks = overview_chunks + (result.chunks or [])
                 result.strategy_used = f"COMPANY_OVERVIEW ({result.strategy_used})"
@@ -2616,7 +2619,7 @@ class QueryPipeline:
             offtake_entities, offtake_relationships = self.router._lookup_offtake_agreements(query)
             if offtake_entities or offtake_relationships:
                 logger.info(f"[PIPELINE] Offtake lookup found: {len(offtake_entities)} entities, {len(offtake_relationships)} relationships")
-                result = self.router.route(query, classification, role_resolution, intent, classified_query)
+                result = self.router.route(query, classification, role_resolution, intent, classified_query, tree_based_retrieval)
                 result.entities = offtake_entities + result.entities
                 result.relationships = offtake_relationships + result.relationships
                 result.strategy_used = f"HYBRID+OFFTAKE ({result.strategy_used})"
@@ -2628,15 +2631,15 @@ class QueryPipeline:
             reporting_entities, reporting_relationships = self.router._lookup_reporting_chain(query)
             if reporting_entities or reporting_relationships:
                 logger.info(f"[PIPELINE] Reporting lookup found: {len(reporting_entities)} entities, {len(reporting_relationships)} relationships")
-                result = self.router.route(query, classification, role_resolution, intent, classified_query)
+                result = self.router.route(query, classification, role_resolution, intent, classified_query, tree_based_retrieval)
                 result.entities = reporting_entities + result.entities
                 result.relationships = reporting_relationships + result.relationships
                 result.strategy_used = f"HYBRID+REPORTING ({result.strategy_used})"
                 logger.info(f"[PIPELINE] Complete (reporting): strategy={result.strategy_used}, has_data={result.has_data}")
                 return result
-        
-        result = self.router.route(query, classification, role_resolution, intent, classified_query)
-        
+
+        result = self.router.route(query, classification, role_resolution, intent, classified_query, tree_based_retrieval)
+
         logger.info(f"[PIPELINE] Complete: strategy={result.strategy_used}, has_data={result.has_data}")
         
         return result

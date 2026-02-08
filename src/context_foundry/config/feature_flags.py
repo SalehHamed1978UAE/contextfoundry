@@ -46,11 +46,19 @@ def should_write_shadow() -> bool:
     return SHADOW_WRITE_ENABLED or is_shadow_mode()
 
 
-def is_tree_based_retrieval_enabled() -> bool:
+def is_tree_based_retrieval_enabled(override: bool = None) -> bool:
     """
     Check if tree-based retrieval is enabled.
 
     Tree-based retrieval prioritizes graph proximity over semantic similarity.
     Enable with environment variable: CF_TREE_BASED_RETRIEVAL=true
+
+    Args:
+        override: Optional request-scoped override. If provided, takes precedence over env var.
+
+    Returns:
+        True if tree-based retrieval should be used, False otherwise.
     """
+    if override is not None:
+        return override
     return TREE_BASED_RETRIEVAL_ENABLED

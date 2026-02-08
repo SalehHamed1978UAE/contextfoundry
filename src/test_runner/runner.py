@@ -308,10 +308,17 @@ def run_vault_test(
                 error_msg = str(e)
                 return None
         
+        # Read tree_based_retrieval from database
+        tree_based_retrieval = False
         if test_run_id:
             current_run = get_test_run(test_run_id)
             if current_run and current_run['status'] != 'running_qa':
                 transition_to(test_run_id, TestRunStatus.RUNNING_QA)
+            # Read tree_based_retrieval from test run
+            if current_run:
+                tree_based_retrieval = current_run.get('tree_based_retrieval', False)
+                log(f"Tree-based retrieval from database: {tree_based_retrieval}")
+
         update_status('qa', stage_status='running')
         log("\n[Stage: Q&A] Loading questions...")
         questions_data = load_question_set_from_db(question_set_id)
@@ -321,7 +328,7 @@ def run_vault_test(
             error_msg = f"Question set not found: {question_set_id}"
             return None
         log(f"  Loaded {len(questions_data)} questions")
-        
+
         log("\n[Stage: Q&A] Running test...")
         extraction_config = config.extraction_config
         results = executor.run_test(
@@ -330,7 +337,8 @@ def run_vault_test(
             results_dir=config.results_dir,
             corpus_name=f"vault_{vault_id[:8]}",
             min_chunks=extraction_config.get('min_expected_chunks', 50),
-            test_run_id=test_run_id
+            test_run_id=test_run_id,
+            tree_based_retrieval=tree_based_retrieval
         )
         
         update_status('qa', stage_status='complete', overall_status='finished', 

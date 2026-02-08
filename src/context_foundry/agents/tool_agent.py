@@ -918,17 +918,19 @@ Which one would you like to know more about? Please specify by name."""
         question: str,
         conversation_history: Optional[List[Dict[str, str]]] = None,
         debug: bool = False,
-        vault_context: Optional[str] = None
+        vault_context: Optional[str] = None,
+        tree_based_retrieval: Optional[bool] = None
     ) -> Dict[str, Any]:
         """
         Process a query using tool-calling agent.
-        
+
         Args:
             question: User's question
             conversation_history: Previous messages for context
             debug: If True, include detailed diagnostic info in response
             vault_context: Name of the current vault (for entity resolution)
-            
+            tree_based_retrieval: If provided, override tree retrieval setting for this request
+
         Returns:
             Dict with answer, tool_calls, evidence, pipeline_result, etc.
         """
@@ -1044,7 +1046,11 @@ Which one would you like to know more about? Please specify by name."""
         
         pipeline_result = None
         try:
-            pipeline_result = self.query_pipeline.process(question, vault_context=vault_context)
+            pipeline_result = self.query_pipeline.process(
+                question,
+                vault_context=vault_context,
+                tree_based_retrieval=tree_based_retrieval
+            )
             logger.info(f"[AGENT] Pipeline: strategy={pipeline_result.strategy_used}, has_data={pipeline_result.has_data}")
         except Exception as e:
             logger.warning(f"[AGENT] Pipeline pre-processing failed (continuing without): {e}")
