@@ -240,6 +240,18 @@ class BaseExtractor(ABC):
         r"\b(met with|meeting|discussed|collaborat|project with|representative|committee|steering|report)\b",
         re.IGNORECASE,
     )
+    _MANAGES_POSITIVE_PATTERN = re.compile(
+        r"\b(manages?|managed\s+by|manager\s+of|management\s+responsibility\s+for|managing)\b",
+        re.IGNORECASE,
+    )
+    _FINANCIAL_ONLY_PATTERN = re.compile(
+        r"^\$?[\d,.]+(m|b|million|billion|k|thousand)?\s*(usd|eur|gbp|revenue|contract\s+value|spend|value)?$",
+        re.IGNORECASE,
+    )
+    _CONTACT_COLUMN_PATTERN = re.compile(
+        r"\b(nexus\s+contact|contact|account\s+contact|liaison|point\s+of\s+contact)\b",
+        re.IGNORECASE,
+    )
 
     def _looks_like_organization(self, name: str) -> bool:
         """Heuristic check for company/organization-like names."""
@@ -361,6 +373,26 @@ Extract all entities and relationships from the document above. Return valid JSO
                     if source_type == EntityType.PERSON or target_type == EntityType.PERSON:
                         filtered_relationships += 1
                         continue
+
+                # GUARD: MANAGES hard lexical evidence requirement
+                evidence = r.get("evidence", "")
+                if normalized_rel == RelationshipType.MANAGES:
+                    if not self._MANAGES_POSITIVE_PATTERN.search(evidence):
+                        filtered_relationships += 1
+                        continue
+
+                # GUARD: Financial-only evidence should not create OWNS/MANAGES/PART_OF/HOLDS_POSITION
+                if normalized_rel in {RelationshipType.OWNS, RelationshipType.MANAGES, RelationshipType.PART_OF, RelationshipType.HOLDS_POSITION}:
+                    if self._FINANCIAL_ONLY_PATTERN.search(target_name):
+                        filtered_relationships += 1
+                        continue
+
+                # GUARD: Contact attribution - no employment to external orgs if evidence mentions contacts
+                if normalized_rel in {RelationshipType.HOLDS_POSITION, RelationshipType.WORKS_FOR, RelationshipType.WORKS_AT}:
+                    if self._CONTACT_COLUMN_PATTERN.search(evidence):
+                        if "nexus" not in target_name.lower():
+                            filtered_relationships += 1
+                            continue
                 
                 relationships.append(ExtractedRelationship(
                     source_entity=source_name,

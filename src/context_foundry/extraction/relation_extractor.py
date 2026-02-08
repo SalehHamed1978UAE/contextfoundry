@@ -58,6 +58,28 @@ ORG_HINT_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
+# Extraction guardrail patterns
+SUPPLIER_REVIEW_PATTERN = re.compile(
+    r"\b(supplier\s+(performance\s+)?review|vendor\s+review|procurement\s+review|supplier\s+quarterly|critical\s+supplier)\b",
+    re.IGNORECASE,
+)
+CUSTOMER_PROFILE_PATTERN = re.compile(
+    r"\b(customer\s+profile|account\s+profile|strategic\s+customer|key\s+customer|customer\s+overview)\b",
+    re.IGNORECASE,
+)
+MANAGES_POSITIVE_PATTERN = re.compile(
+    r"\b(manages?|managed\s+by|manager\s+of|management\s+responsibility\s+for|managing)\b",
+    re.IGNORECASE,
+)
+FINANCIAL_ONLY_PATTERN = re.compile(
+    r"^\$?[\d,.]+(m|b|million|billion|k|thousand)?\s*(usd|eur|gbp|revenue|contract\s+value|spend|value)?$",
+    re.IGNORECASE,
+)
+CONTACT_COLUMN_PATTERN = re.compile(
+    r"\b(nexus\s+contact|contact|account\s+contact|liaison|point\s+of\s+contact)\b",
+    re.IGNORECASE,
+)
+
 
 @dataclass
 class ExtractedRelation:
@@ -148,6 +170,30 @@ CRITICAL RULES:
 3. Validate entity typing in relationships:
    - If a major company-like name appears as PERSON, do not create relationship from that bad typing.
 
+4. SUPPLIER REVIEW CONTEXT:
+   - If document context indicates supplier/vendor/procurement review (e.g. "supplier performance review", "vendor review", "procurement review"), treat listed external organizations as suppliers to the reviewed organization/anchor org.
+   - Do NOT infer MANAGES between supplier peers.
+   - Do NOT infer supplier->supplier edges unless explicit.
+   - Prefer SUPPLIES(supplier -> anchor_org) when supplier relationship is explicit.
+
+5. CUSTOMER PROFILE CONTEXT:
+   - In customer profile documents, customer and supplier direction must be explicit.
+   - "X is a customer of Y" -> CUSTOMER_OF(source=X, target=Y)
+   - "Y supplies X" -> SUPPLIES(source=Y, target=X)
+   - Contract/revenue fields are attributes, not ownership edges.
+
+6. TABLE ATTRIBUTION RULE:
+   - If row/field indicates "<Org> Contact" or "Nexus Contact", that person is a contact for the anchor org context.
+   - Do NOT assign HOLDS_POSITION/WORKS_FOR to the external counterparty unless employment text is explicit.
+
+7. FINANCIAL GUARDRAIL:
+   - Currency/revenue/contract values alone must not create OWNS relationships.
+   - Treat such values as relationship/entity properties unless explicit ownership verbs are present.
+
+8. MANAGES HARD GUARD:
+   - Only emit MANAGES when explicit lexical evidence appears: "manages", "managed by", "manager of", "management responsibility for".
+   - Otherwise reject.
+
 KNOWN ENTITIES:
 {entities_str}
 
@@ -236,8 +282,46 @@ TEXT:
         if EMPLOYMENT_NEGATIVE_PATTERN.search(evidence):
             return False
         return bool(EMPLOYMENT_POSITIVE_PATTERN.search(evidence))
-    
-    def _validate_relation(self, relation: Dict, entity_names: set, entities: List[Dict] = None) -> bool:
+
+    def _has_required_lexical_evidence(self, rel_type: str, evidence: str) -> bool:
+        """Check if relationship type has required lexical evidence."""
+        rel_type_upper = rel_type.upper()
+
+        # MANAGES requires explicit management verbs
+        if rel_type_upper in {"MANAGES", "MANAGED_BY", "MANAGER_OF"}:
+            return bool(MANAGES_POSITIVE_PATTERN.search(evidence))
+
+        # Add more as needed
+        return True
+
+    def _is_financial_only_evidence(self, evidence: str) -> bool:
+        """Check if evidence is purely financial/numeric."""
+        evidence_clean = evidence.strip()
+        return bool(FINANCIAL_ONLY_PATTERN.search(evidence_clean))
+
+    def _is_supplier_review_context(self, document_type: str, text: str) -> bool:
+        """Check if context indicates supplier/vendor review."""
+        return bool(SUPPLIER_REVIEW_PATTERN.search(text or ""))
+
+    def _is_customer_profile_context(self, document_type: str, text: str) -> bool:
+        """Check if context indicates customer profile."""
+        return bool(CUSTOMER_PROFILE_PATTERN.search(text or ""))
+
+    def _violates_contact_attribution(self, rel_type: str, source_name: str, target_name: str, evidence: str) -> bool:
+        """Check if relationship violates contact attribution rules."""
+        rel_type_upper = rel_type.upper()
+
+        # If evidence mentions "Nexus Contact" or similar, and this is a position/employment relationship
+        # to a non-Nexus org, reject it
+        if rel_type_upper in {"HOLDS_POSITION", "WORKS_FOR", "WORKS_AT", "EMPLOYED_BY"}:
+            if CONTACT_COLUMN_PATTERN.search(evidence):
+                # If target is not Nexus, this violates attribution
+                if "nexus" not in target_name.lower():
+                    return True
+
+        return False
+
+    def _validate_relation(self, relation: Dict, entity_names: set, entities: List[Dict] = None, document_type: str = "", full_text: str = "") -> bool:
         """Validate extracted relation has required fields and valid references.
 
         Note: We allow any relationship type (not just schema-defined ones) to support
@@ -247,6 +331,8 @@ TEXT:
             relation: The extracted relation to validate
             entity_names: Set of known entity names
             entities: Full entity list with types (optional, for type validation)
+            document_type: Type of document being processed
+            full_text: Full text context for pattern matching
         """
         required = ["relation_type", "source_name", "target_name"]
         for fld in required:
@@ -262,6 +348,32 @@ TEXT:
 
         if not (source_found and target_found):
             return False
+
+        # Extract evidence/source_span for guardrail checks
+        evidence = (relation.get("source_span") or relation.get("evidence") or "").strip()
+        rel_type = relation["relation_type"]
+        rel_type_upper = rel_type.upper()
+
+        # GUARD 1: Hard lexical evidence requirement for certain types
+        if not self._has_required_lexical_evidence(rel_type, evidence):
+            logger.debug(f"[Guardrail] Rejecting {rel_type}: missing required lexical evidence in '{evidence[:50]}'")
+            return False
+
+        # GUARD 2: Financial-only evidence should not create OWNS/MANAGES/PART_OF/HOLDS_POSITION
+        if rel_type_upper in {"OWNS", "MANAGES", "PART_OF", "HOLDS_POSITION"} and self._is_financial_only_evidence(evidence):
+            logger.debug(f"[FinancialGuardrail] Rejecting {rel_type}: financial-only evidence '{evidence}'")
+            return False
+
+        # GUARD 3: Contact attribution - no employment to external orgs if evidence mentions contacts
+        if self._violates_contact_attribution(rel_type, source_name, target_name, evidence):
+            logger.debug(f"[ContactAttribution] Rejecting {rel_type}: {source_name} → {target_name} (contact attribution violation)")
+            return False
+
+        # GUARD 4: Supplier review context - reject org->org MANAGES without explicit verbs
+        if self._is_supplier_review_context(document_type, full_text):
+            if rel_type_upper == "MANAGES" and not MANAGES_POSITIVE_PATTERN.search(evidence):
+                logger.debug(f"[SupplierReview] Rejecting MANAGES in supplier review without explicit verb: {source_name} → {target_name}")
+                return False
 
         # Entity type validation: Check for known bad patterns
         if entities:
@@ -404,7 +516,7 @@ TEXT:
                 relations = []
                 valid_types = self.get_valid_relation_types()
                 for raw in raw_relations:
-                    if not self._validate_relation(raw, entity_names, entities):
+                    if not self._validate_relation(raw, entity_names, entities, document_type=document_type or "", full_text=text):
                         rel_type = raw.get("relation_type", "UNKNOWN").upper()
                         source = raw.get("source_name", "?")
                         target = raw.get("target_name", "?")
@@ -431,9 +543,12 @@ TEXT:
                         confidence=normalized["confidence"],
                     )
                     relations.append(relation)
-                
+
+                # Apply post-extraction sanity filter
+                relations = self._apply_sanity_filter(relations)
+
                 return relations
-                
+
             except Exception as e:
                 if attempt == self.max_retries - 1:
                     print(f"Relation extraction failed after {self.max_retries} attempts: {e}")
@@ -480,20 +595,69 @@ TEXT:
     ) -> List[ExtractedRelation]:
         """Deduplicate relations, keeping highest confidence."""
         relation_map = {}
-        
+
         for relation in relations:
             key = (
                 relation.relation_type,
                 relation.source_name.lower(),
                 relation.target_name.lower()
             )
-            
+
             if key not in relation_map:
                 relation_map[key] = relation
             elif relation.confidence > relation_map[key].confidence:
                 relation_map[key] = relation
-        
+
         return list(relation_map.values())
+
+    def _apply_sanity_filter(self, relations: List[ExtractedRelation]) -> List[ExtractedRelation]:
+        """Post-extraction sanity filter to remove problematic relationships.
+
+        This is a final safety check that removes:
+        1. Financial-only OWNS relationships (e.g., "Boeing OWNS $730M")
+        2. Supplier-to-supplier co-occurrence edges without explicit verbs
+        3. Employment relationships where evidence contradicts attribution
+
+        Args:
+            relations: List of extracted relations to filter
+
+        Returns:
+            Filtered list of relations
+        """
+        filtered = []
+
+        for relation in relations:
+            rel_type_upper = relation.relation_type.upper()
+            source_name = relation.source_name
+            target_name = relation.target_name
+            source_span = relation.source_span or ""
+
+            # Filter 1: Financial-only OWNS (e.g., "Boeing OWNS $730M")
+            if rel_type_upper == "OWNS" and self._is_financial_only_evidence(target_name):
+                logger.debug(f"[SanityFilter] Removing financial OWNS: {source_name} -> {target_name}")
+                continue
+
+            # Filter 2: MANAGES between organizations without explicit verbs
+            # (This catches supplier-to-supplier co-occurrence edges)
+            if rel_type_upper == "MANAGES":
+                if not MANAGES_POSITIVE_PATTERN.search(source_span):
+                    logger.debug(f"[SanityFilter] Removing MANAGES without verb: {source_name} -> {target_name}")
+                    continue
+
+            # Filter 3: Employment to non-Nexus orgs when evidence mentions "contact"
+            if rel_type_upper in {"HOLDS_POSITION", "WORKS_FOR", "WORKS_AT"}:
+                if CONTACT_COLUMN_PATTERN.search(source_span):
+                    if "nexus" not in target_name.lower():
+                        logger.debug(f"[SanityFilter] Removing contact attribution violation: {source_name} -> {target_name}")
+                        continue
+
+            # Passed all filters
+            filtered.append(relation)
+
+        if len(filtered) < len(relations):
+            logger.info(f"[SanityFilter] Filtered {len(relations) - len(filtered)} problematic relations")
+
+        return filtered
     
     def extract_with_ontology(
         self,
@@ -691,7 +855,7 @@ Respond with ONLY valid JSON array:
 
                 relations = []
                 for raw in raw_relations:
-                    if not self._validate_relation(raw, entity_names, entities):
+                    if not self._validate_relation(raw, entity_names, entities, document_type=document_type, full_text=text):
                         continue
                     
                     normalized = self._normalize_relation(raw)
@@ -711,9 +875,12 @@ Respond with ONLY valid JSON array:
                         confidence=normalized["confidence"],
                     )
                     relations.append(relation)
-                
+
+                # Apply post-extraction sanity filter
+                relations = self._apply_sanity_filter(relations)
+
                 return relations
-                
+
             except Exception as e:
                 if attempt == self.max_retries - 1:
                     print(f"Ontology-guided relation extraction failed: {e}")
