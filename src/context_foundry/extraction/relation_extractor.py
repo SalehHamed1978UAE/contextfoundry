@@ -80,6 +80,14 @@ CONTACT_COLUMN_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
+# Pattern to detect metric/measurement entity names (table column headers, KPIs, etc.)
+METRIC_ENTITY_PATTERN = re.compile(
+    r"\b(fy\d{4}\s+spend|spend|revenue|quality\s*\(ppm\)|ppm|on-time\s+delivery|otd|lead\s+time|"
+    r"delivery\s+performance|cost|budget|margin|efficiency|uptime|availability|"
+    r"capacity|throughput|yield|defect\s+rate|cycle\s+time)\b",
+    re.IGNORECASE,
+)
+
 
 @dataclass
 class ExtractedRelation:
@@ -375,6 +383,13 @@ TEXT:
                 logger.debug(f"[SupplierReview] Rejecting MANAGES in supplier review without explicit verb: {source_name} → {target_name}")
                 return False
 
+        # GUARD 5: Metric entity guard - prevent MANAGES/OWNS to table column headers and KPIs
+        # Example: "Boeing MANAGES Quality (PPM)" from table row should be blocked
+        if rel_type_upper in {"MANAGES", "OWNS", "HOLDS_POSITION", "WORKS_AT"}:
+            if METRIC_ENTITY_PATTERN.search(target_name):
+                logger.debug(f"[MetricEntityGuard] Rejecting {rel_type_upper} to metric entity: {source_name} → {target_name}")
+                return False
+
         # Entity type validation: Check for known bad patterns
         if entities:
             entity_map = {}
@@ -650,6 +665,12 @@ TEXT:
                     if "nexus" not in target_name.lower():
                         logger.debug(f"[SanityFilter] Removing contact attribution violation: {source_name} -> {target_name}")
                         continue
+
+            # Filter 4: Metric entity filter - table column headers/KPIs should not be relationship targets
+            if rel_type_upper in {"MANAGES", "OWNS", "HOLDS_POSITION", "WORKS_AT"}:
+                if METRIC_ENTITY_PATTERN.search(target_name):
+                    logger.debug(f"[SanityFilter] Removing {rel_type_upper} to metric entity: {source_name} -> {target_name}")
+                    continue
 
             # Passed all filters
             filtered.append(relation)
