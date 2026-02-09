@@ -88,6 +88,15 @@ METRIC_ENTITY_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
+# Pattern to detect product/program/project names (not valid org targets for supply-chain)
+PRODUCT_PROGRAM_PATTERN = re.compile(
+    r"\b(F-\d+|Block\s+\d+|Gen\s+Fighter|NGAD|missile|platform|"
+    r"hypersonic|AeroMaterials|initiative|program|project|system|"
+    r"component|module|subsystem|suite|package|solution|"
+    r"product\s+line|series|model|variant|configuration)\b",
+    re.IGNORECASE,
+)
+
 
 @dataclass
 class ExtractedRelation:
@@ -680,6 +689,16 @@ TEXT:
                     logger.debug(f"[SanityFilter] Removing {rel_type_upper} to metric entity: {source_name} -> {target_name}")
                     continue
 
+            # Filter 5: Supply-chain relationships should target organizations, not products/programs
+            if rel_type_upper in {"SUPPLIES", "CUSTOMER_OF", "SUPPLIER_OF", "SUPPLIES_TO", "PROCURES_FROM", "VENDOR_OF"}:
+                if PRODUCT_PROGRAM_PATTERN.search(target_name):
+                    logger.debug(f"[SanityFilter] Removing {rel_type_upper} to product/program: {source_name} -> {target_name}")
+                    continue
+                # Also check source for CUSTOMER_OF (customer should be org, not product)
+                if rel_type_upper == "CUSTOMER_OF" and PRODUCT_PROGRAM_PATTERN.search(source_name):
+                    logger.debug(f"[SanityFilter] Removing CUSTOMER_OF from product/program: {source_name} -> {target_name}")
+                    continue
+
             # Passed all filters
             filtered.append(relation)
 
@@ -799,9 +818,9 @@ CRITICAL EXTRACTION RULES:
      → SUPPLIES(source="First Solar", target="Nexus Industries")
 
    Few-shot example (customer-profile control):
-   - "Nexus Industries is a customer of Boeing for aircraft components"
-     → CUSTOMER_OF(source="Nexus Industries", target="Boeing")
-     [Customer is source, supplier is target — opposite direction from SUPPLIES]
+   - "Boeing is a customer of Nexus Industries for advanced materials"
+     → CUSTOMER_OF(source="Boeing", target="Nexus Industries")
+     [Customer organization is source, supplier is target]
 
    ❌ DON'T create generic OWNS/MEMBER_OF when supplier profile context is clear
    ❌ DON'T reverse the direction: for SUPPLIES, supplier is source; for CUSTOMER_OF, customer is source

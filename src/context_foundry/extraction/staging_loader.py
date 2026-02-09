@@ -641,6 +641,7 @@ class StagingLoader:
             source_id=source_entity.id,
             target_id=target_entity.id,
             relationship_type=canonical_type,
+            raw_relationship_type=extracted.relation_type,  # Preserve original LLM output
             lifecycle_state=LifecycleState.STAGING,
             validation_status=ValidationStatus.VALID,
             confidence=extracted.confidence,

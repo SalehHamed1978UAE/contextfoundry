@@ -112,7 +112,7 @@ EXTRACTION_SYSTEM_PROMPT = """You are a knowledge extraction system. Your task i
    - Do not assign PERSON to entities like "Boeing", "Siemens", "Lockheed Martin", "Nexus Industries".
 4. Example patterns:
    - "Boeing representatives met with Nexus Industries" -> NO WORKS_FOR
-   - "Nexus Industries is a customer of Boeing" -> CUSTOMER_OF(source="Nexus Industries", target="Boeing")
+   - "Boeing is a customer of Nexus Industries" -> CUSTOMER_OF(source="Boeing", target="Nexus Industries")
    - "Siemens supplies turbine components to Nexus Industries" -> SUPPLIER_OF(source="Siemens", target="Nexus Industries")
    - Supplier profile document for "Nel Hydrogen" -> SUPPLIER_OF(source="Nel Hydrogen", target=<customer org>)
    - "Michael Chang serves as CFO of Nexus Industries" -> HOLDS_POSITION + WORKS_FOR
