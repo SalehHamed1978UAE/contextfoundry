@@ -730,6 +730,50 @@ def get_test_status():
         
         return jsonify(response)
     
+    # No active run in DB - surface latest interrupted run for Resume UX
+    db = persistence_get_db_session()
+    try:
+        interrupted = db.execute(text("""
+            SELECT id, mode, vault_id, vault_name, question_set_id, question_set_name,
+                   questions_total, questions_answered, questions_passed, questions_failed,
+                   started_at, completed_at, tree_based_retrieval, error_message
+            FROM test_runs
+            WHERE status = 'interrupted'
+              AND completed_at > NOW() - INTERVAL '24 hours'
+            ORDER BY completed_at DESC NULLS LAST
+            LIMIT 1
+        """)).fetchone()
+    finally:
+        db.close()
+
+    if interrupted:
+        mode = interrupted[1] or 'auto'
+        total = interrupted[6] or 0
+        answered = interrupted[7] or 0
+        passed = interrupted[8] or 0
+        failed = interrupted[9] or 0
+        return jsonify({
+            'status': 'interrupted',
+            'test_run_id': str(interrupted[0]),
+            'vault_id': interrupted[2],
+            'vault_name': interrupted[3],
+            'question_set_id': interrupted[4],
+            'question_set_name': interrupted[5],
+            'tree_based_retrieval': bool(interrupted[12]),
+            'stage': 'qa',
+            'started_at': format_timestamp(interrupted[10]),
+            'stages': derive_pipeline_stages('interrupted', mode),
+            'qa_progress': {
+                'total': total,
+                'answered': answered,
+                'passed': passed,
+                'failed': failed,
+                'accuracy_percent': round(100 * passed / max(answered, 1), 1)
+            },
+            'checkpoint': answered,
+            'message': interrupted[13] or f"Test interrupted at {answered}/{total} questions. Click Resume to continue."
+        })
+
     # No running/interrupted test in DB - check if file has stale data
     if file_status:
         # Status file exists but no matching DB record - likely completed or stale

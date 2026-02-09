@@ -291,23 +291,55 @@ def get_running_test() -> Optional[Dict[str, Any]]:
     """
     session = get_db_session()
     try:
-        result = session.execute(
-            text("""
-                SELECT id, status, mode, vault_id, vault_name, question_set_id, question_set_name,
-                       questions_total, questions_answered, questions_passed, questions_failed,
-                       current_question, created_at, started_at, completed_at, heartbeat_at,
-                       tree_based_retrieval,
-                       error_message, results_file
-                FROM test_runs
-                WHERE status IN ('creating_vault', 'uploading', 'extracting', 'running_qa')
-                ORDER BY created_at DESC
-                LIMIT 1
-            """)
-        )
-        row = result.fetchone()
-        if not row:
-            return None
-        
+        # Keep state healthy during polling: stale runs become interrupted.
+        cleanup_stale_tests()
+
+        def _is_process_alive(pid: Optional[int]) -> bool:
+            if not pid:
+                return False
+            try:
+                os.kill(pid, 0)
+                return True
+            except (ProcessLookupError, OSError):
+                return False
+
+        # If the latest active run has a dead PID, interrupt it and retry once.
+        for _ in range(2):
+            result = session.execute(
+                text("""
+                    SELECT id, status, mode, vault_id, vault_name, question_set_id, question_set_name,
+                           questions_total, questions_answered, questions_passed, questions_failed,
+                           current_question, created_at, started_at, completed_at, heartbeat_at,
+                           tree_based_retrieval,
+                           error_message, results_file, pid
+                    FROM test_runs
+                    WHERE status IN ('creating_vault', 'uploading', 'extracting', 'running_qa')
+                    ORDER BY created_at DESC
+                    LIMIT 1
+                """)
+            )
+            row = result.fetchone()
+            if not row:
+                return None
+
+            pid = row[19]
+            if pid and not _is_process_alive(pid):
+                session.execute(
+                    text("""
+                        UPDATE test_runs
+                        SET status = 'interrupted',
+                            error_message = 'Interrupted: worker process is not alive',
+                            completed_at = :now,
+                            heartbeat_at = :now
+                        WHERE id = :id
+                    """),
+                    {'id': str(row[0]), 'now': datetime.utcnow()}
+                )
+                session.commit()
+                logger.info(f"[StateMachine] Marked dead-process test {row[0]} (PID {pid}) as interrupted")
+                continue
+            break
+
         status = row[1]
         # Map state machine status to stage name
         stage_map = {
@@ -338,6 +370,7 @@ def get_running_test() -> Optional[Dict[str, Any]]:
             'tree_based_retrieval': bool(row[16]),
             'error_message': row[17],
             'results_file': row[18],
+            'pid': row[19],
             'stage': stage,
             'checkpoint': row[8],  # questions_answered is the checkpoint
         }
