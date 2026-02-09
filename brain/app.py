@@ -1312,7 +1312,15 @@ if __name__ == '__main__':
         logger.warning(f"[Brain] Orphan cleanup failed (non-fatal): {e}")
     
     init_scheduler()
-    start_extraction_worker()
+
+    # Only start extraction worker if not in serve-only mode
+    run_mode = os.environ.get('CF_RUN_MODE', 'serve')
+    if run_mode != 'serve':
+        logger.info(f"[Brain] Starting extraction worker (CF_RUN_MODE={run_mode})")
+        start_extraction_worker()
+    else:
+        logger.info(f"[Brain] Skipping extraction worker in serve-only mode")
+
     seed_aggregation_definitions(tenant_id='7627d577-e07c-484f-893a-ed2f464d28b9')  # Seed aggregation framework definitions
     logger.info(f"[Brain] Starting on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
