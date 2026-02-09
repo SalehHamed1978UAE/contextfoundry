@@ -174,7 +174,9 @@ CRITICAL RULES:
    - If a person and organization are only mentioned together in a meeting/report/project context, DO NOT create WORKS_AT/WORKS_FOR.
    - Only create WORKS_AT/WORKS_FOR when employment is explicit ("works at", "employee of", "serves as CFO of", etc.).
 2. Prioritize supply-chain/commercial relationships:
-   - For supplier/vendor/customer/procurement language, extract supply-chain types (SUPPLIES_TO, SUPPLIER_OF, CUSTOMER_OF, PROCURES_FROM, VENDOR_OF).
+   - For customer profiles: Use CUSTOMER_OF (not SUPPLIES) when document is about a customer.
+   - For supplier/vendor/procurement language, extract supply-chain types (CUSTOMER_OF, SUPPLIES_TO, SUPPLIER_OF, PROCURES_FROM, VENDOR_OF).
+   - CUSTOMER_OF is preferred over SUPPLIES when document explicitly profiles a customer relationship.
 3. Validate entity typing in relationships:
    - If a major company-like name appears as PERSON, do not create relationship from that bad typing.
 
@@ -187,9 +189,12 @@ CRITICAL RULES:
 
 5. CUSTOMER PROFILE CONTEXT - MANDATORY EXTRACTION:
    - If document title/header contains "Customer Profile: <Company>" or filename is "<company>_customer_profile.md", ALWAYS extract CUSTOMER_OF.
-   - The profiled company (e.g. Boeing, Lockheed Martin) is the CUSTOMER.
+   - The profiled company (e.g. Boeing, Lockheed Martin) is the CUSTOMER ORGANIZATION.
+   - Target must be the ORGANIZATION (Boeing, Lockheed Martin), NOT products/programs (F-35, NGAD, missiles).
    - Nexus/Nexus Industries/Nexus Aerospace/Nexus Advanced Materials are the SUPPLIER.
-   - REQUIRED: Extract CUSTOMER_OF(source=<ProfiledCompany>, target=Nexus Industries).
+   - REQUIRED: Extract CUSTOMER_OF(source=<ProfiledCompanyORG>, target=Nexus Industries).
+   - Example: For "Customer Profile: Lockheed Martin" discussing F-35 → Extract CUSTOMER_OF(source=Lockheed Martin, target=Nexus Industries).
+   - Do NOT use product names (F-35, NGAD) as relationship targets - use the customer organization name.
    - Revenue/contract amounts (e.g. "$730M", "FY2025 Business") indicate customer relationship strength, not ownership.
    - Do NOT extract random SUPPLIES edges from mentions of Nexus divisions serving the customer.
 
