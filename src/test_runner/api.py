@@ -12,6 +12,9 @@ import json
 import os
 import subprocess
 import signal
+import time
+import threading
+import logging
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import UUID
@@ -40,10 +43,14 @@ from .state_machine import (
 from .question_queue import ensure_question_queue_schema
 
 test_runner_api = Blueprint('test_runner_api', __name__, url_prefix='/api/test-runner')
+logger = logging.getLogger(__name__)
 
 # Define constants first (before startup_cleanup uses them)
 STATUS_FILE_PATH = Path('data/test-runner/status.json')
 CORPUS_FOLDERS_PATH = Path('test documents')
+_AUTO_RESUME_THREAD_STARTED = False
+AUTO_RESUME_INTERVAL_SECONDS = int(os.environ.get('CF_TEST_AUTO_RESUME_INTERVAL', '15'))
+AUTO_RESUME_MAX_ATTEMPTS = int(os.environ.get('CF_TEST_AUTO_RESUME_MAX_ATTEMPTS', '5'))
 
 
 def startup_cleanup():
@@ -139,6 +146,18 @@ def ensure_test_runner_schema():
                 ALTER TABLE IF EXISTS test_runs
                 ADD COLUMN IF NOT EXISTS tree_based_retrieval BOOLEAN NOT NULL DEFAULT FALSE
             """))
+            session.execute(text("""
+                ALTER TABLE IF EXISTS test_runs
+                ADD COLUMN IF NOT EXISTS parallel_workers INTEGER NOT NULL DEFAULT 4
+            """))
+            session.execute(text("""
+                ALTER TABLE IF EXISTS test_runs
+                ADD COLUMN IF NOT EXISTS auto_resume_attempts INTEGER NOT NULL DEFAULT 0
+            """))
+            session.execute(text("""
+                ALTER TABLE IF EXISTS test_runs
+                ADD COLUMN IF NOT EXISTS last_auto_resume_at TIMESTAMP WITH TIME ZONE
+            """))
             session.commit()
         finally:
             session.close()
@@ -150,6 +169,154 @@ def ensure_test_runner_schema():
 # Run one-time schema check and startup cleanup when module is imported
 ensure_test_runner_schema()
 startup_cleanup()
+
+
+def _spawn_test_runner_process(
+    *,
+    test_run_id: str,
+    question_set_id: str,
+    mode: str,
+    tree_based_retrieval: bool,
+    parallel_workers: int,
+    vault_id: str = None,
+    corpus_folder: str = None,
+    run_extraction: bool = False,
+) -> tuple[subprocess.Popen, str]:
+    """Spawn the test runner subprocess and return (process, log_file_path)."""
+    cmd = ['python', '-m', 'src.test_runner.runner',
+           '--question-set-id', question_set_id,
+           '--mode', mode,
+           '--test-run-id', test_run_id,
+           '--tree-based-retrieval', 'true' if tree_based_retrieval else 'false',
+           '--parallel-workers', str(max(1, min(int(parallel_workers), 16)))]
+
+    if mode == 'auto' and vault_id:
+        cmd.extend(['--vault-id', vault_id])
+        if run_extraction:
+            cmd.append('--run-extraction')
+
+    if corpus_folder:
+        cmd.extend(['--corpus-folder', corpus_folder])
+
+    log_dir = Path('test_results')
+    log_dir.mkdir(exist_ok=True)
+    log_file = log_dir / f'test_run_{test_run_id}.log'
+
+    with open(log_file, 'w') as log_f:
+        log_f.write(f"Starting test run: {test_run_id}\n")
+        log_f.write(f"Command: {' '.join(cmd)}\n")
+        log_f.write(f"Time: {datetime.now().isoformat()}\n")
+        log_f.write("-" * 50 + "\n")
+
+    log_handle = open(log_file, 'a')
+    env = os.environ.copy()
+    env['PYTHONUNBUFFERED'] = '1'
+    env['CF_TREE_BASED_RETRIEVAL'] = 'true' if tree_based_retrieval else 'false'
+    env['CF_TEST_PARALLEL_WORKERS'] = str(max(1, min(int(parallel_workers), 16)))
+
+    process = subprocess.Popen(
+        cmd,
+        stdout=log_handle,
+        stderr=subprocess.STDOUT,
+        start_new_session=True,
+        env=env,
+        cwd=os.getcwd()
+    )
+    return process, str(log_file)
+
+
+def _auto_resume_supervisor_loop():
+    """Background loop that auto-resumes eligible interrupted runs."""
+    logger.info("[AutoResume] Supervisor started")
+    while True:
+        try:
+            if os.environ.get('CF_TEST_AUTO_RESUME', 'true').lower() != 'true':
+                time.sleep(AUTO_RESUME_INTERVAL_SECONDS)
+                continue
+
+            db = persistence_get_db_session()
+            try:
+                active = db.execute(text("""
+                    SELECT id
+                    FROM test_runs
+                    WHERE status IN ('creating_vault', 'uploading', 'extracting', 'running_qa')
+                    ORDER BY started_at DESC
+                    LIMIT 1
+                """)).fetchone()
+                if active:
+                    time.sleep(AUTO_RESUME_INTERVAL_SECONDS)
+                    continue
+
+                candidate = db.execute(text("""
+                    SELECT id, vault_id, question_set_id, mode, tree_based_retrieval,
+                           COALESCE(parallel_workers, 4) AS parallel_workers,
+                           COALESCE(auto_resume_attempts, 0) AS auto_resume_attempts,
+                           error_message, questions_answered, questions_total
+                    FROM test_runs
+                    WHERE status = 'interrupted'
+                      AND mode = 'auto'
+                      AND COALESCE(questions_answered, 0) < COALESCE(questions_total, 0)
+                      AND COALESCE(auto_resume_attempts, 0) < :max_attempts
+                      AND (error_message IS NULL OR error_message NOT ILIKE 'Manually stopped%')
+                    ORDER BY completed_at DESC NULLS LAST
+                    LIMIT 1
+                """), {'max_attempts': AUTO_RESUME_MAX_ATTEMPTS}).fetchone()
+                if not candidate:
+                    time.sleep(AUTO_RESUME_INTERVAL_SECONDS)
+                    continue
+
+                run_id = str(candidate[0])
+                vault_id = str(candidate[1]) if candidate[1] else None
+                question_set_id = str(candidate[2]) if candidate[2] else None
+                mode = candidate[3] or 'auto'
+                tree_flag = bool(candidate[4])
+                parallel_workers = int(candidate[5] or 4)
+                attempts = int(candidate[6] or 0)
+
+                # Reset and spawn
+                reset_test_run_for_resume(run_id)
+                process, _ = _spawn_test_runner_process(
+                    test_run_id=run_id,
+                    question_set_id=question_set_id,
+                    mode=mode,
+                    tree_based_retrieval=tree_flag,
+                    parallel_workers=parallel_workers,
+                    vault_id=vault_id,
+                    run_extraction=False,
+                )
+                db.execute(text("""
+                    UPDATE test_runs
+                    SET pid = :pid,
+                        auto_resume_attempts = COALESCE(auto_resume_attempts, 0) + 1,
+                        last_auto_resume_at = NOW(),
+                        heartbeat_at = NOW(),
+                        error_message = NULL
+                    WHERE id = :id
+                """), {'pid': process.pid, 'id': run_id})
+                db.commit()
+                logger.info(f"[AutoResume] Resumed test {run_id} (attempt {attempts + 1}) with PID {process.pid}")
+            finally:
+                db.close()
+        except Exception as e:
+            logger.warning(f"[AutoResume] Loop error: {e}")
+        time.sleep(AUTO_RESUME_INTERVAL_SECONDS)
+
+
+def _start_auto_resume_supervisor_once():
+    global _AUTO_RESUME_THREAD_STARTED
+    if _AUTO_RESUME_THREAD_STARTED:
+        return
+    # Avoid duplicate threads under Flask debug reloader.
+    is_reloader_child = os.environ.get('WERKZEUG_RUN_MAIN') == 'true'
+    debug_mode = os.environ.get('FLASK_DEBUG', '').lower() in ('1', 'true')
+    if debug_mode and not is_reloader_child:
+        return
+    t = threading.Thread(target=_auto_resume_supervisor_loop, name="test-auto-resume", daemon=True)
+    t.start()
+    _AUTO_RESUME_THREAD_STARTED = True
+
+
+_start_auto_resume_supervisor_once()
 
 
 def read_status_file():
@@ -532,21 +699,6 @@ def start_test():
             tree_based_retrieval=tree_based_retrieval
         )
     
-    cmd = ['python', '-m', 'src.test_runner.runner', 
-           '--question-set-id', question_set_id,
-           '--mode', mode,
-           '--test-run-id', test_run_id,
-           '--tree-based-retrieval', 'true' if tree_based_retrieval else 'false',
-           '--parallel-workers', str(parallel_workers)]
-    
-    if mode == 'auto' and vault_id:
-        cmd.extend(['--vault-id', vault_id])
-        if run_extraction:
-            cmd.append('--run-extraction')
-    
-    if corpus_folder:
-        cmd.extend(['--corpus-folder', corpus_folder])
-    
     initial_stages = {
         'delete': {'status': 'pending' if mode == 'fresh' else 'skipped'},
         'create': {'status': 'pending' if mode == 'fresh' else 'skipped'},
@@ -580,29 +732,15 @@ def start_test():
     write_status_file(initial_status)
     
     try:
-        log_dir = Path('test_results')
-        log_dir.mkdir(exist_ok=True)
-        log_file = log_dir / f'test_run_{test_run_id}.log'
-        
-        with open(log_file, 'w') as log_f:
-            log_f.write(f"Starting test run: {test_run_id}\n")
-            log_f.write(f"Command: {' '.join(cmd)}\n")
-            log_f.write(f"Time: {datetime.now().isoformat()}\n")
-            log_f.write("-" * 50 + "\n")
-        
-        log_handle = open(log_file, 'a')
-        
-        env = os.environ.copy()
-        env['PYTHONUNBUFFERED'] = '1'
-        env['CF_TREE_BASED_RETRIEVAL'] = 'true' if tree_based_retrieval else 'false'
-        
-        process = subprocess.Popen(
-            cmd,
-            stdout=log_handle,
-            stderr=subprocess.STDOUT,
-            start_new_session=True,
-            env=env,
-            cwd=os.getcwd()
+        process, _ = _spawn_test_runner_process(
+            test_run_id=test_run_id,
+            question_set_id=question_set_id,
+            mode=mode,
+            tree_based_retrieval=tree_based_retrieval,
+            parallel_workers=parallel_workers,
+            vault_id=vault_id if mode == 'auto' else None,
+            corpus_folder=corpus_folder,
+            run_extraction=run_extraction if mode == 'auto' else False,
         )
         
         initial_status['status'] = 'running'
@@ -612,8 +750,12 @@ def start_test():
         # Store PID in database for reliable cleanup
         db_session = persistence_get_db_session()
         try:
-            db_session.execute(text("UPDATE test_runs SET pid = :pid WHERE id = :id"), 
-                              {'pid': process.pid, 'id': test_run_id})
+            db_session.execute(text("""
+                UPDATE test_runs
+                SET pid = :pid,
+                    parallel_workers = :parallel_workers
+                WHERE id = :id
+            """), {'pid': process.pid, 'parallel_workers': parallel_workers, 'id': test_run_id})
             db_session.commit()
         finally:
             db_session.close()
@@ -626,7 +768,7 @@ def start_test():
             'mode': mode,
             'tree_based_retrieval': tree_based_retrieval,
             'parallel_workers': parallel_workers,
-            'command': ' '.join(cmd)
+            'command': f"python -m src.test_runner.runner ... --parallel-workers {parallel_workers}"
         }), 202
     except Exception as e:
         transition_to(test_run_id, TestRunStatus.FAILED, error_message=str(e))
