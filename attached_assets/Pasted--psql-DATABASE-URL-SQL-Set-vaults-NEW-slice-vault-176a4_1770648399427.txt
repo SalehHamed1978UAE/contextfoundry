@@ -1,0 +1,111 @@
+ psql "$DATABASE_URL" <<'SQL'
+  -- Set vaults
+  -- NEW slice vault:
+  -- 176a4fb2-0bb4-4da3-9068-0e26268fca71
+  -- OLD baseline vault:
+  -- 4668fc6d-c401-46d2-9797-4c8785f4d6ce
+
+  \echo '== Raw vs Final types (debug) =='
+  SELECT COALESCE(raw_relationship_type,'<null>') AS raw_type,
+         relationship_type AS final_type,
+         COUNT(*) AS n
+  FROM public.relationships
+  WHERE tenant_id = '176a4fb2-0bb4-4da3-9068-0e26268fca71'::uuid
+  GROUP BY 1,2
+  ORDER BY n DESC;
+
+  \echo '== C1: supply-chain edges per doc =='
+  SELECT d.name,
+         COUNT(*) FILTER (
+           WHERE r.relationship_type IN
+  ('SUPPLIES','CUSTOMER_OF','PROCURES_FROM','SUPPLIER_OF','SUPPLIES_TO')
+         ) AS sc_edges
+  FROM platform.documents d
+  LEFT JOIN public.relationships r
+    ON r.source_document_id = d.id::text
+   AND r.tenant_id = d.tenant_id
+  WHERE d.tenant_id = '176a4fb2-0bb4-4da3-9068-0e26268fca71'::uuid
+  GROUP BY d.name
+  ORDER BY sc_edges DESC, d.name;
+
+  SELECT COUNT(*) AS docs_with_sc
+  FROM (
+    SELECT d.id
+    FROM platform.documents d
+    JOIN public.relationships r
+      ON r.source_document_id = d.id::text
+     AND r.tenant_id = d.tenant_id
+    WHERE d.tenant_id = '176a4fb2-0bb4-4da3-9068-0e26268fca71'::uuid
+      AND r.relationship_type IN
+  ('SUPPLIES','CUSTOMER_OF','PROCURES_FROM','SUPPLIER_OF','SUPPLIES_TO')
+    GROUP BY d.id
+  ) t;
+
+  \echo '== C2: Boeing typed correctly =='
+  SELECT entity_type, name, COUNT(*) AS count
+  FROM public.entities
+  WHERE tenant_id = '176a4fb2-0bb4-4da3-9068-0e26268fca71'::uuid
+    AND name ILIKE '%boeing%'
+  GROUP BY entity_type, name
+  ORDER BY entity_type, name;
+
+  \echo '== C3: co-occurrence guardrail (WORKS_AT in supplier review) =='
+  SELECT COUNT(*) AS works_at_in_supplier_review
+  FROM public.relationships r
+  JOIN platform.documents d
+    ON d.id::text = r.source_document_id
+   AND d.tenant_id = r.tenant_id
+  WHERE r.tenant_id = '176a4fb2-0bb4-4da3-9068-0e26268fca71'::uuid
+    AND d.name = '12_supplier_performance_review.md'
+    AND r.relationship_type = 'WORKS_AT';
+
+  \echo '== C4: degree anomalies (>15 edges) =='
+  SELECT e.name, e.entity_type, COUNT(r.id) AS edge_count
+  FROM public.entities e
+  LEFT JOIN public.relationships r
+    ON (r.source_id = e.id OR r.target_id = e.id)
+   AND r.tenant_id = e.tenant_id
+  WHERE e.tenant_id = '176a4fb2-0bb4-4da3-9068-0e26268fca71'::uuid
+  GROUP BY e.id, e.name, e.entity_type
+  HAVING COUNT(r.id) > 15
+  ORDER BY edge_count DESC;
+
+  \echo '== C5: regression diff vs old vault for same doc names =='
+  WITH docset AS (
+    SELECT unnest(ARRAY[
+      '01_boeing_customer_profile.md',
+      '09_nel_hydrogen_supplier.md',
+      '10_first_solar_supplier.md',
+      '12_supplier_performance_review.md',
+      '14_lockheed_martin_customer.md'
+    ]) AS name
+  ),
+  old_counts AS (
+    SELECT r.relationship_type, COUNT(*) AS cnt
+    FROM public.relationships r
+    JOIN platform.documents d
+      ON d.id::text = r.source_document_id
+     AND d.tenant_id = r.tenant_id
+    JOIN docset ds ON ds.name = d.name
+    WHERE r.tenant_id = '4668fc6d-c401-46d2-9797-4c8785f4d6ce'::uuid
+    GROUP BY r.relationship_type
+  ),
+  new_counts AS (
+    SELECT r.relationship_type, COUNT(*) AS cnt
+    FROM public.relationships r
+    JOIN platform.documents d
+      ON d.id::text = r.source_document_id
+     AND d.tenant_id = r.tenant_id
+    JOIN docset ds ON ds.name = d.name
+    WHERE r.tenant_id = '176a4fb2-0bb4-4da3-9068-0e26268fca71'::uuid
+    GROUP BY r.relationship_type
+  )
+  SELECT COALESCE(o.relationship_type, n.relationship_type) AS
+  relationship_type,
+         COALESCE(o.cnt,0) AS old_count,
+         COALESCE(n.cnt,0) AS new_count,
+         COALESCE(n.cnt,0) - COALESCE(o.cnt,0) AS delta
+  FROM old_counts o
+  FULL OUTER JOIN new_counts n USING (relationship_type)
+  ORDER BY delta ASC, relationship_type;
+  SQL
