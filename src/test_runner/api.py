@@ -37,6 +37,7 @@ from .state_machine import (
     TestRunStatus,
     ACTIVE_STATUSES
 )
+from .question_queue import ensure_question_queue_schema
 
 test_runner_api = Blueprint('test_runner_api', __name__, url_prefix='/api/test-runner')
 
@@ -141,6 +142,7 @@ def ensure_test_runner_schema():
             session.commit()
         finally:
             session.close()
+        ensure_question_queue_schema()
     except Exception as e:
         logger.warning(f"[Startup Schema] Failed to ensure test_runner schema: {e}")
 
@@ -458,6 +460,11 @@ def start_test():
     resume_run_id = data.get('resume_run_id')
     run_extraction = bool(data.get('run_extraction', False))
     tree_based_retrieval = bool(data.get('tree_based_retrieval', False))
+    try:
+        parallel_workers = int(data.get('parallel_workers', os.environ.get('CF_TEST_PARALLEL_WORKERS', '4')))
+    except (TypeError, ValueError):
+        return jsonify({'error': 'parallel_workers must be an integer'}), 400
+    parallel_workers = max(1, min(parallel_workers, 16))
     
     if not vault_id:
         return jsonify({'error': 'vault_id is required'}), 400
@@ -529,7 +536,8 @@ def start_test():
            '--question-set-id', question_set_id,
            '--mode', mode,
            '--test-run-id', test_run_id,
-           '--tree-based-retrieval', 'true' if tree_based_retrieval else 'false']
+           '--tree-based-retrieval', 'true' if tree_based_retrieval else 'false',
+           '--parallel-workers', str(parallel_workers)]
     
     if mode == 'auto' and vault_id:
         cmd.extend(['--vault-id', vault_id])
@@ -555,6 +563,7 @@ def start_test():
         'mode': mode,
         'run_extraction': run_extraction if mode == 'auto' else False,
         'tree_based_retrieval': tree_based_retrieval,
+        'parallel_workers': parallel_workers,
         'corpus_folder': corpus_folder,
         'started_at': datetime.now().isoformat(),
         'pid': None,
@@ -616,6 +625,7 @@ def start_test():
             'test_run_id': test_run_id,
             'mode': mode,
             'tree_based_retrieval': tree_based_retrieval,
+            'parallel_workers': parallel_workers,
             'command': ' '.join(cmd)
         }), 202
     except Exception as e:

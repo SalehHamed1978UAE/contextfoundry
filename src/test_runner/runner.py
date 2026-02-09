@@ -133,6 +133,7 @@ def run_vault_test(
     config: TestConfig = None,
     test_run_id: str = None,
     expected_tree_based_retrieval: bool | None = None,
+    parallel_workers: int = 1,
 ):
     """
     Run test for a vault with 5-stage status tracking.
@@ -164,6 +165,7 @@ def run_vault_test(
         log(f"Test Run ID: {test_run_id}")
     effective_tree = os.environ.get("CF_TREE_BASED_RETRIEVAL", "false").lower() == "true"
     log(f"Effective CF_TREE_BASED_RETRIEVAL={effective_tree}")
+    log(f"Parallel workers={parallel_workers}")
     if expected_tree_based_retrieval is not None and effective_tree != expected_tree_based_retrieval:
         msg = (
             f"retrieval_flag_mismatch: expected={expected_tree_based_retrieval} "
@@ -338,7 +340,8 @@ def run_vault_test(
             corpus_name=f"vault_{vault_id[:8]}",
             min_chunks=extraction_config.get('min_expected_chunks', 50),
             test_run_id=test_run_id,
-            tree_based_retrieval=tree_based_retrieval
+            tree_based_retrieval=tree_based_retrieval,
+            parallel_workers=parallel_workers
         )
         
         update_status('qa', stage_status='complete', overall_status='finished', 
@@ -676,6 +679,12 @@ Examples:
         choices=['true', 'false'],
         help='Expected retrieval flag for this run (must match effective env)'
     )
+    parser.add_argument(
+        '--parallel-workers',
+        type=int,
+        default=int(os.environ.get('CF_TEST_PARALLEL_WORKERS', '4')),
+        help='Number of parallel question workers (1-16)'
+    )
     
     args = parser.parse_args()
     
@@ -694,7 +703,8 @@ Examples:
             corpus_folder=args.corpus_folder,
             config=config,
             test_run_id=args.test_run_id,
-            expected_tree_based_retrieval=expected_tree_flag
+            expected_tree_based_retrieval=expected_tree_flag,
+            parallel_workers=max(1, min(args.parallel_workers, 16))
         )
     elif args.corpus:
         run_corpus_test(args.corpus, config, 

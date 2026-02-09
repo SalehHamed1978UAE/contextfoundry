@@ -2,9 +2,11 @@ import json
 import os
 import sys
 import time
+import threading
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Set, Optional
+from typing import Any, Dict, List, Set, Optional
+from concurrent.futures import ThreadPoolExecutor
 
 from .evaluator import FuzzyEvaluator
 from .vault_manager import VaultManager
@@ -17,6 +19,16 @@ from .persistence import (
     complete_test_run,
     get_answered_question_ids,
     get_test_run_progress
+)
+from .question_queue import (
+    ensure_question_queue_schema,
+    seed_questions,
+    reclaim_stale_questions,
+    lease_next_question,
+    complete_question,
+    fail_question,
+    get_queue_progress,
+    list_question_results,
 )
 
 
@@ -75,7 +87,8 @@ class TestExecutor:
         resume: bool = True,
         test_run_id: str = None,
         enable_tracing: bool = True,
-        tree_based_retrieval: bool = False
+        tree_based_retrieval: bool = False,
+        parallel_workers: int = 1
     ) -> dict:
         """Run all questions, evaluate answers, save results. Supports resume.
         
@@ -111,6 +124,19 @@ class TestExecutor:
         else:
             raise ValueError("Either questions_file or questions_data must be provided")
         log(f"  Running {len(questions)} questions...")
+
+        parallel_workers = max(1, int(parallel_workers or 1))
+        if test_run_id and parallel_workers > 1:
+            log(f"  Parallel execution enabled ({parallel_workers} workers)")
+            return self._run_test_parallel(
+                vault_id=vault_id,
+                questions=questions,
+                results_dir=results_dir,
+                corpus_name=corpus_name,
+                test_run_id=test_run_id,
+                tree_based_retrieval=tree_based_retrieval,
+                parallel_workers=parallel_workers,
+            )
         
         if test_run_id:
             update_test_run_stage(test_run_id, 'qa', questions_total=len(questions))
@@ -327,6 +353,194 @@ class TestExecutor:
         log(f"\n  Results saved to: {output_file}")
         return summary
     
+    def _run_test_parallel(
+        self,
+        vault_id: str,
+        questions: List[Dict[str, Any]],
+        results_dir: Path,
+        corpus_name: str,
+        test_run_id: str,
+        tree_based_retrieval: bool,
+        parallel_workers: int,
+    ) -> Dict[str, Any]:
+        """Run Q&A with per-question leasing and parallel workers."""
+        ensure_question_queue_schema()
+        inserted = seed_questions(test_run_id, questions)
+        if inserted:
+            log(f"  Seeded queue rows: {inserted}")
+
+        worker_stop = threading.Event()
+        max_attempts = 2
+        lease_seconds = 180
+
+        def process_task(vm_local: VaultManager, evaluator_local: FuzzyEvaluator, task: Dict[str, Any]) -> None:
+            q = task['question'] or {}
+            q_num = task['question_index']
+            query = q.get('question', q.get('query', ''))
+            expected = q.get('expected_answer', q.get('answer', q.get('expected', '')))
+            category = q.get('category', q.get('type', ''))
+            start_time = time.time()
+
+            try:
+                actual, error_type, retrieval_metadata = vm_local.query(
+                    vault_id, query, timeout=60, return_metadata=True, tree_based_retrieval=tree_based_retrieval
+                )
+                duration_ms = int((time.time() - start_time) * 1000)
+
+                if error_type == 'timeout':
+                    state = fail_question(task['row_id'], 'timeout', retryable=True, max_attempts=max_attempts)
+                    if state == 'failed':
+                        save_test_result(
+                            test_run_id=test_run_id, question_id=str(q_num), question_text=query,
+                            expected_answer=expected, actual_answer='', passed=False,
+                            failure_reason='timeout', category=category, duration_ms=duration_ms
+                        )
+                    return
+
+                if error_type:
+                    state = fail_question(task['row_id'], error_type, retryable=True, max_attempts=max_attempts)
+                    if state == 'failed':
+                        save_test_result(
+                            test_run_id=test_run_id, question_id=str(q_num), question_text=query,
+                            expected_answer=expected, actual_answer=actual or '', passed=False,
+                            failure_reason=error_type, category=category, duration_ms=duration_ms
+                        )
+                    return
+
+                eval_details = evaluator_local.evaluate_with_details(expected, actual)
+                is_pass = eval_details['passed']
+                match_type = eval_details['match_type']
+                failure_reason = None
+                failure_category = None
+                if not is_pass:
+                    failure = evaluator_local.classify_failure(expected, actual, match_type)
+                    failure_reason = failure.get('reason', eval_details.get('failure_reason'))
+                    failure_category = failure.get('category', 'MISMATCH')
+
+                complete_question(
+                    row_id=task['row_id'],
+                    actual_answer=actual or '',
+                    match_type=match_type,
+                    passed=is_pass,
+                    failure_reason=failure_reason,
+                    category=category,
+                    duration_ms=duration_ms,
+                    retrieval_metadata=retrieval_metadata
+                )
+
+                save_test_result(
+                    test_run_id=test_run_id,
+                    question_id=str(q_num),
+                    question_text=query,
+                    expected_answer=expected,
+                    actual_answer=actual or '',
+                    passed=is_pass,
+                    failure_reason=failure_reason,
+                    category=failure_category or category,
+                    duration_ms=duration_ms
+                )
+            except Exception as e:
+                fail_question(task['row_id'], f"worker_error: {e}", retryable=True, max_attempts=max_attempts)
+
+        def worker_loop(worker_index: int) -> None:
+            worker_id = f"w{worker_index}-{os.getpid()}"
+            vm_local = VaultManager(self.vm.api)
+            if not vm_local.authenticate_dev(tenant_id=vault_id):
+                log(f"  [{worker_id}] authentication failed")
+                return
+            evaluator_local = FuzzyEvaluator()
+
+            while not worker_stop.is_set():
+                task = lease_next_question(test_run_id, worker_id, lease_seconds=lease_seconds)
+                if not task:
+                    prog = get_queue_progress(test_run_id)
+                    if prog['pending'] == 0 and prog['running'] == 0:
+                        return
+                    time.sleep(0.4)
+                    continue
+                process_task(vm_local, evaluator_local, task)
+
+        with ThreadPoolExecutor(max_workers=parallel_workers) as pool:
+            futures = [pool.submit(worker_loop, i + 1) for i in range(parallel_workers)]
+            last_refresh = 0.0
+            while True:
+                reclaimed = reclaim_stale_questions(test_run_id)
+                if reclaimed:
+                    log(f"  Reclaimed stale leases: {reclaimed}")
+
+                prog = get_queue_progress(test_run_id)
+                total = prog['total']
+                answered = prog['answered_terminal']
+                passed = prog['passed']
+                failed = prog['failed']
+                accuracy = round(100 * passed / max(answered, 1), 1) if answered else 0.0
+
+                if time.time() - last_refresh >= 1.0:
+                    update_test_run_progress(
+                        test_run_id=test_run_id,
+                        questions_answered=answered,
+                        questions_passed=passed,
+                        questions_failed=failed,
+                        current_question=None
+                    )
+                    update_status(
+                        'qa',
+                        stage_status='running',
+                        qa_progress={
+                            'total': total,
+                            'answered': answered,
+                            'passed': passed,
+                            'failed': failed,
+                            'accuracy_percent': accuracy
+                        }
+                    )
+                    last_refresh = time.time()
+
+                if prog['pending'] == 0 and prog['running'] == 0:
+                    break
+                time.sleep(0.5)
+
+            worker_stop.set()
+            for f in futures:
+                try:
+                    f.result(timeout=5)
+                except Exception:
+                    pass
+
+        results = list_question_results(test_run_id)
+        passed = sum(1 for r in results if r.get('passed'))
+        total = len(results)
+        failed = total - passed
+
+        summary = {
+            "timestamp": datetime.now().isoformat(),
+            "corpus": corpus_name,
+            "vault_id": vault_id,
+            "config": {
+                "tree_based_retrieval": tree_based_retrieval,
+                "parallel_workers": parallel_workers
+            },
+            "vault_stats": self.vm.get_vault_stats(vault_id),
+            "results": {
+                "total": total,
+                "passed": passed,
+                "failed": failed,
+                "accuracy_pct": round(100 * passed / max(total, 1), 1)
+            },
+            "breakdown": self._calculate_breakdown(results),
+            "failures": [r for r in results if not r['passed']],
+            "all_results": results
+        }
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        safe_name = corpus_name.lower().replace(' ', '_')
+        output_file = results_dir / f"{safe_name}_{timestamp}.json"
+        results_dir.mkdir(parents=True, exist_ok=True)
+        with open(output_file, 'w') as f:
+            json.dump(summary, f, indent=2)
+        log(f"\n  Results saved to: {output_file}")
+        return summary
+
     def _load_questions(self, questions_file: Path) -> List[Dict]:
         """Load questions from file (supports multiple formats)."""
         with open(questions_file) as f:
