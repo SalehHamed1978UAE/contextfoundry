@@ -80,3 +80,58 @@ The 12 NOT_FOUND failures can plausibly be cut to ≤ 3 by:
 - Excluding/correcting Q76.
 
 This points to extraction quality (specifically: silent per-document extraction failures and table-row relationship emission) as the dominant blocker — not retrieval, not promotion gating, not ontology coverage.
+
+---
+
+## Post-fix update — 2026-05-07 (re-run after re-extracting 24 bug-blocked docs)
+
+### Smoking gun confirmed
+A SQL audit of `public.extraction_jobs` revealed that **24 documents** in this vault had their latest extraction job FAILED with the identical error `'ExtractedRelation' object has no attribute 'relationship_type'`. That bug is already patched in `ontology_centric_pipeline.py:251-257`, but the failed docs were never re-run after the fix landed. The 5 Category-C documents in the table above were all victims of this bug, and so were 19 others. `02_organizational_announcement.md` was the headline case (job `0f88bd5c`, failed 2026-02-09).
+
+### Action taken
+Built `scripts/_batch_reextract_failed.py` which auto-classifies doc type and re-runs `OntologyCentricPipeline.extract` for any doc whose latest job failed with that bug. Ran it as a background workflow (`Reextract Failed Docs`).
+
+Result: **24/24 successful re-extractions.** Total: 2,200 entities and 898 relations were emitted by the LLM; **907 entities and 115 net-new relations were created in STAGING.** The remaining 783 relations were not all "filtered out": StagingLoader categorizes each candidate as `created`, `updated`, `skipped` (already present), `as_candidates` (held for review), or `errors`. The first run of the script did not capture the breakdown counters — only `relations_created` was logged — so the 898→115 ratio conflates true filtering loss with legitimate dedup against the existing graph. The script has since been updated (`scripts/_batch_reextract_failed.py`) to log all four counters and `staging_errors` so any future run will produce a clean attribution.
+
+Caveat on script v1: the first script run also disabled job tracking (`enable_job_tracking=False`). After the fact, a synthetic `COMPLETE` row was inserted into `public.extraction_jobs` for each of the 24 docs (`extraction_config.source = scripts/_batch_reextract_failed.py`) so the audit trail reflects the rerun. Script v2 enables job tracking by default for any future invocation.
+
+### Test result delta
+| Run | Pass | Fail (no_data) | Fail (no_match) |
+|---|---:|---:|---:|
+| Baseline `20260507_084232.json` | **72/100** | 12 | 16 |
+| After fix `20260507_192331.json` | **73/100** | 11 | 16 |
+
+Net **+1 question.** Detail:
+
+**Recovered (3):**
+- **Q3** — President of NDS / Robert Kim ✅
+- **Q61** — Who replaced Thomas Anderson as Digital President / Robert Kim ✅
+- **Q76** — Total patent portfolio size / 2,412 patents ✅ (turned out to be in the corpus after all — recovered after re-extraction surfaced it)
+
+**Regressed (2):**
+- **Q20** — "Which supplier is rated Red and at risk?" Expected `General Atomics`. New answer: `Nexus Industries` is rated Red. The re-extraction of `02_falcon_x_program_review.md` produced a misleading edge that anchors the rating to Nexus instead of the supplier.
+- **Q100** — "Total value of top 3 customer relationships." Failure mode is `errors in accessing the data` — looks transient/tool-side, not extraction-side.
+
+**Still failing NOT_FOUND (11):** Q1, Q14, Q18, Q25, Q37, Q38, Q46, Q67, Q75, Q91, Q93.
+
+### Why the lift was modest
+
+The bug fix was necessary but **not sufficient**. Inspection of the re-populated graph shows:
+
+1. **LLM extraction is non-deterministic for the high-value facts.** Even with the bug removed, the GPT-4o-mini pass on `02_organizational_announcement.md` extracted only `Victoria Chen → HOLDS_POSITION → Chief Executive Officer` and `Robert Kim → WORKS_AT → Nexus Digital Solutions`. It missed `Robert Kim → HOLDS_POSITION → President`, `Jennifer Walsh → HOLDS_POSITION → CISO`, `Alan Chen → HOLDS_POSITION → VP Engineering`, and the appointment-date qualifier (Q14). On a different pass it might catch a different subset. Q3 and Q61 still passed because the answer is just "Robert Kim" and the existing affiliation edges were enough; Q14/Q38/Q75 needed specific role/date facts the LLM did not emit this time.
+
+2. **The 898→115 relations cliff is a hypothesis, not a confirmed cause.** Only `relations_created` was logged in the first script run. The other StagingLoader outcomes (`updated`, `skipped`, `as_candidates`, `errors`) were not captured, so the gap between 898 emitted and 115 created could be any mix of legitimate dedup against the existing 1,300-relation graph and genuine filter loss. The next rerun (with the updated script) will produce the breakdown needed to either confirm or rule this out as a leverage point.
+
+3. **Q1 (CEO) remained NOT_FOUND despite `Victoria Chen → HOLDS_POSITION → Chief Executive Officer` being in the graph.** The retrieval/role-resolver returned "various positions" instead of disambiguating to Victoria Chen. This confirms category A in the original analysis: the answer is in the graph but retrieval cannot land it.
+
+### Updated next steps (no longer in scope of this task)
+- Investigate the 87% extracted→staged drop in the ontology pipeline. If filters are dropping high-value singletons, loosen the threshold for HOLDS_POSITION-family edges.
+- Q1 specifically: fix RoleResolver disambiguation when a target ROLE has multiple `HOLDS_POSITION` edges with different lifecycle states.
+- Q20 regression: the re-extraction of `02_falcon_x_program_review.md` introduced a misleading "Nexus Industries → Red rating" edge that needs review.
+- Q100 regression: looks like a transient tool error — re-run the test to see if it self-resolves.
+
+### Files
+- Re-extraction script: `scripts/_batch_reextract_failed.py`
+- Re-extraction checkpoint: `/tmp/reextract_results.json`
+- Background workflow: `Reextract Failed Docs` (now finished — safe to remove)
+- New baseline: `test_results/claudecode_nexus_industries_20260507_192331.json`

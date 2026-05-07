@@ -1,24 +1,23 @@
 {
-  "run_timestamp": "2026-05-07T15:59:48.922337",
+  "run_timestamp": "2026-05-07T19:23:31.996380",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_176a4fb2.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.02,
-    "avg_semantic_score": 0.09365000000000001,
+    "avg_chunks_retrieved": 3.119999999999999,
+    "avg_semantic_score": 0.07928699999999998,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
       "no_data": 11,
       "no_match": 16,
-      "exact_match": 38,
-      "component_match": 26,
-      "number_match": 6,
-      "timeout": 1,
+      "exact_match": 39,
+      "component_match": 25,
+      "number_match": 7,
       "percentage_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 87
+    "low_score_queries": 88
   },
   "low_score_questions": [
     {
@@ -104,7 +103,7 @@
     {
       "q_id": 20,
       "question": "Which supplier is rated Red and at risk?",
-      "avg_score": 0.3252
+      "avg_score": 0.0
     },
     {
       "q_id": 21,
@@ -214,6 +213,11 @@
     {
       "q_id": 44,
       "question": "When is the Toyota JV expected to close?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 45,
+      "question": "When was Dr. Victoria Chen appointed CEO?",
       "avg_score": 0.0
     },
     {
@@ -347,11 +351,6 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 76,
-      "question": "What is the total patent portfolio size?",
-      "avg_score": 0.0
-    },
-    {
       "q_id": 77,
       "question": "What is the location of the BatteryTech JV facility?",
       "avg_score": 0.0
@@ -455,6 +454,11 @@
       "q_id": 99,
       "question": "How does Nexus's operating margin compare to target?",
       "avg_score": 0.0
+    },
+    {
+      "q_id": 100,
+      "question": "What is the total value of top 3 customer relationships?",
+      "avg_score": 0.0
     }
   ],
   "failures_by_type": {
@@ -463,13 +467,6 @@
         "q_id": 1,
         "question": "Who is the CEO of Nexus Industries?",
         "expected": "Dr. Victoria Chen",
-        "actual": "The retrieved information does not speci",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 3,
-        "question": "Who is the President of Nexus Digital Solutions?",
-        "expected": "Robert Kim",
         "actual": "The retrieved information does not speci",
         "files_retrieved": []
       },
@@ -513,7 +510,7 @@
         "q_id": 38,
         "question": "Who is the CISO of Nexus Industries?",
         "expected": "Jennifer Walsh (appointed January 2026, ",
-        "actual": "The Chief Information Security Officer (",
+        "actual": "The retrieved information does not speci",
         "files_retrieved": []
       },
       {
@@ -538,15 +535,28 @@
         "q_id": 75,
         "question": "Who is the VP of Engineering for Nexus Digital Solutions?",
         "expected": "Dr. Alan Chen",
-        "actual": "The retrieved information does not provi",
+        "actual": "The retrieved information does not speci",
         "files_retrieved": []
       },
       {
-        "q_id": 76,
-        "question": "What is the total patent portfolio size?",
-        "expected": "2,412 patents",
-        "actual": "The total patent portfolio size for Nexu",
-        "files_retrieved": []
+        "q_id": 91,
+        "question": "Who is the VP Trade Compliance?",
+        "expected": "Owns the Export Control Policy (per POL-",
+        "actual": "The current VP of Trade Compliance is no",
+        "files_retrieved": [
+          "09_export_control.md"
+        ]
+      },
+      {
+        "q_id": 93,
+        "question": "What electrolyte material is used in the solid-state battery",
+        "expected": "LLZO (Li7La3Zr2O12, Al-doped)",
+        "actual": "The electrolyte material used in the sol",
+        "files_retrieved": [
+          "06_toyota_jv_negotiation_summary.md",
+          "04_toyota_partnership_announcement.md",
+          "Unknown"
+        ]
       }
     ],
     "no_match": [
@@ -554,7 +564,7 @@
         "q_id": 2,
         "question": "What is the name of the CFO?",
         "expected": "Michael Chang",
-        "actual": "The name of the CFO is Robert Kim.",
+        "actual": "The name of the CFO is Sinead Gorman.",
         "files_retrieved": [
           "14_lockheed_martin_customer.md",
           "13_starliner_satellite_bus.md",
@@ -567,6 +577,17 @@
         "expected": "Nel Hydrogen",
         "actual": "The electrolyzers for the GreenHydrogen ",
         "files_retrieved": []
+      },
+      {
+        "q_id": 20,
+        "question": "Which supplier is rated Red and at risk?",
+        "expected": "General Atomics",
+        "actual": "The supplier that is rated Red and at ri",
+        "files_retrieved": [
+          "12_supplier_performance_review.md",
+          "09_nel_hydrogen_supplier.md",
+          "04_procurement_policy.md"
+        ]
       },
       {
         "q_id": 24,
@@ -604,7 +625,7 @@
         "q_id": 40,
         "question": "What is the total company backlog?",
         "expected": "$12.4 billion",
-        "actual": "The total company backlog for Nexus is *",
+        "actual": "The total company backlog for Nexus Indu",
         "files_retrieved": [
           "03_aerospace_division_budget.md",
           "05_digital_division_budget.md",
@@ -615,10 +636,10 @@
         "q_id": 45,
         "question": "When was Dr. Victoria Chen appointed CEO?",
         "expected": "2019",
-        "actual": "Dr. Victoria Chen was appointed CEO on *",
+        "actual": "March 2018. Dr. Victoria Chen was appoin",
         "files_retrieved": [
-          "02_organizational_announcement.md",
-          "08_hr_talent_review.md",
+          "06_quantumleap_computing.md",
+          "06_market_expansion_asia.md",
           "01_executive_team.md"
         ]
       },
@@ -668,7 +689,7 @@
         "q_id": 71,
         "question": "Who is the mining automation partner?",
         "expected": "Caterpillar",
-        "actual": "The mining automation partner for Nexus ",
+        "actual": "The mining automation partner is **Sieme",
         "files_retrieved": [
           "04_toyota_partnership_announcement.md",
           "09_competitive_intelligence.md"
@@ -695,33 +716,15 @@
         ]
       },
       {
-        "q_id": 91,
-        "question": "Who is the VP Trade Compliance?",
-        "expected": "Owns the Export Control Policy (per POL-",
-        "actual": "The current VP of Trade Compliance is no",
+        "q_id": 100,
+        "question": "What is the total value of top 3 customer relationships?",
+        "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
+        "actual": "I was unable to retrieve specific values",
         "files_retrieved": [
-          "09_export_control.md"
-        ]
-      },
-      {
-        "q_id": 93,
-        "question": "What electrolyte material is used in the solid-state battery",
-        "expected": "LLZO (Li7La3Zr2O12, Al-doped)",
-        "actual": "The electrolyte material used in the sol",
-        "files_retrieved": [
-          "06_toyota_jv_negotiation_summary.md",
-          "04_toyota_partnership_announcement.md",
+          "01_boeing_customer_profile.md",
+          "02_airbus_customer_profile.md",
           "Unknown"
         ]
-      }
-    ],
-    "timeout": [
-      {
-        "q_id": 39,
-        "question": "What is the annual dividend per share?",
-        "expected": "$1.80",
-        "actual": "",
-        "files_retrieved": []
       }
     ]
   }
