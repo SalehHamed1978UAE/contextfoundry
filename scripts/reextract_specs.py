@@ -141,11 +141,11 @@ def store_specification_entity(session, spec: dict) -> str:
     session.execute(
         text("""
             INSERT INTO entities (
-                id, tenant_id, entity_type, name, 
-                confidence, status, properties, created_at
+                id, tenant_id, entity_type, name,
+                confidence, status, lifecycle_state, properties, created_at
             ) VALUES (
                 :id, :tenant_id, 'SPECIFICATION', :name,
-                :confidence, 'STAGING', CAST(:properties AS jsonb), :created_at
+                :confidence, 'active', 'STAGING', CAST(:properties AS jsonb), :created_at
             )
         """),
         {
