@@ -1,0 +1,154 @@
+{
+  "run_started_at": "2026-02-09T14:51:21.567372",
+  "vault_id": "176a4fb2-0bb4-4da3-9068-0e26268fca71",
+  "vault_name": "Nexus - 2/8/2026",
+  "mode": "ontology",
+  "tree_based_retrieval": "false",
+  "models": [
+    "gpt-4o-mini",
+    "claude-sonnet"
+  ],
+  "git_rev": "6bc2de83",
+  "is_valid": true,
+  "status": "completed",
+  "invalid_reason": null,
+  "verification_stats": {
+    "facts_processed": 200,
+    "verified": 0,
+    "rejected": 0,
+    "needs_review": 200,
+    "errors": 0,
+    "tokens_used": 0
+  },
+  "promotion_stats": {
+    "entities_promoted": 0,
+    "relationships_promoted": 0,
+    "entities_blocked": 5276,
+    "relationships_blocked": 1055,
+    "block_reasons": {
+      "evidence_not_verified": 5118,
+      "pending_duplicate": 158,
+      "endpoints_not_trusted": 1047,
+      "confidence_too_low": 8
+    },
+    "errors": [],
+    "duration_seconds": 48.72949
+  },
+  "preflight": {
+    "ok": true,
+    "exists": true,
+    "vault_id": "176a4fb2-0bb4-4da3-9068-0e26268fca71",
+    "vault_name": "Nexus - 2/8/2026",
+    "created_at": "2026-02-08T17:38:34.880034+00:00",
+    "db_identity": {
+      "database_name": "neondb",
+      "database_user": "neondb_owner",
+      "server_addr": "169.254.254.254/32",
+      "server_port": 5432
+    },
+    "documents": {
+      "total": 100,
+      "queued": 100,
+      "processing": 0,
+      "extracted_or_completed": 0
+    },
+    "extraction_requests": {
+      "pending": 0,
+      "processing": 0,
+      "completed": 100,
+      "failed": 0,
+      "total": 100
+    },
+    "knowledge_graph": {
+      "entities_total": 4310,
+      "entities_staging": 4167,
+      "entities_trusted": 0,
+      "relationships_total": 584,
+      "relationships_staging": 564,
+      "relationships_trusted": 0,
+      "chunks_total": 501,
+      "candidate_relationships_total": 0
+    },
+    "checks": {
+      "vault_exists": true,
+      "has_documents": true,
+      "document_queue_resolvable": true,
+      "db_identity_available": true
+    }
+  },
+  "extraction_summary": {
+    "total_documents": 76,
+    "total_entities": 7575,
+    "total_relationships": 3206,
+    "total_chunks": 386,
+    "document_types": {
+      "financial_report": 8,
+      "customer_profile": 10,
+      "policy_document": 10,
+      "strategic_plan": 4,
+      "architecture_doc": 3,
+      "project_plan": 14,
+      "org_chart": 6,
+      "technical_spec": 4,
+      "meeting_notes": 3,
+      "sustainability_roadmap": 1,
+      "product_charter": 1,
+      "talent_strategy_document": 1,
+      "joint_venture_agreement": 1,
+      "partner_profile": 3,
+      "safety_alert_bulletin": 1,
+      "competitive_analysis_report": 1,
+      "supplier_profile": 2,
+      "board_guidance_document": 1,
+      "internal_newsletter": 1,
+      "supplier_review_minutes": 1
+    },
+    "new_entity_types": [
+      "SERVICE",
+      "TEAM",
+      "DATABASE"
+    ],
+    "new_relationship_types": [
+      "CUSTOMER_OF",
+      "PARTNERSHIP",
+      "PM_OF",
+      "AGREES_TO",
+      "ACCEPTS_CONCESSION",
+      "MEETS_SPEC",
+      "OWNS"
+    ],
+    "errors": [
+      "01_board_meeting_q4_2025.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "01_ceo_all_hands_memo.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "01_executive_team.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "02_falcon_x_program_review.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "02_organizational_announcement.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "02_q4_2025_earnings.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "03_digital_transformation.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "03_press_release_fy2025.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "04_digital_division_quarterly_review.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "04_toyota_partnership_announcement.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "05_fedramp_announcement.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "05_safety_committee_meeting.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "06_employee_benefits_update.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "07_research_development_org.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "08_cybersecurity_advisory.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "08_hr_talent_review.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "08_quantum_computing_services.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "09_greenhydrogen_milestone.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "09_investor_presentation_q4.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "09_investor_relations_call.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "10_cybersecurity_incident_response.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "10_rd_investment_report.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "11_treasury_report.md: 'ExtractedRelation' object has no attribute 'relationship_type'",
+      "14_hypersonic_propulsion.md: 'ExtractedRelation' object has no attribute 'relationship_type'"
+    ],
+    "content_sources": {
+      "chunks": 100,
+      "public.documents": 0,
+      "storage_path": 0,
+      "none": 0
+    }
+  },
+  "run_completed_at": "2026-02-09T19:04:09.903808"
+}
