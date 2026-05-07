@@ -1,23 +1,24 @@
 {
-  "run_timestamp": "2026-05-07T20:47:28.118075",
+  "run_timestamp": "2026-05-07T21:54:23.144391",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_176a4fb2.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.08,
-    "avg_semantic_score": 0.073379,
+    "avg_chunks_retrieved": 3.02,
+    "avg_semantic_score": 0.07002100000000001,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "no_data": 13,
-      "no_match": 16,
-      "exact_match": 38,
-      "component_match": 24,
-      "number_match": 7,
+      "no_data": 11,
+      "no_match": 17,
+      "exact_match": 40,
+      "component_match": 23,
+      "number_match": 6,
       "percentage_match": 1,
+      "timeout": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 89
+    "low_score_queries": 90
   },
   "low_score_questions": [
     {
@@ -103,7 +104,7 @@
     {
       "q_id": 20,
       "question": "Which supplier is rated Red and at risk?",
-      "avg_score": 0.0
+      "avg_score": 0.3252
     },
     {
       "q_id": 21,
@@ -291,6 +292,11 @@
       "avg_score": 0.0
     },
     {
+      "q_id": 61,
+      "question": "Who replaced Thomas Anderson as Digital President?",
+      "avg_score": 0.0
+    },
+    {
       "q_id": 62,
       "question": "What FedRAMP level did CyberShield achieve?",
       "avg_score": 0.0
@@ -472,7 +478,7 @@
         "q_id": 1,
         "question": "Who is the CEO of Nexus Industries?",
         "expected": "Dr. Victoria Chen",
-        "actual": "The retrieved information does not speci",
+        "actual": "The retrieved information does not provi",
         "files_retrieved": []
       },
       {
@@ -485,13 +491,6 @@
           "09_competitive_intelligence.md",
           "02_organizational_announcement.md"
         ]
-      },
-      {
-        "q_id": 15,
-        "question": "Who does Michael Chang report to?",
-        "expected": "Dr. Victoria Chen (CEO)",
-        "actual": "Based on the retrieved information, ther",
-        "files_retrieved": []
       },
       {
         "q_id": 18,
@@ -522,7 +521,7 @@
         "q_id": 38,
         "question": "Who is the CISO of Nexus Industries?",
         "expected": "Jennifer Walsh (appointed January 2026, ",
-        "actual": "The retrieved information does not speci",
+        "actual": "The retrieved information does not provi",
         "files_retrieved": []
       },
       {
@@ -558,15 +557,6 @@
         "files_retrieved": []
       },
       {
-        "q_id": 83,
-        "question": "Who is the primary customer for the SmartGrid Controller?",
-        "expected": "Pacific Power (pilot customer)",
-        "actual": "The primary customer for the SmartGrid C",
-        "files_retrieved": [
-          "Unknown"
-        ]
-      },
-      {
         "q_id": 93,
         "question": "What electrolyte material is used in the solid-state battery",
         "expected": "LLZO (Li7La3Zr2O12, Al-doped)",
@@ -596,17 +586,6 @@
         "expected": "Nel Hydrogen",
         "actual": "The electrolyzers for the GreenHydrogen ",
         "files_retrieved": []
-      },
-      {
-        "q_id": 20,
-        "question": "Which supplier is rated Red and at risk?",
-        "expected": "General Atomics",
-        "actual": "The supplier that is rated Red and at ri",
-        "files_retrieved": [
-          "12_supplier_performance_review.md",
-          "09_nel_hydrogen_supplier.md",
-          "04_procurement_policy.md"
-        ]
       },
       {
         "q_id": 24,
@@ -715,6 +694,17 @@
         ]
       },
       {
+        "q_id": 73,
+        "question": "How many new employees will Nexus hire in FY2026?",
+        "expected": "1,200 net new positions",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": [
+          "08_global_locations.md",
+          "05_digital_division_budget.md",
+          "03_press_release_fy2025.md"
+        ]
+      },
+      {
         "q_id": 79,
         "question": "What is the 2030 revenue target in the corporate strategy?",
         "expected": "$15 billion",
@@ -723,6 +713,15 @@
           "02_aerospace_division_strategy.md",
           "01_corporate_strategy_2026_2030.md",
           "06_market_expansion_asia.md"
+        ]
+      },
+      {
+        "q_id": 83,
+        "question": "Who is the primary customer for the SmartGrid Controller?",
+        "expected": "Pacific Power (pilot customer)",
+        "actual": "The primary customer for the SmartGrid C",
+        "files_retrieved": [
+          "Unknown"
         ]
       },
       {
@@ -744,6 +743,15 @@
           "02_airbus_customer_profile.md",
           "Unknown"
         ]
+      }
+    ],
+    "timeout": [
+      {
+        "q_id": 61,
+        "question": "Who replaced Thomas Anderson as Digital President?",
+        "expected": "Robert Kim",
+        "actual": "",
+        "files_retrieved": []
       }
     ]
   }
