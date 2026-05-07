@@ -5,6 +5,7 @@ Hierarchical entity retrieval via graph traversal from anchor organization.
 Prioritizes graph proximity over flat semantic similarity.
 """
 
+import re
 from typing import List, Dict, Any, Optional, Tuple, Set
 from dataclasses import dataclass
 from sqlalchemy.orm import Session
@@ -136,6 +137,11 @@ class TreeBasedRetriever:
         # Step 4: Rank by graph proximity + semantic relevance
         ranked = self._rank_results(traversal_results, query, intent)
 
+        # Step 4b: Per-relationship-type cap to prevent context crowding (Q25 regression fix)
+        # When an anchor has many same-type neighbors (e.g. Solid-State Batteries → 5 HAS_SPEC),
+        # keep only the top-3 per relationship type ranked by semantic relevance to the query.
+        ranked = self._cap_per_rel_type(ranked, query, max_per_type=3)
+
         # Step 5: Return with confidence
         if ranked:
             max_depth_reached = max([r['depth'] for r in ranked]) if ranked else 0
@@ -198,6 +204,7 @@ class TreeBasedRetriever:
                 results.append({
                     'entity': entity,
                     'depth': depth,
+                    'edge_type': edge_type,
                     'anchor_path': []  # TODO: track path for provenance
                 })
                 logger.debug(f"[TREE] Match at depth {depth}: {entity['name']} ({entity['entity_type']})")
@@ -461,6 +468,51 @@ class TreeBasedRetriever:
                    f"(score={results[0]['combined_score']:.3f}, depth={results[0]['depth']})")
 
         return results
+
+    def _cap_per_rel_type(
+        self,
+        ranked: List[Dict[str, Any]],
+        query: str,
+        max_per_type: int = 3,
+    ) -> List[Dict[str, Any]]:
+        """
+        Cap results per relationship type to prevent context crowding.
+
+        When an anchor has many same-type neighbors (e.g. a project with 5+
+        HAS_SPEC links), only keep the top-K most relevant per relationship
+        type. Entities without a recorded edge_type (e.g. anchor at depth 0)
+        always pass through.
+        """
+        if not ranked:
+            return ranked
+
+        query_lower = (query or "").lower()
+        query_tokens = {t for t in re.split(r"\W+", query_lower) if len(t) > 2}
+
+        kept: List[Dict[str, Any]] = []
+        per_type_count: Dict[str, int] = {}
+
+        for r in ranked:
+            etype = r.get('edge_type')
+            if not etype:
+                kept.append(r)
+                continue
+            if per_type_count.get(etype, 0) < max_per_type:
+                kept.append(r)
+                per_type_count[etype] = per_type_count.get(etype, 0) + 1
+                continue
+            # Over the cap — only keep if entity name strongly matches a query token
+            ename = (r.get('entity', {}).get('name') or "").lower()
+            ename_tokens = {t for t in re.split(r"\W+", ename) if len(t) > 2}
+            if query_tokens & ename_tokens:
+                kept.append(r)
+
+        if len(kept) < len(ranked):
+            logger.info(
+                f"[TREE] _cap_per_rel_type: kept {len(kept)}/{len(ranked)} "
+                f"(per-type counts: {per_type_count})"
+            )
+        return kept
 
     def _get_query_embedding(self, query: str) -> Optional[np.ndarray]:
         """Get embedding for query (placeholder - integrate with embedding service)."""

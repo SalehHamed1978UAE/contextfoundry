@@ -143,12 +143,17 @@ class IntentExtractor:
 
         'SPECIFICATION': {
             'patterns': [
-                r'what is the (?:energy density|capacity|range|temperature)',
+                r'what is the (?:energy density|capacity|range|temperature|target|throughput)',
                 r'(?:technical|performance) (?:spec|specification)',
-                r'what (?:material|technology|component)',
+                r'what (?:material|technology|component|electrolyte|catalyst|chemistry|substrate|composition)',
+                r'what (?:operating|working|design|target|maximum|minimum|peak)\s+(?:temperature|pressure|voltage|current|range|capacity|speed|rate|density|life|throughput|yield|frequency|wavelength)',
+                r'what\s+(?:temperature|pressure|voltage|current|range|capacity)\s+(?:does|is|range)',
+                r'what\s+\w+\s+(?:material|materials)\s+(?:is|are)\s+used',
+                r'production capacity of',
+                r'hydrogen production',
             ],
-            'entity_types': ['SPECIFICATION', 'TECHNICAL_SPEC'],
-            'relationship_types': ['HAS_SPEC', 'USES_MATERIAL', 'USES_TECHNOLOGY'],
+            'entity_types': ['SPECIFICATION', 'TECHNICAL_SPEC', 'MATERIAL'],
+            'relationship_types': ['HAS_SPEC', 'USES_MATERIAL', 'USES_TECHNOLOGY', 'HAS_CAPACITY', 'HAS_VALUE'],
             'question_type': 'what'
         }
     }
