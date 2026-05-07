@@ -1,24 +1,23 @@
 {
-  "run_timestamp": "2026-05-07T13:46:42.059797",
+  "run_timestamp": "2026-05-07T14:28:14.312554",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_176a4fb2.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.049999999999999,
-    "avg_semantic_score": 0.08698800000000002,
+    "avg_chunks_retrieved": 3.09,
+    "avg_semantic_score": 0.092717,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "no_data": 11,
-      "no_match": 16,
+      "no_data": 12,
+      "no_match": 14,
       "exact_match": 39,
-      "component_match": 25,
-      "entity_match": 1,
+      "component_match": 27,
       "number_match": 6,
       "percentage_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 88
+    "low_score_queries": 87
   },
   "low_score_questions": [
     {
@@ -352,11 +351,6 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 76,
-      "question": "What is the total patent portfolio size?",
-      "avg_score": 0.0
-    },
-    {
       "q_id": 77,
       "question": "What is the location of the BatteryTech JV facility?",
       "avg_score": 0.0
@@ -497,6 +491,17 @@
         "files_retrieved": []
       },
       {
+        "q_id": 25,
+        "question": "What is the target energy density for the solid-state batter",
+        "expected": "400 Wh/kg",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": [
+          "06_solid_state_battery_design.md",
+          "11_batterytech_solid_state.md",
+          "Unknown"
+        ]
+      },
+      {
         "q_id": 37,
         "question": "Who is the Project Director for the GreenHydrogen Initiative",
         "expected": "Jennifer Walsh",
@@ -547,11 +552,13 @@
         "files_retrieved": []
       },
       {
-        "q_id": 76,
-        "question": "What is the total patent portfolio size?",
-        "expected": "2,412 patents",
-        "actual": "The total patent portfolio size for Nexu",
-        "files_retrieved": []
+        "q_id": 83,
+        "question": "Who is the primary customer for the SmartGrid Controller?",
+        "expected": "Pacific Power (pilot customer)",
+        "actual": "The primary customer for the SmartGrid C",
+        "files_retrieved": [
+          "Unknown"
+        ]
       }
     ],
     "no_match": [
@@ -620,7 +627,7 @@
         "q_id": 45,
         "question": "When was Dr. Victoria Chen appointed CEO?",
         "expected": "2019",
-        "actual": "Dr. Victoria Chen was appointed CEO on *",
+        "actual": "Dr. Victoria Chen was appointed CEO of N",
         "files_retrieved": [
           "02_organizational_announcement.md",
           "08_hr_talent_review.md",
@@ -660,16 +667,6 @@
         ]
       },
       {
-        "q_id": 68,
-        "question": "Who is the Chair of the Export Control Committee?",
-        "expected": "Col. (Ret.) James Foster (Empowered Offi",
-        "actual": "The Chair of the Export Control Committe",
-        "files_retrieved": [
-          "01_code_of_ethics.md",
-          "09_export_control.md"
-        ]
-      },
-      {
         "q_id": 71,
         "question": "Who is the mining automation partner?",
         "expected": "Caterpillar",
@@ -688,15 +685,6 @@
           "02_aerospace_division_strategy.md",
           "01_corporate_strategy_2026_2030.md",
           "06_market_expansion_asia.md"
-        ]
-      },
-      {
-        "q_id": 83,
-        "question": "Who is the primary customer for the SmartGrid Controller?",
-        "expected": "Pacific Power (pilot customer)",
-        "actual": "The primary customer for the SmartGrid C",
-        "files_retrieved": [
-          "Unknown"
         ]
       },
       {
