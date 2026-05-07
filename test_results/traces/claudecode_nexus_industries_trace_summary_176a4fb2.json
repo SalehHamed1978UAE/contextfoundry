@@ -1,19 +1,20 @@
 {
-  "run_timestamp": "2026-05-07T15:40:59.686380",
+  "run_timestamp": "2026-05-07T15:59:48.922337",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_176a4fb2.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.09,
-    "avg_semantic_score": 0.089881,
+    "avg_chunks_retrieved": 3.02,
+    "avg_semantic_score": 0.09365000000000001,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "no_data": 12,
-      "no_match": 15,
-      "exact_match": 39,
+      "no_data": 11,
+      "no_match": 16,
+      "exact_match": 38,
       "component_match": 26,
       "number_match": 6,
+      "timeout": 1,
       "percentage_match": 1,
       "semantic_match": 1
     },
@@ -286,11 +287,6 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 61,
-      "question": "Who replaced Thomas Anderson as Digital President?",
-      "avg_score": 0.0
-    },
-    {
       "q_id": 62,
       "question": "What FedRAMP level did CyberShield achieve?",
       "avg_score": 0.0
@@ -348,6 +344,11 @@
     {
       "q_id": 75,
       "question": "Who is the VP of Engineering for Nexus Digital Solutions?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 76,
+      "question": "What is the total patent portfolio size?",
       "avg_score": 0.0
     },
     {
@@ -523,17 +524,6 @@
         "files_retrieved": []
       },
       {
-        "q_id": 61,
-        "question": "Who replaced Thomas Anderson as Digital President?",
-        "expected": "Robert Kim",
-        "actual": "The information provided does not specif",
-        "files_retrieved": [
-          "14_lockheed_martin_customer.md",
-          "13_starliner_satellite_bus.md",
-          "13_shell_partner.md"
-        ]
-      },
-      {
         "q_id": 67,
         "question": "What operating temperature range does the solid-state batter",
         "expected": "-30\u00b0C to 60\u00b0C",
@@ -552,13 +542,11 @@
         "files_retrieved": []
       },
       {
-        "q_id": 91,
-        "question": "Who is the VP Trade Compliance?",
-        "expected": "Owns the Export Control Policy (per POL-",
-        "actual": "The current VP of Trade Compliance is no",
-        "files_retrieved": [
-          "09_export_control.md"
-        ]
+        "q_id": 76,
+        "question": "What is the total patent portfolio size?",
+        "expected": "2,412 patents",
+        "actual": "The total patent portfolio size for Nexu",
+        "files_retrieved": []
       }
     ],
     "no_match": [
@@ -616,7 +604,7 @@
         "q_id": 40,
         "question": "What is the total company backlog?",
         "expected": "$12.4 billion",
-        "actual": "The total company backlog for Nexus is $",
+        "actual": "The total company backlog for Nexus is *",
         "files_retrieved": [
           "03_aerospace_division_budget.md",
           "05_digital_division_budget.md",
@@ -680,7 +668,7 @@
         "q_id": 71,
         "question": "Who is the mining automation partner?",
         "expected": "Caterpillar",
-        "actual": "The mining automation partner is **Sieme",
+        "actual": "The mining automation partner for Nexus ",
         "files_retrieved": [
           "04_toyota_partnership_announcement.md",
           "09_competitive_intelligence.md"
@@ -707,6 +695,15 @@
         ]
       },
       {
+        "q_id": 91,
+        "question": "Who is the VP Trade Compliance?",
+        "expected": "Owns the Export Control Policy (per POL-",
+        "actual": "The current VP of Trade Compliance is no",
+        "files_retrieved": [
+          "09_export_control.md"
+        ]
+      },
+      {
         "q_id": 93,
         "question": "What electrolyte material is used in the solid-state battery",
         "expected": "LLZO (Li7La3Zr2O12, Al-doped)",
@@ -716,6 +713,15 @@
           "04_toyota_partnership_announcement.md",
           "Unknown"
         ]
+      }
+    ],
+    "timeout": [
+      {
+        "q_id": 39,
+        "question": "What is the annual dividend per share?",
+        "expected": "$1.80",
+        "actual": "",
+        "files_retrieved": []
       }
     ]
   }
