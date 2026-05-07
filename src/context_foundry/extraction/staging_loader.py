@@ -299,6 +299,16 @@ class StagingLoader:
         'OCCURS_ON': 'OCCURRED_ON',
         'EVALUATES': 'MANAGES',
         'PART_OF_PROJECT': 'PART_OF',
+        # Role/appointment variants — the LLM uses domain-specific titles
+        'PRESIDENT_OF': 'HOLDS_POSITION',
+        'APPOINTED_TO': 'HOLDS_POSITION',
+        'PREVIOUSLY_HELD': 'HOLDS_POSITION',
+        'PREVIOUSLY_HELD_POSITION': 'HOLDS_POSITION',
+        'LEADS_BUSINESS_UNIT': 'HOLDS_POSITION',
+        'EXECUTIVE_RELATIONSHIP': 'HOLDS_POSITION',
+        # Reporting / oversight tense + naming variants
+        'REPORTED_TO': 'REPORTS_TO',
+        'OVERSIGHT_OF': 'MANAGES',
     }
 
     def _normalize_relation_type(self, relation_type: str) -> str:
