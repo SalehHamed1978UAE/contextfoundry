@@ -1,23 +1,23 @@
 {
-  "run_timestamp": "2026-05-07T15:13:30.657779",
+  "run_timestamp": "2026-05-07T15:40:59.686380",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_176a4fb2.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.049999999999999,
-    "avg_semantic_score": 0.08698800000000002,
+    "avg_chunks_retrieved": 3.09,
+    "avg_semantic_score": 0.089881,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "no_data": 14,
-      "no_match": 14,
+      "no_data": 12,
+      "no_match": 15,
       "exact_match": 39,
-      "component_match": 25,
+      "component_match": 26,
       "number_match": 6,
       "percentage_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 88
+    "low_score_queries": 87
   },
   "low_score_questions": [
     {
@@ -351,11 +351,6 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 76,
-      "question": "What is the total patent portfolio size?",
-      "avg_score": 0.0
-    },
-    {
       "q_id": 77,
       "question": "What is the location of the BatteryTech JV facility?",
       "avg_score": 0.0
@@ -528,17 +523,6 @@
         "files_retrieved": []
       },
       {
-        "q_id": 60,
-        "question": "When was the phishing incident detected?",
-        "expected": "December 12, 2025 at 02:47 UTC",
-        "actual": "The retrieved information does not provi",
-        "files_retrieved": [
-          "Unknown",
-          "10_cybersecurity_incident_response.md",
-          "08_cybersecurity_advisory.md"
-        ]
-      },
-      {
         "q_id": 61,
         "question": "Who replaced Thomas Anderson as Digital President?",
         "expected": "Robert Kim",
@@ -568,19 +552,12 @@
         "files_retrieved": []
       },
       {
-        "q_id": 76,
-        "question": "What is the total patent portfolio size?",
-        "expected": "2,412 patents",
-        "actual": "The total patent portfolio size for Nexu",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 83,
-        "question": "Who is the primary customer for the SmartGrid Controller?",
-        "expected": "Pacific Power (pilot customer)",
-        "actual": "The primary customer for the SmartGrid C",
+        "q_id": 91,
+        "question": "Who is the VP Trade Compliance?",
+        "expected": "Owns the Export Control Policy (per POL-",
+        "actual": "The current VP of Trade Compliance is no",
         "files_retrieved": [
-          "Unknown"
+          "09_export_control.md"
         ]
       }
     ],
@@ -669,6 +646,17 @@
         ]
       },
       {
+        "q_id": 60,
+        "question": "When was the phishing incident detected?",
+        "expected": "December 12, 2025 at 02:47 UTC",
+        "actual": "The retrieved information does not menti",
+        "files_retrieved": [
+          "Unknown",
+          "10_cybersecurity_incident_response.md",
+          "08_cybersecurity_advisory.md"
+        ]
+      },
+      {
         "q_id": 66,
         "question": "What is the FY2026 capital expenditure plan?",
         "expected": "$680 million",
@@ -692,7 +680,7 @@
         "q_id": 71,
         "question": "Who is the mining automation partner?",
         "expected": "Caterpillar",
-        "actual": "The mining automation partner for Nexus ",
+        "actual": "The mining automation partner is **Sieme",
         "files_retrieved": [
           "04_toyota_partnership_announcement.md",
           "09_competitive_intelligence.md"
@@ -710,12 +698,12 @@
         ]
       },
       {
-        "q_id": 91,
-        "question": "Who is the VP Trade Compliance?",
-        "expected": "Owns the Export Control Policy (per POL-",
-        "actual": "The current VP of Trade Compliance is no",
+        "q_id": 83,
+        "question": "Who is the primary customer for the SmartGrid Controller?",
+        "expected": "Pacific Power (pilot customer)",
+        "actual": "The primary customer for the SmartGrid C",
         "files_retrieved": [
-          "09_export_control.md"
+          "Unknown"
         ]
       },
       {

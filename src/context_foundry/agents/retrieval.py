@@ -398,6 +398,45 @@ class RetrievalAgent:
         traverse_depth: int = 2,
         as_of_date: Optional[str] = None
     ) -> ContextBundle:
+        """Day-1 default: delegate to QueryExecutor.
+
+        The legacy tri-memory path is preserved as `_legacy_build_context_bundle`
+        and can be re-enabled by setting feature_flags['use_legacy_retrieval']=True.
+        """
+        if self.feature_flags.get("use_legacy_retrieval", False):
+            return self._legacy_build_context_bundle(
+                query_text,
+                query_logger=query_logger,
+                max_entities=max_entities,
+                max_documents=max_documents,
+                max_rules=max_rules,
+                traverse_depth=traverse_depth,
+                as_of_date=as_of_date,
+            )
+        try:
+            return self.build_context_bundle_via_executor(query_text)
+        except Exception as exc:
+            logger.error(f"[RetrievalAgent] QueryExecutor failed, falling back to legacy: {exc}")
+            return self._legacy_build_context_bundle(
+                query_text,
+                query_logger=query_logger,
+                max_entities=max_entities,
+                max_documents=max_documents,
+                max_rules=max_rules,
+                traverse_depth=traverse_depth,
+                as_of_date=as_of_date,
+            )
+
+    def _legacy_build_context_bundle(
+        self,
+        query_text: str,
+        query_logger: Optional[QueryLogger] = None,
+        max_entities: int = 20,
+        max_documents: int = 15,
+        max_rules: int = 10,
+        traverse_depth: int = 2,
+        as_of_date: Optional[str] = None
+    ) -> ContextBundle:
         """
         Build a ContextBundle by querying all memory layers.
         
