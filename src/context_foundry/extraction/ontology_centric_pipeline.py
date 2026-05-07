@@ -245,26 +245,10 @@ class OntologyCentricPipeline:
             )
             all_entities.extend(post_processor_entities)
 
-            # Convert ExtractedRelationshipFromPattern to ExtractedRelation and apply sanity filter
-            converted_relations = []
-            filtered_pp_relations = []  # Initialize to prevent UnboundLocalError
-
-            for pp_rel in post_processor_relations:
-                extracted_rel = ExtractedRelation(
-                    id=str(uuid.uuid4()),
-                    relation_type=pp_rel.relationship_type,
-                    source_name=pp_rel.source_name,
-                    target_name=pp_rel.target_name,
-                    source_span=pp_rel.source_text,
-                    source_document_id=document_id,
-                    source_chunk_id=chunks_stored[0].id if chunks_stored else str(uuid.uuid4()),
-                    confidence=pp_rel.confidence,
-                )
-                converted_relations.append(extracted_rel)
-
-            # Apply sanity filter to post-processor output
-            if converted_relations:
-                filtered_pp_relations = self.relation_extractor._apply_sanity_filter(converted_relations)
+            # _run_post_processor already returns ExtractedRelation objects; just sanity-filter
+            filtered_pp_relations = []
+            if post_processor_relations:
+                filtered_pp_relations = self.relation_extractor._apply_sanity_filter(post_processor_relations)
                 logger.info(f"[OntologyCentricPipeline] Post-processor: {len(post_processor_relations)} raw, "
                            f"{len(filtered_pp_relations)} after sanity filter")
                 all_relations.extend(filtered_pp_relations)
