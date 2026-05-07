@@ -1,0 +1,118 @@
+The Test: Claude Opus 4.7 vs GPT-5.5 vs GPT-4o-mini (Baseline)
+Run all three on the same 5 documents. Compare extraction quality for the facts that matter.
+Step 1: Anthropic Test — Claude Opus 4.7
+bash
+Copy
+cat > /tmp/test_opus47.py << 'PYEOF'
+import anthropic, os
+
+client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+
+# Load one critical doc
+with open("src/vaults/176a4fb2/02_organizational_announcement.md") as f:
+    text = f.read()
+
+response = client.messages.create(
+    model="claude-opus-4-7",
+    max_tokens=4096,
+    system="""You are a precise entity and relationship extraction system.
+
+Extract ALL entities and relationships from this organizational announcement.
+
+For EVERY person mentioned with a job title, create a HOLDS_POSITION relationship:
+- Person → HOLDS_POSITION → Role (e.g., "Robert Kim" → HOLDS_POSITION → "President of NDS")
+
+For EVERY organization mentioned, create an ORGANIZATION entity.
+
+For EVERY event (appointment, replacement, hiring), create an EVENT entity and INVOLVES relationships.
+
+Output STRICT JSON:
+{
+  "entities": [{"name": "...", "entity_type": "PERSON|ORGANIZATION|ROLE|EVENT"}],
+  "relations": [{"source": "...", "relation_type": "...", "target": "..."}]
+}""",
+    messages=[{"role": "user", "content": text}]
+)
+
+print("=== CLAUDE OPUS 4.7 OUTPUT ===")
+print(response.content[0].text)
+PYEOF
+
+python3 /tmp/test_opus47.py 2>&1 | tee /tmp/opus47_results.txt
+Step 2: OpenAI Test — GPT-5.5
+bash
+Copy
+cat > /tmp/test_gpt55.py << 'PYEOF'
+import openai, os
+
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+with open("src/vaults/176a4fb2/02_organizational_announcement.md") as f:
+    text = f.read()
+
+response = client.chat.completions.create(
+    model="gpt-5.5",
+    messages=[
+        {"role": "system", "content": """You are a precise entity and relationship extraction system.
+
+Extract ALL entities and relationships from this organizational announcement.
+
+For EVERY person mentioned with a job title, create a HOLDS_POSITION relationship:
+- Person → HOLDS_POSITION → Role
+
+For EVERY organization mentioned, create an ORGANIZATION entity.
+
+Output STRICT JSON:
+{
+  "entities": [{"name": "...", "entity_type": "..."}],
+  "relations": [{"source": "...", "relation_type": "...", "target": "..."}]
+}"""},
+        {"role": "user", "content": text}
+    ],
+    response_format={"type": "json_object"}
+)
+
+print("=== GPT-5.5 OUTPUT ===")
+print(response.choices[0].message.content)
+PYEOF
+
+python3 /tmp/test_gpt55.py 2>&1 | tee /tmp/gpt55_results.txt
+Step 3: Compare on One Critical Fact
+What you're looking for in each output:
+02_organizational_announcement.md — Does the model extract:
+Robert Kim (PERSON)
+President of NDS (ROLE)
+Robert Kim → HOLDS_POSITION → President of NDS
+Jennifer Walsh (PERSON)
+Chief Information Security Officer or CISO (ROLE)
+Jennifer Walsh → HOLDS_POSITION → CISO
+Dr. Alan Chen (PERSON)
+VP of Engineering or Vice President of Engineering (ROLE)
+Dr. Alan Chen → HOLDS_POSITION → VP Engineering
+If a model extracts all 3 of those → it handles role appointments correctly.
+If it extracts Robert Kim WORKS_AT NDS but misses President → it fails on nuanced facts.
+Step 4: Run All 5 Docs with the Best Model
+After the smoke test, run the full 5-doc extraction with whichever model wins:
+bash
+Copy
+cat > /tmp/extract_5_docs.py << 'PYEOF'
+import os, sys
+sys.path.insert(0, "src")
+
+# Set the winning model here
+BEST_MODEL = "claude-opus-4-7"  # or "gpt-5.5" or "gpt-5.5-pro"
+
+docs = [
+    "02_organizational_announcement.md",
+    "06_solid_state_battery_design.md",
+    "04_greenhydrogen_initiative.md",
+    "10_first_solar_supplier.md",
+    "01_boeing_customer_profile.md",
+]
+
+# ...your extraction pipeline with BEST_MODEL injected...
+PYEOF
+What to Tell Replit
+"Run the Claude Opus 4.7 smoke test on 02_organizational_announcement.md. Then run the GPT-5.5 smoke test on the same doc. Compare which one extracts the 3 role-appointment facts (Robert Kim→President, Jennifer Walsh→CISO, Alan Chen→VP Engineering). Pick the winner. Then extract all 5 critical docs with that model. Report which facts each model captured."
+Cost per smoke test: ~$0.50-1.00 per model per doc. Total: ~$3-6 to know which frontier model actually works for your use case.
+Run it. Tell me which model wins.

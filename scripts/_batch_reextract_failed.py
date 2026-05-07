@@ -38,17 +38,32 @@ def get_failed_docs(s):
     """)).fetchall()
     return [(r[0], r[1]) for r in rows]
 
+def get_docs_from_v1(s):
+    """Re-audit the same docs that v1 processed (read names from /tmp/reextract_results.v1.json)."""
+    import json
+    if not os.path.exists('/tmp/reextract_results.v1.json'):
+        return []
+    v1 = json.load(open('/tmp/reextract_results.v1.json'))
+    names = list(v1.keys())
+    rows = s.execute(sa_text(
+        f"SELECT id::text, name FROM platform.documents "
+        f"WHERE tenant_id=CAST('{V}' AS uuid) AND name = ANY(:names) ORDER BY name"
+    ), {"names": names}).fetchall()
+    return [(r[0], r[1]) for r in rows]
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--count', type=int, default=4)
+    ap.add_argument('--source', choices=['failed','v1'], default='failed',
+                    help='failed=latest job is FAILED with bug; v1=names from /tmp/reextract_results.v1.json')
     args = ap.parse_args()
 
     eng = create_engine(os.environ['DATABASE_URL'])
     Session = sessionmaker(bind=eng)
     s = Session()
-    docs = get_failed_docs(s)
+    docs = get_failed_docs(s) if args.source == 'failed' else get_docs_from_v1(s)
     s.close()
-    print(f"Total failed-bug docs: {len(docs)}", flush=True)
+    print(f"Source={args.source}, total docs: {len(docs)}", flush=True)
 
     results = load_results()
     pending = [(did, fn) for did, fn in docs if not (fn in results and results[fn].get('success'))]
