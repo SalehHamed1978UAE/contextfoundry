@@ -371,6 +371,23 @@ class RetrievalAgent:
                 "intersection_logic": "AND"
             }
     
+    def build_context_bundle_via_executor(
+        self,
+        query_text: str,
+        vault_context: Optional[str] = None,
+    ) -> ContextBundle:
+        """Day-1 unified entry point: delegate to QueryExecutor.
+
+        Wires the new src.context_foundry.query.query_executor.QueryExecutor as
+        an alternate entry point alongside build_context_bundle. Caller can
+        opt-in to switch retrieval strategies without touching the legacy path.
+        """
+        if not self.tenant_id:
+            raise ValueError("RetrievalAgent.build_context_bundle_via_executor requires tenant_id")
+        from ..query.query_executor import QueryExecutor
+        executor = QueryExecutor(session=self.session, tenant_id=self.tenant_id)
+        return executor.execute(query_text, vault_context=vault_context)
+
     def build_context_bundle(
         self,
         query_text: str,
