@@ -64,6 +64,22 @@ class CanonicalRelation:
 # Similarity thresholds
 AUTO_MERGE_THRESHOLD = 0.85
 LLM_VERIFY_THRESHOLD = 0.70
+DIRECTIONAL_RELATIONSHIP_THRESHOLD = 0.98  # Never auto-merge directional variants below this
+
+# Directional relationship types - these encode direction semantics and must NEVER
+# be auto-merged into each other (e.g., SUPPLIES vs CUSTOMER_OF are inverses, not synonyms).
+DIRECTIONAL_RELATIONSHIPS = frozenset({
+    "SUPPLIES", "SUPPLIES_TO", "SUPPLIER_OF", "CUSTOMER_OF",
+    "OWNS", "OWNED_BY",
+    "EMPLOYS", "EMPLOYED_BY",
+    "PARENT_OF", "SUBSIDIARY_OF",
+    "INVESTS_IN", "RECEIVES_INVESTMENT_FROM",
+    "ACQUIRED", "ACQUIRED_BY",
+    "PARTNERS_WITH", "COMPETES_WITH",
+    "LICENSES_TO", "LICENSED_FROM",
+    "REPORTS_TO", "MANAGES",
+    "PROCURES_FROM", "PROVIDES_TO",
+})
 
 
 class Canonicalizer:
@@ -233,11 +249,33 @@ Return ONLY the definition, nothing else."""
                             best_similarity = similarity
                             best_match = canonical
             
-            if best_similarity > AUTO_MERGE_THRESHOLD:
+            # Guard: prevent auto-merge between two different directional relationships
+            # (e.g., CUSTOMER_OF should never auto-merge into SUPPLIES even at 0.85+ similarity)
+            blocked_directional_merge = False
+            if best_match is not None and best_similarity > AUTO_MERGE_THRESHOLD:
+                candidate_name = (best_match.name or "").upper()
+                triplet_pred = (triplet.predicate or "").upper()
+                if (candidate_name in DIRECTIONAL_RELATIONSHIPS
+                        and triplet_pred in DIRECTIONAL_RELATIONSHIPS
+                        and candidate_name != triplet_pred
+                        and best_similarity < DIRECTIONAL_RELATIONSHIP_THRESHOLD):
+                    blocked_directional_merge = True
+                    logger.info(
+                        f"[Canonicalizer] Blocked directional auto-merge: "
+                        f"'{triplet_pred}' vs canonical '{candidate_name}' "
+                        f"(similarity={best_similarity:.3f} < {DIRECTIONAL_RELATIONSHIP_THRESHOLD})"
+                    )
+
+            if best_similarity > AUTO_MERGE_THRESHOLD and not blocked_directional_merge:
                 canonical_type = best_match.name
                 self._update_canonical(best_match, triplet.predicate)
                 auto_merged += 1
-                
+
+            elif blocked_directional_merge:
+                # Treat as new canonical type to preserve direction
+                canonical_type = self._create_canonical_type(triplet)
+                new_canonicals_created += 1
+
             elif best_similarity > LLM_VERIFY_THRESHOLD:
                 if self._llm_verify_merge(triplet, best_match):
                     canonical_type = best_match.name

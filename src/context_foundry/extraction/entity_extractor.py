@@ -449,6 +449,33 @@ LOCATION: PHYSICAL places (cities, countries, buildings, facilities)
 7. Be EXHAUSTIVE - do not stop until every entity is captured
 8. When uncertain, INCLUDE with confidence 0.7-0.8
 
+## SUPPLY-CHAIN ENTITY EXTRACTION (CRITICAL)
+
+When a document profiles a CUSTOMER or SUPPLIER, the named company is the
+PRIMARY ORGANIZATION entity — NOT a program, product, or contract:
+
+CORRECT extractions:
+  "Boeing sources composite materials from Hexcel"
+    → ORGANIZATION: "Boeing"
+    → ORGANIZATION: "Hexcel"
+  "Customer Profile: Lockheed Martin (F-35 Block 4 program)"
+    → ORGANIZATION: "Lockheed Martin"   (primary - the customer)
+    → PROJECT: "F-35 Block 4"           (secondary - a program of theirs)
+  "Nel Hydrogen supplies fuel cells to Boeing"
+    → ORGANIZATION: "Nel Hydrogen"      (the supplier)
+    → ORGANIZATION: "Boeing"            (the customer)
+
+WRONG (do NOT do this):
+  - Extracting "F-35 Block 4" as the primary entity from a Lockheed customer profile
+  - Extracting "Boeing Programs" as ORGANIZATION when "Boeing" already exists
+  - Extracting "The Boeing Company" and "Boeing" as separate entities (use the canonical short form)
+
+CANONICAL FORM RULE:
+When the same organization appears under multiple surface forms in the document
+("Boeing", "The Boeing Company", "Boeing Commercial Airplanes"), extract ONE
+ORGANIZATION entity using the canonical short form ("Boeing"). Do NOT emit
+duplicates with type variations (COMPETITOR, CUSTOMER, ORGANIZATION).
+
 ## ROLE EXTRACTION RULES (CRITICAL FOR PERSON ENTITIES)
 
 When extracting the 'role' property for PERSON entities:

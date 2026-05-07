@@ -19,8 +19,11 @@ import argparse
 import json
 import os
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
+
+import requests
 
 from .config import TestConfig
 from .vault_manager import VaultManager
@@ -33,7 +36,35 @@ from .status import update_status, STATUS_FILE_PATH
 def log(msg: str):
     """Print with immediate flush for subprocess visibility."""
     print(msg)
-    sys.stdout.flush()
+
+
+def wait_for_server(api_base_url: str, max_wait: int = 90) -> bool:
+    """Poll the platform server until it responds or max_wait seconds elapse.
+
+    Fixes the cold-start race where test workflows launch in parallel with
+    `Start All` and try to authenticate before Flask is bound to port 5000.
+    """
+    base = api_base_url.rstrip("/")
+    health_urls = [f"{base}/health", f"{base}/api/health", base]
+    deadline = time.time() + max_wait
+    attempt = 0
+    while time.time() < deadline:
+        attempt += 1
+        for url in health_urls:
+            try:
+                resp = requests.get(url, timeout=2)
+                if resp.status_code < 500:
+                    if attempt > 1:
+                        log(f"  Server reachable at {url} after {attempt} attempts")
+                    return True
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+                continue
+            except Exception:
+                continue
+        if attempt == 1 or attempt % 5 == 0:
+            log(f"  Waiting for server at {base}... (attempt {attempt})")
+        time.sleep(2)
+    return False
 
 
 def load_question_set_from_db(question_set_id: str) -> list | None:
@@ -189,6 +220,12 @@ def run_vault_test(
     executor = TestExecutor(vm, evaluator)
     
     try:
+        log("\n[Auth] Waiting for server cold start...")
+        if not wait_for_server(config.api_base_url):
+            log(f"ERROR: Server at {config.api_base_url} did not start within 90s")
+            update_status('qa', stage_status='failed', overall_status='failed')
+            error_msg = "Server unavailable"
+            return None
         log("\n[Auth] Authenticating...")
         if not vm.authenticate_dev():
             log("ERROR: Failed to authenticate")
@@ -479,6 +516,12 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
     evaluator = FuzzyEvaluator()
     executor = TestExecutor(vm, evaluator)
     
+    # Step 0: Wait for server to be reachable (handles cold-start race)
+    print("\n[Step 0] Waiting for server cold start...")
+    if not wait_for_server(config.api_base_url):
+        print(f"ERROR: Server at {config.api_base_url} did not start within 90s")
+        return None
+
     # Step 1: Initial auth (no tenant context yet)
     print("\n[Step 1] Authenticating...")
     if not vm.authenticate_dev():
