@@ -1,0 +1,194 @@
+{
+  "document_id": "4cfdd36d-09d4-4fcf-a888-8bdd36528bbe",
+  "document_path": "01_ceo_all_hands_memo.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-07T08:38:41.581282",
+  "entities": [
+    {
+      "name": "Dr. Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "From: Dr. Victoria Chen, CEO",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Aerospace and Defense"
+      },
+      "confidence": 0.95,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Nexus Industries delivered its strongest year in company history",
+      "aliases": []
+    },
+    {
+      "name": "Falcon X UAV Program",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": null,
+        "timeline": "First flight targeted for May 2026",
+        "status": "on schedule and under budget"
+      },
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Falcon X UAV Program: Our largest aerospace program remains on schedule and under budget",
+      "aliases": []
+    },
+    {
+      "name": "GreenHydrogen Initiative",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$450 million",
+        "timeline": "First hydrogen production expected in March",
+        "status": "68% complete"
+      },
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "GreenHydrogen Initiative: Construction is 68% complete at our El Paso facility",
+      "aliases": []
+    },
+    {
+      "name": "Toyota",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership type": "joint venture"
+      },
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "finalized our solid-state battery joint venture with Toyota",
+      "aliases": []
+    },
+    {
+      "name": "CyberShield",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": null,
+        "timeline": null,
+        "status": "achieved FedRAMP High authorization"
+      },
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "CyberShield now protects over 2 million endpoints",
+      "aliases": []
+    },
+    {
+      "name": "El Paso",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "El Paso",
+        "country": "USA"
+      },
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Construction is 68% complete at our El Paso facility",
+      "aliases": []
+    },
+    {
+      "name": "NexusConnect",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "AI processing capabilities",
+        "category": "Digital Solutions"
+      },
+      "confidence": 0.8,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Edge AI processing capabilities for NexusConnect",
+      "aliases": []
+    },
+    {
+      "name": "Board of Directors",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Governing Body"
+      },
+      "confidence": 0.8,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "our Board of Directors approved a 12% dividend increase",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "I am honored to lead this incredible team"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Toyota",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "finalized our solid-state battery joint venture with Toyota"
+    },
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "Dr. Victoria Chen, CEO"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "CyberShield now protects over 2 million endpoints"
+    },
+    {
+      "source_entity": "GreenHydrogen Initiative",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "GreenHydrogen Initiative: Construction is 68% complete"
+    },
+    {
+      "source_entity": "Falcon X UAV Program",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "Falcon X UAV Program: Our largest aerospace program"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 6,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}
