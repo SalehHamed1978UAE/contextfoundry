@@ -45,9 +45,15 @@ class CanonicalTriplet:
     object: str
     object_type: str
     confidence: float
-    source_predicate: str
+    raw_relationship_type: str  # P2.4: renamed from source_predicate for naming consistency with DB column
     source_context: str
     predicate_definition: str = ""
+
+    # P2.4: Backward-compatibility property for any external caller still using
+    # the old name. New code should use raw_relationship_type directly.
+    @property
+    def source_predicate(self) -> str:
+        return self.raw_relationship_type
 
 
 @dataclass
@@ -295,7 +301,7 @@ Return ONLY the definition, nothing else."""
                 object=triplet.object,
                 object_type=self._canonicalize_entity_type(triplet.object_type),
                 confidence=triplet.confidence,
-                source_predicate=triplet.predicate,
+                raw_relationship_type=triplet.predicate,  # P2.4: renamed from source_predicate
                 source_context=triplet.context,
                 predicate_definition=triplet.predicate_definition
             ))

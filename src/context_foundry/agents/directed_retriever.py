@@ -136,7 +136,13 @@ class RetrievedRelationship:
     description: Optional[str] = None
     context_confidence: Optional[float] = None
     source_location: Optional[str] = None
-    
+    # P2.3: Temporal validity properties extracted from r.properties JSONB
+    start_date: Optional[str] = None
+    effective_date: Optional[str] = None
+    end_date: Optional[str] = None
+    appointed_date: Optional[str] = None
+    relationship_date: Optional[str] = None
+
     def to_dict(self) -> dict:
         result = {
             "relationship_id": self.relationship_id,
@@ -158,6 +164,11 @@ class RetrievedRelationship:
             result["provenance_text"] = self.provenance_text
         if self.source_location:
             result["source_location"] = self.source_location
+        # P2.3: Include temporal properties when present
+        for fld in ("start_date", "effective_date", "end_date", "appointed_date", "relationship_date"):
+            v = getattr(self, fld, None)
+            if v:
+                result[fld] = v
         return result
 
 
@@ -503,7 +514,12 @@ class DirectedGraphRetriever:
                 rc.provenance_text,
                 rc.description,
                 rc.confidence_combined,
-                rc.source_location
+                rc.source_location,
+                r.properties->>'start_date' as start_date,
+                r.properties->>'effective_date' as effective_date,
+                r.properties->>'end_date' as end_date,
+                r.properties->>'appointed_date' as appointed_date,
+                r.properties->>'date' as relationship_date
             FROM relationships r
             JOIN entities src ON r.source_id = src.id
             JOIN entities tgt ON r.target_id = tgt.id
@@ -539,7 +555,13 @@ class DirectedGraphRetriever:
                     provenance_text=row.provenance_text if hasattr(row, 'provenance_text') else None,
                     description=row.description if hasattr(row, 'description') else None,
                     context_confidence=float(row.confidence_combined) if hasattr(row, 'confidence_combined') and row.confidence_combined else None,
-                    source_location=row.source_location if hasattr(row, 'source_location') else None
+                    source_location=row.source_location if hasattr(row, 'source_location') else None,
+                    # P2.3: Temporal properties from r.properties JSONB
+                    start_date=row.start_date if hasattr(row, 'start_date') else None,
+                    effective_date=row.effective_date if hasattr(row, 'effective_date') else None,
+                    end_date=row.end_date if hasattr(row, 'end_date') else None,
+                    appointed_date=row.appointed_date if hasattr(row, 'appointed_date') else None,
+                    relationship_date=row.relationship_date if hasattr(row, 'relationship_date') else None,
                 )
                 relationships.append(rel)
                 
@@ -701,7 +723,12 @@ class DirectedGraphRetriever:
                     rc.provenance_text,
                     rc.description,
                     rc.confidence_combined,
-                    rc.source_location
+                    rc.source_location,
+                    r.properties->>'start_date' as start_date,
+                    r.properties->>'effective_date' as effective_date,
+                    r.properties->>'end_date' as end_date,
+                    r.properties->>'appointed_date' as appointed_date,
+                    r.properties->>'date' as relationship_date
                 FROM relationships r
                 JOIN entities se ON r.source_id = se.id
                 JOIN entities te ON r.target_id = te.id
@@ -730,7 +757,13 @@ class DirectedGraphRetriever:
                     provenance_text=row[9] if len(row) > 9 else None,
                     description=row[10] if len(row) > 10 else None,
                     context_confidence=float(row[11]) if len(row) > 11 and row[11] else None,
-                    source_location=row[12] if len(row) > 12 else None
+                    source_location=row[12] if len(row) > 12 else None,
+                    # P2.3: Temporal properties from r.properties JSONB (indices 13-17)
+                    start_date=row[13] if len(row) > 13 else None,
+                    effective_date=row[14] if len(row) > 14 else None,
+                    end_date=row[15] if len(row) > 15 else None,
+                    appointed_date=row[16] if len(row) > 16 else None,
+                    relationship_date=row[17] if len(row) > 17 else None,
                 ))
         
         if direction in ("outbound", "both"):
@@ -748,7 +781,12 @@ class DirectedGraphRetriever:
                     rc.provenance_text,
                     rc.description,
                     rc.confidence_combined,
-                    rc.source_location
+                    rc.source_location,
+                    r.properties->>'start_date' as start_date,
+                    r.properties->>'effective_date' as effective_date,
+                    r.properties->>'end_date' as end_date,
+                    r.properties->>'appointed_date' as appointed_date,
+                    r.properties->>'date' as relationship_date
                 FROM relationships r
                 JOIN entities se ON r.source_id = se.id
                 JOIN entities te ON r.target_id = te.id
@@ -777,7 +815,13 @@ class DirectedGraphRetriever:
                     provenance_text=row[9] if len(row) > 9 else None,
                     description=row[10] if len(row) > 10 else None,
                     context_confidence=float(row[11]) if len(row) > 11 and row[11] else None,
-                    source_location=row[12] if len(row) > 12 else None
+                    source_location=row[12] if len(row) > 12 else None,
+                    # P2.3: Temporal properties from r.properties JSONB (indices 13-17)
+                    start_date=row[13] if len(row) > 13 else None,
+                    effective_date=row[14] if len(row) > 14 else None,
+                    end_date=row[15] if len(row) > 15 else None,
+                    appointed_date=row[16] if len(row) > 16 else None,
+                    relationship_date=row[17] if len(row) > 17 else None,
                 ))
         
         return results

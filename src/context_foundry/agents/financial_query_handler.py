@@ -17,6 +17,74 @@ class FinancialQueryHandler:
     over LLM calculations.
     """
 
+    # P2.2: Expanded metric types — recognized when extracting query parameters
+    # and when matching against pre-calculated metrics in the database.
+    METRIC_TYPES = {
+        # Original 6 (P&L core)
+        "revenue", "net_income", "ebitda", "gross_profit", "expenses", "margin",
+        # Capital & Investment
+        "capex", "capital_expenditure", "capital_spending",
+        # Targets & Projections
+        "target", "forecast", "projection", "goal", "objective", "plan",
+        # Balance Sheet
+        "debt", "cash", "assets", "liabilities", "equity", "book_value",
+        # Operational
+        "burn_rate", "runway", "headcount", "production", "capacity",
+        # SaaS / Subscription
+        "arr", "mrr", "acr", "churn", "ltv", "cac", "nrr",
+        # Valuation
+        "valuation", "market_cap", "enterprise_value", "share_price",
+    }
+
+    # P2.2: Query-substring → metric_type lookup (broader than the if/elif ladder).
+    # Order matters: more specific matches are listed first.
+    # Short tokens (arr, mrr, ltv, etc.) are matched with word boundaries
+    # against a space-padded lowercased query in _match_metric_keyword().
+    METRIC_KEYWORD_MAP = [
+        # SaaS / Subscription (check before generic 'recurring')
+        ("annual recurring revenue", "arr"),
+        ("monthly recurring revenue", "mrr"),
+        ("net revenue retention", "nrr"),
+        ("customer acquisition cost", "cac"),
+        ("lifetime value", "ltv"),
+        ("ltv", "ltv"),
+        ("arr", "arr"),
+        ("mrr", "mrr"),
+        ("nrr", "nrr"),
+        ("cac", "cac"),
+        ("churn", "churn"),
+        # Capital
+        ("capex", "capex"),
+        ("capital expenditure", "capex"),
+        ("capital spending", "capex"),
+        # Operational
+        ("burn rate", "burn_rate"),
+        ("runway", "runway"),
+        ("headcount", "headcount"),
+        ("production capacity", "capacity"),
+        ("production", "production"),
+        ("capacity", "capacity"),
+        # Balance sheet
+        ("book value", "book_value"),
+        ("total debt", "debt"),
+        ("debt", "debt"),
+        ("cash on hand", "cash"),
+        ("cash position", "cash"),
+        ("total assets", "assets"),
+        ("total liabilities", "liabilities"),
+        ("equity", "equity"),
+        # Valuation
+        ("market cap", "market_cap"),
+        ("market capitalization", "market_cap"),
+        ("enterprise value", "enterprise_value"),
+        ("share price", "share_price"),
+        ("valuation", "valuation"),
+        # Targets / Projections
+        ("forecast", "forecast"),
+        ("projection", "projection"),
+        ("target", "target"),
+    ]
+
     FINANCIAL_QUERY_PATTERNS = [
         r'what\s+(?:was|is|were)\s+(?:the\s+)?(?:total\s+)?revenue',
         r'what\s+(?:was|is|were)\s+(?:the\s+)?(?:net\s+)?income',
@@ -39,9 +107,30 @@ class FinancialQueryHandler:
         self.tenant_id = tenant_id
         self._patterns = [re.compile(p, re.IGNORECASE) for p in self.FINANCIAL_QUERY_PATTERNS]
 
+    @staticmethod
+    def _match_metric_keyword(keyword: str, query_lower: str) -> bool:
+        """Match a metric keyword against a lowercased query.
+
+        Short alphanumeric-only keywords (e.g. 'arr', 'mrr', 'ltv', 'capex')
+        are matched with word boundaries to avoid false positives like
+        'narrative' matching 'arr'. Multi-word keywords use plain substring.
+        """
+        if " " in keyword:
+            return keyword in query_lower
+        # Word-boundary match for single tokens
+        return re.search(r'\b' + re.escape(keyword) + r'\b', query_lower) is not None
+
     def is_financial_query(self, query: str) -> bool:
-        """Check if query is asking for financial data."""
-        return any(p.search(query) for p in self._patterns)
+        """Check if query is asking for financial data.
+
+        P2.2: Also matches when any expanded metric keyword is present
+        (ARR, MRR, capex, debt, cash, headcount, market cap, etc.) so
+        the expanded handler actually gets reached.
+        """
+        if any(p.search(query) for p in self._patterns):
+            return True
+        ql = query.lower()
+        return any(self._match_metric_keyword(kw, ql) for kw, _ in self.METRIC_KEYWORD_MAP)
 
     def extract_query_parameters(self, query: str) -> Dict[str, Any]:
         """
@@ -54,7 +143,29 @@ class FinancialQueryHandler:
 
         query_lower = query.lower()
 
-        if any(x in query_lower for x in ['revenue', 'sales']):
+        # P2.2: Check expanded keyword map first for specialized metrics
+        # (capex, ARR, MRR, churn, debt, cash, valuation, headcount, etc.).
+        # Only fall through to the original P&L ladder if no specialized match.
+        for keyword, metric in self.METRIC_KEYWORD_MAP:
+            if self._match_metric_keyword(keyword, query_lower):
+                params['metric_type'] = metric
+                break
+
+        if 'metric_type' in params:
+            pass  # Specialized metric already matched
+        # P2.2: Margin detection BEFORE operating→ebitda branch so
+        # "operating margin" / "gross margin" / "net margin" route correctly.
+        elif 'margin' in query_lower:
+            params['is_ratio'] = True
+            if 'gross' in query_lower:
+                params['metric_type'] = 'gross_margin'
+            elif 'net' in query_lower:
+                params['metric_type'] = 'net_margin'
+            elif 'operating' in query_lower:
+                params['metric_type'] = 'operating_margin'
+            else:
+                params['metric_type'] = 'margin'
+        elif any(x in query_lower for x in ['revenue', 'sales']):
             params['metric_type'] = 'revenue'
         elif 'net income' in query_lower or 'net loss' in query_lower:
             params['metric_type'] = 'net_income'
@@ -64,14 +175,6 @@ class FinancialQueryHandler:
             params['metric_type'] = 'gross_profit'
         elif 'expense' in query_lower:
             params['metric_type'] = 'expenses'
-        elif 'margin' in query_lower:
-            params['is_ratio'] = True
-            if 'gross' in query_lower:
-                params['metric_type'] = 'gross_margin'
-            elif 'net' in query_lower:
-                params['metric_type'] = 'net_margin'
-            elif 'operating' in query_lower:
-                params['metric_type'] = 'operating_margin'
 
         time_periods = []
         fy_matches = re.findall(r'FY\s*(\d{4}|\d{2})', query, re.IGNORECASE)
