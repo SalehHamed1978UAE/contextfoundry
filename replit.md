@@ -141,10 +141,13 @@ Architectural features include:
 - HAS_SPEC relationships added to KG
 
 ### Key Metrics
-- **ClaudeCode Nexus Industries:** 87/100 questions passing (+3 from 84% baseline)
+- **ClaudeCode Nexus Industries (active vault `176a4fb2-0bb4-4da3-9068-0e26268fca71`):** 72/100 questions passing (measured 2026-05-07)
+  - Breakdown: 38 exact_match, 26 component_match, 6 number_match, 1 percentage_match, 1 semantic_match
+  - Failures: 12 NOT_FOUND (no_data), 16 MISMATCH (no_match)
+  - Note: The historical 87/100 figure was measured on vault `1f3320cd` which has been deleted; not directly comparable
 - **Hallucination Rate:** 0% (Data Gates enforced)
 - **Provenance:** 18x better than GraphRAG baseline
-- **Failure Analysis:** See `docs/ACCURACY_FAILURES_87.md`
+- **Failure Analysis:** See `docs/ACCURACY_FAILURES_87.md` (legacy reference; current failure list lives in `test_results/claudecode_nexus_industries_20260507_084232.json`)
 
 ### Next Roadmap Items
 1. Evidence Layer Phase 4: Verification dashboard and batch verification UI

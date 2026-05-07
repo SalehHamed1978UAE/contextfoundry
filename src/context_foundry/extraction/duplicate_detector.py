@@ -137,31 +137,56 @@ class DuplicateDetector:
         return ' '.join(expanded)
     
     def _levenshtein_similarity(self, s1: str, s2: str) -> float:
-        """Calculate similarity based on Levenshtein distance."""
+        """Compute similarity between two entity names using rapidfuzz.
+
+        P1.2: Replaced hand-rolled Levenshtein with multi-metric rapidfuzz scoring
+        (ratio, token_sort, token_set, partial), substring boost, and word-overlap
+        boost. Method name kept for backward compatibility with existing callers.
+        """
+        from rapidfuzz import fuzz
+
         if not s1 or not s2:
             return 0.0
-        
-        if s1 == s2:
+
+        n1, n2 = s1.lower().strip(), s2.lower().strip()
+
+        # Exact match
+        if n1 == n2:
             return 1.0
-        
-        len1, len2 = len(s1), len(s2)
-        if len1 < len2:
-            s1, s2 = s2, s1
-            len1, len2 = len2, len1
-        
-        previous_row = list(range(len2 + 1))
-        for i, c1 in enumerate(s1):
-            current_row = [i + 1]
-            for j, c2 in enumerate(s2):
-                insertions = previous_row[j + 1] + 1
-                deletions = current_row[j] + 1
-                substitutions = previous_row[j] + (c1 != c2)
-                current_row.append(min(insertions, deletions, substitutions))
-            previous_row = current_row
-        
-        distance = previous_row[-1]
-        max_len = max(len1, len2)
-        return 1.0 - (distance / max_len)
+
+        # Substring match — very high confidence
+        if n1 in n2 or n2 in n1:
+            shorter = min(len(n1), len(n2))
+            longer = max(len(n1), len(n2))
+            coverage = shorter / longer if longer else 0.0
+            return 0.85 + (coverage * 0.15)  # 0.85 to 1.0
+
+        # Multi-metric rapidfuzz scoring
+        ratio = fuzz.ratio(n1, n2) / 100.0
+        token_sort = fuzz.token_sort_ratio(n1, n2) / 100.0
+        token_set = fuzz.token_set_ratio(n1, n2) / 100.0
+        partial = fuzz.partial_ratio(n1, n2) / 100.0
+
+        score = max(
+            ratio,
+            token_sort * 0.95,
+            token_set * 0.98,
+            partial * 0.90,
+        )
+
+        # Boost on significant word overlap
+        words1 = set(n1.split())
+        words2 = set(n2.split())
+        if words1 and words2:
+            overlap = len(words1 & words2) / min(len(words1), len(words2))
+            if overlap >= 0.5:
+                score = max(score, 0.70 + (overlap * 0.30))
+
+        return min(score, 0.99)  # Reserve 1.0 for exact match
+
+    def _compute_similarity(self, name1: str, name2: str) -> float:
+        """Public alias for the new rapidfuzz-based similarity (P1.2)."""
+        return self._levenshtein_similarity(name1, name2)
     
     def _load_existing_entities(self) -> Dict[str, List[Entity]]:
         """Load existing entities grouped by normalized name (tenant-scoped)."""
@@ -251,7 +276,120 @@ class DuplicateDetector:
         
         candidates.sort(key=lambda x: x[1], reverse=True)
         return candidates[:top_n]
-    
+
+    # ------------------------------------------------------------------
+    # P1.3: Cross-type duplicate detection
+    # ------------------------------------------------------------------
+    def find_cross_type_duplicates(self, entities: List) -> List[Tuple]:
+        """Find entities that are likely the same real-world entity across different types.
+
+        Example: 'Boeing' (COMPETITOR) and 'The Boeing Company' (ORGANIZATION)
+        should be the same entity. Returns list of (e1, e2, score) tuples.
+        """
+        from rapidfuzz import fuzz
+
+        candidates: List[Tuple] = []
+        for i, e1 in enumerate(entities):
+            for e2 in entities[i + 1:]:
+                if getattr(e1, 'entity_type', None) == getattr(e2, 'entity_type', None):
+                    continue  # Same type — handled by normal dedup
+
+                name1 = getattr(e1, 'canonical_name', getattr(e1, 'name', '')) or ''
+                name2 = getattr(e2, 'canonical_name', getattr(e2, 'name', '')) or ''
+                if not name1 or not name2:
+                    continue
+                n1, n2 = name1.lower(), name2.lower()
+
+                # Substring relationship
+                if n1 in n2 or n2 in n1:
+                    score = fuzz.token_set_ratio(n1, n2) / 100.0
+                    if score >= 0.80:
+                        candidates.append((e1, e2, score))
+                        continue
+
+                # Known alias: "The X Company" ↔ "X"
+                if n2.startswith("the ") and n2[4:] in n1:
+                    candidates.append((e1, e2, 0.95))
+                    continue
+                if n1.startswith("the ") and n1[4:] in n2:
+                    candidates.append((e1, e2, 0.95))
+                    continue
+
+                # Acronym match (NASA ↔ National Aeronautics...)
+                words1 = set(n1.split())
+                words2 = set(n2.split())
+                if len(words1) == 1 and len(words2) > 1:
+                    acronym = ''.join(w[0] for w in n2.split() if w)
+                    if n1 == acronym:
+                        candidates.append((e1, e2, 0.92))
+                elif len(words2) == 1 and len(words1) > 1:
+                    acronym = ''.join(w[0] for w in n1.split() if w)
+                    if n2 == acronym:
+                        candidates.append((e1, e2, 0.92))
+
+        return candidates
+
+    def merge_cross_type_duplicates(self, entities: List) -> List:
+        """Merge cross-type duplicates, keeping the entity with higher type precedence.
+
+        ORGANIZATION wins over COMPETITOR/TEAM/etc., aliases preserved on the keeper.
+        """
+        type_precedence = {
+            "ORGANIZATION": 100,
+            "PERSON": 95,
+            "PROJECT": 90,
+            "SERVICE": 85,
+            "TEAM": 80,
+            "DATABASE": 75,
+            "COMPONENT": 70,
+            "DOCUMENT": 65,
+            "CONCEPT": 60,
+        }
+
+        duplicates = self.find_cross_type_duplicates(entities)
+        merged_ids: Set[str] = set()
+
+        for e1, e2, score in sorted(duplicates, key=lambda x: x[2], reverse=True):
+            id1 = str(getattr(e1, 'id', id(e1)))
+            id2 = str(getattr(e2, 'id', id(e2)))
+            if id1 in merged_ids or id2 in merged_ids:
+                continue
+
+            t1 = getattr(e1, 'entity_type', '') or ''
+            t2 = getattr(e2, 'entity_type', '') or ''
+            p1 = type_precedence.get(t1, 50)
+            p2 = type_precedence.get(t2, 50)
+
+            keep = e1 if p1 >= p2 else e2
+            discard = e2 if p1 >= p2 else e1
+            discard_id = str(getattr(discard, 'id', id(discard)))
+            discard_name = getattr(discard, 'canonical_name', getattr(discard, 'name', ''))
+
+            # Register alias on properties (ExtractedEntity has no aliases attribute)
+            try:
+                if not hasattr(keep, 'properties') or keep.properties is None:
+                    keep.properties = {}
+                aliases = keep.properties.setdefault('aliases', [])
+                if discard_name and discard_name not in aliases:
+                    aliases.append(discard_name)
+            except Exception:
+                pass
+
+            # Merge non-conflicting properties from discard
+            try:
+                if hasattr(discard, 'properties') and discard.properties:
+                    for k, v in discard.properties.items():
+                        if k == 'aliases':
+                            continue
+                        if k not in keep.properties:
+                            keep.properties[k] = v
+            except Exception:
+                pass
+
+            merged_ids.add(discard_id)
+
+        return [e for e in entities if str(getattr(e, 'id', id(e))) not in merged_ids]
+
     def detect_duplicates(
         self, 
         extracted_entities: List[ExtractedEntity]

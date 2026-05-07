@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 from ..config.domain_schema import get_schema_loader, DomainSchemaLoader
 from ..ontology_foundry.schema_service import OntologySchemaService, get_ontology_schema_service
 from .entity_hygiene import is_valid_entity_name as hygiene_is_valid_entity_name
+from .document_classifier import classify_with_fallback
 
 
 # Issue 1 Fix: Metadata entities that should never be extracted as real entities
@@ -347,11 +348,40 @@ Valid types: {valid_types_str}
         logger.info(f"[OntologyValidation] {len(result['valid'])} valid, {len(result['invalid'])} invalid entities")
         return result
     
-    def _build_entity_extraction_prompt(self, text: str) -> str:
+    def _append_document_context_rules(self, prompt: str, document_context: Optional[Dict]) -> str:
+        """P1.4: Append document-type-specific extraction rules to a prompt."""
+        if not document_context:
+            return prompt
+        doc_type = (document_context.get("doc_type") or "").lower()
+        if "customer" in doc_type:
+            prompt += """
+
+DOCUMENT CONTEXT: CUSTOMER PROFILE
+This document describes a CUSTOMER organization. Critical rules:
+1. The organization NAMED in the document title/filename is the CUSTOMER.
+2. When extracting SUPPLIES relationships, the customer is the TARGET.
+3. Do NOT extract program/product names as targets — extract the CUSTOMER ORG.
+4. Example: "Boeing sources materials from Hexcel" → SUPPLIES(Hexcel, Boeing), CUSTOMER_OF(Boeing, Hexcel)
+"""
+        elif "supplier" in doc_type:
+            prompt += """
+
+DOCUMENT CONTEXT: SUPPLIER PROFILE
+This document describes a SUPPLIER organization. Critical rules:
+1. The organization described is the SUPPLIER (source of SUPPLIES).
+2. Always extract SUPPLIES(supplier, customer) relationships explicitly.
+3. Also extract CUSTOMER_OF(customer, supplier) for the inverse direction.
+"""
+        return prompt
+
+    def _build_entity_extraction_prompt(self, text: str, document_context: Optional[Dict] = None) -> str:
         """Build simplified entity extraction prompt optimized for completeness.
 
         Context Foundry is a MULTI-DOMAIN system supporting any industry:
         VC/Investment, Healthcare, Legal, HR, Finance, IT, Real Estate, etc.
+
+        P1.4: When document_context is provided, document-type-specific rules
+        (e.g. CUSTOMER PROFILE / SUPPLIER PROFILE) are appended to the prompt.
         """
         core_types = "COMPONENT, CONCEPT, SERVICE, PROCESS, PERSON, ORGANIZATION, TEAM, DATABASE, METRIC, INCIDENT, EVENT, DOCUMENT, TOOL, TIME_PERIOD, LOCATION"
 
@@ -516,6 +546,8 @@ Return valid JSON array only (no markdown):
 ## TEXT TO EXTRACT
 
 {text}"""
+        # P1.4: Append document-type-specific extraction rules when available
+        prompt = self._append_document_context_rules(prompt, document_context)
         return prompt
     
     def _chunk_text(self, text: str, chunk_size: int = 2000, overlap: int = 400) -> List[str]:
@@ -676,6 +708,7 @@ Return valid JSON array only (no markdown):
                 "GROUP": "TEAM",
                 "SQUAD": "TEAM",
                 "DEPARTMENT": "TEAM",
+                "DIVISION": "ORGANIZATION",  # P1.5: business divisions are organizations
                 "OUTAGE": "INCIDENT",
                 "ISSUE": "INCIDENT",
                 "FAILURE": "INCIDENT",
@@ -725,7 +758,33 @@ Return valid JSON array only (no markdown):
                 if pattern in name_lower:
                     entity["entity_type"] = "ORGANIZATION"
                     break
-        
+
+        # === P1.5: UPWARD CORRECTION — Promote TEAM/DIVISION/GROUP to ORGANIZATION ===
+        if entity_type in ("TEAM", "DIVISION", "GROUP", "UNIT", "BRANCH"):
+            business_indicators = [
+                "industries", "aerospace", "materials", "systems", "energy",
+                "solutions", "technologies", "corporation", "company",
+                "holdings", "group", "partners", "associates", "international",
+                "global", "digital", "advanced", "automated", "defense",
+                "space", "aviation", "marine", "automotive", "electronics",
+                "communications", "networks", "robotics", "biotech",
+            ]
+            if any(indicator in name_lower for indicator in business_indicators):
+                logger.info(f"[TypeCorrection] Upward: {entity_type} → ORGANIZATION for '{name}'")
+                entity["entity_type"] = "ORGANIZATION"
+                return entity
+
+            # Promote on well-known division patterns
+            division_patterns = [
+                r"\b(\w+)\s+(division|group|unit|sector|segment)\b",
+                r"\b(\w+)\s+(advanced\s+\w+|digital\s+\w+)\b",
+            ]
+            for pattern in division_patterns:
+                if re.search(pattern, name_lower):
+                    logger.info(f"[TypeCorrection] Pattern upward: {entity_type} → ORGANIZATION for '{name}'")
+                    entity["entity_type"] = "ORGANIZATION"
+                    return entity
+
         return entity
     
     def _normalize_entity(self, entity: Dict) -> Dict:
@@ -855,17 +914,21 @@ TEXT:
         document_id: str,
         chunk_id: str,
         sentence_idx: int,
+        document_context: Optional[Dict] = None,
     ) -> List[ExtractedEntity]:
         """Extract entities from a single text chunk.
 
         Phase 3: Uses ontology-constrained prompt when use_ontology_schema=True.
+        P1.4: Accepts optional document_context to inject document-type-specific rules.
         """
         # Phase 3: Use ontology-constrained extraction if available
         if self.use_ontology_schema and self.ontology_service:
             prompt = self._build_ontology_constrained_prompt(text)
+            if document_context:
+                prompt = self._append_document_context_rules(prompt, document_context)
             logger.debug("[OntologyExtraction] Using ontology-constrained prompt")
         else:
-            prompt = self._build_entity_extraction_prompt(text)
+            prompt = self._build_entity_extraction_prompt(text, document_context=document_context)
 
         system_prompt = self._build_system_prompt()
 
@@ -879,6 +942,7 @@ TEXT:
         document_id: str,
         chunk_id: str = "",
         sentence_idx: int = 0,
+        document_context: Optional[Dict] = None,
     ) -> List[ExtractedEntity]:
         """
         Extract entities from text using chunked extraction to avoid output saturation.
@@ -908,7 +972,8 @@ TEXT:
                 continue
             
             chunk_entities = self._extract_from_single_chunk(
-                chunk, document_id, f"{chunk_id}_c{i}", sentence_idx
+                chunk, document_id, f"{chunk_id}_c{i}", sentence_idx,
+                document_context=document_context,
             )
             print(f"[EntityExtractor] Chunk {i+1}/{len(chunks)}: {len(chunk_entities)} entities")
             all_entities.extend(chunk_entities)
@@ -923,33 +988,52 @@ TEXT:
         chunks: List[Dict],
         document_id: str,
         batch_size: int = 5,
+        document_filename: Optional[str] = None,
     ) -> List[ExtractedEntity]:
         """
         Extract entities from multiple chunks.
-        
+
         Args:
             chunks: List of chunk dictionaries with 'content' and 'chunk_id'
             document_id: ID of the source document
             batch_size: Number of chunks to process at once
-            
+            document_filename: Optional filename for document classification (P1.4)
+
         Returns:
             List of ExtractedEntity objects
         """
+        # P1.4: Classify document to inform extraction prompts
+        doc_context: Dict = {}
+        if document_filename:
+            try:
+                # Sample first chunk's text for fallback classification
+                sample_text = ""
+                for c in chunks[:1]:
+                    sample_text = c.get("content", "")
+                    break
+                doc_type = classify_with_fallback(sample_text, filename=document_filename)
+                doc_context["doc_type"] = doc_type or ""
+                doc_context["filename"] = document_filename
+                logger.info(f"[EntityExtractor] Document '{document_filename}' classified as: {doc_type}")
+            except Exception as e:
+                logger.warning(f"[EntityExtractor] Document classification failed: {e}")
+
         all_entities = []
-        
+
         for chunk in chunks:
             content = chunk.get("content", "")
             chunk_id = chunk.get("chunk_id", "")
             start_sentence = chunk.get("start_sentence", 0)
-            
+
             entities = self.extract_from_text(
                 text=content,
                 document_id=document_id,
                 chunk_id=chunk_id,
                 sentence_idx=start_sentence,
+                document_context=doc_context if doc_context else None,
             )
             all_entities.extend(entities)
-        
+
         return self._deduplicate_entities(all_entities)
     
     def _is_metadata_entity(self, entity_name: str) -> bool:
@@ -984,6 +1068,8 @@ TEXT:
         """Deduplicate entities by canonical name, keeping highest confidence.
         
         Also filters out metadata entities that should never be in the graph.
+        P1.3: After per-(type,name) dedup, runs cross-type merge to collapse
+        cases like Boeing(COMPETITOR) ↔ The Boeing Company(ORGANIZATION).
         """
         entity_map = {}
         
@@ -999,8 +1085,22 @@ TEXT:
                 entity_map[key] = entity
             elif entity.confidence > entity_map[key].confidence:
                 entity_map[key] = entity
-        
-        return sorted(entity_map.values(), key=lambda e: (e.entity_type, e.canonical_name))
+
+        deduped = sorted(entity_map.values(), key=lambda e: (e.entity_type, e.canonical_name))
+
+        # P1.3: Apply cross-type duplicate merge (e.g. Boeing/The Boeing Company)
+        try:
+            from .duplicate_detector import DuplicateDetector
+            cross_dd = DuplicateDetector(session=None, tenant_id=None)
+            before = len(deduped)
+            deduped = cross_dd.merge_cross_type_duplicates(deduped)
+            removed = before - len(deduped)
+            if removed > 0:
+                logger.info(f"[CrossTypeDedup] Merged {removed} cross-type duplicates ({before} -> {len(deduped)})")
+        except Exception as e:
+            logger.warning(f"[CrossTypeDedup] Cross-type merge skipped: {e}")
+
+        return deduped
     
     def _build_dynamic_prompt(self, text: str, entity_types: List[str]) -> str:
         """Build extraction prompt using a dynamic list of entity types."""

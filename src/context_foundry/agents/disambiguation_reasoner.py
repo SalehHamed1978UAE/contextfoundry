@@ -47,6 +47,40 @@ class DisambiguationReasoner:
             base_url=os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
         )
     
+    def select_best_candidate(self, candidates, query_context: Optional[str] = None):
+        """P1.1: Pick the best candidate from a multi-candidate resolver result.
+
+        Pure-Python heuristic (no LLM): sort by (confidence desc, name length asc)
+        and return the top entity. Designed to replace the previous arbitrary
+        ``candidates[0]`` pick in DirectedGraphRetriever._resolve_entity().
+
+        Returns the candidate object (with .name/.entity_type/.entity_id fields),
+        or None if the input is empty.
+        """
+        if not candidates:
+            return None
+        try:
+            sorted_cands = sorted(
+                candidates,
+                key=lambda c: (
+                    -(getattr(c, 'confidence', getattr(c, 'score', 0)) or 0),
+                    len(getattr(c, 'name', '') or ''),
+                ),
+            )
+            best = sorted_cands[0]
+            if query_context:
+                logger.info(
+                    f"[DISAMB.select_best_candidate] '{query_context}': "
+                    f"picked '{getattr(best, 'name', '?')}' "
+                    f"({getattr(best, 'entity_type', '?')}) "
+                    f"conf={getattr(best, 'confidence', 0.0):.2f} "
+                    f"from {len(candidates)} candidates"
+                )
+            return best
+        except Exception as e:
+            logger.warning(f"[DISAMB.select_best_candidate] sort failed: {e}; returning candidates[0]")
+            return candidates[0]
+
     def resolve(
         self,
         query: str,

@@ -131,6 +131,7 @@ class ExtractionPipeline:
             entities = self.entity_extractor.extract_from_chunks(
                 chunks=chunks_data,
                 document_id=document.document.id,
+                document_filename=getattr(document.document, 'title', None) or getattr(document.document, 'filename', None),
             )
             
             entities_data = [e.to_dict() for e in entities]

@@ -421,18 +421,35 @@ class DirectedGraphRetriever:
                     'match_stage': result.match_stage
                 }
             
-            # Disambiguation case - pick the best candidate
+            # Disambiguation case - pick the best candidate via DisambiguationReasoner
             if result and result.needs_disambiguation and result.candidates:
-                # If all candidates have the same name, pick the first one
-                # This handles cases like "Users Database" appearing as both DATABASE and SERVICE
-                best = result.candidates[0]
+                best = None
+                if len(result.candidates) > 1:
+                    try:
+                        from .disambiguation_reasoner import DisambiguationReasoner
+                        reasoner = DisambiguationReasoner()
+                        best = reasoner.select_best_candidate(
+                            result.candidates,
+                            query_context=entity_name,
+                        )
+                    except Exception as e:
+                        logger.warning(f"[Disambiguation] Reasoner failed, falling back to highest-confidence: {e}")
+                        best = None
+                if best is None:
+                    # Fallback: use highest-confidence candidate (sort defensively)
+                    sorted_cands = sorted(
+                        result.candidates,
+                        key=lambda c: getattr(c, 'confidence', getattr(c, 'score', 0)) or 0,
+                        reverse=True,
+                    )
+                    best = sorted_cands[0]
                 logger.info(f"Disambiguation: picking '{best.name}' ({best.entity_type}) "
                            f"from {len(result.candidates)} candidates")
                 return {
-                    'id': str(best.entity_id),
+                    'id': str(getattr(best, 'entity_id', getattr(best, 'id', ''))),
                     'name': best.name,
                     'type': best.entity_type,
-                    'confidence': best.confidence,
+                    'confidence': getattr(best, 'confidence', 0.0),
                     'match_stage': result.match_stage
                 }
             
