@@ -1,0 +1,48 @@
+Option 1 — expand the ontology. Run this migration:
+sql
+Copy
+INSERT INTO ontology.relations (relation_type, source_type_id, target_type_id, status, created_at)
+SELECT t.relation_type, t.source_type_id, t.target_type_id, 'ACTIVE', NOW()
+FROM (
+    VALUES 
+    ('EARNS', 'ORGANIZATION', 'METRIC'),
+    ('DESCRIBES', 'CONCEPT', 'ENTITY'),
+    ('OCCURRED_ON', 'EVENT', 'DATE'),
+    ('RELATED_TO', 'ENTITY', 'ENTITY'),
+    ('AUTHORED_BY', 'DOCUMENT', 'PERSON'),
+    ('AFFECTS', 'EVENT', 'ENTITY'),
+    ('OPERATES_IN', 'ORGANIZATION', 'LOCATION'),
+    ('IMPLEMENTS', 'ORGANIZATION', 'PROJECT'),
+    ('ENABLES', 'TECHNOLOGY', 'CAPABILITY'),
+    ('GOVERNS', 'POLICY', 'ORGANIZATION'),
+    ('REFERENCES', 'DOCUMENT', 'DOCUMENT'),
+    ('OWNED_BY', 'ENTITY', 'ORGANIZATION'),
+    ('INVESTED_IN', 'ORGANIZATION', 'PROJECT'),
+    ('LEADS', 'PERSON', 'PROJECT'),
+    ('AFFILIATED_WITH', 'ENTITY', 'ENTITY'),
+    ('COLLABORATED_WITH', 'ENTITY', 'ENTITY'),
+    ('HAS_COMPENSATION', 'PERSON', 'METRIC'),
+    ('HAS_REVENUE', 'ORGANIZATION', 'METRIC'),
+    ('COMPETES_WITH', 'ORGANIZATION', 'ORGANIZATION'),
+    ('PARTNERSHIP', 'ORGANIZATION', 'ORGANIZATION'),
+    ('FUNDED_BY', 'PROJECT', 'ORGANIZATION'),
+    ('HAS_BUDGET', 'PROJECT', 'METRIC'),
+    ('USES', 'ENTITY', 'RESOURCE'),
+    ('INVOLVES', 'EVENT', 'ENTITY'),
+    ('DEVELOPS', 'ORGANIZATION', 'PRODUCT'),
+    ('EMPLOYS', 'ORGANIZATION', 'PERSON'),
+    ('APPROVES', 'PERSON', 'DECISION'),
+    ('COMPLIES_WITH', 'ORGANIZATION', 'POLICY'),
+    ('ADDRESSES', 'SOLUTION', 'PROBLEM'),
+    ('ACHIEVES', 'PROJECT', 'GOAL')
+) AS t(relation_type, source_type, target_type)
+LEFT JOIN ontology.types src ON src.type_name = t.source_type
+LEFT JOIN ontology.types tgt ON tgt.type_name = t.target_type
+WHERE NOT EXISTS (
+    SELECT 1 FROM ontology.relations r 
+    WHERE r.relation_type = t.relation_type AND r.status = 'ACTIVE'
+);
+Then:
+Replay the 112 pending candidates through staging_loader with the expanded ontology
+Re-run the 100Q test
+Measure the score — this should recover the bulk of the staging cliff

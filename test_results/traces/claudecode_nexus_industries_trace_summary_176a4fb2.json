@@ -1,23 +1,23 @@
 {
-  "run_timestamp": "2026-05-07T19:23:31.996380",
+  "run_timestamp": "2026-05-07T20:47:28.118075",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_176a4fb2.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.119999999999999,
-    "avg_semantic_score": 0.07928699999999998,
+    "avg_chunks_retrieved": 3.08,
+    "avg_semantic_score": 0.073379,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "no_data": 11,
+      "no_data": 13,
       "no_match": 16,
-      "exact_match": 39,
-      "component_match": 25,
+      "exact_match": 38,
+      "component_match": 24,
       "number_match": 7,
       "percentage_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 88
+    "low_score_queries": 89
   },
   "low_score_questions": [
     {
@@ -351,6 +351,11 @@
       "avg_score": 0.0
     },
     {
+      "q_id": 76,
+      "question": "What is the total patent portfolio size?",
+      "avg_score": 0.0
+    },
+    {
       "q_id": 77,
       "question": "What is the location of the BatteryTech JV facility?",
       "avg_score": 0.0
@@ -482,6 +487,13 @@
         ]
       },
       {
+        "q_id": 15,
+        "question": "Who does Michael Chang report to?",
+        "expected": "Dr. Victoria Chen (CEO)",
+        "actual": "Based on the retrieved information, ther",
+        "files_retrieved": []
+      },
+      {
         "q_id": 18,
         "question": "Which company has a green hydrogen offtake agreement with Ne",
         "expected": "Shell",
@@ -539,12 +551,19 @@
         "files_retrieved": []
       },
       {
-        "q_id": 91,
-        "question": "Who is the VP Trade Compliance?",
-        "expected": "Owns the Export Control Policy (per POL-",
-        "actual": "The current VP of Trade Compliance is no",
+        "q_id": 76,
+        "question": "What is the total patent portfolio size?",
+        "expected": "2,412 patents",
+        "actual": "The total patent portfolio size for Nexu",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 83,
+        "question": "Who is the primary customer for the SmartGrid Controller?",
+        "expected": "Pacific Power (pilot customer)",
+        "actual": "The primary customer for the SmartGrid C",
         "files_retrieved": [
-          "09_export_control.md"
+          "Unknown"
         ]
       },
       {
@@ -689,7 +708,7 @@
         "q_id": 71,
         "question": "Who is the mining automation partner?",
         "expected": "Caterpillar",
-        "actual": "The mining automation partner is **Sieme",
+        "actual": "The mining automation partner for Nexus ",
         "files_retrieved": [
           "04_toyota_partnership_announcement.md",
           "09_competitive_intelligence.md"
@@ -707,19 +726,19 @@
         ]
       },
       {
-        "q_id": 83,
-        "question": "Who is the primary customer for the SmartGrid Controller?",
-        "expected": "Pacific Power (pilot customer)",
-        "actual": "The primary customer for the SmartGrid C",
+        "q_id": 91,
+        "question": "Who is the VP Trade Compliance?",
+        "expected": "Owns the Export Control Policy (per POL-",
+        "actual": "The current VP of Trade Compliance is no",
         "files_retrieved": [
-          "Unknown"
+          "09_export_control.md"
         ]
       },
       {
         "q_id": 100,
         "question": "What is the total value of top 3 customer relationships?",
         "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
-        "actual": "I was unable to retrieve specific values",
+        "actual": "The total value of the top 3 customer re",
         "files_retrieved": [
           "01_boeing_customer_profile.md",
           "02_airbus_customer_profile.md",
