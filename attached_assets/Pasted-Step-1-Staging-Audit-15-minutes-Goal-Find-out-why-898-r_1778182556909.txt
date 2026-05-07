@@ -1,0 +1,96 @@
+Step 1: Staging Audit (15 minutes)
+Goal: Find out why 898 relations extracted → 115 staged. Log every drop.
+Modify the staging pipeline to trace drops:
+In ontology_centric_pipeline.py (or wherever staging happens), add logging before any filter that drops a relation:
+Python
+Copy
+# Before every filter that removes a relation, log it:
+logger.info(f"[STAGING_AUDIT] DROPPED: {rel.relation_type} | {rel.source_entity} -> {rel.target_entity} | reason={reason} | doc={document_id}")
+Run the audit on the 24 docs you already re-extracted:
+bash
+Copy
+cd ~/contextfoundry
+python3 -c "
+import sys, os
+sys.path.insert(0, 'src')
+from scripts._batch_reextract_failed import find_failed_docs
+docs = find_failed_docs(vault_id='176a4fb2-0bb4-4da3-9068-0e26268fca71')
+print(f'Found {len(docs)} failed docs')
+for d in docs[:5]:
+    print(f'  {d}')
+"
+Expected output: A log file showing every dropped relation with reason. Count by reason.
+Step 2: GPT-4o Test on 5 Critical Docs (15 minutes)
+Goal: Test if GPT-4o extracts the missing role-appointment and spec-table facts that GPT-4o-mini misses.
+Create a test script:
+bash
+Copy
+cat > /tmp/test_4o_extraction.py << 'PYEOF'
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
+
+from context_foundry.extraction.ontology_centric_pipeline import OntologyCentricPipeline
+from context_foundry.models.schema import get_session
+
+# Switch to GPT-4o
+pipeline = OntologyCentricPipeline()
+pipeline.llm_model = "gpt-4o"  # Override the default gpt-4o-mini
+
+docs = [
+    "02_organizational_announcement.md",   # Q3, Q14, Q38, Q61, Q75
+    "06_solid_state_battery_design.md",    # Q25, Q67, Q93
+    "04_greenhydrogen_initiative.md",        # Q18, Q37
+    "10_first_solar_supplier.md",            # Q46
+    "01_boeing_customer_profile.md",         # Q17, Q48, Q71, Q83
+]
+
+session = get_session()
+for doc_name in docs:
+    # Find document in vault
+    doc = session.query(Document).filter(
+        Document.filename == doc_name,
+        Document.vault_id == '176a4fb2-0bb4-4da3-9068-0e26268fca71'
+    ).first()
+    
+    if not doc:
+        print(f"DOC NOT FOUND: {doc_name}")
+        continue
+    
+    print(f"\n=== {doc_name} ===")
+    result = pipeline.extract(doc.id, tenant_id=doc.tenant_id)
+    print(f"  Entities: {len(result.entities)}")
+    print(f"  Relations: {len(result.relations)}")
+    
+    # Check for specific facts we need
+    for rel in result.relations:
+        if rel.relation_type in ('HOLDS_POSITION', 'HOLDS_ROLE', 'HAS_SPEC', 'OFFTAKE', 'SUPPLIES'):
+            print(f"    -> {rel.source_entity} {rel.relation_type} {rel.target_entity}")
+PYEOF
+
+python3 /tmp/test_4o_extraction.py 2>&1 | tee /tmp/4o_extraction_results.txt
+What to look for:
+Does 02_organizational_announcement.md produce Robert Kim HOLDS_POSITION President of NDS?
+Does 06_solid_state_battery_design.md produce Solid-State Battery HAS_SPEC 400 Wh/kg?
+Does 04_greenhydrogen_initiative.md produce Shell OFFTAKE GreenHydrogen?
+If yes → 4o extracts what 4o-mini missed. That's the fix.
+If no → problem is document preprocessing, not model capability.
+Step 3: Analyze & Decide (5 minutes)
+After Step 1 + Step 2 complete, tell me:
+Staging audit: How many relations were dropped? What were the top 3 reasons? Any dropped relations for the 12 failing questions?
+4o test: Did 4o extract the missing facts? Which ones? Which ones did it still miss?
+If 4o works and staging audit shows < 50 valid drops: The fix is model selection. Proceed to Step 4.
+If 4o fails and staging audit shows 50+ valid drops: The fix is the filter. Proceed to Step 4.
+If both fail: Problem is document preprocessing (structured docs need table/section parsing before LLM extraction). That's a 2-day fix.
+Step 4: Batch Re-extract (if 4o works)
+Re-extract all 26 critical docs with GPT-4o:
+bash
+Copy
+python3 scripts/_batch_reextract_failed.py --model gpt-4o --vault-id 176a4fb2-0bb4-4da3-9068-0e26268fca71
+Step 5: Run 100Q Test
+bash
+Copy
+python3 -m src.test_runner.runner --vault 176a4fb2-0bb4-4da3-9068-0e26268fca71 --corpus "ClaudeCode Nexus Industries"
+Target: ≥ 80/100.
+If we hit 80: ship it. Document the score, update the competitive benchmark, prepare the Palantir comparison deck.
+If we don't: come back with the specific results and we'll identify the next bottleneck.
+Run Steps 1 and 2 now. Report back the numbers. No more architecture changes until we have data.
