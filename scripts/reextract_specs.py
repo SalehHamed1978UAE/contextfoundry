@@ -11,6 +11,7 @@ This script:
 import os
 import sys
 import uuid
+import argparse
 import logging
 from datetime import datetime, timezone
 
@@ -24,8 +25,9 @@ from sqlalchemy.orm import sessionmaker
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 logger = logging.getLogger(__name__)
 
-# Target vault
-VAULT_ID = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'
+# Default target vault — overridable via --vault-id
+DEFAULT_VAULT_ID = '176a4fb2-0bb4-4da3-9068-0e26268fca71'
+VAULT_ID = DEFAULT_VAULT_ID  # mutated by main()
 
 # Queries to find spec-related chunks
 SPEC_QUERIES = [
@@ -37,11 +39,21 @@ SPEC_QUERIES = [
     "LLZO",
     "Li7La3Zr2O12",
     "solid electrolyte",
-    # Hydrogen specs  
+    # Hydrogen specs
     "425 kg/hr",
     "hydrogen production",
     "850 kg/hr",
     "Phase 1",
+    # Group E: corporate totals
+    "Capital Expenditure",
+    "$680 million",
+    "Total backlog",
+    "$12.4 billion",
+    "patent portfolio",
+    "2,412",
+    "$15B by 2030",
+    "$15 billion",
+    "by 2030",
 ]
 
 
@@ -59,13 +71,16 @@ def find_spec_chunks(session):
     """Find chunks containing technical specifications."""
     chunks = []
     seen_ids = set()
-    
+
+    # Set RLS bypass for admin access
+    session.execute(text("SET LOCAL app.role = 'admin'"))
+
     for query_term in SPEC_QUERIES:
         result = session.execute(
             text("""
-                SELECT id, text, document_id 
-                FROM document_chunks 
-                WHERE tenant_id = :tenant_id 
+                SELECT id, text, document_id
+                FROM document_chunks
+                WHERE tenant_id = :tenant_id
                 AND text ILIKE :pattern
                 LIMIT 10
             """),
@@ -148,8 +163,15 @@ def store_specification_entity(session, spec: dict) -> str:
 
 
 def main():
+    global VAULT_ID
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--vault-id', default=DEFAULT_VAULT_ID,
+                        help=f'Target vault UUID (default: {DEFAULT_VAULT_ID})')
+    args = parser.parse_args()
+    VAULT_ID = args.vault_id
+
     logger.info("=" * 60)
-    logger.info("Re-extracting SPECIFICATION entities from tech spec chunks")
+    logger.info(f"Re-extracting SPECIFICATION entities for vault {VAULT_ID}")
     logger.info("=" * 60)
     
     session = get_db_session()

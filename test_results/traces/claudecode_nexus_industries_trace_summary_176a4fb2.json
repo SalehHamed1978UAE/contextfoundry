@@ -1,23 +1,24 @@
 {
-  "run_timestamp": "2026-05-07T12:57:16.200520",
+  "run_timestamp": "2026-05-07T13:46:42.059797",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_176a4fb2.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.02,
-    "avg_semantic_score": 0.07716200000000004,
+    "avg_chunks_retrieved": 3.049999999999999,
+    "avg_semantic_score": 0.08698800000000002,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "no_data": 13,
-      "no_match": 15,
+      "no_data": 11,
+      "no_match": 16,
       "exact_match": 39,
       "component_match": 25,
+      "entity_match": 1,
       "number_match": 6,
       "percentage_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 89
+    "low_score_queries": 88
   },
   "low_score_questions": [
     {
@@ -213,11 +214,6 @@
     {
       "q_id": 44,
       "question": "When is the Toyota JV expected to close?",
-      "avg_score": 0.0
-    },
-    {
-      "q_id": 45,
-      "question": "When was Dr. Victoria Chen appointed CEO?",
       "avg_score": 0.0
     },
     {
@@ -501,17 +497,6 @@
         "files_retrieved": []
       },
       {
-        "q_id": 25,
-        "question": "What is the target energy density for the solid-state batter",
-        "expected": "400 Wh/kg",
-        "actual": "The retrieved information does not speci",
-        "files_retrieved": [
-          "06_solid_state_battery_design.md",
-          "11_batterytech_solid_state.md",
-          "Unknown"
-        ]
-      },
-      {
         "q_id": 37,
         "question": "Who is the Project Director for the GreenHydrogen Initiative",
         "expected": "Jennifer Walsh",
@@ -523,13 +508,6 @@
         "question": "Who is the CISO of Nexus Industries?",
         "expected": "Jennifer Walsh (appointed January 2026, ",
         "actual": "The Chief Information Security Officer (",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 45,
-        "question": "When was Dr. Victoria Chen appointed CEO?",
-        "expected": "2019",
-        "actual": "I could not find specific information re",
         "files_retrieved": []
       },
       {
@@ -639,6 +617,17 @@
         ]
       },
       {
+        "q_id": 45,
+        "question": "When was Dr. Victoria Chen appointed CEO?",
+        "expected": "2019",
+        "actual": "Dr. Victoria Chen was appointed CEO on *",
+        "files_retrieved": [
+          "02_organizational_announcement.md",
+          "08_hr_talent_review.md",
+          "01_executive_team.md"
+        ]
+      },
+      {
         "q_id": 48,
         "question": "Who is the primary customer for HTS superconducting wire?",
         "expected": "Siemens Healthineers ($65 million)",
@@ -684,7 +673,7 @@
         "q_id": 71,
         "question": "Who is the mining automation partner?",
         "expected": "Caterpillar",
-        "actual": "The mining automation partner for Nexus ",
+        "actual": "The mining automation partner is **Sieme",
         "files_retrieved": [
           "04_toyota_partnership_announcement.md",
           "09_competitive_intelligence.md"

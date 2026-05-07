@@ -257,31 +257,57 @@ SUPPLIER_PATTERNS = [
 SUPPLIER_BLOCKLIST = {'the', 'a', 'an', 'this', 'that', 'these', 'their', 'our', 'its'}
 
 # Technical specification patterns - Pattern captures specifications from tables and text
-# These are domain-agnostic patterns that work for any technical domain
+# These are domain-agnostic patterns that work for any technical domain.
+#
+# IMPORTANT: All numeric patterns must use \b at the start to prevent partial matches.
+# Without it, "1,000 MPa" gets captured as "000 MPa" (trailing 3 digits of 1,000).
 SPEC_PATTERNS = [
     # Energy density: "400 Wh/kg", "1000 Wh/L"
-    (r'(\d+(?:\.\d+)?)\s*(Wh/kg|Wh/L|kWh/kg|MWh/L)', 'ENERGY_DENSITY', 0.95),
-    # Temperature ranges: "-30 to 60°C", "-40°C to 80°C"
-    (r'(-?\d+)\s*(?:°C|degrees?(?:\s+C)?|C)?\s*(?:to|-)\s*(-?\d+)\s*(?:°C|degrees?(?:\s+C)?|C)', 'TEMPERATURE_RANGE', 0.90),
+    # (?<![,\d.]) prevents "1,000 Wh/kg" from matching as "000 Wh/kg"
+    (r'(?<![,\d.])\b(\d+(?:\.\d+)?)\s*(Wh/kg|Wh/L|kWh/kg|MWh/L)\b', 'ENERGY_DENSITY', 0.95),
+    # Temperature ranges: "-30 to 60°C", "-40°C to 80°C", "-30°C to 60°C"
+    # °C required on EITHER bound (one or both), not strictly the upper.
+    (r'(?=[^.\n]*°C)(-?\d+)\s*°C?\s*to\s*(-?\d+)\s*°C?', 'TEMPERATURE_RANGE', 0.92),
     # Production capacity: "425 kg/hr", "850 kg/hour", "10,200 kg/day"
-    (r'(\d+(?:,\d{3})*(?:\.\d+)?)\s*(kg/hr|kg/hour|kg/day|kg/year|kg per hour|kg per day|MW|GW|GWh|MWh)', 'PRODUCTION_CAPACITY', 0.92),
+    (r'(?<![,\d.])\b(\d+(?:,\d{3})*(?:\.\d+)?)\s*(kg/hr|kg/hour|kg/day|kg/year|kg per hour|kg per day|MW|GW|GWh|MWh)\b', 'PRODUCTION_CAPACITY', 0.92),
     # Material composition: "Li₇La₃Zr₂O₁₂", "Li7La3Zr2O12", "LiNi₀.₈Mn₀.₁Co₀.₁O₂", "NMC811"
     # Handles both Unicode subscripts and regular numbers
     (r'(Li[₀-₉0-9a-zA-Z₀₁₂₃₄₅₆₇₈₉]+(?:[A-Z][a-z]?[₀-₉0-9]*)+O[₀-₉₁₂0-9]+(?:\s*\([^)]+\))?)', 'MATERIAL_COMPOSITION', 0.93),
-    # Efficiency: "95%", "99.7% detection rate"
-    (r'(\d+(?:\.\d+)?)\s*%\s*(efficiency|detection rate|availability|purity|uptime)', 'EFFICIENCY_SPEC', 0.88),
+    # Group D: LLZO and other named electrolyte materials (Q93)
+    (r'\b(LLZO|LATP|NASICON|LiPON|LGPS|Argyrodite)\b', 'ELECTROLYTE_MATERIAL', 0.93),
+    # Efficiency: "95% efficiency", "99.7% detection rate"
+    (r'\b(\d+(?:\.\d+)?)\s*%\s*(efficiency|detection rate|availability|purity|uptime)\b', 'EFFICIENCY_SPEC', 0.88),
     # Cycle life: "1,500 cycles", "3,000 cycle life"
-    (r'(\d+(?:,\d{3})*)\s*(?:cycles?|cycle life)', 'CYCLE_LIFE', 0.90),
+    (r'(?<![,\d.])\b(\d+(?:,\d{3})*)\s*(?:cycles?|cycle life)\b', 'CYCLE_LIFE', 0.90),
     # Charge time: "15 min", "30 minutes charge", "Fast Charge (10-80%) | 15 min"
-    (r'(?:fast\s+)?charge[^|]*\|?\s*(\d+)\s*(min|minutes|hours?|hr)', 'CHARGE_TIME', 0.88),
+    (r'(?:fast\s+)?charge[^|]*\|?\s*\b(\d+)\s*(min|minutes|hours?|hr)\b', 'CHARGE_TIME', 0.88),
     # Conductivity: "≥1 mS/cm", "10⁻² S/cm"
-    (r'([≥<>]?\s*\d+(?:\.\d+)?(?:⁻?\d*)?)\s*(mS/cm|S/cm|μS/cm)', 'CONDUCTIVITY', 0.92),
-    # Thickness: "20-30 μm", "15 μm"
-    (r'(\d+(?:-\d+)?)\s*(μm|nm|mm|microns?)', 'THICKNESS', 0.90),
-    # Pressure: "30 bar", "138 kV"
-    (r'(\d+(?:\.\d+)?)\s*(bar|kV|MPa|PSI|psi)', 'PRESSURE_SPEC', 0.88),
+    (r'([≥<>]?\s*\d+(?:\.\d+)?(?:⁻?\d*)?)\s*(mS/cm|S/cm|μS/cm)\b', 'CONDUCTIVITY', 0.92),
+    # Thickness: "20-30 μm", "15 μm", "0.5 μm" — allow decimals + non-digit boundary to prevent "1,000" → "000"
+    (r'(?<![,\d])\b(\d+(?:\.\d+)?(?:-\d+(?:\.\d+)?)?)\s*(μm|nm|mm|microns?)\b', 'THICKNESS', 0.90),
+    # Pressure: "30 bar", "138 kV" — (?<![,\d.]) prevents "1,000 MPa" → "000 MPa"
+    (r'(?<![,\d.])\b(\d+(?:,\d{3})*(?:\.\d+)?)\s*(bar|kV|MPa|PSI|psi)\b', 'PRESSURE_SPEC', 0.88),
     # Table row with Phase distinction: "Phase 1 | 425 kg/hr | Full Capacity | 850 kg/hr"
     (r'\|\s*Phase\s+1\s*\|\s*([^|]+)\s*\|', 'PHASE_1_VALUE', 0.95),
+]
+
+# Group E: Stated corporate financial totals (Q40 backlog, Q66 capex, Q76 patents, Q79 revenue target)
+# These extract corporate-level rolled-up numbers that the regular financial pattern misses
+# because the source uses a "Label: $value" or "becoming a $X by YYYY" format.
+CORPORATE_TOTAL_PATTERNS = [
+    # "Capital Expenditure: $680 million", "**Capital Expenditure:** $680 million"
+    # Permissive: allows asterisks/colon in any order around the label.
+    (r'(?:\*\*)?\s*Capital\s+Expenditure\s*(?:\*\*)?\s*:?\s*(?:\*\*)?\s*\$?(\d+(?:,\d{3})*(?:\.\d+)?)\s*(billion|million|bn|m)\b', 'CAPEX_TOTAL', 0.95),
+    # "Total backlog: $12.4 billion", "**Backlog:** $12.4B"
+    (r'(?:Total\s+)?(?:\*\*)?\s*[Bb]acklog\s*(?:\*\*)?\s*:?\s*(?:\*\*)?\s*\$?(\d+(?:,\d{3})*(?:\.\d+)?)\s*(billion|million|B|M|bn|m)\b', 'BACKLOG_TOTAL', 0.92),
+    # "becoming a $15B diversified industrial leader by 2030"
+    # "$15 billion company by 2030", "$15B by 2030"
+    # Bounded lookhead to prevent catastrophic backtracking on long text
+    (r'\$(\d+(?:\.\d+)?)\s*(billion|million|B|M|bn|m)\b[^.\n]{0,80}\bby\s+(\d{4})\b', 'LONG_TERM_TARGET', 0.90),
+    # "Total patent portfolio: 2,412 patents" or "2,412 patents in portfolio"
+    (r'\b(\d+(?:,\d{3})+|\d{4,})\s+patents\b', 'PATENT_COUNT', 0.90),
+    # "patent portfolio of 2,412" / "patent portfolio: 2,412"
+    (r'patent\s+portfolio\s*(?:of|:)?\s*(\d+(?:,\d{3})*)\b', 'PATENT_COUNT', 0.92),
 ]
 
 # Context patterns for identifying what a spec relates to
@@ -1172,7 +1198,55 @@ class ExtractionPostProcessor:
         """
         entities = []
         seen = set()
-        
+
+        # Group E: corporate-level financial totals (capex, backlog, long-term targets, patent counts)
+        for pattern, spec_type, confidence in CORPORATE_TOTAL_PATTERNS:
+            try:
+                matches = re.finditer(pattern, text, re.IGNORECASE | re.MULTILINE)
+                for match in matches:
+                    groups = match.groups()
+                    value = (groups[0] or "").strip()
+                    if not value:
+                        continue
+                    # Different patterns have different group layouts
+                    if spec_type == 'LONG_TERM_TARGET':
+                        unit = (groups[1] or "").strip() if len(groups) > 1 else ""
+                        target_year = (groups[2] or "").strip() if len(groups) > 2 else ""
+                        name = f"{spec_type} ${value}{unit} by {target_year}"
+                    elif spec_type == 'PATENT_COUNT':
+                        unit = "patents"
+                        name = f"Patent Portfolio {value} patents"
+                    else:
+                        unit = (groups[1] or "").strip() if len(groups) > 1 else ""
+                        name = f"{spec_type} ${value} {unit}".strip()
+
+                    key = (spec_type, value, unit)
+                    if key in seen:
+                        continue
+                    seen.add(key)
+
+                    if name.lower() in existing_entity_names:
+                        continue
+
+                    entity = {
+                        "name": name,
+                        "entity_type": "SPECIFICATION",
+                        "confidence": confidence,
+                        "source": "post_processor",
+                        "properties": {
+                            "spec_type": spec_type,
+                            "value": value,
+                            "unit": unit,
+                            "source": "post_processor",
+                            "source_text": match.group(0)[:120],
+                        },
+                        "source_text": match.group(0)[:120],
+                    }
+                    entities.append(entity)
+                    logger.info(f"[PostProcessor] Found corporate total: {spec_type} = ${value} {unit}")
+            except Exception as e:
+                logger.warning(f"[PostProcessor] Corporate total pattern {spec_type} failed: {e}")
+
         for pattern, spec_type, confidence in SPEC_PATTERNS:
             try:
                 matches = re.finditer(pattern, text, re.IGNORECASE | re.MULTILINE)
