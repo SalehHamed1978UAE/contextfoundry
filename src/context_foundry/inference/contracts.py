@@ -138,6 +138,12 @@ class Verdict(BaseModel):
     trace: List[str] = Field(default_factory=list)
     caveats: List[str] = Field(default_factory=list)
     depth: int = 0
+    # True when ANY hard ceiling fired during evaluation (adversary max_rounds
+    # without convergence, max_replans hit, source-authority depth cap, or
+    # max_depth recursion cap). Distrust the verdict when this is True.
+    terminated_by_ceiling: bool = False
+    # Per-fact bookkeeping for benchmark diagnostics.
+    diagnostics: Dict[str, Any] = Field(default_factory=dict)
 
 
 # Late binding — Verdict references itself recursively via EvidenceItem.

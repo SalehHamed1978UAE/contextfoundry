@@ -53,6 +53,11 @@ class FactEvaluator:
         self.gatherer.evaluator = self._evaluate_source_authority
         self.schema_context = ""
         self._authority_cache: dict = {}
+        # Per-trace diagnostics (reset on each top-level evaluate() call)
+        self._diag_source_authority_evals: int = 0
+        self._diag_max_depth_reached: int = 0
+        self._diag_replans_used: int = 0
+        self._diag_terminated_by_ceiling: bool = False
 
     async def evaluate(self, fact: Fact, guard: Optional[RecursionGuard] = None,
                         replans_used: int = 0) -> Verdict:
@@ -61,6 +66,14 @@ class FactEvaluator:
         # The outermost evaluate() opens a trace; recursive calls reuse the
         # caller's trace context via contextvars.
         is_root = guard.depth == 0 and replans_used == 0
+        if is_root:
+            # Reset per-fact diagnostics on the outermost call only.
+            self._diag_source_authority_evals = 0
+            self._diag_max_depth_reached = 0
+            self._diag_replans_used = 0
+            self._diag_terminated_by_ceiling = False
+        if guard.depth > self._diag_max_depth_reached:
+            self._diag_max_depth_reached = guard.depth
         trace_cm = tracer.trace(fact_key=fact.key(), depth=guard.depth) \
             if is_root else _noop_cm()
         with trace_cm:
@@ -70,8 +83,10 @@ class FactEvaluator:
                                       ["recursion cycle detected"], guard.depth)
             if guard.at_max_depth():
                 tracer.event("max_depth_reached", fact_key=fact.key())
+                self._diag_terminated_by_ceiling = True
                 return self._terminal(fact, "UNDERSPECIFIED",
-                                      ["max recursion depth reached"], guard.depth)
+                                      ["max recursion depth reached"], guard.depth,
+                                      terminated_by_ceiling=True)
 
             with tracer.span("planner"):
                 plan = await self.planner.plan(fact, self.schema_context)
@@ -113,13 +128,41 @@ class FactEvaluator:
                 audit = await self.meta.audit(plan, evidence, challenges, proof, disproof)
 
             if audit.recommend_replan and replans_used < self.max_replans:
+                self._diag_replans_used = replans_used + 1
                 tracer.event("replan", attempt=replans_used + 1)
                 return await self.evaluate(fact, guard, replans_used + 1)
+            if audit.recommend_replan and replans_used >= self.max_replans:
+                self._diag_terminated_by_ceiling = True
+                tracer.event("replan_ceiling_hit", max_replans=self.max_replans)
 
             with tracer.span("synthesizer"):
                 verdict = self.synth.synthesize(
                     fact, plan, evidence, challenges, proof, disproof, audit,
                     sub_verdicts, depth=guard.depth,
+                )
+            # Stamp diagnostics + ceiling flag onto root verdict only.
+            if is_root:
+                ceiling_hit = (
+                    self._diag_terminated_by_ceiling
+                    or getattr(self.adversary, "last_terminated_by_ceiling", False)
+                )
+                verdict.terminated_by_ceiling = ceiling_hit
+                verdict.diagnostics = {
+                    "adversary_rounds_executed": getattr(
+                        self.adversary, "last_rounds_executed", 0),
+                    "adversary_max_rounds": self.adversary.max_rounds,
+                    "source_authority_evals_spawned": self._diag_source_authority_evals,
+                    "max_recursion_depth_reached": self._diag_max_depth_reached,
+                    "max_recursion_depth_cap": self.max_depth,
+                    "replans_used": self._diag_replans_used,
+                    "max_replans_cap": self.max_replans,
+                    "authority_cache_size": len(self._authority_cache),
+                }
+                tracer.event(
+                    "evaluate_summary",
+                    status=verdict.status,
+                    terminated_by_ceiling=ceiling_hit,
+                    **verdict.diagnostics,
                 )
             tracer.event("verdict", status=verdict.status,
                          surviving_challenges=len(verdict.surviving_challenges))
@@ -131,6 +174,10 @@ class FactEvaluator:
         key = authority_fact.key()
         if key in self._authority_cache:
             return self._authority_cache[key]
+        # Counter for per-fact diagnostics — only counts cache misses, since
+        # those are the calls that actually do work (DB hit + verdict synth).
+        self._diag_source_authority_evals += 1
+        tracer.bump("source_authority_evals_spawned")
         # Use a lightweight authority guard so the recursive call doesn't
         # explode — depth 1 is enough; we don't want authority-of-authority-of...
         guard = RecursionGuard(max_depth=1)
@@ -153,7 +200,7 @@ class FactEvaluator:
 
     @staticmethod
     def _terminal(fact: Fact, status, caveats, depth, plan=None,
-                  sub_verdicts=None) -> Verdict:
+                  sub_verdicts=None, terminated_by_ceiling: bool = False) -> Verdict:
         return Verdict(
             status=status, fact=fact, plan=plan,
             evidence=[], surviving_challenges=[], proof_attempt=None,
@@ -167,4 +214,5 @@ class FactEvaluator:
             sub_verdicts=sub_verdicts or [],
             trace=[f"terminal verdict: {status}"],
             caveats=list(caveats), depth=depth,
+            terminated_by_ceiling=terminated_by_ceiling,
         )

@@ -41,14 +41,23 @@ class AdversarialChallenger:
         self.llm = llm
         self.max_rounds = max_rounds
         self.stances = stances or list(DEFAULT_STANCES)
+        # Set by engine after challenge() returns so it can read the actual
+        # round count and convergence status into the Verdict.diagnostics.
+        self.last_rounds_executed: int = 0
+        self.last_terminated_by_ceiling: bool = False
 
     async def challenge(self, fact: Fact, evidence: List[EvidenceItem],
                         plan: EvaluationPlan) -> List[Challenge]:
+        from .observability.trace import tracer
         all_challenges: List[Challenge] = []
         seen_descs: Set[str] = set()
         # Plan-supplied adversarial prompts also get their own attack
         stances = list(self.stances) + list(plan.adversarial_prompts or [])
+        rounds_executed = 0
+        converged = False
         for round_idx in range(self.max_rounds):
+            rounds_executed += 1
+            tracer.bump("adversary_rounds_executed")
             new_round = await self._spawn_round(fact, evidence, plan, stances)
             new_added = 0
             for ch in new_round:
@@ -59,7 +68,13 @@ class AdversarialChallenger:
                 all_challenges.append(ch)
                 new_added += 1
             if new_added == 0:
+                converged = True
                 break
+        self.last_rounds_executed = rounds_executed
+        self.last_terminated_by_ceiling = (not converged) and rounds_executed >= self.max_rounds
+        if self.last_terminated_by_ceiling:
+            tracer.event("adversary_ceiling_hit", rounds=rounds_executed,
+                         max_rounds=self.max_rounds)
         # Rebuttal pass — parallel
         await asyncio.gather(*[
             self._rebut(ch, fact, evidence) for ch in all_challenges
