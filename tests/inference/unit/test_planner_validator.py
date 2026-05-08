@@ -132,6 +132,67 @@ def test_validator_rejects_graph_fact_with_placeholder_endpoint():
                for s in problems), problems
 
 
+def test_validator_rejects_plan_missing_endpoint_identity_check_coverage():
+    """Post-plan normalizer: every fact endpoint must have an
+    identity_check presupposition. Block & force replan otherwise."""
+    p = _planner()
+    fact = Fact(source_entity_id=U1, relationship_type="HOLDS_POSITION",
+                target_entity_id=U2)
+    # Plan with NO identity_check at all
+    plan_empty = EvaluationPlan(
+        fact_type="HOLDS_POSITION",
+        truth_conditions=[Condition(
+            description="edge", kind="graph_fact", fact=fact)],
+        falsifiers=[], presuppositions=[],
+    )
+    problems = p._validate(plan_empty, fact=fact)
+    assert any(f"missing required identity_check for fact source_entity_id "
+               f"'{U1}'" in s for s in problems), problems
+    assert any(f"missing required identity_check for fact target_entity_id "
+               f"'{U2}'" in s for s in problems), problems
+
+
+def test_validator_rejects_plan_missing_one_endpoint_identity_check():
+    p = _planner()
+    fact = Fact(source_entity_id=U1, relationship_type="HOLDS_POSITION",
+                target_entity_id=U2)
+    # Source covered, target missing
+    plan = EvaluationPlan(
+        fact_type="HOLDS_POSITION",
+        truth_conditions=[Condition(
+            description="edge", kind="graph_fact", fact=fact)],
+        falsifiers=[],
+        presuppositions=[Condition(
+            description="src name", kind="identity_check",
+            entity_id=U1, expected_name="Foo")],
+    )
+    problems = p._validate(plan, fact=fact)
+    assert any(f"missing required identity_check for fact target_entity_id "
+               f"'{U2}'" in s for s in problems), problems
+    assert not any(f"source_entity_id '{U1}'" in s
+                   and "missing required identity_check" in s
+                   for s in problems), problems
+
+
+def test_validator_accepts_plan_with_both_endpoint_identity_checks():
+    p = _planner()
+    fact = Fact(source_entity_id=U1, relationship_type="HOLDS_POSITION",
+                target_entity_id=U2)
+    plan = EvaluationPlan(
+        fact_type="HOLDS_POSITION",
+        truth_conditions=[Condition(
+            description="edge", kind="graph_fact", fact=fact)],
+        falsifiers=[],
+        presuppositions=[
+            Condition(description="src", kind="identity_check",
+                      entity_id=U1, expected_name="Foo"),
+            Condition(description="tgt", kind="identity_check",
+                      entity_id=U2, expected_name="Bar"),
+        ],
+    )
+    assert p._validate(plan, fact=fact) == []
+
+
 def test_validator_accepts_identity_check_with_required_fields():
     p = _planner()
     ok = Condition(

@@ -217,6 +217,34 @@ class EvaluationPlanner:
                         f"itself); use kind=type_check for entity-typing "
                         f"presuppositions instead"
                     )
+        # Post-plan normalizer: enforce identity_check coverage for both fact
+        # endpoints. Architect's recommendation #2 — currently the planner is
+        # the sole guarantor that identity_check presuppositions exist. One
+        # off-prompt LLM response would silently regress the polarity
+        # classifier to UUID-binding failure mode (prior 4/4 DISPROVEN bench).
+        # Reject and force replan on missing endpoint identity_checks.
+        if fact is not None:
+            covered_ids = {
+                c.entity_id for c in plan.presuppositions
+                if c.kind == "identity_check"
+                and c.entity_id
+                and c.expected_name and c.expected_name.strip()
+                and c.fact is None
+            }
+            for end_label, end_id in (
+                ("source_entity_id", fact.source_entity_id),
+                ("target_entity_id", fact.target_entity_id),
+            ):
+                if end_id and end_id not in covered_ids:
+                    problems.append(
+                        f"presupposition coverage: missing required "
+                        f"identity_check for fact {end_label} '{end_id}'. "
+                        f"Every fact endpoint MUST have an identity_check "
+                        f"presupposition (kind=identity_check, "
+                        f"entity_id={end_id}, expected_name=<the name you "
+                        f"believe this entity has>). Without it the polarity "
+                        f"classifier cannot bind evidence to the fact."
+                    )
         return problems
 
     @staticmethod
