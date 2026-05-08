@@ -35,7 +35,11 @@ def benchmark_tenant(benchmark_session):
     """Per-test isolated tenant. Cleans up all rows on teardown."""
     tid = str(uuid.uuid4())
     yield tid
-    for table in ("relationships", "entities", "document_chunks"):
+    # Order matters: child tables first to avoid FK violations on cascade.
+    # `duplicate_candidates` references `entities` via entity_b_id_fkey;
+    # extraction-side flows may have populated it for the seeded entities.
+    for table in ("duplicate_candidates", "relationships",
+                   "entities", "document_chunks"):
         benchmark_session.execute(
             text(f"DELETE FROM {table} WHERE tenant_id = CAST(:t AS uuid)"),
             {"t": tid},

@@ -52,10 +52,32 @@ class Fact(BaseModel):
                 f"{self.target_entity_id}|{props_canonical}")
 
 
+ConditionKind = Literal["graph_fact", "type_check", "custom"]
+
+
 class Condition(BaseModel):
-    """A sub-claim that must be evaluated. Recursively a Fact when reducible."""
+    """A sub-claim that must be evaluated.
+
+    Three variants discriminated by `kind`:
+
+    - "graph_fact" (default for back-compat): a recursively-evaluable subject-
+      predicate-object claim. Requires `fact`. Engine will recurse into
+      `evaluate(fact)`. Use this for claims like "Robert Kim REPORTS_TO
+      Victoria Chen" that are themselves graph edges.
+    - "type_check": a unary entity-typing presupposition. Requires `entity_id`
+      + `expected_entity_type`. NO recursion — engine performs a direct DB
+      lookup against the entities table. Use for claims like "Nexus is typed
+      as ORG in the schema" or "Victoria Chen is a PERSON".
+    - "custom": informational / not directly evaluable. Engine skips it for
+      blocking purposes (it does NOT propagate UNDERSPECIFIED to the parent).
+      Use for nuanced presuppositions like "the role is single-occupant" that
+      we surface to humans but cannot mechanically check.
+    """
     description: str
+    kind: ConditionKind = "graph_fact"
     fact: Optional[Fact] = None
+    entity_id: Optional[str] = None
+    expected_entity_type: Optional[str] = None
     custom_check: Optional[str] = None
     decisive: bool = False
 

@@ -57,11 +57,18 @@ class GraphTools:
 
     def _exec(self, sql, params=None):
         """Single counted entry point for every DB query — bumps the active
-        span's db_query_count so the tracer can attribute load per stage."""
+        span's db_query_count so the tracer can attribute load per stage.
+
+        Each query runs inside a SAVEPOINT (`begin_nested`) so a failure
+        (e.g. malformed UUID from an LLM-emitted Condition) only rolls back
+        this single statement — pending writes from outer callers in the
+        same session are preserved. This is required because the inference
+        engine may share a session with broader units of work."""
         from .observability.trace import tracer
         tracer.bump("db_query_count")
-        return self.session.execute(text(sql) if isinstance(sql, str) else sql,
-                                     params or {})
+        stmt = text(sql) if isinstance(sql, str) else sql
+        with self.session.begin_nested():
+            return self.session.execute(stmt, params or {})
 
     # ------------------------------------------------------------ entities
     def get_entity(self, entity_id: str) -> Optional[EntityRow]:
