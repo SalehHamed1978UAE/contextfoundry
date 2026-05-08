@@ -114,7 +114,7 @@ class GardenerConfig:
     never_auto_merge_types: List[str] = field(default_factory=lambda: ["PERSON"])
     
     # Evidence Layer Phase 3: Verification requirements for promotion
-    require_verification_for_promotion: bool = True  # Require verified=True before STAGING→TRUSTED
+    require_verification_for_promotion: bool = False  # Disabled 2026-05-08: blocked 100% of promotions when VerificationWorker only verifies a tiny fraction of facts; rely on confidence + corroboration thresholds instead
     unverified_max_days: int = 14  # Flag facts unverified after this many days
     demote_unverified_after_days: Optional[int] = None  # If set, demote unverified facts after X days
     

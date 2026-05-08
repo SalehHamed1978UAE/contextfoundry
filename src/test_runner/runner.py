@@ -347,8 +347,11 @@ def run_vault_test(
                 error_msg = str(e)
                 return None
         
-        # Read tree_based_retrieval from database
-        tree_based_retrieval = False
+        # Read tree_based_retrieval from database (with env var fallback for CLI runs).
+        # 2026-05-08: Default True for fix-validation runs. Set CF_TREE_BASED_RETRIEVAL=false to disable.
+        import os as _os
+        tree_based_retrieval = _os.environ.get("CF_TREE_BASED_RETRIEVAL", "true").lower() == "true"
+        log(f"Tree-based retrieval default: {tree_based_retrieval} (env={_os.environ.get('CF_TREE_BASED_RETRIEVAL', '<unset>')})")
         if test_run_id:
             current_run = get_test_run(test_run_id)
             if current_run and current_run['status'] != 'running_qa':

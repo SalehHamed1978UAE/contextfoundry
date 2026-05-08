@@ -1,148 +1,113 @@
-#!/usr/bin/env python3
 """
-Batch script to compute and store embeddings for all entities.
+One-shot backfill: compute name_embedding for entities with NULL embeddings.
 
-This backfills the name_embedding column for entities that don't have embeddings,
-enabling semantic search in the entity resolver.
-
-Usage:
-    python scripts/backfill_entity_embeddings.py [--batch-size 100] [--tenant-id <id>]
+Uses OpenAI batch embeddings (100 names per API call) and a single bulk
+UPDATE...FROM (VALUES ...) per batch. Suppresses noisy DEBUG/HTTP logs.
 """
-
 import argparse
-import time
-import sys
+import logging
 import os
+import sys
+import time
+from typing import List
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Silence noisy DEBUG output from openai/httpx/httpcore/sqlalchemy BEFORE imports
+for name in ("openai", "openai._base_client", "httpx", "httpcore",
+             "sqlalchemy", "sqlalchemy.engine", "urllib3"):
+    logging.getLogger(name).setLevel(logging.WARNING)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 
-from sqlalchemy import text, create_engine
-from src.context_foundry.memory.episodic import openai_embedding, EMBEDDING_DIM
+from openai import OpenAI
+from sqlalchemy import text
+
+from src.context_foundry.models.schema import get_session
+
+EMBEDDING_MODEL = "text-embedding-3-small"
+BATCH_SIZE = 100
 
 
-def backfill_embeddings(batch_size: int = 100, tenant_id: str = None, dry_run: bool = False):
-    """
-    Backfill embeddings for all entities without name_embedding.
-    
-    Args:
-        batch_size: Number of entities to process per batch
-        tenant_id: Optional tenant ID to filter entities
-        dry_run: If True, don't actually update the database
-    """
-    database_url = os.environ.get("DATABASE_URL")
-    if not database_url:
-        print("ERROR: DATABASE_URL environment variable not set")
-        return
-    
-    engine = create_engine(database_url)
-    
-    tenant_filter = ""
-    if tenant_id:
-        tenant_filter = f"AND tenant_id = '{tenant_id}'"
-    
-    with engine.connect() as conn:
-        count_query = text(f"""
-            SELECT COUNT(*) FROM public.entities 
-            WHERE name_embedding IS NULL {tenant_filter}
-        """)
-        total_count = conn.execute(count_query).scalar()
-        
-        print(f"=== Entity Embedding Backfill ===")
-        print(f"Total entities without embeddings: {total_count}")
-        print(f"Batch size: {batch_size}")
-        print(f"Embedding dimension: {EMBEDDING_DIM}")
-        if dry_run:
-            print("DRY RUN - no changes will be made")
-        print()
-        
-        if total_count == 0:
-            print("All entities already have embeddings!")
-            return
-        
-        processed = 0
-        errors = 0
-        start_time = time.time()
-        
-        while processed < total_count:
-            fetch_query = text(f"""
-                SELECT id, name FROM public.entities 
-                WHERE name_embedding IS NULL {tenant_filter}
-                ORDER BY created_at
-                LIMIT :batch_size
-            """)
-            
-            batch = conn.execute(fetch_query, {"batch_size": batch_size}).fetchall()
-            
-            if not batch:
-                break
-            
-            for entity_id, name in batch:
-                try:
-                    embedding = openai_embedding(name)
-                    
-                    if not dry_run:
-                        update_query = text("""
-                            UPDATE public.entities 
-                            SET name_embedding = :embedding
-                            WHERE id = :entity_id
-                        """)
-                        conn.execute(update_query, {
-                            "embedding": embedding,
-                            "entity_id": str(entity_id)
-                        })
-                    
-                    processed += 1
-                    
-                    if processed % 50 == 0:
-                        elapsed = time.time() - start_time
-                        rate = processed / elapsed if elapsed > 0 else 0
-                        eta = (total_count - processed) / rate if rate > 0 else 0
-                        print(f"  Processed {processed}/{total_count} ({100*processed/total_count:.1f}%) - {rate:.1f}/sec - ETA: {eta:.0f}s")
-                    
-                except Exception as e:
-                    errors += 1
-                    print(f"  ERROR: Entity {entity_id} ({name[:50] if name else 'None'}...): {e}")
-                    if errors > 10:
-                        print("Too many errors, stopping.")
-                        break
-            
-            if not dry_run:
-                conn.commit()
-            
-            time.sleep(0.05)
-        
-        elapsed = time.time() - start_time
-        print()
-        print(f"=== Complete ===")
-        print(f"Processed: {processed}")
-        print(f"Errors: {errors}")
-        print(f"Time: {elapsed:.1f}s")
-        print(f"Rate: {processed/elapsed:.1f} entities/sec" if elapsed > 0 else "N/A")
-        
-        verify_query = text("""
-            SELECT 
-                COUNT(*) as total,
-                COUNT(*) FILTER (WHERE name_embedding IS NOT NULL) as with_embedding
-            FROM public.entities
-        """)
-        result = conn.execute(verify_query).fetchone()
-        print()
-        print(f"=== Verification ===")
-        print(f"Total entities: {result[0]}")
-        print(f"With embeddings: {result[1]}")
-        print(f"Coverage: {100*result[1]/result[0] if result[0] > 0 else 0:.1f}%")
+def _client() -> OpenAI:
+    api_key = os.environ["OPENAI_API_KEY"]
+    base_url = os.environ.get("OPENAI_BASE_URL")
+    return OpenAI(api_key=api_key, base_url=base_url) if base_url else OpenAI(api_key=api_key)
+
+
+def _embed_batch(client: OpenAI, texts: List[str]) -> List[List[float]]:
+    cleaned = [(t or "").strip()[:8000] or " " for t in texts]
+    resp = client.embeddings.create(model=EMBEDDING_MODEL, input=cleaned)
+    return [d.embedding for d in resp.data]
+
+
+def backfill(tenant_id: str, limit: int) -> dict:
+    session = get_session(use_rls_role=False)
+    client = _client()
+    log = logging.getLogger("backfill")
+    stats = {"checked": 0, "embedded": 0, "errors": 0}
+
+    rows = session.execute(text("""
+        SELECT id::text AS id, name FROM public.entities
+        WHERE tenant_id = :t AND name_embedding IS NULL
+        ORDER BY created_at
+        LIMIT :lim
+    """), {"t": tenant_id, "lim": limit}).fetchall()
+
+    total = len(rows)
+    log.info(f"[BACKFILL] {total} entities need embeddings")
+    if total == 0:
+        return stats
+
+    t0 = time.time()
+    for i in range(0, total, BATCH_SIZE):
+        batch = rows[i:i + BATCH_SIZE]
+        names = [r.name or "" for r in batch]
+        ids = [r.id for r in batch]
+        try:
+            vecs = _embed_batch(client, names)
+        except Exception as e:
+            log.error(f"[BACKFILL] embed failed at offset {i}: {e}")
+            stats["errors"] += len(batch)
+            stats["checked"] += len(batch)
+            continue
+
+        # Bulk UPDATE via UNNEST arrays — single round-trip per batch
+        ids_arr = ids
+        vec_literals = ['[' + ','.join(f'{float(x):.6f}' for x in v) + ']' for v in vecs]
+        try:
+            session.execute(text("""
+                UPDATE public.entities AS e
+                SET name_embedding = CAST(t.vec AS vector)
+                FROM (SELECT UNNEST(CAST(:ids AS uuid[])) AS id,
+                             UNNEST(CAST(:vecs AS text[])) AS vec) AS t
+                WHERE e.id = t.id
+            """), {"ids": ids_arr, "vecs": vec_literals})
+            session.commit()
+            stats["embedded"] += len(batch)
+        except Exception as e:
+            session.rollback()
+            log.error(f"[BACKFILL] bulk update failed at offset {i}: {e}")
+            stats["errors"] += len(batch)
+        stats["checked"] += len(batch)
+
+        elapsed = time.time() - t0
+        rate = stats["embedded"] / max(elapsed, 0.001)
+        eta = (total - stats["embedded"]) / max(rate, 0.001)
+        log.info(f"[BACKFILL] {stats['embedded']}/{total} ({rate:.1f}/s, ETA {eta:.0f}s)")
+
+    log.info(f"[BACKFILL] DONE in {time.time()-t0:.1f}s — {stats}")
+    return stats
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--tenant-id", required=True)
+    ap.add_argument("--limit", type=int, default=20000)
+    args = ap.parse_args()
+    stats = backfill(args.tenant_id, args.limit)
+    print("\n=== Backfill Stats ===")
+    for k, v in stats.items():
+        print(f"  {k}: {v}")
+    sys.exit(0)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Backfill entity embeddings")
-    parser.add_argument("--batch-size", type=int, default=100, help="Batch size for processing")
-    parser.add_argument("--tenant-id", type=str, help="Optional tenant ID to filter")
-    parser.add_argument("--dry-run", action="store_true", help="Don't actually update DB")
-    
-    args = parser.parse_args()
-    
-    backfill_embeddings(
-        batch_size=args.batch_size,
-        tenant_id=args.tenant_id,
-        dry_run=args.dry_run
-    )
+    main()

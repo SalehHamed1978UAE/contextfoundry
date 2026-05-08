@@ -1,38 +1,28 @@
 {
-  "run_timestamp": "2026-05-08T09:00:43.052994",
+  "run_timestamp": "2026-05-08T10:29:56.004430",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_176a4fb2.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.0299999999999994,
-    "avg_semantic_score": 0.08002100000000002,
+    "avg_chunks_retrieved": 3.160000000000001,
+    "avg_semantic_score": 0.14299999999999996,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "no_data": 11,
-      "exact_match": 40,
-      "component_match": 25,
+      "exact_match": 28,
+      "no_data": 20,
       "number_match": 7,
-      "no_match": 15,
+      "no_match": 27,
+      "component_match": 16,
       "percentage_match": 1,
-      "semantic_match": 1
+      "entity_match": 1
     },
-    "low_score_queries": 89
+    "low_score_queries": 77
   },
   "low_score_questions": [
     {
-      "q_id": 1,
-      "question": "Who is the CEO of Nexus Industries?",
-      "avg_score": 0.0
-    },
-    {
       "q_id": 2,
       "question": "What is the name of the CFO?",
-      "avg_score": 0.0
-    },
-    {
-      "q_id": 3,
-      "question": "Who is the President of Nexus Digital Solutions?",
       "avg_score": 0.0
     },
     {
@@ -91,11 +81,6 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 18,
-      "question": "Which company has a green hydrogen offtake agreement with Nexus?",
-      "avg_score": 0.0
-    },
-    {
       "q_id": 19,
       "question": "Who is the largest aerospace customer of Nexus by relationship value?",
       "avg_score": 0.0
@@ -103,7 +88,7 @@
     {
       "q_id": 20,
       "question": "Which supplier is rated Red and at risk?",
-      "avg_score": 0.3252
+      "avg_score": 0.0
     },
     {
       "q_id": 21,
@@ -151,11 +136,6 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 31,
-      "question": "What is Nexus's ownership percentage in the Toyota battery joint venture?",
-      "avg_score": 0.0
-    },
-    {
       "q_id": 33,
       "question": "How much hydrogen will Shell purchase annually under the offtake agreement?",
       "avg_score": 0.0
@@ -171,21 +151,6 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 36,
-      "question": "Which division has the highest safety incident rate (TRIR)?",
-      "avg_score": 0.0
-    },
-    {
-      "q_id": 37,
-      "question": "Who is the Project Director for the GreenHydrogen Initiative?",
-      "avg_score": 0.0
-    },
-    {
-      "q_id": 38,
-      "question": "Who is the CISO of Nexus Industries?",
-      "avg_score": 0.0
-    },
-    {
       "q_id": 39,
       "question": "What is the annual dividend per share?",
       "avg_score": 0.0
@@ -193,11 +158,6 @@
     {
       "q_id": 40,
       "question": "What is the total company backlog?",
-      "avg_score": 0.2896
-    },
-    {
-      "q_id": 41,
-      "question": "How many endpoints does CyberShield protect?",
       "avg_score": 0.0
     },
     {
@@ -223,16 +183,6 @@
     {
       "q_id": 46,
       "question": "Who supplies solar panels for the Desert Sun project?",
-      "avg_score": 0.0
-    },
-    {
-      "q_id": 47,
-      "question": "Which university is a research partner for quantum computing?",
-      "avg_score": 0.0
-    },
-    {
-      "q_id": 48,
-      "question": "Who is the primary customer for HTS superconducting wire?",
       "avg_score": 0.0
     },
     {
@@ -278,11 +228,6 @@
     {
       "q_id": 58,
       "question": "What is the Falcon X program's budget variance?",
-      "avg_score": 0.0
-    },
-    {
-      "q_id": 59,
-      "question": "How many global locations does Nexus have?",
       "avg_score": 0.0
     },
     {
@@ -351,16 +296,6 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 75,
-      "question": "Who is the VP of Engineering for Nexus Digital Solutions?",
-      "avg_score": 0.0
-    },
-    {
-      "q_id": 76,
-      "question": "What is the total patent portfolio size?",
-      "avg_score": 0.0
-    },
-    {
       "q_id": 77,
       "question": "What is the location of the BatteryTech JV facility?",
       "avg_score": 0.0
@@ -403,7 +338,7 @@
     {
       "q_id": 85,
       "question": "Who is the Chair of the Quality Council?",
-      "avg_score": 0.0
+      "avg_score": 0.314
     },
     {
       "q_id": 86,
@@ -464,16 +399,45 @@
       "q_id": 99,
       "question": "How does Nexus's operating margin compare to target?",
       "avg_score": 0.0
+    },
+    {
+      "q_id": 100,
+      "question": "What is the total value of top 3 customer relationships?",
+      "avg_score": 0.0
     }
   ],
   "failures_by_type": {
     "no_data": [
       {
-        "q_id": 1,
-        "question": "Who is the CEO of Nexus Industries?",
-        "expected": "Dr. Victoria Chen",
+        "q_id": 7,
+        "question": "How many employees does Nexus Industries have?",
+        "expected": "12,500",
         "actual": "The retrieved information does not speci",
-        "files_retrieved": []
+        "files_retrieved": [
+          "12_supplier_performance_review.md",
+          "13_shell_partner.md",
+          "14_lockheed_martin_customer.md"
+        ]
+      },
+      {
+        "q_id": 8,
+        "question": "What is the budget for the Falcon X UAV program?",
+        "expected": "$145 million",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": [
+          "14_lockheed_martin_customer.md",
+          "13_shell_partner.md"
+        ]
+      },
+      {
+        "q_id": 12,
+        "question": "When did the GreenHydrogen facility produce its first hydrog",
+        "expected": "March 20, 2026",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": [
+          "13_starliner_satellite_bus.md",
+          "13_shell_partner.md"
+        ]
       },
       {
         "q_id": 14,
@@ -481,17 +445,41 @@
         "expected": "January 2026 (effective January 15, 2026",
         "actual": "The appointment date was not found in th",
         "files_retrieved": [
-          "Unknown",
-          "09_competitive_intelligence.md",
-          "02_organizational_announcement.md"
+          "02_organizational_announcement.md",
+          "10_quarterly_newsletter.md",
+          "Unknown"
         ]
       },
       {
-        "q_id": 18,
-        "question": "Which company has a green hydrogen offtake agreement with Ne",
-        "expected": "Shell",
+        "q_id": 15,
+        "question": "Who does Michael Chang report to?",
+        "expected": "Dr. Victoria Chen (CEO)",
+        "actual": "Based on the retrieved information, Mich",
+        "files_retrieved": [
+          "14_lockheed_martin_customer.md",
+          "13_shell_partner.md"
+        ]
+      },
+      {
+        "q_id": 20,
+        "question": "Which supplier is rated Red and at risk?",
+        "expected": "General Atomics",
+        "actual": "The retrieved information does not expli",
+        "files_retrieved": [
+          "14_lockheed_martin_customer.md",
+          "13_shell_partner.md"
+        ]
+      },
+      {
+        "q_id": 22,
+        "question": "What is the capacity of the Desert Sun Solar Farm?",
+        "expected": "450 MW (full buildout)",
         "actual": "The retrieved information does not speci",
-        "files_retrieved": []
+        "files_retrieved": [
+          "14_lockheed_martin_customer.md",
+          "13_starliner_satellite_bus.md",
+          "12_supplier_performance_review.md"
+        ]
       },
       {
         "q_id": 25,
@@ -499,31 +487,51 @@
         "expected": "400 Wh/kg",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "06_solid_state_battery_design.md",
-          "Unknown",
-          "11_batterytech_solid_state.md"
+          "Unknown"
         ]
-      },
-      {
-        "q_id": 37,
-        "question": "Who is the Project Director for the GreenHydrogen Initiative",
-        "expected": "Jennifer Walsh",
-        "actual": "The retrieved information does not speci",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 38,
-        "question": "Who is the CISO of Nexus Industries?",
-        "expected": "Jennifer Walsh (appointed January 2026, ",
-        "actual": "The retrieved information does not speci",
-        "files_retrieved": []
       },
       {
         "q_id": 46,
         "question": "Who supplies solar panels for the Desert Sun project?",
         "expected": "First Solar",
         "actual": "The retrieved information does not speci",
-        "files_retrieved": []
+        "files_retrieved": [
+          "13_starliner_satellite_bus.md",
+          "13_shell_partner.md"
+        ]
+      },
+      {
+        "q_id": 47,
+        "question": "Which university is a research partner for quantum computing",
+        "expected": "MIT",
+        "actual": "The information retrieved does not speci",
+        "files_retrieved": [
+          "04_toyota_partnership_announcement.md",
+          "04_digital_division_quarterly_review.md",
+          "06_toyota_jv_negotiation_summary.md"
+        ]
+      },
+      {
+        "q_id": 50,
+        "question": "What is the service ceiling of the Falcon X?",
+        "expected": "45,000 feet",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": [
+          "14_lockheed_martin_customer.md",
+          "12_supplier_performance_review.md",
+          "13_shell_partner.md"
+        ]
+      },
+      {
+        "q_id": 65,
+        "question": "Is Nexus Digital growing faster or slower than Nexus Aerospa",
+        "expected": "Faster (18.2% vs 12.3%)",
+        "actual": "I don't have enough information to answe",
+        "files_retrieved": [
+          "09_competitive_intelligence.md",
+          "09_investor_presentation_q4.md",
+          "06_market_expansion_asia.md"
+        ]
       },
       {
         "q_id": 67,
@@ -531,24 +539,52 @@
         "expected": "-30\u00b0C to 60\u00b0C",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "06_solid_state_battery_design.md",
+          "04_toyota_partnership_announcement.md",
           "Unknown",
-          "11_batterytech_solid_state.md"
+          "06_toyota_jv_negotiation_summary.md"
         ]
       },
       {
-        "q_id": 75,
-        "question": "Who is the VP of Engineering for Nexus Digital Solutions?",
-        "expected": "Dr. Alan Chen",
-        "actual": "The retrieved information does not speci",
-        "files_retrieved": []
+        "q_id": 69,
+        "question": "What is the TRIR safety target for FY2026?",
+        "expected": "<0.75",
+        "actual": "The TRIR (Total Recordable Incident Rate",
+        "files_retrieved": [
+          "14_lockheed_martin_customer.md",
+          "13_shell_partner.md"
+        ]
       },
       {
-        "q_id": 76,
-        "question": "What is the total patent portfolio size?",
-        "expected": "2,412 patents",
-        "actual": "The total patent portfolio size for Nexu",
-        "files_retrieved": []
+        "q_id": 70,
+        "question": "When is the NexusConnect Edge AI product launching?",
+        "expected": "March 15, 2026",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": [
+          "14_lockheed_martin_customer.md",
+          "13_shell_partner.md"
+        ]
+      },
+      {
+        "q_id": 71,
+        "question": "Who is the mining automation partner?",
+        "expected": "Caterpillar",
+        "actual": "The mining automation partner is not exp",
+        "files_retrieved": [
+          "04_toyota_partnership_announcement.md",
+          "09_competitive_intelligence.md",
+          "06_toyota_jv_negotiation_summary.md"
+        ]
+      },
+      {
+        "q_id": 73,
+        "question": "How many new employees will Nexus hire in FY2026?",
+        "expected": "1,200 net new positions",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": [
+          "14_lockheed_martin_customer.md",
+          "14_hypersonic_propulsion.md",
+          "13_starliner_satellite_bus.md"
+        ]
       },
       {
         "q_id": 91,
@@ -558,6 +594,24 @@
         "files_retrieved": [
           "09_export_control.md"
         ]
+      },
+      {
+        "q_id": 97,
+        "question": "What is the M&A budget capacity?",
+        "expected": "$500 million",
+        "actual": "The retrieved information does not expli",
+        "files_retrieved": [
+          "14_lockheed_martin_customer.md",
+          "13_starliner_satellite_bus.md",
+          "12_supplier_performance_review.md"
+        ]
+      },
+      {
+        "q_id": 99,
+        "question": "How does Nexus's operating margin compare to target?",
+        "expected": "11.2% actual vs 11.5-12.0% target for FY",
+        "actual": "There is no available information regard",
+        "files_retrieved": []
       }
     ],
     "no_match": [
@@ -566,17 +620,41 @@
         "question": "Who supplied the electrolyzers for the GreenHydrogen facilit",
         "expected": "Nel Hydrogen",
         "actual": "The electrolyzers for the GreenHydrogen ",
-        "files_retrieved": []
+        "files_retrieved": [
+          "14_hypersonic_propulsion.md",
+          "13_shell_partner.md"
+        ]
+      },
+      {
+        "q_id": 23,
+        "question": "How many qubits does the QuantumLeap system have?",
+        "expected": "127 qubits",
+        "actual": "The retrieved information does not conta",
+        "files_retrieved": [
+          "12_supplier_performance_review.md",
+          "13_shell_partner.md",
+          "14_lockheed_martin_customer.md"
+        ]
       },
       {
         "q_id": 24,
         "question": "What is the hydrogen production capacity of the GreenHydroge",
         "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
-        "actual": "The GreenHydrogen facility has a hydroge",
+        "actual": "The hydrogen production capacity of the ",
         "files_retrieved": [
-          "04_greenhydrogen_initiative.md",
-          "08_global_locations.md",
-          "02_greenhydrogen_process_specification.md"
+          "14_lockheed_martin_customer.md",
+          "13_shell_partner.md"
+        ]
+      },
+      {
+        "q_id": 27,
+        "question": "Which division has the most employees?",
+        "expected": "Nexus Digital Solutions (3,500 employees",
+        "actual": "Based on the retrieved information, here",
+        "files_retrieved": [
+          "12_rio_tinto_customer.md",
+          "10_rd_investment_report.md",
+          "13_shell_partner.md"
         ]
       },
       {
@@ -585,30 +663,56 @@
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "03_press_release_fy2025.md",
-          "02_business_divisions.md",
-          "02_organizational_announcement.md"
+          "01_executive_team.md",
+          "05_talent_strategy.md",
+          "03_aerospace_division_structure.md"
         ]
       },
       {
-        "q_id": 36,
-        "question": "Which division has the highest safety incident rate (TRIR)?",
-        "expected": "Nexus Advanced Materials (1.24 TRIR)",
-        "actual": "The division with the highest safety inc",
+        "q_id": 33,
+        "question": "How much hydrogen will Shell purchase annually under the off",
+        "expected": "Minimum 300,000 kg/year initially, rampi",
+        "actual": "Under the offtake agreement, Shell will ",
         "files_retrieved": [
-          "07_environmental_health_safety.md",
-          "05_safety_committee_meeting.md"
+          "13_shell_partner.md"
+        ]
+      },
+      {
+        "q_id": 34,
+        "question": "Which project has the largest budget?",
+        "expected": "Orbital Satellite Constellation ($680 mi",
+        "actual": "The project with the largest budget is t",
+        "files_retrieved": [
+          "13_starliner_satellite_bus.md",
+          "13_shell_partner.md"
+        ]
+      },
+      {
+        "q_id": 38,
+        "question": "Who is the CISO of Nexus Industries?",
+        "expected": "Jennifer Walsh (appointed January 2026, ",
+        "actual": "The Chief Information Security Officer (",
+        "files_retrieved": [
+          "01_executive_team.md",
+          "05_fedramp_announcement.md",
+          "02_organizational_announcement.md"
         ]
       },
       {
         "q_id": 40,
         "question": "What is the total company backlog?",
         "expected": "$12.4 billion",
-        "actual": "The total company backlog for Nexus Indu",
+        "actual": "The total company backlog is **$250 mill",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 42,
+        "question": "What is the annual HTS wire production capacity?",
+        "expected": "1,000 km/year",
+        "actual": "The annual HTS (Hydrogen) wire productio",
         "files_retrieved": [
-          "03_aerospace_division_budget.md",
-          "07_ma_strategy.md",
-          "01_annual_report_2025.md"
+          "14_lockheed_martin_customer.md",
+          "13_shell_partner.md"
         ]
       },
       {
@@ -617,9 +721,9 @@
         "expected": "2019",
         "actual": "March 2018 - Dr. Victoria Chen was appoi",
         "files_retrieved": [
-          "06_market_expansion_asia.md",
           "06_quantumleap_computing.md",
-          "01_executive_team.md"
+          "01_executive_team.md",
+          "06_market_expansion_asia.md"
         ]
       },
       {
@@ -629,8 +733,29 @@
         "actual": "The primary customer for HTS superconduc",
         "files_retrieved": [
           "Unknown",
-          "05_siemens_healthineers_customer.md",
-          "01_boeing_customer_profile.md"
+          "01_boeing_customer_profile.md",
+          "02_airbus_customer_profile.md"
+        ]
+      },
+      {
+        "q_id": 52,
+        "question": "What is the detection rate of CyberShield?",
+        "expected": "99.7%",
+        "actual": "The detection rate of the CyberShield Se",
+        "files_retrieved": [
+          "14_lockheed_martin_customer.md",
+          "13_shell_partner.md"
+        ]
+      },
+      {
+        "q_id": 57,
+        "question": "What are the four divisions of Nexus Industries?",
+        "expected": "Aerospace, Energy Systems, Digital Solut",
+        "actual": "The four divisions of Nexus Industries a",
+        "files_retrieved": [
+          "10_rd_investment_report.md",
+          "02_business_divisions.md",
+          "09_competitive_intelligence.md"
         ]
       },
       {
@@ -640,59 +765,38 @@
         "actual": "The retrieved information does not menti",
         "files_retrieved": [
           "Unknown",
-          "10_cybersecurity_incident_response.md",
-          "08_cybersecurity_advisory.md"
+          "08_cybersecurity_advisory.md",
+          "10_cybersecurity_incident_response.md"
         ]
       },
       {
-        "q_id": 61,
-        "question": "Who replaced Thomas Anderson as Digital President?",
-        "expected": "Robert Kim",
-        "actual": "J. Williams replaced Thomas Anderson as ",
+        "q_id": 77,
+        "question": "What is the location of the BatteryTech JV facility?",
+        "expected": "San Antonio, Texas",
+        "actual": "The location of the BatteryTech JV facil",
         "files_retrieved": [
-          "14_lockheed_martin_customer.md",
-          "13_shell_partner.md"
-        ]
-      },
-      {
-        "q_id": 66,
-        "question": "What is the FY2026 capital expenditure plan?",
-        "expected": "$680 million",
-        "actual": "The FY2026 capital expenditure plan for ",
-        "files_retrieved": [
-          "01_corporate_strategy_2026_2030.md",
-          "07_capital_allocation_plan.md"
-        ]
-      },
-      {
-        "q_id": 68,
-        "question": "Who is the Chair of the Export Control Committee?",
-        "expected": "Col. (Ret.) James Foster (Empowered Offi",
-        "actual": "The Chair of the Export Control Committe",
-        "files_retrieved": [
-          "01_code_of_ethics.md",
-          "09_export_control.md"
-        ]
-      },
-      {
-        "q_id": 71,
-        "question": "Who is the mining automation partner?",
-        "expected": "Caterpillar",
-        "actual": "The mining automation partner for Nexus ",
-        "files_retrieved": [
-          "09_competitive_intelligence.md",
-          "04_toyota_partnership_announcement.md"
+          "11_batterytech_solid_state.md",
+          "08_global_locations.md",
+          "07_safety_alert_bulletin.md"
         ]
       },
       {
         "q_id": 79,
         "question": "What is the 2030 revenue target in the corporate strategy?",
         "expected": "$15 billion",
-        "actual": "The 2030 revenue targets outlined in the",
+        "actual": "The 2030 revenue target in the corporate",
         "files_retrieved": [
-          "06_market_expansion_asia.md",
-          "02_aerospace_division_strategy.md",
-          "01_corporate_strategy_2026_2030.md"
+          "14_lockheed_martin_customer.md",
+          "13_shell_partner.md"
+        ]
+      },
+      {
+        "q_id": 81,
+        "question": "What is Nexus's sustainability goal for carbon neutrality?",
+        "expected": "2030",
+        "actual": "Nexus's sustainability goal for carbon n",
+        "files_retrieved": [
+          "13_shell_partner.md"
         ]
       },
       {
@@ -701,7 +805,39 @@
         "expected": "Pacific Power (pilot customer)",
         "actual": "The primary customer for the SmartGrid C",
         "files_retrieved": [
-          "Unknown"
+          "Unknown",
+          "01_boeing_customer_profile.md",
+          "02_airbus_customer_profile.md"
+        ]
+      },
+      {
+        "q_id": 84,
+        "question": "What is the cybersecurity incident response investment?",
+        "expected": "$5.3 million",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": [
+          "13_shell_partner.md"
+        ]
+      },
+      {
+        "q_id": 87,
+        "question": "What is the combined cybersecurity and security certificatio",
+        "expected": "SOC 2 Type II, ISO 27001, FedRAMP High, ",
+        "actual": "The combined cybersecurity and security ",
+        "files_retrieved": [
+          "14_lockheed_martin_customer.md",
+          "13_starliner_satellite_bus.md",
+          "13_shell_partner.md"
+        ]
+      },
+      {
+        "q_id": 92,
+        "question": "What is the Quantum Volume of the QL-127 system?",
+        "expected": "256",
+        "actual": "The retrieved information does not provi",
+        "files_retrieved": [
+          "14_lockheed_martin_customer.md",
+          "13_shell_partner.md"
         ]
       },
       {
@@ -710,9 +846,49 @@
         "expected": "LLZO (Li7La3Zr2O12, Al-doped)",
         "actual": "The electrolyte material used in the sol",
         "files_retrieved": [
-          "06_toyota_jv_negotiation_summary.md",
+          "04_toyota_partnership_announcement.md",
           "Unknown",
-          "11_batterytech_solid_state.md"
+          "06_toyota_jv_negotiation_summary.md"
+        ]
+      },
+      {
+        "q_id": 94,
+        "question": "When is the 256-qubit quantum system planned?",
+        "expected": "Q2 2026",
+        "actual": "The retrieved information does not provi",
+        "files_retrieved": [
+          "14_lockheed_martin_customer.md",
+          "13_starliner_satellite_bus.md",
+          "13_shell_partner.md"
+        ]
+      },
+      {
+        "q_id": 96,
+        "question": "What is the APAC revenue target for 2030?",
+        "expected": "$3.5 billion",
+        "actual": "The APAC revenue target for 2030 is proj",
+        "files_retrieved": [
+          "14_lockheed_martin_customer.md",
+          "13_shell_partner.md"
+        ]
+      },
+      {
+        "q_id": 98,
+        "question": "What is the renewable energy achievement percentage?",
+        "expected": "65% achieved toward 100% by 2028",
+        "actual": "The retrieved information does not expli",
+        "files_retrieved": [
+          "12_supplier_performance_review.md",
+          "13_shell_partner.md"
+        ]
+      },
+      {
+        "q_id": 100,
+        "question": "What is the total value of top 3 customer relationships?",
+        "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
+        "actual": "The total value of the top 3 customer re",
+        "files_retrieved": [
+          "Unknown"
         ]
       }
     ]

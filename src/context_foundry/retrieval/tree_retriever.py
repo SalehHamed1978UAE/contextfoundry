@@ -515,10 +515,16 @@ class TreeBasedRetriever:
         return kept
 
     def _get_query_embedding(self, query: str) -> Optional[np.ndarray]:
-        """Get embedding for query (placeholder - integrate with embedding service)."""
-        # TODO: Integrate with actual embedding service
-        # For now, return None and fall back to keyword matching
-        return None
+        """Get embedding for query via OpenAI text-embedding-3-small (1536-dim)."""
+        try:
+            from src.context_foundry.memory.episodic import openai_embedding
+            vec = openai_embedding(query)
+            if not vec:
+                return None
+            return np.array(vec, dtype=np.float32)
+        except Exception as e:
+            logger.error(f"[TREE] Failed to get query embedding: {e}")
+            return None
 
     def _cosine_similarity(self, vec1: np.ndarray, vec2: np.ndarray) -> float:
         """Compute cosine similarity between two vectors."""
@@ -628,21 +634,91 @@ class TreeBasedRetriever:
             logger.error(f"[TREE] Error getting relationships: {e}")
             return []
 
-    def _fallback_semantic_search(self, query: str) -> RetrievalResult:
+    def _fallback_semantic_search(self, query: str, top_k: int = 20) -> RetrievalResult:
         """
         Fallback to semantic search when graph traversal fails.
 
-        Returns low confidence result.
+        Embeds the query and finds top-K nearest entities by name_embedding
+        cosine similarity (pgvector <=> operator). Then loads connecting
+        relationships among those entities.
         """
-        logger.info(f"[TREE] Using semantic search fallback")
+        logger.info(f"[TREE] Using semantic search fallback for: {query!r}")
 
-        # TODO: Integrate with actual semantic search
-        # For now, return empty result
+        query_vec = self._get_query_embedding(query)
+        if query_vec is None:
+            logger.warning("[TREE] No query embedding available; returning empty result")
+            return RetrievalResult(
+                entities=[], relationships=[], confidence='none',
+                method='semantic_fallback', anchor=None
+            )
+
+        try:
+            vec_literal = '[' + ','.join(f'{float(x):.6f}' for x in query_vec.tolist()) + ']'
+            sql = text("""
+                SELECT id, name, entity_type, properties, confidence, lifecycle_state::text AS lifecycle_state,
+                       1 - (name_embedding <=> CAST(:qv AS vector)) AS similarity
+                FROM public.entities
+                WHERE tenant_id = :tenant_id
+                  AND name_embedding IS NOT NULL
+                  AND lifecycle_state IN ('TRUSTED', 'STAGING')
+                ORDER BY name_embedding <=> CAST(:qv AS vector)
+                LIMIT :k
+            """)
+            rows = self.session.execute(sql, {
+                "tenant_id": self.tenant_id,
+                "qv": vec_literal,
+                "k": top_k,
+            }).fetchall()
+        except Exception as e:
+            logger.error(f"[TREE] Semantic fallback SQL failed: {e}")
+            return RetrievalResult(
+                entities=[], relationships=[], confidence='none',
+                method='semantic_fallback', anchor=None
+            )
+
+        if not rows:
+            logger.info("[TREE] Semantic fallback found no entities (likely no name_embedding populated)")
+            return RetrievalResult(
+                entities=[], relationships=[], confidence='none',
+                method='semantic_fallback', anchor=None
+            )
+
+        entities = []
+        for r in rows:
+            sim = float(r.similarity or 0.0)
+            entities.append({
+                'id': str(r.id),
+                'name': r.name,
+                'entity_type': r.entity_type,
+                'properties': r.properties or {},
+                'confidence': float(r.confidence or 0.0),
+                'lifecycle_state': r.lifecycle_state,
+                'depth': 0,
+                'edge_type': None,
+                'combined_score': sim,
+                'semantic_score': sim,
+            })
+
+        entity_ids = [e['id'] for e in entities]
+        relationships = self._get_relationships_for_entities(entity_ids)
+
+        top_sim = entities[0]['combined_score'] if entities else 0.0
+        if top_sim >= 0.55:
+            conf = 'medium'
+        elif top_sim >= 0.40:
+            conf = 'low'
+        else:
+            conf = 'none'
+
+        logger.info(
+            f"[TREE] Semantic fallback returned {len(entities)} entities "
+            f"(top_sim={top_sim:.3f}, conf={conf}) and {len(relationships)} relationships"
+        )
 
         return RetrievalResult(
-            entities=[],
-            relationships=[],
-            confidence='none',
+            entities=entities,
+            relationships=relationships,
+            confidence=conf,
             method='semantic_fallback',
             anchor=None
         )
