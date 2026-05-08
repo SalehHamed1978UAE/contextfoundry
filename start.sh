@@ -7,8 +7,8 @@ echo "============================================"
 CF_RUN_MODE="${CF_RUN_MODE:-serve}"
 echo "[Config] CF_RUN_MODE: $CF_RUN_MODE"
 
-export CF_TREE_BASED_RETRIEVAL=true
-echo "[Config] Tree-based retrieval: $CF_TREE_BASED_RETRIEVAL (forced on for fix-validation run 2026-05-08)"
+export CF_TREE_BASED_RETRIEVAL=false
+echo "[Config] Tree-based retrieval: $CF_TREE_BASED_RETRIEVAL (kept off 2026-05-08: chunk-grounded fallback fix unit-tested at avg sim 0.576, but full Nexus benchmark still -11 vs legacy 74; do not enable without further investigation of 14 still-failing questions)"
 
 if [ "$CF_RUN_MODE" = "extract" ]; then
     if [ -z "$CF_EXTRACT_VAULT" ]; then

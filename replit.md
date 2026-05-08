@@ -141,7 +141,26 @@ Architectural features include:
 - HAS_SPEC relationships added to KG
 
 ### Key Metrics
-- **ClaudeCode Nexus Industries (active vault `176a4fb2-0bb4-4da3-9068-0e26268fca71`):** 74/100 questions passing (measured 2026-05-08, post table-extraction prompt fix)
+- **ClaudeCode Nexus Industries (active vault `176a4fb2-0bb4-4da3-9068-0e26268fca71`):** 74/100 questions passing (measured 2026-05-08, post table-extraction prompt fix; tree retrieval kept OFF — see Tree Retrieval Investigation below)
+
+#### Tree Retrieval Investigation (2026-05-08)
+Two suspected fixes were validated against this vault:
+1. **Verification Worker writeback** — `GardenerConfig.require_verification_for_promotion=False` (gardener.py L120). 6461 entities + 1225 relationships bulk-promoted STAGING→TRUSTED.
+2. **`tree_retriever._fallback_semantic_search`** — was a TODO stub ranking by `entities.name_embedding`. Rewritten to be chunk-grounded: top-K chunks by `document_chunks.embedding` cosine, then resolved to entities via `source_chunk_id` (tree_retriever.py L640). Unit test `scripts/test_chunk_fallback.py` confirms avg top similarity **0.576** vs old 0.143 across 8 representative Nexus questions.
+
+**Benchmark results (same vault, same questions):**
+| Run | Score | Config |
+|---|---|---|
+| Baseline | **74/100** | tree=False, pre-promotion |
+| Tree=True (broken fallback) | 53/100 | tree=True, name_embedding fallback |
+| Tree=False post-promotion | 73/100 | tree=False, with promotions (Q2 flake; within variance) |
+| Tree=True (chunk-grounded fallback) | **63/100** | tree=True, with chunk-grounded fallback |
+
+**Conclusion:** Chunk-grounded fallback recovered +10 points (53→63) but tree retrieval still costs **−11 vs the legacy router**. The 14 regressions vs baseline (Q2, 3, 8, 19, 20, 34, 57, 58, 64, 65, 77, 84, 96, 99) reveal that **graph traversal is poisoning answers with confident-wrong entities**: e.g., Q2 returns Toyota-JV CEO "Robert Martinez" instead of CFO Michael Chang; Q20 says the at-risk supplier is "Nexus Industries" itself; Q64 says the Toyota JV company is "Nexus Industries"; Q19 returns DoD instead of Boeing as largest aerospace customer. Several others (Q8, 58, 65, 84) become NOT_FOUND where legacy retrieval succeeded — the chunk fallback isn't being reached because the graph traversal returns *some* result (just the wrong one), so fallback never triggers.
+
+**Root cause (hypothesis):** The graph traversal stage in `TreeBasedRetriever` follows high-confidence edges from anchor → connected entities and over-weights graph centrality, surfacing the most-connected entity for any topic rather than the question-specific entity. The fallback path only activates when graph traversal returns nothing.
+
+**State as of 2026-05-08:** `CF_TREE_BASED_RETRIEVAL=false` in `start.sh` and runner defaults. Promotions kept (no behavioral effect on legacy path). Chunk-grounded fallback retained — it's correct code, will be needed once graph-traversal selectivity is fixed. Do not re-enable tree retrieval until the 14-question regression is understood and addressed at the traversal layer (not just fallback).
   - Prior baseline (pre-fix, same vault): 71/100 measured 2026-05-07
   - Phase 1 prompt change: added explicit "TABLE EXTRACTION RULE" block to `entity_extractor._build_dynamic_prompt` and rule #8 to `relation_extractor.extract_with_ontology`. Re-extracted 24 critical Nexus docs with the new prompt.
   - Net delta: +3 (+4 newly passing: CFO Michael Chang Q2, his reporting chain Q15, the Red supplier Q20, top-3 customer table Q100; -1 regression: Robert Kim succession Q61, retrieval flap)

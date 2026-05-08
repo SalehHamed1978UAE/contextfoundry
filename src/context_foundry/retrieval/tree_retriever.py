@@ -602,7 +602,7 @@ class TreeBasedRetriever:
                 r.source_id,
                 r.target_id,
                 r.relationship_type,
-                r.metadata::jsonb as metadata,
+                r.properties as properties,
                 r.confidence,
                 source.name as source_name,
                 target.name as target_name
@@ -624,7 +624,7 @@ class TreeBasedRetriever:
                 'source_id': str(r.source_id),
                 'target_id': str(r.target_id),
                 'relationship_type': r.relationship_type,
-                'metadata': r.metadata or {},
+                'metadata': r.properties or {},
                 'confidence': r.confidence,
                 'source_name': r.source_name,
                 'target_name': r.target_name
@@ -632,17 +632,30 @@ class TreeBasedRetriever:
 
         except Exception as e:
             logger.error(f"[TREE] Error getting relationships: {e}")
+            try:
+                self.session.rollback()
+            except Exception:
+                pass
             return []
 
-    def _fallback_semantic_search(self, query: str, top_k: int = 20) -> RetrievalResult:
+    def _fallback_semantic_search(self, query: str, top_k: int = 20, chunk_top_k: int = 30) -> RetrievalResult:
         """
         Fallback to semantic search when graph traversal fails.
 
-        Embeds the query and finds top-K nearest entities by name_embedding
-        cosine similarity (pgvector <=> operator). Then loads connecting
-        relationships among those entities.
+        Strategy (chunk-grounded):
+          1. Embed the query.
+          2. Find top-`chunk_top_k` chunks by cosine similarity against
+             `document_chunks.embedding` (the actual document text vectors).
+          3. Resolve those chunks to entities via `entities.source_chunk_id`.
+          4. Score each entity by the similarity of its source chunk; cap to `top_k`.
+          5. Load relationships among the surviving entities.
+
+        This replaces the prior implementation which ranked entities by
+        `entities.name_embedding` cosine — that matched entity *names*, not
+        document content, and produced an avg retrieval score of 0.143 on the
+        Nexus benchmark (-21 vs the legacy retrieval router).
         """
-        logger.info(f"[TREE] Using semantic search fallback for: {query!r}")
+        logger.info(f"[TREE] Using chunk-grounded semantic search fallback for: {query!r}")
 
         query_vec = self._get_query_embedding(query)
         if query_vec is None:
@@ -654,39 +667,73 @@ class TreeBasedRetriever:
 
         try:
             vec_literal = '[' + ','.join(f'{float(x):.6f}' for x in query_vec.tolist()) + ']'
-            sql = text("""
-                SELECT id, name, entity_type, properties, confidence, lifecycle_state::text AS lifecycle_state,
-                       1 - (name_embedding <=> CAST(:qv AS vector)) AS similarity
-                FROM public.entities
+            chunk_sql = text("""
+                SELECT id, document_id,
+                       1 - (embedding <=> CAST(:qv AS vector)) AS similarity
+                FROM public.document_chunks
                 WHERE tenant_id = :tenant_id
-                  AND name_embedding IS NOT NULL
-                  AND lifecycle_state IN ('TRUSTED', 'STAGING')
-                ORDER BY name_embedding <=> CAST(:qv AS vector)
+                  AND embedding IS NOT NULL
+                ORDER BY embedding <=> CAST(:qv AS vector)
                 LIMIT :k
             """)
-            rows = self.session.execute(sql, {
+            chunk_rows = self.session.execute(chunk_sql, {
                 "tenant_id": self.tenant_id,
                 "qv": vec_literal,
-                "k": top_k,
+                "k": chunk_top_k,
             }).fetchall()
         except Exception as e:
-            logger.error(f"[TREE] Semantic fallback SQL failed: {e}")
+            logger.error(f"[TREE] Semantic fallback chunk SQL failed: {e}")
+            try:
+                self.session.rollback()
+            except Exception:
+                pass
             return RetrievalResult(
                 entities=[], relationships=[], confidence='none',
                 method='semantic_fallback', anchor=None
             )
 
-        if not rows:
-            logger.info("[TREE] Semantic fallback found no entities (likely no name_embedding populated)")
+        if not chunk_rows:
+            logger.info("[TREE] Semantic fallback found no chunks (no embeddings populated?)")
             return RetrievalResult(
                 entities=[], relationships=[], confidence='none',
                 method='semantic_fallback', anchor=None
             )
 
-        entities = []
-        for r in rows:
-            sim = float(r.similarity or 0.0)
-            entities.append({
+        chunk_score_by_id: Dict[str, float] = {
+            str(r.id): float(r.similarity or 0.0) for r in chunk_rows
+        }
+        chunk_ids = list(chunk_score_by_id.keys())
+        top_chunk_sim = max(chunk_score_by_id.values()) if chunk_score_by_id else 0.0
+
+        try:
+            ent_sql = text("""
+                SELECT id, name, entity_type, properties, confidence,
+                       lifecycle_state::text AS lifecycle_state,
+                       source_chunk_id::text AS source_chunk_id
+                FROM public.entities
+                WHERE tenant_id = :tenant_id
+                  AND lifecycle_state IN ('TRUSTED', 'STAGING')
+                  AND source_chunk_id = ANY(CAST(:chunk_ids AS uuid[]))
+            """)
+            ent_rows = self.session.execute(ent_sql, {
+                "tenant_id": self.tenant_id,
+                "chunk_ids": chunk_ids,
+            }).fetchall()
+        except Exception as e:
+            logger.error(f"[TREE] Semantic fallback entity SQL failed: {e}")
+            try:
+                self.session.rollback()
+            except Exception:
+                pass
+            return RetrievalResult(
+                entities=[], relationships=[], confidence='none',
+                method='semantic_fallback', anchor=None
+            )
+
+        scored_entities = []
+        for r in ent_rows:
+            sim = chunk_score_by_id.get(r.source_chunk_id or "", 0.0)
+            scored_entities.append({
                 'id': str(r.id),
                 'name': r.name,
                 'entity_type': r.entity_type,
@@ -697,22 +744,35 @@ class TreeBasedRetriever:
                 'edge_type': None,
                 'combined_score': sim,
                 'semantic_score': sim,
+                'source_chunk_id': r.source_chunk_id,
             })
 
-        entity_ids = [e['id'] for e in entities]
-        relationships = self._get_relationships_for_entities(entity_ids)
+        scored_entities.sort(key=lambda e: e['combined_score'], reverse=True)
+        entities = scored_entities[:top_k]
 
-        top_sim = entities[0]['combined_score'] if entities else 0.0
-        if top_sim >= 0.55:
-            conf = 'medium'
-        elif top_sim >= 0.40:
-            conf = 'low'
-        else:
+        entity_ids = [e['id'] for e in entities]
+        relationships = self._get_relationships_for_entities(entity_ids) if entity_ids else []
+
+        # Confidence MUST be 'none' when no entities resolved — never report
+        # confidence based on chunk similarity alone if we have no evidence to
+        # surface to the LLM. (Per architect review 2026-05-08.)
+        if not entities:
             conf = 'none'
+        else:
+            top_sim = entities[0]['combined_score']
+            if top_sim >= 0.55:
+                conf = 'medium'
+            elif top_sim >= 0.40:
+                conf = 'low'
+            else:
+                conf = 'none'
+
+        top_sim = entities[0]['combined_score'] if entities else top_chunk_sim
 
         logger.info(
-            f"[TREE] Semantic fallback returned {len(entities)} entities "
-            f"(top_sim={top_sim:.3f}, conf={conf}) and {len(relationships)} relationships"
+            f"[TREE] Chunk-grounded fallback: {len(chunk_rows)} chunks (top_chunk_sim={top_chunk_sim:.3f}) -> "
+            f"{len(scored_entities)} candidate entities -> {len(entities)} kept "
+            f"(top_sim={top_sim:.3f}, conf={conf}), {len(relationships)} relationships"
         )
 
         return RetrievalResult(

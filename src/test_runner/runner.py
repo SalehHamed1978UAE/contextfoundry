@@ -348,9 +348,9 @@ def run_vault_test(
                 return None
         
         # Read tree_based_retrieval from database (with env var fallback for CLI runs).
-        # 2026-05-08: Default True for fix-validation runs. Set CF_TREE_BASED_RETRIEVAL=false to disable.
+        # 2026-05-08: Reverted to False default after -21 regression. Re-enable after _fallback_semantic_search fix.
         import os as _os
-        tree_based_retrieval = _os.environ.get("CF_TREE_BASED_RETRIEVAL", "true").lower() == "true"
+        tree_based_retrieval = _os.environ.get("CF_TREE_BASED_RETRIEVAL", "false").lower() == "true"
         log(f"Tree-based retrieval default: {tree_based_retrieval} (env={_os.environ.get('CF_TREE_BASED_RETRIEVAL', '<unset>')})")
         if test_run_id:
             current_run = get_test_run(test_run_id)

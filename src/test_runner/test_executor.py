@@ -92,7 +92,7 @@ class TestExecutor:
     ) -> dict:
         if tree_based_retrieval is None:
             import os as _os
-            tree_based_retrieval = _os.environ.get("CF_TREE_BASED_RETRIEVAL", "true").lower() == "true"
+            tree_based_retrieval = _os.environ.get("CF_TREE_BASED_RETRIEVAL", "false").lower() == "true"
             log(f"  [executor] tree_based_retrieval default: {tree_based_retrieval} (env CF_TREE_BASED_RETRIEVAL={_os.environ.get('CF_TREE_BASED_RETRIEVAL', '<unset>')})")
         """Run all questions, evaluate answers, save results. Supports resume.
         
