@@ -94,7 +94,8 @@ class AdversarialChallenger:
             f"({fact.source_entity_id})-[{fact.relationship_type}]->({fact.target_entity_id})"
         )
         ev_summary = "\n".join(
-            f"  - polarity={e.polarity} chunk={e.chunk_id} rel={e.relationship_id} "
+            f"  - polarity={e.polarity} lifecycle={e.lifecycle_state or '-'} "
+            f"chunk={e.chunk_id} rel={e.relationship_id} "
             f"speaks_to={e.speaks_to[:60]} content={(e.content or '')[:200]}"
             for e in evidence[:60]
         )
@@ -112,11 +113,14 @@ class AdversarialChallenger:
                      evidence: List[EvidenceItem]) -> None:
         nl = fact.natural_language or fact.key()
         ev_summary = "\n".join(
-            f"  - polarity={e.polarity} chunk={e.chunk_id} content={(e.content or '')[:200]}"
+            f"  - polarity={e.polarity} lifecycle={e.lifecycle_state or '-'} "
+            f"chunk={e.chunk_id} rel={e.relationship_id} "
+            f"content={(e.content or '')[:200]}"
             for e in evidence[:50]
         )
         ce_summary = "\n".join(
-            f"  - chunk={e.chunk_id} content={(e.content or '')[:200]}"
+            f"  - lifecycle={e.lifecycle_state or '-'} chunk={e.chunk_id} "
+            f"rel={e.relationship_id} content={(e.content or '')[:200]}"
             for e in challenge.counter_evidence[:20]
         )
         user_prompt = (

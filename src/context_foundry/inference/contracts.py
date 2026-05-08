@@ -79,6 +79,11 @@ class EvidenceItem(BaseModel):
     # authority as 'unverified' (still counts as evidence, never authoritative).
     source_authority_verdict: Optional["Verdict"] = None
     source_document_id: Optional[str] = None
+    # Lifecycle of the underlying graph object (relationship/entity), surfaced
+    # so that downstream prompts (adversary, rebuttal) can see it. Values:
+    # 'STAGING' | 'TRUSTED' | 'ARCHIVED'. None when the evidence is a chunk
+    # without an associated graph object.
+    lifecycle_state: Optional[str] = None
 
 
 class EvaluationPlan(BaseModel):

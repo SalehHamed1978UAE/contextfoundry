@@ -18,7 +18,7 @@ if not os.environ.get("RUN_INFERENCE_BENCHMARKS"):
 from src.context_foundry.inference.contracts import Fact
 from src.context_foundry.inference.engine import FactEvaluator
 from src.context_foundry.inference.llm.client import LLMClient
-from src.context_foundry.models.schema import SessionLocal
+from src.context_foundry.models.schema import get_session
 from tests.inference.benchmark.conftest import (
     seed_entity, seed_chunk, seed_relationship,
 )
@@ -37,7 +37,7 @@ ACCEPTABLE = {"PROVEN", "STRONGLY_SUPPORTED", "SUPPORTED", "CONTESTED",
 def session_and_tenant():
     import uuid
     from sqlalchemy import text
-    s = SessionLocal()
+    s = get_session(use_rls_role=False)
     t = str(uuid.uuid4())
     yield s, t
     for tbl in ("relationships", "entities", "document_chunks"):

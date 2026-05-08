@@ -100,7 +100,7 @@ class ProofConstructor:
                    "FROM relationships WHERE id = CAST(:rid AS uuid) "
                    "AND lifecycle_state <> 'ARCHIVED'")
             try:
-                row = self.tools.session.execute(_sql(sql), {"rid": rid}).fetchone()
+                row = self.tools._exec(sql, {"rid": rid}).fetchone()
             except Exception:
                 row = None
             if row is None:

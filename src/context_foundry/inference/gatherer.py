@@ -105,6 +105,7 @@ class EvidenceGatherer:
                 relationship_id=rel.id, chunk_id=rel.source_chunk_id,
                 content=f"({rel.source_entity_id})-[{rel.relationship_type}]->({rel.target_entity_id})",
                 speaks_to=query, polarity="neutral",
+                lifecycle_state=rel.lifecycle_state,
             ))
         # (4) FTS over chunks
         for ch in self.tools.search_chunks_text(query)[:50]:
@@ -127,6 +128,7 @@ class EvidenceGatherer:
                             relationship_id=rel.id, chunk_id=rel.source_chunk_id,
                             content=f"({ent.name})-[{rel.relationship_type}]->({rel.target_entity_id})",
                             speaks_to=query, polarity="neutral",
+                            lifecycle_state=rel.lifecycle_state,
                         ))
             except Exception as e:
                 logger.warning(f"[Gatherer] embedder/vector search failed: {e}")
@@ -140,6 +142,7 @@ class EvidenceGatherer:
                 content=f"({rel.source_entity_id})-[{rel.relationship_type}]->({rel.target_entity_id})"
                         + (f" [ARCHIVED]" if rel.lifecycle_state == "ARCHIVED" else ""),
                 speaks_to="direct edges from fact source", polarity="neutral",
+                lifecycle_state=rel.lifecycle_state,
             ))
         for rel in self.tools.get_relationships(target_id=fact.target_entity_id, include_archived=True):
             items.append(EvidenceItem(
@@ -147,6 +150,7 @@ class EvidenceGatherer:
                 content=f"({rel.source_entity_id})-[{rel.relationship_type}]->({rel.target_entity_id})"
                         + (f" [ARCHIVED]" if rel.lifecycle_state == "ARCHIVED" else ""),
                 speaks_to="direct edges into fact target", polarity="neutral",
+                lifecycle_state=rel.lifecycle_state,
             ))
         return items
 

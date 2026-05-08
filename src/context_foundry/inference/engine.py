@@ -18,8 +18,15 @@ from .synthesizer import VerdictSynthesizer
 from .recursion import RecursionGuard
 from .tools import GraphTools
 from .llm.client import LLMClient
+from .observability.trace import tracer
 
 logger = logging.getLogger(__name__)
+
+
+from contextlib import contextmanager
+@contextmanager
+def _noop_cm():
+    yield None
 
 
 class FactEvaluator:
@@ -51,55 +58,72 @@ class FactEvaluator:
                         replans_used: int = 0) -> Verdict:
         if guard is None:
             guard = RecursionGuard(max_depth=self.max_depth)
-        if guard.has_visited(fact):
-            logger.debug(f"[Engine] cycle on {fact.key()}")
-            return self._terminal(fact, "UNDERSPECIFIED",
-                                  ["recursion cycle detected"], guard.depth)
-        if guard.at_max_depth():
-            return self._terminal(fact, "UNDERSPECIFIED",
-                                  ["max recursion depth reached"], guard.depth)
-
-        # 1. Plan
-        plan = await self.planner.plan(fact, self.schema_context)
-
-        # 2. Evaluate presuppositions recursively (siblings get fresh guards)
-        presup_facts = [c.fact for c in plan.presuppositions if c.fact is not None]
-        sub_verdicts: List[Verdict] = []
-        if presup_facts:
-            sub_verdicts = list(await asyncio.gather(*[
-                self.evaluate(pf, guard.child(fact)) for pf in presup_facts
-            ]))
-            if any(sv.status == "DISPROVEN" for sv in sub_verdicts):
+        # The outermost evaluate() opens a trace; recursive calls reuse the
+        # caller's trace context via contextvars.
+        is_root = guard.depth == 0 and replans_used == 0
+        trace_cm = tracer.trace(fact_key=fact.key(), depth=guard.depth) \
+            if is_root else _noop_cm()
+        with trace_cm:
+            if guard.has_visited(fact):
+                tracer.event("cycle_detected", fact_key=fact.key())
                 return self._terminal(fact, "UNDERSPECIFIED",
-                                      ["presupposition disproven"], guard.depth,
-                                      plan=plan, sub_verdicts=sub_verdicts)
+                                      ["recursion cycle detected"], guard.depth)
+            if guard.at_max_depth():
+                tracer.event("max_depth_reached", fact_key=fact.key())
+                return self._terminal(fact, "UNDERSPECIFIED",
+                                      ["max recursion depth reached"], guard.depth)
 
-        # 3. Gather evidence (recursive source-authority via the wired hook)
-        evidence = await self.gatherer.gather(plan, fact)
+            with tracer.span("planner"):
+                plan = await self.planner.plan(fact, self.schema_context)
 
-        # 4. Adversarial challenges
-        challenges = await self.adversary.challenge(fact, evidence, plan)
+            presup_facts = [c.fact for c in plan.presuppositions if c.fact is not None]
+            sub_verdicts: List[Verdict] = []
+            if presup_facts:
+                with tracer.span("presuppositions", count=len(presup_facts)):
+                    sub_verdicts = list(await asyncio.gather(*[
+                        self.evaluate(pf, guard.child(fact)) for pf in presup_facts
+                    ]))
+                if any(sv.status == "DISPROVEN" for sv in sub_verdicts):
+                    return self._terminal(fact, "UNDERSPECIFIED",
+                                          ["presupposition disproven"], guard.depth,
+                                          plan=plan, sub_verdicts=sub_verdicts)
 
-        # 5. Proof attempts (parallel)
-        proof, disproof = await asyncio.gather(
-            self.prover.try_prove(fact, evidence, plan),
-            self.prover.try_disprove(fact, evidence, plan),
-        )
+            with tracer.span("gatherer"):
+                evidence = await self.gatherer.gather(plan, fact)
+                tracer.event("evidence_gathered", count=len(evidence))
 
-        # 6. Meta-audit
-        audit = await self.meta.audit(plan, evidence, challenges, proof, disproof)
+            with tracer.span("adversary"):
+                challenges = await self.adversary.challenge(fact, evidence, plan)
+                tracer.event(
+                    "challenges_generated",
+                    total=len(challenges),
+                    surviving=sum(1 for c in challenges if c.survived_rebuttal),
+                )
 
-        # 7. Replan loop (max 3)
-        if audit.recommend_replan and replans_used < self.max_replans:
-            logger.info(f"[Engine] replan #{replans_used+1} on {fact.key()}")
-            return await self.evaluate(fact, guard, replans_used + 1)
+            with tracer.span("prover"):
+                proof, disproof = await asyncio.gather(
+                    self.prover.try_prove(fact, evidence, plan),
+                    self.prover.try_disprove(fact, evidence, plan),
+                )
+                tracer.event("proof_outcome",
+                             proof_succeeded=proof.succeeded,
+                             disproof_succeeded=disproof.succeeded)
 
-        # 8. Synthesize
-        verdict = self.synth.synthesize(
-            fact, plan, evidence, challenges, proof, disproof, audit,
-            sub_verdicts, depth=guard.depth,
-        )
-        return verdict
+            with tracer.span("meta"):
+                audit = await self.meta.audit(plan, evidence, challenges, proof, disproof)
+
+            if audit.recommend_replan and replans_used < self.max_replans:
+                tracer.event("replan", attempt=replans_used + 1)
+                return await self.evaluate(fact, guard, replans_used + 1)
+
+            with tracer.span("synthesizer"):
+                verdict = self.synth.synthesize(
+                    fact, plan, evidence, challenges, proof, disproof, audit,
+                    sub_verdicts, depth=guard.depth,
+                )
+            tracer.event("verdict", status=verdict.status,
+                         surviving_challenges=len(verdict.surviving_challenges))
+            return verdict
 
     # -------------------------------------------------- source-authority
     async def _evaluate_source_authority(self, authority_fact: Fact) -> Verdict:
@@ -114,10 +138,8 @@ class FactEvaluator:
         # Default: SUPPORTED if the chunk exists (presence proves the source
         # made the claim). A more sophisticated implementation would inspect
         # source_predicate / document type / publication date.
-        chunk = self.tools.session.execute(
-            __import__("sqlalchemy").text(
-                "SELECT id::text FROM document_chunks WHERE id = CAST(:c AS uuid)"
-            ),
+        chunk = self.tools._exec(
+            "SELECT id::text FROM document_chunks WHERE id = CAST(:c AS uuid)",
             {"c": authority_fact.source_entity_id},
         ).fetchone()
         if not chunk:

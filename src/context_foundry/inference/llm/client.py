@@ -108,6 +108,7 @@ class LLMClient:
                    output_schema: Optional[Type[BaseModel]] = None,
                    cache: bool = True) -> Any:
         """Issue an LLM call. Returns dict if no schema, else schema instance."""
+        from ..observability.trace import tracer
         schema_name = output_schema.__name__ if output_schema else None
         key = _hash_prompt(self.model, system_prompt, user_prompt, schema_name)
 
@@ -115,9 +116,11 @@ class LLMClient:
             cached = self._cache_get(key)
             if cached is not None:
                 logger.debug(f"[LLMClient] cache HIT key={key[:12]}")
+                tracer.bump("llm_cache_hit_count")
                 return self._coerce(cached, output_schema)
 
         logger.debug(f"[LLMClient] cache MISS key={key[:12]} → API")
+        tracer.bump("llm_call_count")
         client = self._anthropic_module.Anthropic(api_key=self.api_key)
 
         # Force JSON via tool_use when a schema is provided.

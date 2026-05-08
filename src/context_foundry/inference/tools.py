@@ -55,6 +55,14 @@ class GraphTools:
         self.session = session
         self.tenant_id = tenant_id
 
+    def _exec(self, sql, params=None):
+        """Single counted entry point for every DB query — bumps the active
+        span's db_query_count so the tracer can attribute load per stage."""
+        from .observability.trace import tracer
+        tracer.bump("db_query_count")
+        return self.session.execute(text(sql) if isinstance(sql, str) else sql,
+                                     params or {})
+
     # ------------------------------------------------------------ entities
     def get_entity(self, entity_id: str) -> Optional[EntityRow]:
         sql = """
@@ -66,7 +74,7 @@ class GraphTools:
         """
         if self.tenant_id:
             sql += " AND tenant_id = CAST(:tid AS uuid)"
-        row = self.session.execute(text(sql), {"eid": entity_id, "tid": self.tenant_id}).fetchone()
+        row = self._exec(sql, {"eid": entity_id, "tid": self.tenant_id}).fetchone()
         if not row:
             return None
         return EntityRow(row[0], row[1], row[2], row[3], dict(row[4] or {}))
@@ -95,7 +103,7 @@ class GraphTools:
             params["tid"] = self.tenant_id
         sql += " ORDER BY id ASC"
         return [EntityRow(r[0], r[1], r[2], r[3], dict(r[4] or {}))
-                for r in self.session.execute(text(sql), params).fetchall()]
+                for r in self._exec(sql, params).fetchall()]
 
     def find_entities_by_embedding(self, query_embedding: Sequence[float],
                                    top_k: int = 50) -> List[EntityRow]:
@@ -115,7 +123,7 @@ class GraphTools:
         sql += " ORDER BY name_embedding <=> CAST(:qe AS vector), id ASC LIMIT :k"
         params["qe"] = "[" + ",".join(f"{x:.6f}" for x in query_embedding) + "]"
         return [EntityRow(r[0], r[1], r[2], r[3], dict(r[4] or {}))
-                for r in self.session.execute(text(sql), params).fetchall()]
+                for r in self._exec(sql, params).fetchall()]
 
     # ------------------------------------------------------- relationships
     def get_relationships(
@@ -152,7 +160,7 @@ class GraphTools:
             sql += " AND tenant_id = CAST(:tid AS uuid)"
             params["tid"] = self.tenant_id
         sql += " ORDER BY id ASC"
-        rows = self.session.execute(text(sql), params).fetchall()
+        rows = self._exec(sql, params).fetchall()
         out = []
         for r in rows:
             props = dict(r[6] or {})
@@ -195,7 +203,7 @@ class GraphTools:
             params["tid"] = self.tenant_id
         sql += " ORDER BY c.id ASC"
         return [ChunkRow(r[0], r[1], r[2], r[3])
-                for r in self.session.execute(text(sql), params).fetchall()]
+                for r in self._exec(sql, params).fetchall()]
 
     def search_chunks_text(self, query: str) -> List[ChunkRow]:
         """Full-text search via PG `to_tsvector` over chunk text.
@@ -214,7 +222,7 @@ class GraphTools:
             params["tid"] = self.tenant_id
         sql += " ORDER BY id ASC LIMIT 200"
         return [ChunkRow(r[0], r[1], r[2], r[3])
-                for r in self.session.execute(text(sql), params).fetchall()]
+                for r in self._exec(sql, params).fetchall()]
 
     def search_chunks_vector(self, query_embedding: Sequence[float],
                              top_k: int = 50) -> List[ChunkRow]:
@@ -232,7 +240,7 @@ class GraphTools:
         sql += " ORDER BY embedding <=> CAST(:qe AS vector), id ASC LIMIT :k"
         params["qe"] = "[" + ",".join(f"{x:.6f}" for x in query_embedding) + "]"
         return [ChunkRow(r[0], r[1], r[2], r[3])
-                for r in self.session.execute(text(sql), params).fetchall()]
+                for r in self._exec(sql, params).fetchall()]
 
     # ------------------------------------------------------------- traces
     def trace_chain(self, start_id: str, rel_types: List[str],

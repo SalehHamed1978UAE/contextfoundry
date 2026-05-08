@@ -16,14 +16,16 @@ if not os.environ.get("RUN_INFERENCE_BENCHMARKS"):
     pytest.skip("Set RUN_INFERENCE_BENCHMARKS=1 to run (costs real Anthropic API calls).",
                 allow_module_level=True)
 
-from src.context_foundry.models.schema import SessionLocal
+from src.context_foundry.models.schema import get_session
 from src.context_foundry.inference.engine import FactEvaluator
 from src.context_foundry.inference.llm.client import LLMClient
 
 
 @pytest.fixture
 def benchmark_session():
-    s = SessionLocal()
+    # use_rls_role=False because we're seeding raw rows in a synthetic tenant
+    # and don't want RLS to block our inserts/deletes.
+    s = get_session(use_rls_role=False)
     yield s
     s.close()
 
@@ -50,11 +52,15 @@ def benchmark_llm(benchmark_session):
 def seed_entity(session, tenant_id: str, name: str, entity_type: str = "PERSON",
                 lifecycle: str = "TRUSTED") -> str:
     eid = str(uuid.uuid4())
+    # Live schema has entity_type as a NOT NULL column (validated by trigger
+    # against ontology.types). The properties JSON is mirrored for retrieval
+    # tooling that reads from properties->>'entity_type'.
     session.execute(text("""
-        INSERT INTO entities(id, name, lifecycle_state, properties, tenant_id, created_at)
-        VALUES(CAST(:id AS uuid), :n, CAST(:ls AS lifecyclestate),
+        INSERT INTO entities(id, name, entity_type, lifecycle_state,
+                             properties, tenant_id, created_at)
+        VALUES(CAST(:id AS uuid), :n, :et, CAST(:ls AS lifecyclestate),
                CAST(:p AS json), CAST(:t AS uuid), NOW())
-    """), {"id": eid, "n": name, "ls": lifecycle,
+    """), {"id": eid, "n": name, "et": entity_type, "ls": lifecycle,
            "p": '{"entity_type": "' + entity_type + '"}', "t": tenant_id})
     return eid
 
@@ -62,11 +68,18 @@ def seed_entity(session, tenant_id: str, name: str, entity_type: str = "PERSON",
 def seed_chunk(session, tenant_id: str, document_id: str, text_content: str,
                chunk_index: int = 0) -> str:
     cid = str(uuid.uuid4())
+    # `document_id` must be a UUID at the column level; tests pass friendly
+    # labels like "doc-A". Coerce to a deterministic UUID so the same label
+    # within one test consistently maps to one document.
+    try:
+        doc_uuid = str(uuid.UUID(document_id))
+    except (ValueError, AttributeError):
+        doc_uuid = str(uuid.uuid5(uuid.NAMESPACE_OID, f"{tenant_id}|{document_id}"))
     session.execute(text("""
         INSERT INTO document_chunks(id, document_id, tenant_id, chunk_index, text, created_at)
         VALUES(CAST(:id AS uuid), CAST(:d AS uuid), CAST(:t AS uuid),
                :i, :tx, NOW())
-    """), {"id": cid, "d": document_id, "t": tenant_id,
+    """), {"id": cid, "d": doc_uuid, "t": tenant_id,
            "i": chunk_index, "tx": text_content})
     return cid
 
