@@ -89,6 +89,8 @@ class TreeBasedRetriever:
         self.tenant_id = tenant_id
         self.anchor_resolver = AnchorResolver(session, tenant_id)
         self.intent_extractor = IntentExtractor()
+        # Per-instance memo for _get_person_role_names to avoid N+1 SQL during BFS.
+        self._person_roles_cache: Dict[str, List[str]] = {}
 
     def retrieve(
         self,
@@ -179,7 +181,12 @@ class TreeBasedRetriever:
         filtered by intent (entity type, relationship type, properties).
         """
         visited: Set[str] = set()
-        queue: List[Tuple[str, int, Optional[str]]] = [(anchor['id'], 0, None)]  # (entity_id, depth, edge_type)
+        # 2026-05-08: queue now also carries `parent` (the entity on the OTHER side
+        # of the edge that brought us here) so _matches_intent can inspect it for
+        # role-neighbor checks (e.g. HOLDS_POSITION-reached ROLE → parent PERSON).
+        queue: List[Tuple[str, int, Optional[str], Optional[Dict[str, Any]]]] = [
+            (anchor['id'], 0, None, None)
+        ]
         results: List[Dict[str, Any]] = []
 
         logger.info(f"[TREE] Starting BFS from anchor: {anchor['name']}")
@@ -187,7 +194,7 @@ class TreeBasedRetriever:
         logger.info(f"[TREE] Relationship types: {intent.relationship_types[:5]}...")
 
         while queue:
-            entity_id, depth, edge_type = queue.pop(0)
+            entity_id, depth, edge_type, parent = queue.pop(0)
 
             if entity_id in visited or depth > max_depth:
                 continue
@@ -200,7 +207,7 @@ class TreeBasedRetriever:
                 continue
 
             # Check if entity matches intent
-            if self._matches_intent(entity, intent, depth, edge_type=edge_type):
+            if self._matches_intent(entity, intent, depth, edge_type=edge_type, neighbor=parent):
                 results.append({
                     'entity': entity,
                     'depth': depth,
@@ -220,9 +227,11 @@ class TreeBasedRetriever:
                     logger.info(f"[TREE] First 3 connections: {[c['name'] for c in connected[:3]]}")
                 else:
                     logger.info(f"[TREE] Zero connections found - checking if this entity ID exists in relationships")
+                # Pass the current entity as the parent of each neighbor we enqueue.
+                parent_payload = {'id': entity['id'], 'name': entity['name'], 'entity_type': entity['entity_type']}
                 for conn in connected:
                     if conn['id'] not in visited:
-                        queue.append((conn['id'], depth + 1, conn.get('edge_type')))
+                        queue.append((conn['id'], depth + 1, conn.get('edge_type'), parent_payload))
 
         logger.info(f"[TREE] BFS complete: visited {len(visited)} entities, found {len(results)} matches")
         return results
@@ -349,7 +358,8 @@ class TreeBasedRetriever:
         entity: Dict[str, Any],
         intent: QueryIntent,
         depth: int,
-        edge_type: Optional[str] = None
+        edge_type: Optional[str] = None,
+        neighbor: Optional[Dict[str, Any]] = None,
     ) -> bool:
         """
         Check if entity matches the query intent.
@@ -358,6 +368,14 @@ class TreeBasedRetriever:
         1. Entity type (if specified)
         2. Property filters (fiscal_year, role, etc.)
         3. Keywords in name or properties
+
+        2026-05-08: For ROLE queries, the role check now has 3 paths:
+          (a) static map (CEO_OF/CFO_OF/...) — kept for back-compat
+          (b) HOLDS_POSITION/HAS_ROLE/HOLDS_ROLE: the *neighbor* on the other
+              side of the edge IS the role entity — match its name.
+          (c) PERSON reached via affiliation edge (WORKS_AT/AFFILIATED_WITH/
+              REPORTS_TO): look up that person's HOLDS_POSITION→ROLE neighbors
+              and accept if any role name contains the requested role.
         """
         # Skip anchor itself (depth 0) unless it's the only result
         if depth == 0 and intent.target_entity_types != ['ORGANIZATION']:
@@ -371,8 +389,24 @@ class TreeBasedRetriever:
         # ROLE queries: use relationship semantics instead of entity properties
         if intent.query_type == 'ROLE' and intent.property_filters:
             role_value = intent.property_filters.get('role')
-            if role_value and not self._relationship_implies_role(edge_type, role_value):
-                return False
+            if role_value:
+                rv_up = role_value.strip().upper()
+                edge_up = (edge_type or '').upper()
+                # (b) Direct HOLDS_POSITION-style edge: neighbor is the ROLE entity
+                if edge_up in ('HOLDS_POSITION', 'HAS_ROLE', 'HOLDS_ROLE'):
+                    nb_name = (neighbor or {}).get('name', '') if neighbor else ''
+                    if rv_up not in nb_name.upper():
+                        return False
+                # (c) PERSON reached via affiliation: check this person's own roles
+                elif entity.get('entity_type') == 'PERSON' and edge_up in (
+                    'WORKS_AT', 'AFFILIATED_WITH', 'REPORTS_TO', 'MANAGES'
+                ):
+                    person_roles = self._get_person_role_names(entity['id'])
+                    if not any(rv_up in r.upper() for r in person_roles):
+                        return False
+                # (a) Static map fallback for legacy edge types
+                elif not self._relationship_implies_role(edge_type, role_value):
+                    return False
         else:
             # Check property filters (fiscal_year, etc.)
             if intent.property_filters:
@@ -405,6 +439,38 @@ class TreeBasedRetriever:
         if not roles:
             return False
         return role_value.strip().upper() in roles
+
+    def _get_person_role_names(self, person_id: str) -> List[str]:
+        """
+        Return the names of ROLE entities a PERSON holds, via outgoing
+        HOLDS_POSITION/HAS_ROLE/HOLDS_ROLE edges. Used by _matches_intent's
+        path (c): when BFS reaches a PERSON via an affiliation edge, we still
+        need to verify their actual role.
+
+        Memoized per-instance to avoid N+1 SQL inside the BFS loop.
+        """
+        if person_id in self._person_roles_cache:
+            return self._person_roles_cache[person_id]
+        try:
+            rows = self.session.execute(text("""
+                SELECT DISTINCT t.name
+                FROM relationships r
+                JOIN entities t ON t.id = r.target_id
+                WHERE r.source_id = :pid
+                  AND r.tenant_id = :tid
+                  AND r.relationship_type IN ('HOLDS_POSITION', 'HAS_ROLE', 'HOLDS_ROLE')
+                  AND r.lifecycle_state IN ('TRUSTED', 'STAGING')
+                  AND t.lifecycle_state IN ('TRUSTED', 'STAGING')
+            """), {"pid": person_id, "tid": self.tenant_id}).fetchall()
+            names = [r.name for r in rows if r.name]
+            self._person_roles_cache[person_id] = names
+            return names
+        except Exception as e:
+            logger.error(f"[TREE] _get_person_role_names error: {e}")
+            # Cache empty to avoid re-querying same failing id; do NOT rollback
+            # the shared session (architect-flagged: would clobber caller's txn).
+            self._person_roles_cache[person_id] = []
+            return []
 
     def _rank_results(
         self,

@@ -63,8 +63,12 @@ class IntentExtractor:
                 r'who (?:will be|is) (?:the )?(?:CEO|CFO|CTO|COO|President|Director|VP)',
             ],
             'entity_types': ['PERSON'],
+            # 2026-05-08: Added WORKS_AT/AFFILIATED_WITH/REPORTS_TO so BFS can reach
+            # PERSON entities from ORG anchors. The role match is enforced downstream
+            # in _matches_intent via per-person HOLDS_POSITION lookup.
             'relationship_types': ['LEADS', 'MANAGES', 'HAS_ROLE', 'HOLDS_POSITION', 'HAS_EXECUTIVE',
-                                  'HAS_OFFICER', 'CHAIRS', 'DIRECTS', 'CEO_OF', 'PROJECT_DIRECTOR_OF'],
+                                  'HAS_OFFICER', 'CHAIRS', 'DIRECTS', 'CEO_OF', 'PROJECT_DIRECTOR_OF',
+                                  'WORKS_AT', 'AFFILIATED_WITH', 'REPORTS_TO'],
             'question_type': 'who'
         },
 
