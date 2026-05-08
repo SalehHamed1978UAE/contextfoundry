@@ -861,6 +861,28 @@ CRITICAL EXTRACTION RULES:
 
    If evidence is weak/indirect, prefer no edge over generic edge inflation.
 
+8. TABLE EXTRACTION RULE (CRITICAL — DO NOT SKIP TABLE ROWS)
+   Markdown tables (lines starting with `|` and a separator like `|---|`) are
+   STRUCTURED DATA, not visual formatting. For EVERY row in a table whose columns
+   look like:
+     - Role | Name | Previous Role
+     - Position | Executive | Start Date / Department
+     - Title | Person | ...
+   you MUST emit BOTH:
+     a) Person --HOLDS_ROLE--> NewRole              (high confidence, source_span = the row)
+     b) Person --FORMERLY_HELD--> PreviousRole      (only if the previous-role cell is
+                                                     non-empty and not "No change")
+   Do this for EVERY data row, even if the same person also appears in surrounding
+   prose. Tables are first-class evidence; they typically encode the authoritative
+   ground truth (e.g. official org charts, leadership rosters, supplier lists).
+
+   ✅ Example row: `| VP Engineering | Dr. Alan Chen | VP Platform Engineering |`
+       → HOLDS_ROLE(source="Dr. Alan Chen", target="VP Engineering")
+       → FORMERLY_HELD(source="Dr. Alan Chen", target="VP Platform Engineering")
+
+   ❌ DO NOT skip a row because the person was already mentioned elsewhere.
+   ❌ DO NOT collapse multiple rows into one summary relationship.
+
 EXTRACTION GUIDELINES:
 - Extract ALL relationships mentioned in the text
 - Both source and target entities must be from the KNOWN ENTITIES list

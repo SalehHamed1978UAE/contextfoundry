@@ -17,7 +17,13 @@ RESULT_FILE = '/tmp/reextract_results.json'
 
 def load_results():
     if not os.path.exists(RESULT_FILE): return {}
-    with open(RESULT_FILE) as f: return json.load(f)
+    try:
+        with open(RESULT_FILE) as f:
+            content = f.read().strip()
+            return json.loads(content) if content else {}
+    except json.JSONDecodeError as e:
+        print(f"WARN: {RESULT_FILE} is corrupt ({e}); starting fresh.")
+        return {}
 
 def save_results(d):
     with open(RESULT_FILE, 'w') as f: json.dump(d, f, indent=2)

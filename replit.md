@@ -141,9 +141,11 @@ Architectural features include:
 - HAS_SPEC relationships added to KG
 
 ### Key Metrics
-- **ClaudeCode Nexus Industries (active vault `176a4fb2-0bb4-4da3-9068-0e26268fca71`):** 72/100 questions passing (measured 2026-05-07)
-  - Breakdown: 38 exact_match, 26 component_match, 6 number_match, 1 percentage_match, 1 semantic_match
-  - Failures: 12 NOT_FOUND (no_data), 16 MISMATCH (no_match)
+- **ClaudeCode Nexus Industries (active vault `176a4fb2-0bb4-4da3-9068-0e26268fca71`):** 74/100 questions passing (measured 2026-05-08, post table-extraction prompt fix)
+  - Prior baseline (pre-fix, same vault): 71/100 measured 2026-05-07
+  - Phase 1 prompt change: added explicit "TABLE EXTRACTION RULE" block to `entity_extractor._build_dynamic_prompt` and rule #8 to `relation_extractor.extract_with_ontology`. Re-extracted 24 critical Nexus docs with the new prompt.
+  - Net delta: +3 (+4 newly passing: CFO Michael Chang Q2, his reporting chain Q15, the Red supplier Q20, top-3 customer table Q100; -1 regression: Robert Kim succession Q61, retrieval flap)
+  - Known issue (HIGH, not yet fixed): the relation-extractor rule #8 instructed the LLM to emit `HOLDS_ROLE` and `FORMERLY_HELD`, but neither verb exists in the ontology — the validator silently dropped 100% of those relations (vault has 0 HOLDS_ROLE, 0 FORMERLY_HELD post-reextract). The +3 win came purely from new PERSON/ROLE entities being staged. Switching to the canonical `HOLDS_POSITION` verb (vault has 143) is the obvious next iteration but was deferred pending review of this measurement.
   - Note: The historical 87/100 figure was measured on vault `1f3320cd` which has been deleted; not directly comparable
 - **Hallucination Rate:** 0% (Data Gates enforced)
 - **Provenance:** 18x better than GraphRAG baseline

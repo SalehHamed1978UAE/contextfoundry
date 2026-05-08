@@ -1137,6 +1137,21 @@ IMPORTANT RULES:
 - Use the exact text span where the entity appears
 - Assign confidence based on how clearly the entity type is indicated
 
+TABLE EXTRACTION RULE (CRITICAL):
+Markdown tables (lines starting with `|` and a separator like `|---|`) are STRUCTURED
+DATA, not visual formatting. For EVERY data row in EVERY table, you MUST extract every
+named entity in the row as a separate entity. In particular, for tables whose columns
+look like:
+  - Role | Name | Previous Role
+  - Position | Executive | Start Date / Department
+  - Title | Person | ...
+you MUST extract:
+  1. The person cell as a PERSON entity (use the most specific type available)
+  2. The role/position/title cell as a ROLE entity
+  3. The previous-role cell (if present and not "No change") as a ROLE entity
+Do NOT skip table rows because they look redundant with surrounding prose.
+Tables are first-class extraction targets.
+
 Return the result as a JSON array of objects.
 
 TEXT:

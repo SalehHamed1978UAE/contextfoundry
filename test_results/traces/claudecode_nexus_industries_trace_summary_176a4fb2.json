@@ -1,23 +1,23 @@
 {
-  "run_timestamp": "2026-05-08T07:31:55.728986",
+  "run_timestamp": "2026-05-08T09:00:43.052994",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_176a4fb2.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.09,
-    "avg_semantic_score": 0.08575,
+    "avg_chunks_retrieved": 3.0299999999999994,
+    "avg_semantic_score": 0.08002100000000002,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "no_data": 12,
-      "no_match": 15,
+      "no_data": 11,
       "exact_match": 40,
       "component_match": 25,
-      "number_match": 6,
+      "number_match": 7,
+      "no_match": 15,
       "percentage_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 88
+    "low_score_queries": 89
   },
   "low_score_questions": [
     {
@@ -356,6 +356,11 @@
       "avg_score": 0.0
     },
     {
+      "q_id": 76,
+      "question": "What is the total patent portfolio size?",
+      "avg_score": 0.0
+    },
+    {
       "q_id": 77,
       "question": "What is the location of the BatteryTech JV facility?",
       "avg_score": 0.0
@@ -521,17 +526,6 @@
         "files_retrieved": []
       },
       {
-        "q_id": 61,
-        "question": "Who replaced Thomas Anderson as Digital President?",
-        "expected": "Robert Kim",
-        "actual": "The information provided does not specif",
-        "files_retrieved": [
-          "13_starliner_satellite_bus.md",
-          "14_lockheed_martin_customer.md",
-          "13_shell_partner.md"
-        ]
-      },
-      {
         "q_id": 67,
         "question": "What operating temperature range does the solid-state batter",
         "expected": "-30\u00b0C to 60\u00b0C",
@@ -550,38 +544,23 @@
         "files_retrieved": []
       },
       {
-        "q_id": 83,
-        "question": "Who is the primary customer for the SmartGrid Controller?",
-        "expected": "Pacific Power (pilot customer)",
-        "actual": "The primary customer for the SmartGrid C",
-        "files_retrieved": [
-          "Unknown"
-        ]
+        "q_id": 76,
+        "question": "What is the total patent portfolio size?",
+        "expected": "2,412 patents",
+        "actual": "The total patent portfolio size for Nexu",
+        "files_retrieved": []
       },
       {
-        "q_id": 93,
-        "question": "What electrolyte material is used in the solid-state battery",
-        "expected": "LLZO (Li7La3Zr2O12, Al-doped)",
-        "actual": "The electrolyte material used in the sol",
+        "q_id": 91,
+        "question": "Who is the VP Trade Compliance?",
+        "expected": "Owns the Export Control Policy (per POL-",
+        "actual": "The current VP of Trade Compliance is no",
         "files_retrieved": [
-          "06_toyota_jv_negotiation_summary.md",
-          "Unknown",
-          "11_batterytech_solid_state.md"
+          "09_export_control.md"
         ]
       }
     ],
     "no_match": [
-      {
-        "q_id": 2,
-        "question": "What is the name of the CFO?",
-        "expected": "Michael Chang",
-        "actual": "The name of the CFO is Hedging Policy. T",
-        "files_retrieved": [
-          "13_starliner_satellite_bus.md",
-          "14_lockheed_martin_customer.md",
-          "13_shell_partner.md"
-        ]
-      },
       {
         "q_id": 17,
         "question": "Who supplied the electrolyzers for the GreenHydrogen facilit",
@@ -636,7 +615,7 @@
         "q_id": 45,
         "question": "When was Dr. Victoria Chen appointed CEO?",
         "expected": "2019",
-        "actual": "March 2018. Dr. Victoria Chen was appoin",
+        "actual": "March 2018 - Dr. Victoria Chen was appoi",
         "files_retrieved": [
           "06_market_expansion_asia.md",
           "06_quantumleap_computing.md",
@@ -663,6 +642,16 @@
           "Unknown",
           "10_cybersecurity_incident_response.md",
           "08_cybersecurity_advisory.md"
+        ]
+      },
+      {
+        "q_id": 61,
+        "question": "Who replaced Thomas Anderson as Digital President?",
+        "expected": "Robert Kim",
+        "actual": "J. Williams replaced Thomas Anderson as ",
+        "files_retrieved": [
+          "14_lockheed_martin_customer.md",
+          "13_shell_partner.md"
         ]
       },
       {
@@ -696,17 +685,6 @@
         ]
       },
       {
-        "q_id": 73,
-        "question": "How many new employees will Nexus hire in FY2026?",
-        "expected": "1,200 net new positions",
-        "actual": "The retrieved information does not expli",
-        "files_retrieved": [
-          "06_remote_work.md",
-          "03_press_release_fy2025.md",
-          "02_q4_2025_earnings.md"
-        ]
-      },
-      {
         "q_id": 79,
         "question": "What is the 2030 revenue target in the corporate strategy?",
         "expected": "$15 billion",
@@ -718,12 +696,23 @@
         ]
       },
       {
-        "q_id": 91,
-        "question": "Who is the VP Trade Compliance?",
-        "expected": "Owns the Export Control Policy (per POL-",
-        "actual": "The current VP of Trade Compliance is no",
+        "q_id": 83,
+        "question": "Who is the primary customer for the SmartGrid Controller?",
+        "expected": "Pacific Power (pilot customer)",
+        "actual": "The primary customer for the SmartGrid C",
         "files_retrieved": [
-          "09_export_control.md"
+          "Unknown"
+        ]
+      },
+      {
+        "q_id": 93,
+        "question": "What electrolyte material is used in the solid-state battery",
+        "expected": "LLZO (Li7La3Zr2O12, Al-doped)",
+        "actual": "The electrolyte material used in the sol",
+        "files_retrieved": [
+          "06_toyota_jv_negotiation_summary.md",
+          "Unknown",
+          "11_batterytech_solid_state.md"
         ]
       }
     ]
