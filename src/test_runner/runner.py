@@ -194,7 +194,7 @@ def run_vault_test(
     log(f"TEST RUNNER: Vault {vault_display}... ({mode.upper()} mode)")
     if test_run_id:
         log(f"Test Run ID: {test_run_id}")
-    effective_tree = os.environ.get("CF_TREE_BASED_RETRIEVAL", "false").lower() == "true"
+    effective_tree = os.environ.get("CF_TREE_BASED_RETRIEVAL", "true").lower() == "true"
     log(f"Effective CF_TREE_BASED_RETRIEVAL={effective_tree}")
     log(f"Parallel workers={parallel_workers}")
     if expected_tree_based_retrieval is not None and effective_tree != expected_tree_based_retrieval:
@@ -350,7 +350,7 @@ def run_vault_test(
         # Read tree_based_retrieval from database (with env var fallback for CLI runs).
         # 2026-05-08: Reverted to False default after -21 regression. Re-enable after _fallback_semantic_search fix.
         import os as _os
-        tree_based_retrieval = _os.environ.get("CF_TREE_BASED_RETRIEVAL", "false").lower() == "true"
+        tree_based_retrieval = _os.environ.get("CF_TREE_BASED_RETRIEVAL", "true").lower() == "true"
         log(f"Tree-based retrieval default: {tree_based_retrieval} (env={_os.environ.get('CF_TREE_BASED_RETRIEVAL', '<unset>')})")
         if test_run_id:
             current_run = get_test_run(test_run_id)

@@ -7,8 +7,8 @@ echo "============================================"
 CF_RUN_MODE="${CF_RUN_MODE:-serve}"
 echo "[Config] CF_RUN_MODE: $CF_RUN_MODE"
 
-export CF_TREE_BASED_RETRIEVAL=false
-echo "[Config] Tree-based retrieval: $CF_TREE_BASED_RETRIEVAL (HYBRID code in place 2026-05-08 — gated on _is_graph_hopping_query()+'high' confidence — but 100Q benchmark = 73/100 vs legacy baseline 74/100, recovered 0/8 target graph-hopping failures. Tree confidence rarely reaches 'high' on these questions. Re-enable per-request via API flag for experiments only.)"
+export CF_TREE_BASED_RETRIEVAL=true
+echo "[Config] Tree-based retrieval: $CF_TREE_BASED_RETRIEVAL (HYBRID 2026-05-08 third iteration: B1 SQL merge of ARCHIVED Nexus dup → canonical anchor, plus B2 chunk-fallback 'high' band at top_sim>=0.70. Hybrid gating still: legacy primary, tree only on _is_graph_hopping_query()+'high' confidence. Expected ~82/100 vs legacy baseline 74/100.)"
 
 if [ "$CF_RUN_MODE" = "extract" ]; then
     if [ -z "$CF_EXTRACT_VAULT" ]; then

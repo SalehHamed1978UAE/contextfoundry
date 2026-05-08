@@ -760,7 +760,9 @@ class TreeBasedRetriever:
             conf = 'none'
         else:
             top_sim = entities[0]['combined_score']
-            if top_sim >= 0.55:
+            if top_sim >= 0.70:
+                conf = 'high'
+            elif top_sim >= 0.55:
                 conf = 'medium'
             elif top_sim >= 0.40:
                 conf = 'low'
