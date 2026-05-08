@@ -1,0 +1,354 @@
+CONTEXT FOUNDRY — 4-FIX EXECUTION PLAN
+
+Target: 76 → 90+ on 100Q Nexus Benchmark
+
+Execute in order. Do not skip steps. Measure after each fix.
+
+---
+
+FIX 1: Complete the Ontology (30 min)
+
+Add 20 missing corporate relationship types to ontology.relations. Then replay pending candidates.
+
+```sql
+-- Step 1.1: Insert missing types
+INSERT INTO ontology.relations (relation_type, source_type_id, target_type_id, status)
+SELECT t.relation_type, src.id, tgt.id, 'ACTIVE'
+FROM (VALUES
+    ('PRESIDENT_OF', 'PERSON', 'ORGANIZATION'),
+    ('HAS_BUDGET', 'PROJECT', 'METRIC'),
+    ('DESCRIBES', 'SPECIFICATION', 'PRODUCT'),
+    ('RELATED_TO', 'ENTITY', 'ENTITY'),
+    ('EARNS', 'ORGANIZATION', 'METRIC'),
+    ('AUTHORED_BY', 'DOCUMENT', 'PERSON'),
+    ('OCCURRED_ON', 'EVENT', 'DATE'),
+    ('AFFECTS', 'EVENT', 'ENTITY'),
+    ('HAS_REVENUE', 'ORGANIZATION', 'METRIC'),
+    ('COMPETES_WITH', 'ORGANIZATION', 'ORGANIZATION'),
+    ('PARTNERSHIP', 'ORGANIZATION', 'ORGANIZATION'),
+    ('FUNDED_BY', 'PROJECT', 'ORGANIZATION'),
+    ('USES', 'PROJECT', 'MATERIAL'),
+    ('INVOLVES', 'EVENT', 'ENTITY'),
+    ('DEVELOPS', 'ORGANIZATION', 'PRODUCT'),
+    ('EMPLOYS', 'ORGANIZATION', 'PERSON'),
+    ('APPROVES', 'PERSON', 'DECISION'),
+    ('HAS_PATENT_COUNT', 'ORGANIZATION', 'METRIC'),
+    ('HAS_CAPEX', 'ORGANIZATION', 'METRIC'),
+    ('HAS_BACKLOG', 'ORGANIZATION', 'METRIC')
+) AS t(relation_type, source_type, target_type)
+LEFT JOIN ontology.types src ON src.type_name = t.source_type
+LEFT JOIN ontology.types tgt ON tgt.type_name = t.target_type
+WHERE NOT EXISTS (
+    SELECT 1 FROM ontology.relations r
+    WHERE r.relation_type = t.relation_type AND r.status = 'ACTIVE'
+);
+
+-- Step 1.2: Verify insertion
+SELECT COUNT(*) as active_types FROM ontology.relations WHERE status = 'ACTIVE';
+-- Should be 256 + new_count (check before was 256)
+
+-- Step 1.3: Replay pending candidates through staging loader
+-- The staging loader checks known types at runtime. New types are now known.
+-- Find all PENDING candidates that match new types and promote them:
+UPDATE public.ontology_candidates
+SET status = 'ACCEPTED',
+    mapped_type = candidate_type,
+    updated_at = NOW()
+WHERE vault_id = '176a4fb2-0bb4-4da3-9068-0e26268fca71'
+AND status = 'PENDING'
+AND candidate_type IN (
+    SELECT relation_type FROM ontology.relations WHERE status = 'ACTIVE'
+);
+
+-- Step 1.4: For each accepted candidate, create the actual relationship
+-- (This may need a script if candidates don't store full triples)
+-- Check what data exists:
+SELECT candidate_type, COUNT(*) FROM public.ontology_candidates
+WHERE vault_id = '176a4fb2-0bb4-4da3-9068-0e26268fca71'
+AND status = 'ACCEPTED' GROUP BY candidate_type;
+```
+
+MEASURE: Run `SELECT COUNT(*) FROM public.relationships` before and after. Should increase. Then run 100Q test. Record score.
+
+---
+
+FIX 2: Fix 8 Dark Documents (30 min)
+
+These docs have extraction jobs stuck at PENDING/TIMEOUT/FAILED. They contain source data for multiple failing questions.
+
+```bash
+# Step 2.1: List stuck documents and their job status
+cd ~/contextfoundry
+python3 -c "
+import sys; sys.path.insert(0, 'src')
+from context_foundry.models.schema import get_session, Document, ExtractionJob
+from sqlalchemy import func
+session = get_session()
+
+stuck_docs = [
+    '01_annual_report_2025.md',
+    '01_falcon_x_system_architecture.md',
+    '04_sustainability_roadmap.md',
+    '05_talent_strategy.md',
+    '10_board_strategic_priorities.md',
+    '10_quarterly_newsletter.md',
+    '11_product_launch_planning.md',
+    '12_supplier_performance_review.md'
+]
+
+for filename in stuck_docs:
+    doc = session.query(Document).filter(
+        Document.filename == filename,
+        Document.vault_id == '176a4fb2-0bb4-4da3-9068-0e26268fca71'
+    ).first()
+    if doc:
+        job = session.query(ExtractionJob).filter(
+            ExtractionJob.document_id == doc.id
+        ).order_by(ExtractionJob.created_at.desc()).first()
+        status = job.status if job else 'NO_JOB'
+        print(f'{filename}: {status}')
+    else:
+        print(f'{filename}: DOC_NOT_FOUND')
+"
+
+# Step 2.2: Delete stuck extraction jobs and reset documents
+python3 -c "
+import sys; sys.path.insert(0, 'src')
+from context_foundry.models.schema import get_session, Document
+session = get_session()
+
+stuck = [
+    '01_annual_report_2025.md',
+    '01_falcon_x_system_architecture.md',
+    '04_sustainability_roadmap.md',
+    '05_talent_strategy.md',
+    '10_board_strategic_priorities.md',
+    '10_quarterly_newsletter.md',
+    '11_product_launch_planning.md',
+    '12_supplier_performance_review.md'
+]
+
+for filename in stuck:
+    doc = session.query(Document).filter(
+        Document.filename == filename,
+        Document.vault_id == '176a4fb2-0bb4-4da3-9068-0e26268fca71'
+    ).first()
+    if doc:
+        # Delete all extraction jobs for this doc
+        from context_foundry.models.schema import ExtractionJob
+        deleted = session.query(ExtractionJob).filter(
+            ExtractionJob.document_id == doc.id
+        ).delete(synchronize_session=False)
+        print(f'Reset {filename}: deleted {deleted} jobs')
+session.commit()
+print('Done. All 8 docs reset.')
+"
+
+# Step 2.3: Re-extract with extended timeout
+python3 scripts/run_vault_extraction.py \
+  --vault-name "Nexus - 2/8/2026" \
+  --docs 01_annual_report_2025.md,01_falcon_x_system_architecture.md,04_sustainability_roadmap.md,05_talent_strategy.md,10_board_strategic_priorities.md,10_quarterly_newsletter.md,11_product_launch_planning.md,12_supplier_performance_review.md \
+  --timeout 300
+```
+
+MEASURE: After extraction completes, check `SELECT status, COUNT(*) FROM public.extraction_jobs GROUP BY status`. All 8 should be COMPLETE. Run 100Q test. Record score.
+
+---
+
+FIX 3: Chunker Table Preservation (1 hour)
+
+The chunker splits markdown tables mid-row. Tables contain structured facts (leadership teams, financial data) that get lost.
+
+```python
+# File to edit: src/context_foundry/chunking/chunker.py (or wherever chunking lives)
+# If chunker.py doesn't exist, find the chunking code in parsing/document_parser.py
+# or wherever text is split into chunks
+
+import re
+
+def chunk_with_table_preservation(text, chunk_size=1500, overlap=100):
+    """
+    Split text into chunks while preserving markdown tables as atomic units.
+    A table row is never split across two chunks.
+    """
+    # Pattern: markdown table rows (lines starting with |)
+    table_row_pattern = r'^\|.*\|$'
+    
+    lines = text.split('\n')
+    chunks = []
+    current_chunk = []
+    current_size = 0
+    pending_table = []  # Buffer for complete table
+    in_table = False
+    
+    for line in lines:
+        is_table_row = re.match(table_row_pattern, line.strip())
+        
+        if is_table_row:
+            in_table = True
+            pending_table.append(line)
+            continue
+        elif in_table:
+            # We were in a table, now we're not. Flush the table.
+            in_table = False
+            table_text = '\n'.join(pending_table)
+            pending_table = []
+            
+            # If table fits in current chunk, add it
+            if current_size + len(table_text) <= chunk_size:
+                current_chunk.append(table_text)
+                current_size += len(table_text)
+            else:
+                # Table doesn't fit — start new chunk with just the table
+                if current_chunk:
+                    chunks.append('\n'.join(current_chunk))
+                current_chunk = [table_text]
+                current_size = len(table_text)
+        
+        # Add non-table line
+        if current_size + len(line) > chunk_size and current_chunk:
+            chunks.append('\n'.join(current_chunk))
+            # Keep overlap
+            overlap_text = '\n'.join(current_chunk)[-overlap:]
+            current_chunk = [overlap_text, line] if overlap_text else [line]
+            current_size = len('\n'.join(current_chunk))
+        else:
+            current_chunk.append(line)
+            current_size += len(line) + 1
+    
+    # Flush remaining
+    if current_chunk:
+        chunks.append('\n'.join(current_chunk))
+    if pending_table:
+        table_text = '\n'.join(pending_table)
+        if current_chunk:
+            chunks[-1] += '\n' + table_text
+        else:
+            chunks.append(table_text)
+    
+    return chunks
+```
+
+Replace the existing chunk function with `chunk_with_table_preservation`. If the existing chunker is in a different location, adapt accordingly.
+
+MEASURE: After re-extracting a document with tables (e.g., 02_organizational_announcement.md), query chunks:
+
+```sql
+SELECT chunk_index, text FROM platform.document_chunks c
+JOIN platform.documents d ON d.id = c.document_id
+WHERE d.filename = '02_organizational_announcement.md'
+AND c.text LIKE '%|%' ORDER BY chunk_index;
+-- Each table row should appear complete in exactly one chunk
+```
+
+---
+
+FIX 4: Entity Deduplication + Disambiguation (1 hour)
+
+Step 4a: Merge Boeing Fragments
+
+```sql
+-- Step 4a.1: Find all Boeing entities
+SELECT id, name, entity_type, lifecycle_state,
+       (SELECT COUNT(*) FROM relationships WHERE source_entity_id = e.id OR target_entity_id = e.id) as edge_count
+FROM public.entities e
+WHERE name ILIKE '%boeing%'
+  AND vault_id = '176a4fb2-0bb4-4da3-9068-0e26268fca71'
+ORDER BY edge_count DESC;
+
+-- Step 4a.2: Pick the TRUSTED ORGANIZATION entity as canonical
+-- (Replace with actual UUID from step 4a.1)
+-- Canonical: The Boeing Company (ORGANIZATION, TRUSTED)
+-- Fragments: Boeing (COMPETITOR), Boeing Commercial Airplanes (CUSTOMER), etc.
+
+-- Step 4a.3: Transfer all relationships from fragments to canonical
+UPDATE public.relationships
+SET source_entity_id = '[CANONICAL_UUID]'
+WHERE source_entity_id IN ('[FRAGMENT_UUID_1]', '[FRAGMENT_UUID_2]', ...);
+
+UPDATE public.relationships
+SET target_entity_id = '[CANONICAL_UUID]'
+WHERE target_entity_id IN ('[FRAGMENT_UUID_1]', '[FRAGMENT_UUID_2]', ...);
+
+-- Step 4a.4: Register fragment names as aliases of canonical
+UPDATE public.entities
+SET aliases = array_append(aliases, '[FRAGMENT_NAME]'),
+    properties = jsonb_set(COALESCE(properties, '{}'), '{merged_from}', 
+                          COALESCE(properties->'merged_from', '[]') || '"[FRAGMENT_NAME]"')
+WHERE id = '[CANONICAL_UUID]';
+
+-- Step 4a.5: Delete fragments (now orphaned)
+DELETE FROM public.entities
+WHERE id IN ('[FRAGMENT_UUID_1]', '[FRAGMENT_UUID_2]', ...);
+
+-- Step 4a.6: Verify
+SELECT COUNT(*) as boeing_count FROM public.entities
+WHERE name ILIKE '%boeing%' AND vault_id = '176a4fb2-0bb4-4da3-9068-0e26268fca71';
+-- Should return 1
+```
+
+Step 4b: Wire DisambiguationReasoner
+
+```python
+# File: src/context_foundry/agents/retrieval_agent.py (or wherever entity resolution happens)
+
+# Find where multiple candidates are handled:
+# OLD CODE (something like):
+#     entity_name = result.candidates[0].name
+#
+# REPLACE WITH:
+
+    if len(result.candidates) > 1:
+        try:
+            from context_foundry.agents.disambiguation_reasoner import DisambiguationReasoner
+            reasoner = DisambiguationReasoner(self.session)
+            best_candidate = reasoner.select_best_candidate(
+                result.candidates,
+                query_context=query_text
+            )
+            entity_name = best_candidate.name if best_candidate else result.candidates[0].name
+        except Exception as e:
+            # Log but don't crash — fall back to highest confidence
+            import logging
+            logging.warning(f"Disambiguation failed: {e}, falling back to first candidate")
+            result.candidates.sort(key=lambda c: getattr(c, 'score', 0), reverse=True)
+            entity_name = result.candidates[0].name
+    else:
+        entity_name = result.candidates[0].name
+```
+
+MEASURE: Run 100Q test. Check if multi-candidate questions (Q61 Robert Kim×6 roles) resolve correctly. Record score.
+
+---
+
+FINAL MEASUREMENT
+
+After all 4 fixes are applied:
+
+```bash
+# Run the full 100Q test
+python3 -m src.test_runner.runner \
+  --vault 176a4fb2-0bb4-4da3-9068-0e26268fca71 \
+  --corpus "ClaudeCode Nexus Industries"
+```
+
+STOPPING CONDITIONS:
+- Score >= 90: Ship. Document. Context Foundry beats Palantir.
+- Score 80-89: One more session. Identify remaining gaps.
+- Score < 80: Architectural reassessment. The plumbing fixes aren't enough.
+
+Record the score, the per-question diff against baseline, and any regressions.
+
+---
+
+WHAT WE DO NOT DO
+
+Do NOT:
+- Add more relationship types beyond the 20 in Fix 1
+- Run LLM-based ontology expansion
+- Implement collaborative reasoning agents
+- Change the extraction model
+- Modify the confidence scoring formula
+- Add more hardcoded mapping tables
+
+These 4 fixes are the plan. Execute them. Measure. Decide.
