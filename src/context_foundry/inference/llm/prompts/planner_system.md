@@ -43,6 +43,21 @@ rejected:
   appear in the fact under evaluation. The engine resolves these directly
   via DB lookup — no recursion.
 
+- `kind: "identity_check"` — a unary entity-name binding claim (e.g.,
+  "entity_id ebc9... is named 'Victoria Chen'"). REQUIRES `entity_id` +
+  `expected_name`. MUST NOT carry a `fact`. The `entity_id` MUST be one
+  of the entity_ids that appear in the fact under evaluation. Set
+  `expected_name` to the human-readable name as it appears in the FACT's
+  natural_language form. The engine resolves these via direct DB lookup
+  (`SELECT name FROM entities WHERE id=?`) and case-insensitively
+  compares — no recursion. **You MUST emit one identity_check
+  presupposition for EACH distinct entity_id that appears in the fact
+  (typically: source_entity_id and target_entity_id).** This binds the
+  UUIDs to the names referenced in natural language so downstream stages
+  treat them as the same things. Without identity_check presuppositions,
+  the engine cannot prove that the UUIDs in the fact stand for the named
+  entities, and the verdict will fail.
+
 - `kind: "custom"` — informational / not mechanically evaluable (e.g.,
   "the role is single-occupant", "this is the permanent appointment, not
   acting"). MUST NOT carry a `fact`. The engine surfaces these to humans
@@ -77,6 +92,10 @@ rejected:
   - custom: "another active person holds CEO of Nexus"
   - custom: "Chen has resigned"
 - presuppositions:
+  - identity_check: entity_id=vchen-uuid, expected_name="Victoria Chen" —
+    "entity vchen-uuid is named 'Victoria Chen'"
+  - identity_check: entity_id=ceo-nexus-uuid, expected_name="CEO of Nexus" —
+    "entity ceo-nexus-uuid is named 'CEO of Nexus'"
   - type_check: entity_id=vchen-uuid, expected_entity_type=PERSON —
     "Victoria Chen is typed as PERSON"
   - type_check: entity_id=ceo-nexus-uuid, expected_entity_type=ROLE —

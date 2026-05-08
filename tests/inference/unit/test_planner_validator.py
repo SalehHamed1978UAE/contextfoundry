@@ -132,6 +132,60 @@ def test_validator_rejects_graph_fact_with_placeholder_endpoint():
                for s in problems), problems
 
 
+def test_validator_accepts_identity_check_with_required_fields():
+    p = _planner()
+    ok = Condition(
+        description="x is named Foo",
+        kind="identity_check",
+        entity_id=U1,
+        expected_name="Foo Bar",
+    )
+    assert p._validate(_plan([ok])) == []
+
+
+def test_validator_rejects_identity_check_missing_expected_name():
+    p = _planner()
+    bad = Condition(
+        description="missing name", kind="identity_check", entity_id=U1,
+    )
+    problems = p._validate(_plan([bad]))
+    assert any("missing entity_id or non-empty expected_name" in s
+               for s in problems), problems
+
+
+def test_validator_rejects_identity_check_empty_expected_name():
+    p = _planner()
+    bad = Condition(
+        description="empty", kind="identity_check",
+        entity_id=U1, expected_name="   ",
+    )
+    problems = p._validate(_plan([bad]))
+    assert any("non-empty expected_name" in s for s in problems), problems
+
+
+def test_validator_rejects_identity_check_with_placeholder_entity_id():
+    p = _planner()
+    bad = Condition(
+        description="placeholder", kind="identity_check",
+        entity_id="<NAME_ID>", expected_name="X",
+    )
+    problems = p._validate(_plan([bad]))
+    assert any("not a valid UUID" in s for s in problems), problems
+
+
+def test_validator_rejects_identity_check_with_fact():
+    p = _planner()
+    bad = Condition(
+        description="hybrid", kind="identity_check",
+        entity_id=U1, expected_name="X",
+        fact=Fact(source_entity_id=U1, relationship_type="HOLDS_POSITION",
+                  target_entity_id=U2),
+    )
+    problems = p._validate(_plan([bad]))
+    assert any("kind=identity_check" in s and "must NOT carry a fact" in s
+               for s in problems), problems
+
+
 def test_validator_default_kind_is_graph_fact():
     """Back-compat: omitting kind defaults to graph_fact behavior."""
     p = _planner()

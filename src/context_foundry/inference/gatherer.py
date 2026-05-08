@@ -97,13 +97,28 @@ class EvidenceGatherer:
             items.extend(r)
         return items
 
+    def _hydrate_rel(self, rel) -> str:
+        """Render a relationship row with source/target name+type so polarity
+        classifier can bind UUIDs to names without inventing them."""
+        s_ent = self.tools.get_entity(rel.source_entity_id)
+        t_ent = self.tools.get_entity(rel.target_entity_id)
+        s_desc = (f"entity {rel.source_entity_id} "
+                  f"(name='{s_ent.name}', type={s_ent.entity_type or '?'})"
+                  if s_ent else f"entity {rel.source_entity_id} (unknown)")
+        t_desc = (f"entity {rel.target_entity_id} "
+                  f"(name='{t_ent.name}', type={t_ent.entity_type or '?'})"
+                  if t_ent else f"entity {rel.target_entity_id} (unknown)")
+        archived = " [ARCHIVED]" if rel.lifecycle_state == "ARCHIVED" else ""
+        return (f"relationship {rel.relationship_type} from {s_desc} "
+                f"to {t_desc}{archived}")
+
     async def _search_one_query(self, query: str, fact: Fact) -> List[EvidenceItem]:
         items: List[EvidenceItem] = []
         # (1) graph: search relationships whose source/target match fact endpoints
         for rel in self.tools.get_relationships(source_id=fact.source_entity_id):
             items.append(EvidenceItem(
                 relationship_id=rel.id, chunk_id=rel.source_chunk_id,
-                content=f"({rel.source_entity_id})-[{rel.relationship_type}]->({rel.target_entity_id})",
+                content=self._hydrate_rel(rel),
                 speaks_to=query, polarity="neutral",
                 lifecycle_state=rel.lifecycle_state,
             ))
@@ -126,7 +141,7 @@ class EvidenceGatherer:
                     for rel in self.tools.get_relationships(source_id=ent.id):
                         items.append(EvidenceItem(
                             relationship_id=rel.id, chunk_id=rel.source_chunk_id,
-                            content=f"({ent.name})-[{rel.relationship_type}]->({rel.target_entity_id})",
+                            content=self._hydrate_rel(rel),
                             speaks_to=query, polarity="neutral",
                             lifecycle_state=rel.lifecycle_state,
                         ))
@@ -139,16 +154,14 @@ class EvidenceGatherer:
         for rel in self.tools.get_relationships(source_id=fact.source_entity_id, include_archived=True):
             items.append(EvidenceItem(
                 relationship_id=rel.id, chunk_id=rel.source_chunk_id,
-                content=f"({rel.source_entity_id})-[{rel.relationship_type}]->({rel.target_entity_id})"
-                        + (f" [ARCHIVED]" if rel.lifecycle_state == "ARCHIVED" else ""),
+                content=self._hydrate_rel(rel),
                 speaks_to="direct edges from fact source", polarity="neutral",
                 lifecycle_state=rel.lifecycle_state,
             ))
         for rel in self.tools.get_relationships(target_id=fact.target_entity_id, include_archived=True):
             items.append(EvidenceItem(
                 relationship_id=rel.id, chunk_id=rel.source_chunk_id,
-                content=f"({rel.source_entity_id})-[{rel.relationship_type}]->({rel.target_entity_id})"
-                        + (f" [ARCHIVED]" if rel.lifecycle_state == "ARCHIVED" else ""),
+                content=self._hydrate_rel(rel),
                 speaks_to="direct edges into fact target", polarity="neutral",
                 lifecycle_state=rel.lifecycle_state,
             ))

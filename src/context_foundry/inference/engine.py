@@ -108,28 +108,54 @@ class FactEvaluator:
                         guard.depth)
                     return self._maybe_stamp_root(final, is_root, is_outer_call)
 
+            # Snapshot the plan into the trace so we can compare initial
+            # vs replan offline. `which_plan` is "initial" on the first
+            # call and "replan_<n>" on each replan recursion.
+            tracer.event(
+                "plan_snapshot",
+                which_plan=("initial" if replans_used == 0
+                            else f"replan_{replans_used}"),
+                truth_conditions=[c.model_dump(mode="json")
+                                  for c in plan.truth_conditions],
+                falsifiers=[c.model_dump(mode="json")
+                            for c in plan.falsifiers],
+                presuppositions=[c.model_dump(mode="json")
+                                 for c in plan.presuppositions],
+                evidence_queries=list(plan.evidence_queries),
+                adversarial_prompts=list(plan.adversarial_prompts),
+            )
+
             sub_verdicts: List[Verdict] = []
             graph_fact_presups = [c for c in plan.presuppositions
                                   if c.kind == "graph_fact" and c.fact is not None]
             type_check_presups = [c for c in plan.presuppositions
                                   if c.kind == "type_check"]
+            identity_check_presups = [c for c in plan.presuppositions
+                                      if c.kind == "identity_check"]
             # `custom` presuppositions are surfaced in the plan but never
             # block the verdict — they're for human review only.
-            if graph_fact_presups or type_check_presups:
+            if graph_fact_presups or type_check_presups or identity_check_presups:
                 with tracer.span(
                     "presuppositions",
                     graph_fact=len(graph_fact_presups),
                     type_check=len(type_check_presups),
+                    identity_check=len(identity_check_presups),
                 ):
                     type_check_verdicts = [
                         self._eval_type_check(c, fact, guard.depth + 1)
                         for c in type_check_presups
                     ]
+                    identity_check_verdicts = [
+                        self._eval_identity_check(c, fact, guard.depth + 1)
+                        for c in identity_check_presups
+                    ]
                     graph_fact_verdicts = list(await asyncio.gather(*[
                         self.evaluate(c.fact, guard.child(fact))
                         for c in graph_fact_presups
                     ])) if graph_fact_presups else []
-                    sub_verdicts = type_check_verdicts + graph_fact_verdicts
+                    sub_verdicts = (type_check_verdicts
+                                    + identity_check_verdicts
+                                    + graph_fact_verdicts)
                 if any(sv.status == "DISPROVEN" for sv in sub_verdicts):
                     final = self._terminal(fact, "UNDERSPECIFIED",
                                            ["presupposition disproven"], guard.depth,
@@ -257,6 +283,52 @@ class FactEvaluator:
                                   [f"entity is typed as {actual_type}"], depth)
         return self._terminal(synthetic_fact, "DISPROVEN",
                               [f"expected {expected}, found {actual_type}"], depth)
+
+    def _eval_identity_check(self, cond: Condition, parent_fact: Fact,
+                              depth: int) -> Verdict:
+        """Direct DB lookup for an identity_check presupposition. No recursion.
+
+        Returns a synthetic Verdict the parent synthesizer can inspect:
+        - SUPPORTED if the entity exists and its name (case-insensitively,
+          trimmed) matches expected_name
+        - DISPROVEN if the entity exists with a different name
+        - UNDERSUPPORTED if the entity is not found in the tenant
+        """
+        synthetic_fact = Fact(
+            source_entity_id=cond.entity_id or "",
+            relationship_type="HAS_NAME",
+            target_entity_id=cond.expected_name or "",
+            tenant_id=parent_fact.tenant_id,
+            natural_language=cond.description,
+        )
+        try:
+            sql = ("SELECT name FROM entities "
+                   "WHERE id = CAST(:id AS uuid)")
+            params = {"id": cond.entity_id}
+            tid = parent_fact.tenant_id or self.tools.tenant_id
+            if tid:
+                sql += " AND tenant_id = CAST(:tid AS uuid)"
+                params["tid"] = tid
+            row = self.tools._exec(sql, params).fetchone()
+        except Exception as e:
+            logger.warning(f"[identity_check] DB lookup failed for "
+                           f"{cond.entity_id}: {e}")
+            return self._terminal(synthetic_fact, "UNDERSUPPORTED",
+                                  [f"identity_check DB error: {e}"], depth)
+        if row is None:
+            return self._terminal(synthetic_fact, "UNDERSUPPORTED",
+                                  ["entity not found for identity_check"], depth)
+        actual = (row[0] or "").strip().lower()
+        expected = (cond.expected_name or "").strip().lower()
+        if actual == expected:
+            return self._terminal(
+                synthetic_fact, "SUPPORTED",
+                [f"entity name '{row[0]}' matches expected '{cond.expected_name}'"],
+                depth)
+        return self._terminal(
+            synthetic_fact, "DISPROVEN",
+            [f"identity mismatch: expected '{cond.expected_name}', "
+             f"found '{row[0]}'"], depth)
 
     # -------------------------------------------------- source-authority
     async def _evaluate_source_authority(self, authority_fact: Fact) -> Verdict:

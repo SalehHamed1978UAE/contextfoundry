@@ -36,10 +36,15 @@ def benchmark_tenant(benchmark_session):
     tid = str(uuid.uuid4())
     yield tid
     # Order matters: child tables first to avoid FK violations on cascade.
-    # `duplicate_candidates` references `entities` via entity_b_id_fkey;
-    # extraction-side flows may have populated it for the seeded entities.
-    for table in ("duplicate_candidates", "relationships",
-                   "entities", "document_chunks"):
+    # `duplicate_candidates` has no `tenant_id` column — it references
+    # `entities` via entity_a_id / entity_b_id. Delete by FK to entities
+    # owned by this tenant.
+    benchmark_session.execute(text("""
+        DELETE FROM duplicate_candidates
+         WHERE entity_a_id IN (SELECT id FROM entities WHERE tenant_id = CAST(:t AS uuid))
+            OR entity_b_id IN (SELECT id FROM entities WHERE tenant_id = CAST(:t AS uuid))
+    """), {"t": tid})
+    for table in ("relationships", "entities", "document_chunks"):
         benchmark_session.execute(
             text(f"DELETE FROM {table} WHERE tenant_id = CAST(:t AS uuid)"),
             {"t": tid},

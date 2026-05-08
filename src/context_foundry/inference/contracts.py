@@ -52,13 +52,13 @@ class Fact(BaseModel):
                 f"{self.target_entity_id}|{props_canonical}")
 
 
-ConditionKind = Literal["graph_fact", "type_check", "custom"]
+ConditionKind = Literal["graph_fact", "type_check", "identity_check", "custom"]
 
 
 class Condition(BaseModel):
     """A sub-claim that must be evaluated.
 
-    Three variants discriminated by `kind`:
+    Four variants discriminated by `kind`:
 
     - "graph_fact" (default for back-compat): a recursively-evaluable subject-
       predicate-object claim. Requires `fact`. Engine will recurse into
@@ -68,6 +68,12 @@ class Condition(BaseModel):
       + `expected_entity_type`. NO recursion — engine performs a direct DB
       lookup against the entities table. Use for claims like "Nexus is typed
       as ORG in the schema" or "Victoria Chen is a PERSON".
+    - "identity_check": a unary entity-name binding presupposition. Requires
+      `entity_id` + `expected_name`. NO recursion — engine performs a direct
+      DB lookup (`SELECT name FROM entities WHERE id=$1`) and case-insensitively
+      compares to expected_name. Use to bind a UUID in the FACT to the human
+      name it stands for, so downstream stages don't have to re-derive it from
+      the LLM. Always emit one per entity_id mentioned in the fact.
     - "custom": informational / not directly evaluable. Engine skips it for
       blocking purposes (it does NOT propagate UNDERSPECIFIED to the parent).
       Use for nuanced presuppositions like "the role is single-occupant" that
@@ -78,6 +84,7 @@ class Condition(BaseModel):
     fact: Optional[Fact] = None
     entity_id: Optional[str] = None
     expected_entity_type: Optional[str] = None
+    expected_name: Optional[str] = None
     custom_check: Optional[str] = None
     decisive: bool = False
 

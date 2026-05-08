@@ -137,6 +137,36 @@ class EvaluationPlanner:
                             f"binary edges)"
                         )
                     continue
+                # identity_check: must have entity_id (UUID, grounded) +
+                # non-empty expected_name. Must NOT carry a fact.
+                if c.kind == "identity_check":
+                    if not c.entity_id or not c.expected_name \
+                            or not c.expected_name.strip():
+                        problems.append(
+                            f"{label} '{c.description}' is kind=identity_check "
+                            f"but missing entity_id or non-empty expected_name"
+                        )
+                    elif not _UUID_RE.match(c.entity_id):
+                        problems.append(
+                            f"{label} '{c.description}' identity_check "
+                            f"entity_id '{c.entity_id}' is not a valid UUID; "
+                            f"you must reference a real entity_id from the "
+                            f"FACT, not invent placeholders"
+                        )
+                    elif grounded and c.entity_id not in grounded:
+                        problems.append(
+                            f"{label} '{c.description}' identity_check "
+                            f"entity_id '{c.entity_id}' is not one of the "
+                            f"FACT endpoints {sorted(grounded)}; only "
+                            f"entity_ids that appear in the FACT may be "
+                            f"referenced"
+                        )
+                    if c.fact is not None:
+                        problems.append(
+                            f"{label} '{c.description}' is kind=identity_check; "
+                            f"must NOT carry a fact"
+                        )
+                    continue
                 # custom: informational only, no validation beyond description
                 if c.kind == "custom":
                     if c.fact is not None:
