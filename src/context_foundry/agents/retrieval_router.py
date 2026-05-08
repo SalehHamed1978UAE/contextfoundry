@@ -1862,6 +1862,46 @@ class RetrievalRouter:
         logger.info(f"[ROUTER] Attribute search found {len(all_chunks)} chunks for {entity_name}/{original_role}")
         return all_chunks[:limit]
 
+    # Graph-hopping query patterns. Tree retrieval is GATED on these — only
+    # role/reporting/succession questions get tree augmentation; everything else
+    # uses the proven legacy router. (2026-05-08 hybrid orchestration.)
+    _GRAPH_HOPPING_PATTERNS = [
+        # Role-of-X questions: "Who is the CEO/CFO/President/Director/VP/Manager of X?"
+        r"\bwho\s+(is|was|are|were)\s+(the\s+)?"
+        r"(ceo|cfo|cto|coo|cio|ciso|chro|president|vice\s+president|vp|"
+        r"director|manager|head\s+of|chief|chair(person|man|woman)?|"
+        r"empowered\s+official|owner|lead|leader)\b",
+        # Reporting chain
+        r"\breports?\s+to\b",
+        r"\breporting\s+(chain|line|structure|hierarchy)\b",
+        # Leadership verbs
+        r"\bwho\s+(chairs?|leads?|heads?|runs?|manages?|oversees?|directs?)\b",
+        # Succession / appointment / predecessor
+        r"\b(replaced|succeeded|succession|appointed|appointment|"
+        r"predecessor|successor|formerly|previously\s+held|stepped\s+down)\b",
+        # "X's role" / "role of X" questions
+        r"\b(role|title|position|appointment)\s+of\b",
+    ]
+
+    def _is_graph_hopping_query(self, query: str) -> bool:
+        """
+        Return True if the query is a role/reporting/succession question that
+        benefits from graph traversal. All other queries use the legacy router
+        only.
+
+        Rationale: 2026-05-08 benchmark showed tree retrieval gives confidently
+        wrong answers on document-grounded questions (revenue, capacity, lists)
+        but adds value for graph-hopping questions where edges encode the
+        answer (e.g., HOLDS_POSITION, REPORTS_TO).
+        """
+        if not query:
+            return False
+        q = query.lower()
+        for pattern in self._GRAPH_HOPPING_PATTERNS:
+            if re.search(pattern, q):
+                return True
+        return False
+
     def _map_classification_to_tree_query_type(self, query: str, classification: QueryClassification) -> str:
         """
         Map QueryClassification to TreeBasedRetriever query types.
@@ -1991,12 +2031,19 @@ class RetrievalRouter:
         # TREE-BASED RETRIEVAL: If enabled, try hierarchical graph traversal first
         from src.context_foundry.config.feature_flags import is_tree_based_retrieval_enabled
 
-        if is_tree_based_retrieval_enabled(override=tree_based_retrieval):
+        # HYBRID ORCHESTRATION (2026-05-08): Tree retrieval is gated on
+        # graph-hopping queries only (role/reporting/succession). Document-grounded
+        # questions (revenue, capacity, lists) skip tree entirely because
+        # benchmark showed tree gives confidently-wrong answers there.
+        # Threshold tightened from {high,medium} to {high} only — matches
+        # user spec `if tree_result.confidence > 0.7: return tree`.
+        is_graph_hop = self._is_graph_hopping_query(query)
+        if is_tree_based_retrieval_enabled(override=tree_based_retrieval) and is_graph_hop:
             try:
                 from src.context_foundry.retrieval.tree_retriever import TreeBasedRetriever
                 from src.context_foundry.grounding.validator import validate_path_contains_anchor
 
-                logger.info(f"[ROUTER] Tree-based retrieval ENABLED - attempting hierarchical traversal")
+                logger.info(f"[ROUTER] Tree-based retrieval ENABLED + graph-hopping query detected - attempting hierarchical traversal")
                 tree_retriever = TreeBasedRetriever(self.session, self.tenant_id)
 
                 # Map classification to query_type for tree retrieval
@@ -2021,8 +2068,12 @@ class RetrievalRouter:
                 # TODO(spec: CONFLICT_AWARE_RETRIEVAL_FINAL.md §5.2 rule 1): apply entity grounding
                 # validation on the non-tree/doc-search path when tree retrieval is disabled or falls back.
 
-                # Use tree results if confidence is high or medium
-                if tree_result.confidence in ['high', 'medium']:
+                # Use tree results ONLY when confidence is high (>0.7 per user spec).
+                # Medium/low → fall through to legacy router. Tightened from
+                # ['high','medium'] on 2026-05-08 because medium-confidence tree
+                # results were responsible for most of the 14 graph-traversal
+                # regressions in the full benchmark.
+                if tree_result.confidence == 'high':
                     logger.info(f"[ROUTER] Tree-based retrieval SUCCESS: confidence={tree_result.confidence}, "
                                f"entities={len(tree_result.entities)}, rels={len(tree_result.relationships)}")
 

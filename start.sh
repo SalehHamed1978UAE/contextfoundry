@@ -8,7 +8,7 @@ CF_RUN_MODE="${CF_RUN_MODE:-serve}"
 echo "[Config] CF_RUN_MODE: $CF_RUN_MODE"
 
 export CF_TREE_BASED_RETRIEVAL=false
-echo "[Config] Tree-based retrieval: $CF_TREE_BASED_RETRIEVAL (kept off 2026-05-08: chunk-grounded fallback fix unit-tested at avg sim 0.576, but full Nexus benchmark still -11 vs legacy 74; do not enable without further investigation of 14 still-failing questions)"
+echo "[Config] Tree-based retrieval: $CF_TREE_BASED_RETRIEVAL (HYBRID code in place 2026-05-08 — gated on _is_graph_hopping_query()+'high' confidence — but 100Q benchmark = 73/100 vs legacy baseline 74/100, recovered 0/8 target graph-hopping failures. Tree confidence rarely reaches 'high' on these questions. Re-enable per-request via API flag for experiments only.)"
 
 if [ "$CF_RUN_MODE" = "extract" ]; then
     if [ -z "$CF_EXTRACT_VAULT" ]; then
