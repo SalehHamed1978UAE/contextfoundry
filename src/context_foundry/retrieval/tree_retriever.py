@@ -208,13 +208,33 @@ class TreeBasedRetriever:
 
             # Check if entity matches intent
             if self._matches_intent(entity, intent, depth, edge_type=edge_type, neighbor=parent):
+                # Tag results validated via the ROLE matcher's path (b) or (c) so
+                # _compute_confidence can promote them to 'high' (the hybrid gate
+                # at retrieval_router.py:2079 only accepts tree results at 'high').
+                edge_up = (edge_type or '').upper()
+                role_match = (
+                    intent.query_type == 'ROLE'
+                    and intent.property_filters
+                    and intent.property_filters.get('role')
+                    and (
+                        edge_up in ('HOLDS_POSITION', 'HAS_ROLE', 'HOLDS_ROLE')  # path (b)
+                        or (
+                            entity.get('entity_type') == 'PERSON'
+                            and edge_up in ('WORKS_AT', 'AFFILIATED_WITH', 'REPORTS_TO', 'MANAGES')
+                        )  # path (c)
+                    )
+                )
                 results.append({
                     'entity': entity,
                     'depth': depth,
                     'edge_type': edge_type,
+                    'role_match': bool(role_match),
                     'anchor_path': []  # TODO: track path for provenance
                 })
-                logger.debug(f"[TREE] Match at depth {depth}: {entity['name']} ({entity['entity_type']})")
+                logger.debug(
+                    f"[TREE] Match at depth {depth}: {entity['name']} ({entity['entity_type']}) "
+                    f"role_match={bool(role_match)}"
+                )
 
             # Get connected entities (only if depth < max_depth)
             if depth < max_depth:
@@ -647,6 +667,15 @@ class TreeBasedRetriever:
 
         top_score = results[0]['combined_score']
         top_depth = results[0]['depth']
+
+        # 2026-05-08: If the top result was validated by the ROLE matcher's
+        # role-edge or affiliation+role-lookup path, the role-name match is a
+        # high-precision signal — promote to 'high' so the hybrid gate accepts
+        # it. (Without this, BFS combined_score for affiliation paths often
+        # lands in the 0.5-0.7 band and falls back to legacy.)
+        if any(r.get('role_match') for r in results[:3]):
+            logger.info(f"[TREE] _compute_confidence: role_match in top-3 → 'high'")
+            return 'high'
 
         if top_depth <= 2 and top_score >= 0.7:
             return 'high'
