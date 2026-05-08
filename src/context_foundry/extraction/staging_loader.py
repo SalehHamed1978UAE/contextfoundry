@@ -114,6 +114,10 @@ class StagingLoader:
         self.duplicate_detector = DuplicateDetector(session, similarity_threshold, tenant_id=tenant_id)
         self._candidate_normalizer = CandidateNormalizer()
         self._known_relationship_types_cache: Optional[set] = None
+        # Optional Component 2 hook: TypeDiscoveryAgent observes raw relations
+        # BEFORE normalisation, so it can see what the LLM actually emitted.
+        self._type_discovery_agent = None
+        self._type_discovery_doc_type: str = "unknown"
 
         # Validate ontology map on initialization
         if tenant_id:
@@ -712,6 +716,17 @@ class StagingLoader:
         
         return result, persisted_entities
     
+    def set_type_discovery_agent(self, agent, document_type: str = "unknown") -> None:
+        """Attach a TypeDiscoveryAgent (Component 2 of auto-discovery).
+
+        When attached, every relation passed through ``load_relations`` is
+        also observed by the agent BEFORE the staging loader normalises or
+        rejects it. This preserves the raw LLM-emitted predicate phrase and
+        the source-text evidence for downstream type discovery.
+        """
+        self._type_discovery_agent = agent
+        self._type_discovery_doc_type = document_type or "unknown"
+
     def load_relations(
         self,
         relations: List[ExtractedRelation],
@@ -726,7 +741,23 @@ class StagingLoader:
             StagingResult with counts
         """
         result = StagingResult()
-        
+
+        # Component 2 hook: observe BEFORE normalisation/rejection so the
+        # agent sees the raw predicate phrases, not the canonical forms.
+        # NB: log at WARNING (not DEBUG) so a broken hook is visible in
+        # production logs rather than silently dropping signal.
+        if self._type_discovery_agent is not None and relations:
+            try:
+                self._type_discovery_agent.observe_extraction(
+                    relations,
+                    document_type=self._type_discovery_doc_type,
+                )
+            except Exception as e:
+                logger.warning(
+                    f"[TypeDiscoveryAgent] observe_extraction failed on "
+                    f"{len(relations)} relation(s): {e}"
+                )
+
         for extracted in relations:
             try:
                 relationship, action = self.load_relation(extracted)

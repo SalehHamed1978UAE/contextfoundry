@@ -1,19 +1,19 @@
 {
-  "run_timestamp": "2026-05-08T15:59:44.255409",
+  "run_timestamp": "2026-05-08T16:52:07.029592",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_176a4fb2.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.34,
-    "avg_semantic_score": 0.06426500000000003,
+    "avg_chunks_retrieved": 3.37,
+    "avg_semantic_score": 0.067624,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "no_data": 11,
-      "exact_match": 42,
+      "no_data": 10,
+      "no_match": 15,
+      "exact_match": 41,
       "component_match": 24,
       "number_match": 8,
-      "no_match": 13,
       "percentage_match": 1,
       "semantic_match": 1
     },
@@ -28,11 +28,16 @@
     {
       "q_id": 2,
       "question": "What is the name of the CFO?",
-      "avg_score": 0.0
+      "avg_score": 0.3313
     },
     {
       "q_id": 3,
       "question": "Who is the President of Nexus Digital Solutions?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 4,
+      "question": "Who is the Chief Engineer for the Falcon X program?",
       "avg_score": 0.0
     },
     {
@@ -218,11 +223,6 @@
     {
       "q_id": 44,
       "question": "When is the Toyota JV expected to close?",
-      "avg_score": 0.0
-    },
-    {
-      "q_id": 45,
-      "question": "When was Dr. Victoria Chen appointed CEO?",
       "avg_score": 0.0
     },
     {
@@ -533,13 +533,6 @@
         ]
       },
       {
-        "q_id": 45,
-        "question": "When was Dr. Victoria Chen appointed CEO?",
-        "expected": "2019",
-        "actual": "The appointment date was not found in th",
-        "files_retrieved": []
-      },
-      {
         "q_id": 46,
         "question": "Who supplies solar panels for the Desert Sun project?",
         "expected": "First Solar",
@@ -577,6 +570,17 @@
       }
     ],
     "no_match": [
+      {
+        "q_id": 2,
+        "question": "What is the name of the CFO?",
+        "expected": "Michael Chang",
+        "actual": "The CFO of Nexus Industries is **Robert ",
+        "files_retrieved": [
+          "07_capital_allocation_plan.md",
+          "12_project_cost_summary.md",
+          "05_digital_division_structure.md"
+        ]
+      },
       {
         "q_id": 17,
         "question": "Who supplied the electrolyzers for the GreenHydrogen facilit",
@@ -625,6 +629,17 @@
           "05_digital_division_budget.md",
           "11_product_launch_planning.md",
           "06_materials_division_budget.md"
+        ]
+      },
+      {
+        "q_id": 45,
+        "question": "When was Dr. Victoria Chen appointed CEO?",
+        "expected": "2019",
+        "actual": "Dr. Victoria Chen was appointed CEO on *",
+        "files_retrieved": [
+          "08_hr_talent_review.md",
+          "01_executive_team.md",
+          "02_organizational_announcement.md"
         ]
       },
       {

@@ -110,6 +110,37 @@ class OntologyCentricPipeline:
         
         self.entity_extractor = EntityExtractor(model=model, temperature=0.0)
         self.relation_extractor = RelationExtractor(model=model, temperature=0.0)
+
+        # Component 2 (TypeDiscoveryAgent) hook — attached via
+        # set_type_discovery_agent(). When attached, every staged document is
+        # observed; every N docs (default 5) the agent runs discovery and
+        # writes APPROVED/PENDING ontology_candidates back to the DB.
+        self._type_discovery_agent = None
+        self._discovery_interval: int = 5
+        self._discovery_auto_approve_confidence: float = 0.85
+        self._docs_since_discovery: int = 0
+        self._current_document_type: str = "unknown"
+
+    def set_type_discovery_agent(
+        self,
+        agent,
+        interval: int = 5,
+        auto_approve_confidence: float = 0.85,
+    ) -> None:
+        """Attach a TypeDiscoveryAgent to this pipeline.
+
+        Args:
+            agent: a TypeDiscoveryAgent instance
+            interval: run discover_types() / persist_proposals() every N docs
+            auto_approve_confidence: proposals above this confidence are
+                written with status='APPROVED' and immediately picked up by
+                future extractions; lower-confidence proposals go PENDING for
+                human review.
+        """
+        self._type_discovery_agent = agent
+        self._discovery_interval = max(1, int(interval))
+        self._discovery_auto_approve_confidence = float(auto_approve_confidence)
+        self._docs_since_discovery = 0
     
     def extract(
         self,
@@ -174,6 +205,11 @@ class OntologyCentricPipeline:
                 document_type = classify_with_fallback(text, filename)
             
             logger.info(f"[OntologyCentricPipeline] Document type: {document_type}")
+            # Propagate the classified document type so the TypeDiscoveryAgent
+            # hook tags observations with the correct doc category, instead of
+            # the 'unknown' default. This is what makes doc-diversity scoring
+            # in the agent meaningful.
+            self._current_document_type = document_type or "unknown"
             
             ontology = self.ontology_manager.get_or_create_ontology(document_type, text)
             
@@ -673,8 +709,38 @@ class OntologyCentricPipeline:
             tenant_id=self.tenant_id,
             enable_deduplication=True,
         )
-        
+
+        # Component 2 hook: attach TypeDiscoveryAgent if the pipeline has one,
+        # so it observes raw LLM relations before normalisation.
+        agent = getattr(self, "_type_discovery_agent", None)
+        if agent is not None:
+            doc_type = getattr(self, "_current_document_type", "unknown")
+            loader.set_type_discovery_agent(agent, document_type=doc_type)
+
         result = loader.load_all(resolved_entities, relations, commit=True)
+
+        # After every N documents, run discovery and persist proposals so
+        # newly discovered types are picked up by future extractions.
+        if agent is not None:
+            self._docs_since_discovery = getattr(self, "_docs_since_discovery", 0) + 1
+            interval = getattr(self, "_discovery_interval", 5)
+            auto_approve = getattr(self, "_discovery_auto_approve_confidence", 0.85)
+            if self._docs_since_discovery >= interval:
+                try:
+                    proposals = agent.discover_types()
+                    if proposals and self.tenant_id:
+                        approved, pending = agent.persist_proposals(
+                            proposals,
+                            tenant_id=str(self.tenant_id),
+                            auto_approve_confidence=auto_approve,
+                        )
+                        logger.info(
+                            f"[TypeDiscoveryAgent] discovered {len(proposals)} type proposals: "
+                            f"{approved} APPROVED, {pending} PENDING"
+                        )
+                except Exception as e:
+                    logger.warning(f"[TypeDiscoveryAgent] discovery failed: {e}")
+                self._docs_since_discovery = 0
         
         logger.info(f"[OntologyCentricPipeline] Staged: {result.entities_created} entities, "
                    f"{result.relations_created} relations (resolved {len(name_to_existing_id)} to existing)")
