@@ -1,0 +1,135 @@
+# Task: Piece 0 — Domain Registry Canonicalization
+
+## Alignment
+
+- **Module touched:** ontology domain registry, classifier domain labels, legacy schema registries
+- **Product vs implementation:** implementation-level work supporting the domain-aware governed world model
+- **Architecture-doc consistency:** matches `docs/architecture.md` Piece 0 specification and ADR-003
+- **Drift risk:** assigning untraceable ontology rows to `core` and contaminating the shared/foundation domain
+- **Out of scope:** Piece 1 document classification wiring, extraction prompt changes, Gardener validation changes, v2 FactEvaluator, Nexus hardcoding, workflow restarts, `replit.md` edits
+
+## Standing Constraints
+
+- No `replit.md` edits.
+- No Manus/Ontology workflow restarts.
+- No auto-fixes outside Piece 0 scope.
+- One destructive action at a time, paste findings, wait for sign-off where specified.
+- Postgres only.
+- Every response begins with the alignment block per `docs/architecture.md` protocol.
+
+## Read-First Documents
+
+1. `docs/architecture.md`
+2. `docs/decisions.md`
+3. The Piece 0.1 / 0.2 registry audit (already pasted in prior turn)
+
+## Goal
+
+Construct the canonical ontology domain registry and backfill `domain_id` only where seed-file provenance is deterministic. Add `core` as an explicit classifier output. Mark legacy YAMLs without breaking live imports.
+
+## Locked Decisions (from architecture and decisions docs)
+
+1. `ontology.domains` is the canonical production domain registry.
+2. Canonical domain IDs are exactly these eight:
+   - `core`
+   - `it_infrastructure`
+   - `healthcare`
+   - `finance`
+   - `aviation`
+   - `supply_chain`
+   - `manufacturing`
+   - `construction`
+3. `core` denotes shared/common/foundation ontology. It is not an unknown bucket.
+4. `document_type` remains separate from `domain`.
+5. Rows without deterministic provenance are not assigned to `core`. They are reported and held unassigned.
+
+## Implementation Requirements
+
+### A. Canonical registry
+
+1. Create `ontology.domains` table if it does not already exist. Schema: `domain_id` (varchar primary key), `description` (text), `created_at` (timestamp).
+2. Seed the eight canonical domain IDs with brief descriptions.
+
+### B. Backfill (sign-off-gated)
+
+3. Compute and paste a pre-backfill row-count breakdown showing:
+   - Total rows in `ontology.types`.
+   - Total rows in `ontology.relations`.
+   - For each of the eight domains: count of rows that would be assigned via deterministic seed-file provenance.
+   - Count of rows that cannot be traced to a seed file (unassigned).
+4. **Stop and wait for sign-off after pasting the breakdown.** Do not run the backfill until sign-off is received.
+5. After sign-off, run the backfill using this provenance map:
+   - `00_shared_ontology.sql` → `core`
+   - `01_infra_ontology.sql` → `it_infrastructure`
+   - `02_supply_ontology.sql` → `supply_chain`
+   - `03_health_ontology.sql` → `healthcare`
+   - `04_mfg_ontology.sql` → `manufacturing`
+   - `05_aviation_ontology.sql` → `aviation`
+   - `06_finance_ontology.sql` → `finance`
+   - `07_construct_ontology.sql` → `construction`
+6. Rows without deterministic provenance keep `domain_id = NULL`. Report their count.
+7. If the unassigned count exceeds 50 rows or 5% of the total (whichever is smaller), do not run the backfill — surface this to the user before proceeding.
+
+### C. Classifier update
+
+8. Add `core` as the 8th classifier output:
+   - `brain/classifier.py:DOMAIN_DESCRIPTIONS` — add `core` entry with description matching the canonical meaning (shared/common/foundation ontology).
+   - `brain/classifier.py:DOMAIN_TYPES` — add corresponding entry.
+   - `brain/domain_embeddings.json` — add embedding for `core`.
+9. `core` must be emittable as an explicit classifier output. Do not use it as the below-threshold fallback unless the classifier explicitly classifies the document as `core` (i.e., `core`'s embedding is the closest match above threshold).
+10. **Smoke test:** feed the classifier a document whose content is shared/foundation in nature (a generic organizational policy, an entity-relationship dictionary, or similar). Confirm the classifier returns `core` as `primary_domain`. Paste the test input excerpt and the classifier output.
+
+### D. Legacy YAML disposition
+
+11. Before renaming any YAML, grep the codebase for live imports of each:
+    - `config/domain_schema.yaml`
+    - `config/fiction_schema.yaml`
+    - `config/investment_schema.yaml`
+    - `config/examples/investment_portfolio.yaml`
+12. For YAMLs with no live imports: rename to `<original_name>_legacy.yaml`. Add a top-of-file note: "Legacy schema. Superseded by canonical ontology registry in `ontology.domains`. Not loaded by any production path."
+13. For YAMLs with live imports: do not rename. Add the same top-of-file LEGACY note only. Surface the live import to the user with file path so a follow-up Piece can plan the migration.
+
+## Acceptance Checks
+
+After the work lands, all of these must hold:
+
+1. `ontology.domains` contains exactly the eight canonical IDs.
+2. Every classifier-emittable domain label exists in `ontology.domains`.
+3. `OntologyRepository.get_all_types(domain_id='core')` returns more than zero rows.
+4. `OntologyRepository.get_all_types(domain_id='finance')` returns more than zero rows.
+5. `OntologyRepository.get_all_types(domain_id='healthcare')` returns more than zero rows.
+6. `document_type` remains separate from `domain` (no schema change conflating them).
+7. Untraceable rows are reported and remain `domain_id = NULL`. None were silently assigned to `core`.
+8. Smoke test from step 10 passes — classifier emits `core` for a foundation-domain document.
+9. No extraction prompt, Gardener validation, v2 inference, Nexus benchmark, workflow, or `replit.md` changes occurred.
+
+## Sequencing
+
+1. Read the three required documents.
+2. Run section A (create and seed `ontology.domains`).
+3. Run section B steps 3, paste pre-backfill breakdown, **stop and wait for sign-off**.
+4. After sign-off, run section B steps 5–7 (backfill, including the safeguard check).
+5. Run section C (classifier update + smoke test).
+6. Run section D (YAML import grep + renames or notes).
+7. Run all acceptance checks. Paste results.
+8. Paste the final report.
+
+## Final Report
+
+The report contains:
+
+- Files changed (paths and brief description per file).
+- Migrations run (SQL pasted).
+- Pre-backfill counts.
+- Post-backfill counts.
+- Unassigned row count.
+- Provenance method used (and its limits — explain how seed-file provenance was traced).
+- Classifier labels after update (full list).
+- Classifier smoke test result for `core` (input excerpt + output).
+- YAML files marked legacy (renamed vs. note-only, with live-import findings if any).
+- Tests / acceptance checks run, with pass/fail per check.
+- Any unresolved mismatch or surprise.
+
+## Stop Condition
+
+Stop after Piece 0. Do not begin Piece 1 work. Wait for confirmation before the next task is sent.
