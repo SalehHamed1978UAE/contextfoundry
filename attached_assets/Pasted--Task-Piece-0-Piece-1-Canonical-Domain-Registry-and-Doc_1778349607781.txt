@@ -1,0 +1,107 @@
+# Task: Piece 0 + Piece 1 — Canonical Domain Registry and Document Classification
+
+## Alignment Block
+
+- **Module touched:** domain registry, document classifier, extraction metadata flow
+- **Product vs implementation:** implementation supporting domain-aware world model governance
+- **Architecture consistency:** matches target design where documents are classified before ontology-scoped extraction
+- **Drift risk:** wiring classifier labels that do not match ontology domain IDs; collapsing document_type into domain
+- **Out of scope:** changing extractor prompt content, Gardener validation, v2 FactEvaluator, Nexus-specific hardcoding, deleting orphan modules
+
+## Standing Constraints (unchanged)
+
+- No `replit.md` edits.
+- No Manus/Ontology workflow restarts.
+- No auto-fixes during this task.
+- Postgres only — no new framework dependencies.
+- Lifecycle integrity: STAGING → TRUSTED only via Gardener.
+- One logic change at a time, paste findings, wait for direction before next piece.
+- Every response begins with the alignment block (above format).
+
+## Read-First Documents
+
+Before any code work, read in this order:
+
+1. `docs/architecture.md` (the current-state audit just produced)
+2. `docs/decisions.md`
+3. `docs/CF_MASTER_REFERENCE.md` (if present)
+4. `scripts/run_vault_extraction.py` — the production extraction entry point
+5. `brain/classifier.py` — the existing domain classifier
+6. `src/context_foundry/extraction/document_classifier.py` — the document-type classifier
+7. `src/context_foundry/ontology/repository.py` — ontology DB access layer
+8. `src/context_foundry/ontology/prompt_generator.py` — `SchemaPromptGenerator`
+9. `src/context_foundry/extraction/multi_extractor.py` — `MultiModelExtractor`
+10. Database schema files for `ontology` schema (`ontology.types`, `ontology.relations`) and `platform.documents` table
+
+## Goal
+
+Make ontology DB domain IDs the canonical domain registry and wire document classification metadata into the production extraction path without changing extraction behavior yet.
+
+The classifier must produce three pieces of metadata per document, not just one label:
+
+- `primary_domain` — the principal domain ID (e.g., `aerospace_defense`)
+- `secondary_domains` — list of additional domain IDs that legitimately appear in the document (e.g., `["finance", "compliance", "security"]` for a board memo)
+- `document_type` — what kind of document this is (e.g., `board_minutes`, `technical_spec`, `policy`, `incident_report`, `annual_report`)
+
+`document_type` is **not** the same as `domain` and must not be collapsed into it. `document_type` is the basis for source-authority decisions (board minutes are authoritative for executive appointments; policies are authoritative for ownership/responsibility). `domain` is the basis for ontology-scope decisions (which entity types and relationships are relevant).
+
+## Piece 0 — Reconcile Domain Registries
+
+### 0.1 — Audit existing registries
+
+Identify and document the current state of each:
+
+- **Ontology database** — read `ontology.types.domain_id` and `ontology.relations.domain_id` distinct values. Paste the list. These will become canonical.
+- **`brain/classifier.py`** — read the `DOMAIN_DESCRIPTIONS` dict and any other domain-label sources. Paste the list of labels.
+- **`config/domain_schema.yaml`** — read the domain(s) defined. Paste the list.
+- **Any other domain registries** found in the codebase (e.g., orphan YAMLs in `config/`, hardcoded lists in extraction modules). Paste them.
+
+### 0.2 — Produce a mapping table
+
+For every distinct label across all registries, produce a row in a mapping table:
+
+| Source registry | Source label | Canonical ontology domain_id | Notes |
+|---|---|---|---|
+
+Where:
+- **Source registry** is the file path (e.g., `brain/classifier.py:DOMAIN_DESCRIPTIONS`)
+- **Source label** is the label as it appears there (e.g., `it_infrastructure`)
+- **Canonical ontology domain_id** is the matching `ontology.types.domain_id` value, or `NEW_DOMAIN` if a new ontology domain needs to be created, or `LEGACY_REMOVE` if the label has no canonical mapping and should be archived
+- **Notes** explains the mapping decision (e.g., "underscored in classifier, non-underscored in DB; canonical chosen as DB form")
+
+Paste the mapping table for review **before** making any code changes. Wait for sign-off on the mapping before proceeding to 0.3.
+
+### 0.3 — Update non-canonical registries to match canonical
+
+After mapping is signed off:
+
+- Update `brain/classifier.py:DOMAIN_DESCRIPTIONS` keys to use the canonical ontology domain IDs.
+- Mark `config/domain_schema.yaml` as legacy if its domains don't match canonical (do not delete; rename to `config/domain_schema_legacy.yaml` and add a note at the top).
+- Mark orphan YAMLs (`config/fiction_schema.yaml`, `config/investment_schema.yaml`, `config/examples/*`) as legacy in the same way.
+
+After this work: the classifier emits a label that can be passed directly into `OntologyRepository.get_all_types(domain_id=...)` without translation.
+
+### 0.4 — Acceptance for Piece 0
+
+- All canonical domain IDs are documented and consistent across registries.
+- `brain/classifier.py` outputs match `ontology.types.domain_id` values exactly.
+- Legacy registries are renamed and annotated, not deleted.
+- A unit test confirms: for every label `brain/classifier.py` can output, `OntologyRepository.get_all_types(domain_id=label)` returns at least one type.
+
+Paste the test result and the final mapping table. Wait for sign-off before starting Piece 1.
+
+## Piece 1 — Wire Classification Into the Production Extraction Path
+
+### 1.1 — Extend the classifier output shape
+
+`brain/classifier.py:classify_and_get_types()` (or equivalent) must return a structured output:
+
+```python
+{
+  "primary_domain": "aerospace_defense",       # str, canonical ontology domain_id
+  "secondary_domains": ["finance", "compliance"],  # list[str], all canonical
+  "document_type": "board_minutes",            # str, from document-type classifier
+  "classification_confidence": 0.87,           # float, 0.0-1.0
+  "classifier_version": "v1.2.0",              # str, semver of classifier prompt + model
+  "classification_evidence": "..."              # str, brief justification (~1-2 sentences)
+}
