@@ -1,0 +1,340 @@
+You're right. The Gap Detector instruction in my message was a typology bullet list — Replit can't build from that. The reviews you gave me had concrete components: the workflow diagram showing where the Gap Detector sits in the pipeline, the structured response interface example (CEO of Nexus Industries → Person autocomplete + date picker + source upload), the role-routing logic, the audit trail fields, the example natural-language question phrasing ("Jennifer Walsh is listed as CISO but we have no record of when she was appointed. Who can confirm her appointment date?"). I summarized those instead of carrying them through.
+
+Here's the rewrite. Same overall message structure, but Phase 1 deliverables 3, 4, and 5 — Gap Detector, pipeline wiring, human-completion interface — get the level of specification the reviews provided.
+
+---
+
+We're changing direction. The v2 inference engine work is parked. The new goal is a **100% comprehension demo on the Nexus corpus** — meaning every one of the 100 questions either gets answered correctly by automation, or generates a structured question routed to a human, gets answered, and the answer enters the graph as TRUSTED with full audit trail. The artifact at the end is a demo I can show: "here's the corpus, here's our score, here's what automation handled, here's what we asked a human, here's the audit trail on every fact."
+
+This phase is roughly 4 weeks of focused work. The success metric is "the demo exists and is presentable." Stop labeling progress in points and start labeling it in components delivered.
+
+**The architectural shape we're building toward:**
+
+```
+Corpus Ingestion
+      ↓
+Automatic Extraction → STAGING facts
+      ↓
+Gardener Pass → promotes high-confidence facts to TRUSTED
+      ↓
+Query arrives
+      ↓
+Existing Query Pipeline (QueryClassifier → RoleResolver → RetrievalRouter)
+      ↓
+   ┌──────────────────┴──────────────────┐
+   ↓                                     ↓
+Answer with provenance          Gap Detector
+                                         ↓
+                                Typed Gap Question
+                                         ↓
+                                Role-based Router
+                                         ↓
+                                Human Completion Interface
+                                         ↓
+                                Authorized Human Response
+                                         ↓
+                                Gardener (with source = "human_confirmation",
+                                          confirmed_by, confirmed_at,
+                                          attested_role, source_artifact)
+                                         ↓
+                                TRUSTED fact in graph
+                                         ↓
+                                Re-query, return answer with provenance
+```
+
+Existing Data Gates behavior is preserved — they still refuse to fabricate answers — but a refusal now produces an *actionable gap object* rather than a dead end "I don't have enough information."
+
+**Phase 1 deliverables, in order:**
+
+**1. Apply the cache-key fix** specified in `docs/v2_architecture_lessons_2026-05.md §1`. Five-line edit, three version constants. Land this first as a discrete commit. Don't invalidate the existing cache — let it grow naturally with the new key shape.
+
+**2. Run the oracle experiment** ($15-25 in API costs, scoped in `docs/v2_oracle_candidate_experiment_scope_2026-05.md`). Purpose has changed: it's no longer "is v2 viable." It's "what fraction of the 26 failures could the system answer correctly if retrieval were perfect." This calibrates the automated-vs-human split we'll be presenting in the demo. Run it, paste the result, don't act on it yet.
+
+**3. Build the Gap Detector.** This is the new core component. For each of the 26 failures (and structurally, for any future failure), the system must produce a typed Gap object, not just refuse.
+
+A Gap object has this schema:
+
+```python
+@dataclass
+class Gap:
+    gap_id: str                          # uuid
+    gap_type: GapType                    # enum below
+    natural_language_question: str       # what gets shown to the human
+    
+    # Context for the question
+    subject_entity_id: Optional[UUID]    # if the gap is about a known entity
+    subject_entity_name: Optional[str]   # rendered name for display
+    relationship_type: Optional[str]     # e.g. "HOLDS_POSITION"
+    target_entity_type: Optional[str]    # what kind of answer we expect
+    
+    # The structured response schema — what fields the form will render
+    response_schema: ResponseSchema      # see deliverable 5
+    
+    # Routing
+    proposed_role: str                   # "HR", "Legal", "Finance", etc.
+    proposed_role_reasoning: str         # why this role — for transparency
+    
+    # Provenance for the gap itself
+    detected_from_query: Optional[str]   # the question that triggered detection
+    detected_from_failure_mode: str      # which taxonomy class
+    related_evidence_chunks: list[UUID]  # any partial evidence the system found
+    
+    # Priority
+    blocks_other_facts: int              # how many other facts depend on this
+    priority_rank: int                   # computed from blocks_other_facts + recency
+```
+
+The seven Gap types, each with concrete examples drawn from the Nexus 26 failures:
+
+**A. EXTRACTION_GAP** — system has the document but didn't capture a value from it.
+
+Example (Q25, target energy density 400 Wh/kg):
+> "Document 'Battery Tech Specifications.pdf' mentions a target energy density for the next-generation battery program, but we couldn't extract the specific value. The expected format is a number with units (e.g., '400 Wh/kg'). Please confirm the target value."
+
+Detection logic: a chunk was retrieved that the LLM judges as containing the requested fact type, but the structured extraction pipeline didn't produce a corresponding fact. Reuses the polarity classifier from the v2 gatherer to detect "this chunk should have produced a fact but didn't."
+
+Routing: based on the document's owning department or the entity type (technical specs → Engineering; budget figures → Finance).
+
+Response schema: typed value field matching the expected entity type, optional source-paragraph confirmation.
+
+**B. RETRIEVAL_GAP_VOID** — system has the entity but couldn't find a relationship of expected type.
+
+Example (Q1, Victoria Chen → CEO):
+> "Victoria Chen exists in our records, but we don't have a HOLDS_POSITION relationship recorded for her. Is she the CEO of Nexus Industries? If so, when was she appointed?"
+
+Detection logic: query expects a relationship type that doesn't exist on the resolved entity. The structural completeness rules (E1, E2, E3) from v2 are exactly this detector — repurposed from confidence-penalty to question-generator.
+
+Routing: based on relationship type (HOLDS_POSITION → HR; SUPPLIES → Procurement; OWNS_POLICY → Legal).
+
+Response schema: target entity autocomplete (against known entities of the expected target type), optional date and source fields.
+
+**C. RETRIEVAL_GAP_AMBIGUOUS** — multiple candidate answers, system can't disambiguate.
+
+Example (Q17, electrolyzer supplier — system returned 4 candidates via centrality bias):
+> "We found multiple potential suppliers for the electrolyzer program: Honeywell, Boeing, Lockheed Martin, Northrop Grumman, Nel Hydrogen. Which is the actual supplier? If none of these, please specify."
+
+Detection logic: query returns >1 candidate above a threshold, no clear winner by relevance. (Note: this fix becomes less common after the centrality bias fix in deliverable 6, but the gap type still needs to exist.)
+
+Routing: based on relationship and entity type.
+
+Response schema: single-select from candidate list + "none of these, specify" option, optional source.
+
+**D. SUCCESSION_GAP** — system has a predecessor edge but can't confirm current holder.
+
+Example (Q61, President of NDS):
+> "Thomas Anderson previously held the role of President of Nexus Digital Solutions. We have a REPLACED edge indicating succession but couldn't determine the current holder. Who currently holds this role?"
+
+Detection logic: PREVIOUSLY_HELD or REPLACED edge exists, but no active HOLDS_POSITION edge to the same role.
+
+Routing: HR.
+
+Response schema: person autocomplete + start-date picker + optional source.
+
+**E. CROSS_DOCUMENT_GAP** — system has component values but can't aggregate.
+
+Example (Q40, FY2026 backlog $12.4B):
+> "We have backlog figures for four divisions: Aerospace ($4.2B), Defense Electronics ($3.1B), Energy Systems ($2.4B), Advanced Materials ($1.8B). The corporate-stated total appears in the annual report but we couldn't extract it. The component sum is $11.5B. Please confirm the corporate total."
+
+Detection logic: question asks for an aggregate, system has components but no extracted aggregate value, OR the component sum doesn't reconcile with a stated value found in the corpus.
+
+Routing: Finance.
+
+Response schema: numeric value with units, optional source citation, optional explanation if components don't sum to total.
+
+**F. DATE_TEMPORAL_GAP** — references exist but no extracted date.
+
+Example (Q14, Victoria Chen appointment date January 2026):
+> "We have references to Victoria Chen's appointment as CEO in the corpus but couldn't extract a specific date. When was she appointed? (Approximate date is acceptable — month/year.)"
+
+Detection logic: query asks "when," entity and event are resolved, no temporal qualifier on the relevant relationship.
+
+Routing: HR for personnel events, Legal for contract events, Operations for incidents.
+
+Response schema: date picker (with granularity selector — exact / month / year / approximate), optional source.
+
+**G. STRUCTURAL_GAP** — required edge missing per ontology rules (pure E1/E2 territory).
+
+Example (synthetic, derived from E1):
+> "Jennifer Walsh holds the position of CISO, but we have no WORKS_AT relationship for her. Which organization does she work for? (For role assignments, the holder must work at the organization the role belongs to.)"
+
+Detection logic: ontology says relationship type X requires companion relationship Y, the companion is missing.
+
+Routing: HR.
+
+Response schema: organization autocomplete, optional source.
+
+**Implementation guidance for the Gap Detector:**
+
+- The Detector reuses v2 components where possible. Specifically: the structural completeness rules (E1, E2, E3) become detectors B and G. The polarity classifier becomes detector A. The recursive source-authority logic from v2 is *not* reused — the gap detector doesn't need to evaluate trustworthiness of sources, just detect their absence or insufficiency.
+
+- The gap_id must be deterministic (hash of gap_type + subject + relationship + query) so the same gap detected twice produces the same gap_id. This prevents duplicate questions if a query is re-run.
+
+- Role routing uses an ontology-driven mapping table. Each (relationship_type, target_entity_type) pair maps to a default authoritative role. Hardcode the mapping in a YAML file for now (path: `config/gap_routing.yaml`), structured for easy customer-specific override later. Example:
+
+```yaml
+HOLDS_POSITION:
+  default_role: "HR"
+  reasoning: "Personnel appointments are HR's authoritative domain."
+
+SUPPLIES:
+  default_role: "Procurement"
+  reasoning: "Supplier relationships are owned by Procurement."
+
+HAS_BUDGET:
+  default_role: "Finance"
+  reasoning: "Budget figures are owned by Finance."
+
+OWNS_POLICY:
+  default_role: "Legal"
+  reasoning: "Policy ownership is Legal's authoritative domain."
+```
+
+- Save the design as `docs/gap_detector_design_2026-05.md` with the schemas, detection rules, and routing table specified above. Paste it before implementing — I want to review the design before code lands.
+
+**4. Wire the Gap Detector into the query pipeline.**
+
+Locate the existing point in the query pipeline where Data Gates produce "insufficient information" responses. At that point, instead of returning a refusal, invoke the Gap Detector with: the original query, the resolved entities, the partial evidence the pipeline gathered, and the failure mode classification.
+
+The query pipeline now returns one of:
+
+```python
+QueryResult = AnswerWithProvenance | GapDetected | NoApplicableGap
+
+@dataclass
+class GapDetected:
+    gap: Gap
+    partial_answer_attempted: Optional[str]   # what the system would have said pre-gap
+    user_facing_message: str                  # "We need a human to confirm this. Question routed to HR."
+```
+
+`NoApplicableGap` is the case where the system genuinely cannot even formulate a question (e.g., the query is incoherent, the subject entity doesn't exist anywhere). This stays as a refusal.
+
+Existing Data Gate refusal logic stays intact — it's now wrapped: refusal → invoke Gap Detector → if a gap is generated, return GapDetected; if not, return NoApplicableGap.
+
+**5. Build the human-completion interface.**
+
+Web UI, scoped to be functional not polished. Tech: keep it Postgres-only and use whatever lightweight web framework matches the existing project (FastAPI + a minimal frontend, or whatever's already there — don't add framework dependencies for this).
+
+**Three views:**
+
+**View A: Gap queue (per role).** A user logs in, attests to their role (HR, Legal, Finance, etc.), and sees the queue of gaps routed to that role, ordered by priority_rank descending. Each row shows:
+
+- The natural-language question
+- The subject entity context (e.g., "About: Victoria Chen, CEO of Nexus Industries")
+- The detected_from_failure_mode (so the user understands why we're asking)
+- Priority indicator (blocks_other_facts count)
+- "Answer" button → opens View B
+
+**View B: Typed answer form.** This is the critical one. The form is *generated from the Gap.response_schema*, not free text. Examples:
+
+For an EXTRACTION_GAP about a numeric spec value:
+```
+Document referenced: Battery Tech Specifications.pdf [view]
+Question: What is the target energy density for the next-generation battery program?
+
+Value: [numeric input]  Units: [dropdown: Wh/kg, kWh/kg, ...]
+Source confirmation: [paragraph textarea — quote or paste the supporting text]
+Source artifact (optional): [file upload]
+Your role attestation: [HR | Legal | Finance | Engineering | Other...]
+Authority basis: [free text — "I authored this spec", "I confirmed with engineering team", etc.]
+
+[Submit]   [Skip — I don't know]   [Reroute to different role]
+```
+
+For a RETRIEVAL_GAP_VOID about a CEO appointment:
+```
+About: Victoria Chen
+Question: Is Victoria Chen the CEO of Nexus Industries?
+
+CEO of: [autocomplete against known ORGANIZATION entities] (pre-filled: Nexus Industries)
+Start date: [date picker]
+Date precision: [exact | month | year | approximate]
+Source confirmation: [textarea]
+Source artifact (optional): [file upload]
+Your role: [pre-filled from session]
+Authority basis: [textarea]
+
+[Submit]   [Skip]   [Reroute]
+```
+
+For a RETRIEVAL_GAP_AMBIGUOUS:
+```
+About: Electrolyzer supplier program
+Question: Which is the actual supplier?
+
+Candidate suppliers (select one):
+( ) Honeywell
+( ) Boeing  
+( ) Lockheed Martin
+( ) Northrop Grumman
+( ) Nel Hydrogen
+( ) None of these — specify: [autocomplete against ORGANIZATION entities]
+
+Source confirmation: [textarea]
+Authority basis: [textarea]
+
+[Submit]   [Skip]   [Reroute]
+```
+
+The form structure is generated from `Gap.response_schema`, not hand-coded per gap type. The schema generator lives next to the Gap Detector — when a new gap type is added, the form for it is generated automatically from the schema.
+
+**View C: Audit trail.** A read-only view showing all human-confirmed facts in the graph. Each row shows: the fact, who confirmed it, when, with what authority, against what source. This is the artifact I'll show in the demo. Make sure it can be exported as JSON.
+
+**Audit trail data model.** When a gap is resolved, the resulting fact enters the graph via the existing Gardener path (this is non-negotiable — lifecycle integrity is preserved), but with these additional fields on the fact's evidence record:
+
+```python
+@dataclass
+class HumanConfirmationEvidence:
+    source_type: str = "human_confirmation"
+    confirmed_by_user_id: UUID
+    confirmed_by_user_name: str
+    attested_role: str               # what role they attested to
+    authority_basis: str             # their free-text justification
+    confirmed_at: datetime
+    source_artifact_id: Optional[UUID]  # uploaded document, if any
+    source_quote: Optional[str]      # textarea content
+    gap_id: UUID                     # back-reference to the originating gap
+    original_query: Optional[str]    # the user query that triggered the gap
+```
+
+Promotion to TRUSTED uses the existing Gardener with this evidence record attached. The Gardener's promotion criteria don't change — a human confirmation is one form of evidence sufficient for promotion when authority and source are attested.
+
+**6. Fix the retrieval and extraction failures that move questions from the human pile to the automation pile**, in priority order:
+
+- **Centrality bias in tree retrieval** (5 failures: Q17, Q48, Q61, Q71, Q83). Add a relevance scoring pass that weights nodes by semantic similarity to the question, not by graph degree. If this also re-enables tree retrieval as a generally-on strategy (it's currently off because it costs 11 points), that's a substantial additional win.
+
+- **Date extraction bridge** (Q14, Q45 — 2 failures). Dates live in chunks, not the graph. Build a date-extraction layer that links date mentions in chunks to graph entities via document context.
+
+- **Technical-spec extraction** (Q25, Q67, Q93 — 3 failures, all EXTRACTION_MISSED). Evaluate whether the existing extraction pipeline can be tuned for technical-spec capture, OR test Microsoft GraphRAG against these specific cases. This is an *experiment*, not a strategic commitment to swap extraction layers — measure recovery on those 3 cases, decide based on result.
+
+Each fix is scored by **how many gap questions it eliminates from the human pile**. That's the metric we care about now. Every fix I land is a question I don't have to answer manually in the demo.
+
+**7. Run the full Nexus 100 through the integrated pipeline** — automation + gap-detection + human-completion. I'll act as the human in the loop for the demo run. Document:
+
+- How many of the 100 the automation got correct (target: 80+ after the deliverable 6 fixes).
+- How many were gap-detected and routed to me, by gap type.
+- How long I took to answer each gap question.
+- The final score (target: 100/100).
+- The full audit trail JSON for the human-confirmed facts.
+
+Save the run as `docs/nexus_100_comprehension_demo_2026-05.md` with the numbers, screenshots of representative gap questions (one per gap type), the View C audit trail export, and a one-paragraph competitive narrative for the demo intro.
+
+**Standing constraints (unchanged):**
+
+- No replit.md edits.
+- No auto-fixes during the Nexus 100 demo run.
+- One logic change at a time, paste findings, wait for direction.
+- Postgres-only. No new framework dependencies.
+- Lifecycle integrity: STAGING → TRUSTED only via Gardener, including for human-confirmed facts.
+
+**Sequencing:**
+
+Cache fix → oracle experiment (paste result, wait) → Gap Detector design doc at `docs/gap_detector_design_2026-05.md` (paste, wait for sign-off before implementing) → Gap Detector implementation → query pipeline wiring → human-completion interface (Views A, B, C) → retrieval and extraction fixes (in parallel with interface work where possible) → Nexus 100 demo run.
+
+Estimated wall-time: 4-6 weeks. Estimated Anthropic spend across the phase: a few hundred dollars.
+
+Start with the cache fix and the oracle experiment. Confirm before moving to Gap Detector design.
+
+---
+
+That's the rewrite. The Gap Detector now has a typed schema, seven gap types each with a concrete Nexus example showing the natural-language phrasing and detection logic, a YAML routing table, and a clear note on what's reused from v2. The human-completion interface has three named views with concrete form examples. The audit trail has a data model. Send as-is or tell me what to adjust further.

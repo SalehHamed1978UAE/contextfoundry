@@ -117,16 +117,38 @@ async def extract_candidate_fact(llm: LLMClient, question: str, v1_answer: str,
         f"ALLOWED RELATIONSHIP TYPES: {', '.join(sorted(rel_types))}\n"
     )
     raw = await llm.call(FACT_EXTRACTION_SYSTEM, user, output_schema=None)
-    if isinstance(raw, dict):
-        return raw
-    if isinstance(raw, str):
-        try:
-            return json.loads(raw)
-        except json.JSONDecodeError:
-            return {"extractable": False,
-                    "reason_if_not_extractable": "extractor returned non-JSON"}
-    return {"extractable": False,
-            "reason_if_not_extractable": f"extractor returned {type(raw).__name__}"}
+    # LLMClient with output_schema=None returns {"text": "<raw>"}; unwrap.
+    candidate: str
+    if isinstance(raw, dict) and "extractable" in raw:
+        return raw  # already-parsed dict (legacy / cache)
+    if isinstance(raw, dict) and "text" in raw:
+        candidate = raw["text"]
+    elif isinstance(raw, str):
+        candidate = raw
+    else:
+        return {"extractable": False,
+                "reason_if_not_extractable":
+                    f"extractor returned {type(raw).__name__}: {repr(raw)[:120]}"}
+    # Strip ```json ... ``` or ``` fences if present.
+    s = candidate.strip()
+    if s.startswith("```"):
+        s = s.lstrip("`")
+        if s.lower().startswith("json"):
+            s = s[4:]
+        s = s.strip()
+        if s.endswith("```"):
+            s = s[:-3].strip()
+    try:
+        parsed = json.loads(s)
+    except json.JSONDecodeError as e:
+        return {"extractable": False,
+                "reason_if_not_extractable":
+                    f"extractor returned non-JSON: {e}; head={s[:120]!r}"}
+    if not isinstance(parsed, dict):
+        return {"extractable": False,
+                "reason_if_not_extractable":
+                    f"extractor returned {type(parsed).__name__}, want dict"}
+    return parsed
 
 
 # ---------------------------------------------------- verdict -> answer map

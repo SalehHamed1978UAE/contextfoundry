@@ -26,6 +26,13 @@ DEFAULT_MODEL = os.environ.get("LLM_MODEL_OVERRIDE", "claude-sonnet-4-6")
 BENCHMARK_PINNED_MODEL = "claude-sonnet-4-6"
 MAX_TOKENS = int(os.environ.get("LLM_MAX_TOKENS", "8192"))
 
+# Cache-key version tags. Bump any of these to invalidate cache without
+# deleting rows: new keys simply won't match old keys, and entries repopulate
+# under the new tag. See docs/v2_architecture_lessons_2026-05.md §1.
+PROMPT_TEMPLATE_VERSION = "v2"
+SCHEMA_FIELD_VERSION = "v2"
+REASONING_ENGINE_VERSION = "v2"
+
 
 class LLMError(RuntimeError):
     pass
@@ -47,13 +54,17 @@ def _ensure_cache_table(session: Session) -> None:
 def _hash_prompt(model: str, system_prompt: str, user_prompt: str,
                  schema_name: Optional[str]) -> str:
     h = hashlib.sha256()
-    h.update(model.encode("utf-8"))
-    h.update(b"||")
-    h.update(system_prompt.encode("utf-8"))
-    h.update(b"||")
-    h.update(user_prompt.encode("utf-8"))
-    h.update(b"||")
-    h.update((schema_name or "").encode("utf-8"))
+    for part in (
+        PROMPT_TEMPLATE_VERSION,
+        SCHEMA_FIELD_VERSION,
+        REASONING_ENGINE_VERSION,
+        model,
+        system_prompt,
+        user_prompt,
+        schema_name or "",
+    ):
+        h.update(part.encode("utf-8"))
+        h.update(b"||")
     return h.hexdigest()
 
 
