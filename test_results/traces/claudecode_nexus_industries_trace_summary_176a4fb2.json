@@ -1,23 +1,23 @@
 {
-  "run_timestamp": "2026-05-09T06:57:14.125891",
+  "run_timestamp": "2026-05-09T07:37:40.161462",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_176a4fb2.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.3800000000000003,
-    "avg_semantic_score": 0.07188700000000002,
+    "avg_chunks_retrieved": 3.3699999999999988,
+    "avg_semantic_score": 0.06469099999999997,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
       "no_data": 11,
-      "exact_match": 42,
-      "component_match": 25,
-      "number_match": 8,
-      "no_match": 12,
+      "exact_match": 41,
+      "component_match": 24,
+      "number_match": 7,
+      "no_match": 15,
       "percentage_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 90
+    "low_score_queries": 91
   },
   "low_score_questions": [
     {
@@ -198,7 +198,7 @@
     {
       "q_id": 40,
       "question": "What is the total company backlog?",
-      "avg_score": 0.2896
+      "avg_score": 0.2665
     },
     {
       "q_id": 41,
@@ -218,6 +218,11 @@
     {
       "q_id": 44,
       "question": "When is the Toyota JV expected to close?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 45,
+      "question": "When was Dr. Victoria Chen appointed CEO?",
       "avg_score": 0.0
     },
     {
@@ -486,10 +491,17 @@
         "expected": "January 2026 (effective January 15, 2026",
         "actual": "The appointment date was not found in th",
         "files_retrieved": [
+          "10_quarterly_newsletter.md",
           "04_digital_division_quarterly_review.md",
-          "09_competitive_intelligence.md",
-          "Unknown"
+          "09_competitive_intelligence.md"
         ]
+      },
+      {
+        "q_id": 15,
+        "question": "Who does Michael Chang report to?",
+        "expected": "Dr. Victoria Chen (CEO)",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": []
       },
       {
         "q_id": 18,
@@ -504,9 +516,9 @@
         "expected": "400 Wh/kg",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "06_solid_state_battery_design.md",
           "04_toyota_partnership_announcement.md",
-          "Unknown"
+          "06_solid_state_battery_design.md",
+          "11_batterytech_solid_state.md"
         ]
       },
       {
@@ -528,22 +540,21 @@
         ]
       },
       {
+        "q_id": 45,
+        "question": "When was Dr. Victoria Chen appointed CEO?",
+        "expected": "2019",
+        "actual": "The appointment date was not found in th",
+        "files_retrieved": [
+          "14_lockheed_martin_customer.md",
+          "13_shell_partner.md"
+        ]
+      },
+      {
         "q_id": 46,
         "question": "Who supplies solar panels for the Desert Sun project?",
         "expected": "First Solar",
         "actual": "The retrieved information does not speci",
         "files_retrieved": []
-      },
-      {
-        "q_id": 60,
-        "question": "When was the phishing incident detected?",
-        "expected": "December 12, 2025 at 02:47 UTC",
-        "actual": "The retrieved information does not provi",
-        "files_retrieved": [
-          "Unknown",
-          "10_cybersecurity_incident_response.md",
-          "08_cybersecurity_advisory.md"
-        ]
       },
       {
         "q_id": 61,
@@ -558,20 +569,9 @@
         "expected": "-30\u00b0C to 60\u00b0C",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
+          "04_toyota_partnership_announcement.md",
           "06_solid_state_battery_design.md",
-          "04_toyota_partnership_announcement.md",
-          "Unknown"
-        ]
-      },
-      {
-        "q_id": 93,
-        "question": "What electrolyte material is used in the solid-state battery",
-        "expected": "LLZO (Li7La3Zr2O12, Al-doped)",
-        "actual": "The electrolyte material used in the sol",
-        "files_retrieved": [
-          "04_toyota_partnership_announcement.md",
-          "06_toyota_jv_negotiation_summary.md",
-          "Unknown"
+          "11_batterytech_solid_state.md"
         ]
       }
     ],
@@ -589,9 +589,20 @@
         "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
         "actual": "The GreenHydrogen facility has a hydroge",
         "files_retrieved": [
-          "04_greenhydrogen_initiative.md",
           "08_global_locations.md",
-          "02_greenhydrogen_process_specification.md"
+          "02_greenhydrogen_process_specification.md",
+          "04_greenhydrogen_initiative.md"
+        ]
+      },
+      {
+        "q_id": 29,
+        "question": "Who are the members of the Executive Leadership Team?",
+        "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
+        "actual": "The members of the Executive Leadership ",
+        "files_retrieved": [
+          "05_fedramp_announcement.md",
+          "05_talent_strategy.md",
+          "10_quarterly_newsletter.md"
         ]
       },
       {
@@ -610,20 +621,9 @@
         "expected": "$12.4 billion",
         "actual": "The total company backlog is **$11.5 bil",
         "files_retrieved": [
-          "01_annual_report_2025.md",
-          "07_ma_strategy.md",
-          "03_aerospace_division_budget.md"
-        ]
-      },
-      {
-        "q_id": 45,
-        "question": "When was Dr. Victoria Chen appointed CEO?",
-        "expected": "2019",
-        "actual": "Dr. Victoria Chen was appointed CEO on *",
-        "files_retrieved": [
-          "02_organizational_announcement.md",
-          "01_executive_team.md",
-          "08_hr_talent_review.md"
+          "03_aerospace_division_budget.md",
+          "09_investor_relations_call.md",
+          "01_annual_report_2025.md"
         ]
       },
       {
@@ -632,8 +632,19 @@
         "expected": "Siemens Healthineers ($65 million)",
         "actual": "The primary customer for HTS superconduc",
         "files_retrieved": [
-          "05_siemens_healthineers_customer.md",
+          "Unknown",
           "01_boeing_customer_profile.md",
+          "05_siemens_healthineers_customer.md"
+        ]
+      },
+      {
+        "q_id": 60,
+        "question": "When was the phishing incident detected?",
+        "expected": "December 12, 2025 at 02:47 UTC",
+        "actual": "The retrieved information does not menti",
+        "files_retrieved": [
+          "10_cybersecurity_incident_response.md",
+          "08_cybersecurity_advisory.md",
           "Unknown"
         ]
       },
@@ -643,8 +654,8 @@
         "expected": "$680 million",
         "actual": "The FY2026 capital expenditure plan for ",
         "files_retrieved": [
-          "01_corporate_strategy_2026_2030.md",
-          "07_capital_allocation_plan.md"
+          "07_capital_allocation_plan.md",
+          "01_corporate_strategy_2026_2030.md"
         ]
       },
       {
@@ -669,14 +680,25 @@
         ]
       },
       {
+        "q_id": 73,
+        "question": "How many new employees will Nexus hire in FY2026?",
+        "expected": "1,200 net new positions",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": [
+          "05_talent_strategy.md",
+          "06_remote_work.md",
+          "03_press_release_fy2025.md"
+        ]
+      },
+      {
         "q_id": 79,
         "question": "What is the 2030 revenue target in the corporate strategy?",
         "expected": "$15 billion",
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
-          "01_corporate_strategy_2026_2030.md",
           "02_aerospace_division_strategy.md",
-          "06_market_expansion_asia.md"
+          "06_market_expansion_asia.md",
+          "01_corporate_strategy_2026_2030.md"
         ]
       },
       {
@@ -697,6 +719,17 @@
           "09_export_control.md",
           "03_aerospace_division_structure.md",
           "01_code_of_ethics.md"
+        ]
+      },
+      {
+        "q_id": 93,
+        "question": "What electrolyte material is used in the solid-state battery",
+        "expected": "LLZO (Li7La3Zr2O12, Al-doped)",
+        "actual": "The electrolyte material used in the sol",
+        "files_retrieved": [
+          "06_toyota_jv_negotiation_summary.md",
+          "Unknown",
+          "04_toyota_partnership_announcement.md"
         ]
       }
     ]
