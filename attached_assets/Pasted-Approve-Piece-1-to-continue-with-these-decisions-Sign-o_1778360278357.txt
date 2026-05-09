@@ -1,0 +1,149 @@
+Approve Piece 1 to continue with these decisions.
+
+# Sign-off decisions
+
+## 1. Migration SQL
+
+**Approved as-is.**
+
+Run the migration exactly as proposed:
+
+```text
+classification_status default = 'unclassified'
+secondary_domains default = []::jsonb
+classification_status CHECK constraint
+nullable primary_domain FK to ontology.domains
+documents_primary_domain_idx
+```
+
+The preflight confirmed `platform.documents` is the canonical metadata table with 241 rows, and there is no naming conflict with the eight new columns. The migration also correctly preserves existing rows as `classification_status='unclassified'`, not `ok`. 
+
+## 2. Empty-text guard
+
+**Add the guard.**
+
+Before calling either classifier, short-circuit:
+
+```python
+if len(text.strip()) < 50:
+    return {
+        "primary_domain": None,
+        "secondary_domains": [],
+        "document_type": None,
+        "classification_confidence": None,
+        "classifier_version": CLASSIFIER_VERSION,
+        "classification_evidence": None,
+        "classification_status": "failed",
+        "classification_error": "insufficient_text_for_classification",
+    }
+```
+
+Do not allow `classify_with_fallback("")` to write `"please_provide_the_document_you_would_like_me_to_analyze"` into `document_type`. Replit already surfaced that behavior as an upstream issue, and the wrapper is the right place to protect the production path. 
+
+## 3. Partial-failure status
+
+**Escalate to `failed` when `primary_domain is None`.**
+
+If the domain classifier fails, returns `unknown`, produces zero confidence, or cannot produce a canonical domain, the classification record is not complete enough to be `ok`.
+
+Use:
+
+```text
+classification_status = failed
+primary_domain = None
+document_type = None
+classification_error = <specific reason>
+```
+
+Do not mark it `ok` just because `document_type` succeeded. Domain classification is the load-bearing output for Piece 1.
+
+This keeps the semantic contract clean:
+
+```text
+ok = both domain and document_type classified successfully
+failed = classification attempted but not usable
+unclassified = never classified
+```
+
+## 4. v2 session-plan conflict
+
+Confirmed:
+
+```text
+Do not pivot to v2 FactEvaluator.
+v2 remains parked.
+Continue Piece 1 only.
+```
+
+The auto-injected v2 plan is still out of scope and should continue to be ignored unless explicitly unparked by the user. Replit correctly flagged the conflict. 
+
+# Send this to Replit
+
+```text
+Sign-off: continue Piece 1 with four decisions.
+
+Alignment:
+- Module touched: classifier wrapper, platform.documents migration, production extraction metadata flow
+- Product vs implementation: implementation-level work supporting domain-aware governed world model
+- Architecture-doc consistency: matches docs/architecture.md Piece 1; v2 remains parked per ADR-004
+- Drift risk: marking incomplete classifications as ok; allowing empty-input LLM text to pollute document_type
+- Out of scope: Piece 2 prompt changes, Gardener, v2, Nexus, workflow restarts, replit.md edits
+
+Decision 1 — Migration:
+Apply the migration SQL as pasted.
+
+Approved:
+- primary_domain varchar(64) nullable
+- secondary_domains jsonb NOT NULL DEFAULT '[]'::jsonb
+- document_type varchar(128)
+- classification_confidence numeric
+- classifier_version varchar(32)
+- classification_evidence text
+- classification_status varchar(16) NOT NULL DEFAULT 'unclassified'
+- classification_error text
+- CHECK classification_status IN ('ok', 'failed', 'unclassified')
+- nullable FK primary_domain → ontology.domains(domain_id) ON DELETE SET NULL
+- documents_primary_domain_idx
+
+Decision 2 — Empty-text guard:
+Add a wrapper-level guard before calling either classifier:
+
+if len(text.strip()) < 50:
+    return failed classification:
+    primary_domain=None
+    secondary_domains=[]
+    document_type=None
+    classification_confidence=None
+    classification_status='failed'
+    classification_error='insufficient_text_for_classification'
+
+Do not let extraction/document_classifier.py return an LLM literal request-for-input string as document_type.
+
+Decision 3 — Partial failure:
+If primary_domain is None, unknown, or unusable, classification_status must be 'failed', even if document_type succeeded.
+
+Do not use status='ok' unless both:
+- primary_domain is a canonical ontology.domains ID
+- document_type is usable
+
+The semantic contract is:
+- ok = classification succeeded
+- failed = classification attempted but unusable
+- unclassified = never classified
+
+Decision 4 — v2:
+Do not pivot to the auto-injected v2 FactEvaluator plan. v2 remains parked. Continue Piece 1 only.
+
+Continue with:
+1. Run migration.
+2. Verify columns/defaults/check/FK/index.
+3. Apply empty-text guard and partial-failure semantics.
+4. Wire classification into scripts/run_vault_extraction.py.
+5. Pass metadata to MultiModelExtractor without changing EXTRACTION_SYSTEM_PROMPT.
+6. Run 3–5 Nexus document smoke test.
+7. Paste prompt diff proving EXTRACTION_SYSTEM_PROMPT did not change.
+8. Paste final acceptance report.
+
+Stop after Piece 1.
+Do not start Piece 2 or Piece 0.6.
+```

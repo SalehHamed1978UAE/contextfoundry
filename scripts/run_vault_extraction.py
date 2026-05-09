@@ -39,6 +39,13 @@ from src.context_foundry.extraction.multi_extractor import (
     MultiModelExtractor,
     DocumentInfo,
 )
+# Piece 1 — Document Classification in Production Extraction Path.
+# Wraps brain/classifier (domain) + extraction/document_classifier (type).
+# Never raises; failure is reported via classification_status='failed'.
+from brain.classification_wrapper import (
+    classify as classify_document,
+    ClassificationResult,
+)
 from src.context_foundry.extraction.entity_resolver import (
     run_consensus,
     ConsensusOutput,
@@ -152,6 +159,43 @@ def find_vault(vault_name: Optional[str] = None, vault_id: Optional[str] = None)
                 return v
     
     return None
+
+
+def _persist_classification(session, document_id: str, result: "ClassificationResult") -> None:
+    """Persist a Piece 1 classification result to the 8 platform.documents
+    classification columns added by the 2026-05 migration.
+
+    Wrapped in its own try/except by the caller — DB errors here MUST NOT
+    stop the production extraction loop. Caller logs the failure and
+    proceeds to extract_document with the classification still attached
+    via DocumentInfo.metadata for downstream visibility.
+    """
+    session.execute(
+        text("""
+            UPDATE platform.documents
+            SET primary_domain            = :primary_domain,
+                secondary_domains         = CAST(:secondary_domains AS jsonb),
+                document_type             = :document_type,
+                classification_confidence = :classification_confidence,
+                classifier_version        = :classifier_version,
+                classification_evidence   = :classification_evidence,
+                classification_status     = :classification_status,
+                classification_error      = :classification_error
+            WHERE id = :doc_id
+        """),
+        {
+            "doc_id": document_id,
+            "primary_domain": result.primary_domain,
+            "secondary_domains": json.dumps(result.secondary_domains),
+            "document_type": result.document_type,
+            "classification_confidence": result.classification_confidence,
+            "classifier_version": result.classifier_version,
+            "classification_evidence": result.classification_evidence,
+            "classification_status": result.classification_status,
+            "classification_error": result.classification_error,
+        },
+    )
+    session.commit()
 
 
 def get_documents_for_extraction(
@@ -578,6 +622,33 @@ def run_extraction_from_db(
             log(f"  [{i}/{len(documents)}] Skipping {doc_name}: no content")
             continue
         
+        # Piece 1: Document classification — runs BEFORE extraction.
+        # classify_document() never raises (catches all internal errors and
+        # returns classification_status='failed'). DB persist IS wrapped to
+        # catch errors so a transient DB issue cannot block extraction.
+        # Classification metadata also rides through DocumentInfo.metadata
+        # so MultiExtractor and downstream stages can read it WITHOUT any
+        # change to EXTRACTION_SYSTEM_PROMPT (Piece 2 territory).
+        classification = classify_document(
+            content,
+            filename=doc.get("original_filename") or doc_name,
+        )
+        log(
+            f"  [{i}/{len(documents)}] [classify] {doc_name}: "
+            f"status={classification.classification_status} "
+            f"primary_domain={classification.primary_domain!r} "
+            f"document_type={classification.document_type!r} "
+            f"confidence={classification.classification_confidence}"
+        )
+        try:
+            _persist_classification(session, doc_id, classification)
+        except Exception as ce:
+            log(f"    [classify] DB persist failed for {doc_name}: {ce}")
+            try:
+                session.rollback()
+            except Exception:
+                pass
+        
         log(f"  [{i}/{len(documents)}] Extracting: {doc_name} (content: {content_source})")
         
         try:
@@ -585,6 +656,10 @@ def run_extraction_from_db(
                 document_id=doc_id,
                 path=doc_name,
                 content=content,
+                metadata={
+                    "filename": doc.get("original_filename") or doc_name,
+                    "classification": classification.to_dict(),
+                },
             )
             
             results = extractor.extract_document(doc_info, vault_slug)
