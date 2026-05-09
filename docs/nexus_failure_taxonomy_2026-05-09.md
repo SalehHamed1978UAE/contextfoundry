@@ -6,6 +6,17 @@
 **Vault stats:** 501 chunks, 6624 entities, 1436 relationships
 **Config:** `tree_based_retrieval=True`
 
+> **Note (2026-05-09, addendum below):** the v1 baseline used for the Task 2
+> v2-parallel run is the freshly-rerun `claudecode_nexus_industries_20260509_073740.json`
+> at 74/100 (26 failures). Its failure set is a strict superset of this 23-failure
+> set — three additional questions (Q15, Q29, Q73) flipped from PASS to FAIL
+> within normal run-to-run variance, all three with classifications and v2-prognoses
+> consistent with the buckets already in this table. See "Baseline drift addendum"
+> at the bottom for per-question detail. The distribution percentages and read-out
+> below still describe the 23-failure source run; the addendum re-states the
+> three new rows so cross-referencing between this taxonomy and the 26-row Task 3
+> matrix is unambiguous.
+
 ## Taxonomy
 
 - `RETRIEVAL_VOID` — no documents retrieved or no entity surfaced
@@ -67,3 +78,40 @@
   - Q79 (`v2_unrecoverable_by_architecture`): VerdictSynthesizer performs no arithmetic; summing four divisional targets requires a compute layer v2 doesn't have.
   - Q91 (`v2_upstream_of_concern`): the wrong fact was selected before v2 would be invoked. v2 evaluates `Fact(s, r, t)` correctly even when `(s, r, t)` is the wrong fact. Fix lives in QueryClassifier/fact-selection.
 - **Task 2 motivation:** the taxonomy tells us v2's theoretical maximum contribution is +1. It does **not** tell us whether v2 introduces regressions on the 77 v1 currently passes. Given v2's known behaviors (MetaEvaluator hallucinating falsifiers, 50-minute timeouts, runaway adversarial loops), v2 may be net negative at scale. We need that empirically before parking.
+
+---
+
+## Baseline drift addendum (2026-05-09)
+
+**Diff:** `claudecode_nexus_industries_20260509_065714.json` (77/100, 23 fails)
+vs `claudecode_nexus_industries_20260509_073740.json` (74/100, 26 fails) —
+same vault, same questions, same git SHA, two consecutive runs ~7 minutes apart
+with the test-LLM cache cleared between them.
+
+**Result:** the 23-fail set is a strict subset of the 26-fail set. Three
+additional questions flipped PASS → FAIL; zero questions flipped FAIL → PASS.
+
+| Q  | Expected                                                | 74-run actual (compressed)                                                | Mode                       | Justification                                                                                                                                                          | v2 prognosis              |
+|----|---------------------------------------------------------|---------------------------------------------------------------------------|----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------|
+| 15 | Dr. Victoria Chen (CEO)                                 | "Does not specify who Michael Chang reports to. Only indicates CFO."      | `RETRIEVAL_VOID`           | The REPORTS_TO edge from Michael Chang → Victoria Chen was surfaced in the 77-run and missed in the 74-run. Same retrieval substrate, different chunk-rank coin flip.   | unrecoverable             |
+| 29 | Exec Leadership Team roster                             | Returned wrong CFO ("Robert Martinez") and wrong CTO ("Dr. Aisha Patel")  | `RETRIEVAL_WRONG_ENTITY`   | Surfaced a stale or hallucinated leadership roster instead of the canonical one. Centrality-bias / wrong-entity class — same shape as Q17/Q48/Q71/Q83.                  | unrecoverable             |
+| 73 | 1,200 net new positions                                 | "Does not specify the exact number of new employees… provides workforce metrics" | `EXTRACTION_MISSED`        | The "1,200 net new positions" figure lives in a strategy/HR doc; the headcount value isn't in the graph as a property and the chunk wasn't retrieved.                  | unrecoverable             |
+
+**Updated distribution (26 failures, used by Task 3 matrix):**
+
+| Mode                       | Count | %    |
+|----------------------------|-------|------|
+| `RETRIEVAL_VOID`           | 8     | 31%  |
+| `RETRIEVAL_WRONG_ENTITY`   | 6     | 23%  |
+| `EXTRACTION_MISSED`        | 4     | 15%  |
+| `CROSS_DOCUMENT`           | 3     | 12%  |
+| `SYNTHESIS`                | 3     | 12%  |
+| `DATE_TEMPORAL`            | 2     | 8%   |
+| `CONFIDENCE_MISCALIBRATED` | **0** | **0%** |
+
+**Re-stated read-out (over 26 failures, no qualitative change):**
+
+- `CONFIDENCE_MISCALIBRATED` is still empty. v2's stated target class is unrepresented in either baseline.
+- Retrieval substrate now accounts for 54% of failures (`RETRIEVAL_VOID` 31% + `RETRIEVAL_WRONG_ENTITY` 23%) — within rounding of the 23-failure read.
+- Realistic v2-recoverable ceiling is unchanged at +1 (Q24 only). None of Q15/Q29/Q73 fall in the v2-conditionally-recoverable bucket: Q15 and Q73 are pure retrieval misses that never reach v2; Q29 is a wrong-entity case where v2 would either endorse the wrong fact or return UNDERSUPPORTED, neither of which scores.
+- The drift itself is decision-relevant: a v1 substrate that flips three questions across consecutive identical runs has roughly ±3-question variance independent of any change to v2. Any v2 score within ±3 of v1 must be read as variance, not signal.

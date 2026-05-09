@@ -188,9 +188,17 @@ async def run_one(qid: int, question: str, expected: str, v1_answer: str,
     }
     t0 = time.monotonic()
 
-    # Step 1: extract candidate fact
+    # Step 1: extract candidate fact (60s ceiling — extractor is one LLM call)
     try:
-        ext = await extract_candidate_fact(llm, question, v1_answer, rel_types)
+        ext = await asyncio.wait_for(
+            extract_candidate_fact(llm, question, v1_answer, rel_types),
+            timeout=60,
+        )
+    except asyncio.TimeoutError:
+        rec["v2_status"] = "EXTRACTION_TIMEOUT"
+        rec["v2_error"] = "extractor LLM call exceeded 60s"
+        rec["v2_wall_time_s"] = round(time.monotonic() - t0, 2)
+        return rec
     except Exception as e:
         rec["v2_status"] = "EXTRACTION_ERROR"
         rec["v2_error"] = f"{type(e).__name__}: {e}"

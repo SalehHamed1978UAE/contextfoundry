@@ -21,6 +21,34 @@
 
 **Known gap (now documented):** the cache key includes the rendered prompt text but not an explicit `prompt_template_version`, `schema_field_version`, or `reasoning_engine_version` tag. When prompt text changes, the hash changes and entries are stranded — fine. But when prompt text is unchanged while downstream parsing/semantics change, cached responses get reused under new contracts. This bit us on iter-4: we cleared it manually before Task 2. **Reusable rule:** any LLM cache should include a coarse "logical version" tag in the key, not just content hash.
 
+**Required code change (not yet applied — only contamination cleared on 2026-05-09):**
+
+Edit `src/context_foundry/inference/llm/client.py` (around L46–57, the `_cache_key` builder) so the SHA-256 input includes three explicit version tags in addition to the existing `(model, system, user, schema_class_name)`:
+
+```python
+PROMPT_TEMPLATE_VERSION = "v2"      # bump when any prompt .md changes
+SCHEMA_FIELD_VERSION    = "v2"      # bump when any pydantic schema changes
+REASONING_ENGINE_VERSION = "v2"     # bump when verdict logic / planner contract changes
+
+def _cache_key(model, system, user, schema_cls):
+    h = hashlib.sha256()
+    for part in (
+        PROMPT_TEMPLATE_VERSION,
+        SCHEMA_FIELD_VERSION,
+        REASONING_ENGINE_VERSION,
+        model,
+        system,
+        user,
+        schema_cls.__name__ if schema_cls else "_",
+    ):
+        h.update(part.encode("utf-8") + b"\x00")
+    return h.hexdigest()
+```
+
+The three `*_VERSION` constants are owned by the engine maintainer; bumping any one invalidates all entries written under the prior value (no migration, no purge — Postgres just stops finding them and the new keys repopulate). Equivalent: a `version_tag` column on `llm_cache` with the constants written at insert time and a `WHERE version_tag = current_tag` filter at lookup. Either is fine; keying is simpler.
+
+Why this is "code change required" not "documentation only": until this lands, every prompt-text-stable / semantics-changed deploy silently reuses stale entries. Manually clearing the table is not a substitute — it requires remembering to do it on every deploy, which is exactly the failure mode that bit us on iter-4. The version tags make the invariant enforcable from inside the cache module.
+
 **File:** `src/context_foundry/inference/llm/client.py`
 
 ---
