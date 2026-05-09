@@ -7,6 +7,8 @@ evidence item ≈ 30-100 LLM calls per fact at Sonnet 4.5 prices).
 Each test isolates state in a fresh tenant_id, seeds entities/relationships/
 chunks, and rolls back on teardown.
 """
+import json
+import logging
 import os
 import uuid
 import pytest
@@ -19,6 +21,80 @@ if not os.environ.get("RUN_INFERENCE_BENCHMARKS"):
 from src.context_foundry.models.schema import get_session
 from src.context_foundry.inference.engine import FactEvaluator
 from src.context_foundry.inference.llm.client import LLMClient
+from src.context_foundry.inference.observability import trace as _trace_module
+
+
+class _TraceCaptureHandler(logging.Handler):
+    """Captures every LogRecord emitted on the 'cf.inference' logger during a
+    single benchmark test. Used to verify the engine actually executed and the
+    tracer is wired correctly — silent zero-event passes are forbidden."""
+
+    def __init__(self):
+        super().__init__(level=logging.DEBUG)
+        self.records: list[dict] = []
+
+    def emit(self, record: logging.LogRecord) -> None:
+        try:
+            msg = record.getMessage()
+        except Exception:
+            return
+        # structlog JSONRenderer writes a JSON string as the message
+        try:
+            payload = json.loads(msg)
+            if isinstance(payload, dict):
+                self.records.append(payload)
+                return
+        except (ValueError, TypeError):
+            pass
+        # ConsoleRenderer / non-JSON fallback: record the raw event line so the
+        # presence-assertion still passes even under pretty-rendering.
+        self.records.append({"event": "_raw", "raw": msg})
+
+
+@pytest.fixture(autouse=True)
+def _assert_tracer_emitted_events():
+    """Every benchmark test MUST produce at least one tracer event with a
+    matching trace_id. If a test passes (or fails) while emitting zero events,
+    that means either (a) the engine was never invoked, (b) a verdict-level
+    cache bypassed it, or (c) the tracer's logger handler is detached from the
+    capture stream — all of which silently void the result. Fail loudly."""
+    # Force the tracer to configure() against the current logging state so any
+    # cached BoundLogger from a prior test gets rebuilt against THIS test's
+    # capture handlers. Resetting `_configured` is the cheapest reliable way.
+    _trace_module._configured = False
+    _trace_module.configure()
+
+    handler = _TraceCaptureHandler()
+    cf_logger = logging.getLogger("cf.inference")
+    prior_level = cf_logger.level
+    cf_logger.setLevel(logging.DEBUG)
+    cf_logger.addHandler(handler)
+    try:
+        yield handler
+    finally:
+        cf_logger.removeHandler(handler)
+        cf_logger.setLevel(prior_level)
+
+    events = handler.records
+    n_total = len(events)
+    n_trace_start = sum(1 for e in events if e.get("event") == "trace_start")
+    distinct_trace_ids = {e.get("trace_id") for e in events if e.get("trace_id")}
+    distinct_events = sorted({e.get("event", "?") for e in events})
+    assert n_total > 0, (
+        "TRACER EMITTED ZERO EVENTS for this test. The engine either was never "
+        "invoked, was short-circuited by a cache, or the cf.inference logger is "
+        "not routing to the test handler. This invalidates the test result; "
+        "diagnose before trusting any pass/fail outcome."
+    )
+    assert n_trace_start >= 1, (
+        f"TRACER EMITTED {n_total} EVENTS BUT NO trace_start: distinct events = "
+        f"{distinct_events}. evaluate() never opened a root trace context — the "
+        f"test bypassed the engine's main entry path."
+    )
+    assert len(distinct_trace_ids) >= 1, (
+        f"TRACER EMITTED EVENTS BUT NONE CARRIED A trace_id: {distinct_events}. "
+        f"contextvars binding is broken; events cannot be attributed to a run."
+    )
 
 
 @pytest.fixture
