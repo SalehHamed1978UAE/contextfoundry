@@ -1,0 +1,50 @@
+Task: Disposition of two flagged files from design-lock report.
+
+Alignment:
+- Module touched: documentation only
+- Product vs implementation: product-level documentation hygiene
+- Architecture consistency: matches docs/architecture.md as the single active canonical architecture document
+- Drift risk: leaving misleading active filenames that suggest competing architecture documents
+- Out of scope: code edits, migrations, workflow restarts, replit.md edits, implementation work, Piece 0 domain registry work
+
+Standing constraints unchanged.
+
+Goal:
+Clean up the two residual architecture-named documentation files flagged by the design-lock report, without touching code or starting implementation.
+
+Actions:
+
+1. Move:
+   docs/architecture_summary.pdf
+   → docs/archive/architecture_summary_intent.pdf
+
+   This places the PDF alongside the archived source summary document.
+
+2. Rename:
+   docs/v2_architecture_lessons_2026-05.md
+   → docs/v2_lessons_2026-05.md
+
+3. Add this one-line top-of-file note to docs/v2_lessons_2026-05.md:
+
+   Post-mortem of the parked v2 inference engine work. Not an architecture document. Canonical architecture is docs/architecture.md.
+
+4. Before renaming docs/v2_architecture_lessons_2026-05.md, grep for references to the old filename.
+   - If references exist in docs, update those doc references.
+   - Do not edit code references unless they are purely documentation strings.
+   - If any code import/path dependency unexpectedly exists, stop and report before renaming.
+
+5. Confirm that active documentation paths outside docs/archive/ contain exactly one file with "architecture" in the filename:
+
+   docs/architecture.md
+
+   Important:
+   Do not count files under docs/archive/ for this check. Archived intent docs may still contain "architecture" in their filenames by design.
+
+Report:
+- files moved/renamed
+- whether references to the old v2 filename were found
+- any references updated
+- confirmation that active docs outside docs/archive/ now have exactly one architecture-named file: docs/architecture.md
+- confirmation that no code, migrations, workflows, replit.md, classifier, extractor, Gardener, v2 logic, or Piece 0 implementation work was touched
+
+Stop after this cleanup. Piece 0 will be sent as a separate gated implementation task.

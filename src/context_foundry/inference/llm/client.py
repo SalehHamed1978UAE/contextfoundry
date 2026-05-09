@@ -28,7 +28,7 @@ MAX_TOKENS = int(os.environ.get("LLM_MAX_TOKENS", "8192"))
 
 # Cache-key version tags. Bump any of these to invalidate cache without
 # deleting rows: new keys simply won't match old keys, and entries repopulate
-# under the new tag. See docs/v2_architecture_lessons_2026-05.md §1.
+# under the new tag. See docs/v2_lessons_2026-05.md §1.
 PROMPT_TEMPLATE_VERSION = "v2"
 SCHEMA_FIELD_VERSION = "v2"
 REASONING_ENGINE_VERSION = "v2"
