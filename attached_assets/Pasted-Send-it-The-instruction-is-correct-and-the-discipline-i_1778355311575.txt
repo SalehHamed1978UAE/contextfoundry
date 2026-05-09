@@ -1,0 +1,92 @@
+Send it. The instruction is correct and the discipline is right — surfacing the 4-row inconsistency before authorizing Piece 1 is exactly what the protocol is for.
+Three small refinements to make before sending. None substantive, all sharpening.
+One: The instruction is missing the alignment block format from docs/architecture.md. The locked document specifies five fields. The reviewer's draft is close but uses Architecture-doc consistency: correctly while leaving out the explicit field structure as a complete block. Reformat to match.
+Two: Step 4 says "set domain_id = NULL for those rows" but doesn't gate it. Setting NULL is a destructive change to data the agent already wrote. Same precedent we just established: schema/data changes need a sign-off checkpoint, even when they look like rollbacks. Step 4 should be split into "report the finding" and "wait for sign-off before mutating," not a single combined action.
+Three: The instruction doesn't reference the verification I asked for in my prior reply (get_all_types() no-filter returning 1037). That verification is still pending and should land alongside this audit. Combine them into one closeout task rather than two sequential ones.
+Here's the cleaned-up version:
+
+Task: Piece 0 closeout — audit 4 pre-existing core relations and confirm no-filter behavior.
+Alignment:
+
+Module touched: ontology.relations domain_id audit only; OntologyRepository no-filter verification
+Product vs implementation: implementation-level closeout for Piece 0
+Architecture-doc consistency: matches ADR-002 (core is shared/foundation, not unknown bucket); confirms strict-filter change preserves no-filter union behavior
+Drift risk: allowing pre-existing non-provenance rows to remain assigned to core (contaminates foundation domain); strict-filter change unintentionally affecting no-filter callers
+Out of scope: Piece 1, extraction prompts, Gardener, v2 FactEvaluator, Nexus, workflow restarts, replit.md edits
+
+Standing constraints unchanged.
+Background.
+The Piece 0 final report shows:
+
+Deterministic seed-file relation UUIDs: 212
+Post-backfill assigned ontology.relations rows: 216
+NULL ontology.relations rows: 38
+
+This implies 4 rows had domain_id='core' before the deterministic backfill ran. Whether those 4 rows are deterministic (UUIDs that appear in 00_shared_ontology.sql) or non-provenance (assigned core by some prior process outside seed-file provenance) determines whether they should remain assigned or be reset to NULL per Option A's strict-determinism rule.
+Separately, the strict-filter change at repository.py:86 and :153 removed OR domain_id IS NULL. We need to confirm that calls without a domain_id argument still return the full union (preserving backward compatibility for the snapshot path).
+Required actions:
+A. Identify the 4 pre-existing core relations.
+
+Query the 4 rows in ontology.relations that had domain_id='core' prior to the Piece 0 backfill. (Filter by created_at predating the backfill timestamp, or by other means available in the repo's history.)
+For each row, paste:
+
+id (full UUID)
+relation_name
+Current domain_id
+Whether the UUID appears in attached_assets/ontology_files/00_shared_ontology.sql
+Whether the UUID appears in any other seed file (01_infra through 07_construct)
+Provenance classification: deterministic_seed if found in 00_shared, cross_seed_anomaly if found in a non-00_shared seed file (this would itself be a finding worth flagging), or untraceable_preexisting if not found in any seed file.
+
+
+Stop and paste the audit table. Do not modify any rows in this step.
+
+B. After sign-off, take corrective action only if needed.
+
+After audit results land and sign-off is given:
+
+If all 4 rows are deterministic_seed: no data change. Update the final report language to clarify that the 216 assigned count is 212 deterministic seed-file UUIDs + 4 deterministic-but-pre-assigned rows from the same seed file. The two are the same provenance, just discovered at different times.
+If any rows are cross_seed_anomaly: do not auto-correct. Surface them as a finding for separate handling. They represent a different problem (a row UUID-claimed by a non-00_shared seed file but already assigned core in the database), which needs its own decision.
+If any rows are untraceable_preexisting: set those rows' domain_id = NULL per Option A's strict-determinism rule. Wait for explicit sign-off on the row-by-row mutation before running the UPDATE. This is a data change, even though it's a rollback toward the spec.
+
+
+
+C. Verify no-filter union behavior.
+
+Run OntologyRepository.get_all_types() with no domain_id argument. Paste the row count. Confirm it equals 1037 (or 1033 if the call defaults to ACTIVE-only; clarify which).
+Run OntologyRepository.get_all_relations() with no domain_id argument. Paste the row count. Confirm it equals 254.
+Run OntologyRepository.get_all_types(include_deprecated=True) (or equivalent) and paste the row count. Confirm it equals 1037.
+The point: confirm that callers wanting the full union (including NULL-held rows) still get it. The strict-filter change should only affect domain-scoped calls.
+
+D. Re-run repository checks and unit tests.
+
+Re-run the existing 6 unit tests at tests/ontology/test_repository_domain_filter.py. Confirm 6/6 pass.
+After any data correction in step B, re-run:
+
+get_all_relations(domain_id='core') — paste the count.
+get_all_relations(domain_id='finance') — paste the count.
+get_all_relations() no filter — paste the count.
+
+
+
+E. Final closeout report.
+
+Provide:
+
+The 4-row audit table from step A.2.
+Provenance classification per row.
+What action was taken (none / NULL rollback / surfaced as anomaly), with the post-action counts.
+The no-filter verification from C.
+Confirmation that 6/6 unit tests still pass.
+If any data was changed in step B, update the corresponding sections in the Piece 0 final report and docs/architecture.md (if any gap was added or modified).
+
+
+
+Sequencing:
+
+Run step A. Paste audit table. Stop.
+Receive sign-off on the audit table and the proposed corrective action (if any).
+Run step B's data correction (if needed) under sign-off.
+Run steps C and D.
+Paste final closeout report.
+
+Stop. Do not begin Piece 1
