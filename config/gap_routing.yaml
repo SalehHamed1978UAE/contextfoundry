@@ -1,0 +1,82 @@
+# config/gap_routing.yaml — D8.1 (planner-stage gaps + skeleton entries)
+#
+# Maps GapType → handler routing. D8.1 lands the planner-stage entries that
+# are wired live in engine.py today. Question-shape entries are skeletons
+# that D8.2-D8.4 will fill in (chunk-extractor handlers per question shape).
+#
+# Schema:
+#   handler:           name of the handler class (D8.2+); "human" = always
+#                      route to the human-completion UI.
+#   default_severity:  GapSeverity to stamp at emit time (engine may override).
+#   audit_trail:       which provenance fields the handler MUST attach when
+#                      writing the resolved fact back to STAGING.
+
+planner_stage:
+  GAP_TYPE_MISMATCH:
+    handler: human
+    default_severity: MEDIUM
+    audit_trail: [trigger_stage, trigger_rule, fact_key, evidence_refs]
+    notes: |
+      Planner asserted the candidate entity should be of a type that the
+      type_check verifier disproved. Surface to a human to confirm whether
+      the entity is misclassified (re-extract) or the planner over-narrowed
+      (planner prompt fix).
+
+  GAP_IDENTITY_AMBIGUITY:
+    handler: human
+    default_severity: MEDIUM
+    audit_trail: [trigger_stage, trigger_rule, fact_key, evidence_refs]
+    notes: |
+      identity_check verifier disproved that the candidate IS the entity
+      the question is asking about. Possible duplicate / disambiguation
+      issue. Surface to a human with both candidates.
+
+  GAP_EVIDENCE_INSUFFICIENT:
+    handler: human
+    default_severity: MEDIUM
+    audit_trail: [trigger_stage, evidence_refs, trace_refs]
+    notes: |
+      Gather succeeded, but downstream stages produced UNDERSUPPORTED.
+      Human reviews the gathered chunks and either confirms (writeback)
+      or rejects (re-question).
+
+  GAP_PLANNER_FAILED:
+    handler: human
+    default_severity: HIGH
+    audit_trail: [trigger_stage, trigger_verdict, trace_refs]
+    notes: |
+      Planner could not produce a valid plan after retries. Likely a
+      planner-prompt or schema-context defect. Flag for engineering review
+      AND offer human-completion fallback.
+
+  GAP_PLANNER_PRESUPPOSITION_GATE:
+    handler: human
+    default_severity: HIGH
+    audit_trail: [trigger_stage, fact_key, evidence_refs, trace_refs]
+    notes: |
+      Aggregate signal that the engine bailed at the presupposition gate
+      (one or more type_check / identity_check / graph_fact presups
+      DISPROVEN). The companion-specific gaps (GAP_TYPE_MISMATCH /
+      GAP_IDENTITY_AMBIGUITY) carry the per-presup detail.
+
+# ---- Question-shape gaps — D8.2-D8.4 will register handlers ----
+question_shape:
+  GAP_TEMPORAL_ATTRIBUTE:       { handler: DateExtractor,           default_severity: MEDIUM }
+  GAP_SCALAR_METRIC:            { handler: ScalarExtractor,         default_severity: MEDIUM }
+  GAP_LIST_AGGREGATION:         { handler: human,                   default_severity: MEDIUM }
+  GAP_COMPOSITE_ROLE_TARGET:    { handler: CompositeRoleResolver,   default_severity: MEDIUM }
+  GAP_QUANTITY_RANGE_TARGET:    { handler: RangeExtractor,          default_severity: MEDIUM }
+  GAP_MATERIAL_SPEC_TARGET:     { handler: MaterialSpecResolver,    default_severity: MEDIUM }
+  GAP_OWNERSHIP_RESPONSIBILITY: { handler: human,                   default_severity: MEDIUM }
+  GAP_AMBIGUOUS_SUBJECT:        { handler: human,                   default_severity: MEDIUM }
+
+# ---- Evaluator-stage gaps ----
+evaluator_stage:
+  GAP_EVIDENCE_PIPELINE_DISCONNECT:    { handler: human, default_severity: HIGH }
+  GAP_EVALUATOR_REASONING_OR_PROMPT:   { handler: human, default_severity: MEDIUM }
+
+# ---- Infra failures — NOT semantic gaps; surface to ops dashboard ----
+infra:
+  INFRA_TIMEOUT_CANCELLATION_FAILURE:  { handler: ops_alert, default_severity: BLOCKING }
+  INFRA_TRACE_CAPTURE_FAILURE:         { handler: ops_alert, default_severity: HIGH }
+  INFRA_VECTOR_GATHERER_AWAIT_BUG:     { handler: ops_alert, default_severity: HIGH }

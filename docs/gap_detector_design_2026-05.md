@@ -674,3 +674,55 @@ directly into the GapQueue with a typed reason, rather than waiting for the
 full v2 engine to mature. Given the v2 engine is parked, this is the right
 factoring. **D8.1 is greenlit on this basis.**
 
+
+---
+
+## §11. D8.1 — Planner-Stage Typed Gaps (LANDED 2026-05-09)
+
+### §11.1 Scope landed in this iteration
+
+Five GapTypes wired live in `src/context_foundry/inference/engine.py`. All emit
+via direct method-call to `GapQueue.enqueue()` — log-subscription was rejected
+because structlog's `BoundLoggerFilteringAtInfo` writes JSON to stderr directly
+and bypasses the stdlib `cf.inference` handler entirely (verified §10.6).
+
+| GapType                          | Source                  | Trigger site (engine.py)                            |
+|----------------------------------|-------------------------|-----------------------------------------------------|
+| GAP_PLANNER_FAILED               | PLANNER_PRESUPPOSITION  | `except PlanValidationError` (~L107)                |
+| GAP_TYPE_MISMATCH                | PLANNER_PRESUPPOSITION  | per `type_check_verdict.status == "DISPROVEN"`      |
+| GAP_IDENTITY_AMBIGUITY           | PLANNER_PRESUPPOSITION  | per `identity_check_verdict.status == "DISPROVEN"`  |
+| GAP_PLANNER_PRESUPPOSITION_GATE  | PLANNER_PRESUPPOSITION  | aggregate when ANY presup DISPROVEN (~L193)         |
+| GAP_EVIDENCE_INSUFFICIENT        | EVALUATOR               | post-synthesizer if verdict ∈ {UNDERSUPPORTED, …}   |
+
+All depth==0 only — recursive sub-evaluates skip emit (each becomes its own
+emit when it reaches the same gate at its own depth==0). This matches the
+"surface to human" semantics: only root-level decisions become gaps.
+
+### §11.2 Distinct from existing gap_detector files
+
+- `extraction/gap_detector.py` — extraction-time graph hygiene (orphan entities
+  / missing edges in newly-staged extractions). Unrelated.
+- `learning/gap_detector.py` — query-gap learning queue (post-hoc analytics on
+  which queries failed which retrieval stages, for the learning-loop trigger).
+  Unrelated.
+- `inference/gaps/` (NEW) — typed gaps emitted DURING a reasoning run, with
+  contextvar binding to run_id + question_id, JSONL persistence at
+  `test_results/gaps/<run_id>.jsonl`. **This module owns the human-completion
+  routing path.**
+
+### §11.3 Wiring at the runner
+
+`scripts/run_v2_oracle.py:run_one_oracle()` binds a process-wide GapQueue
+(lazy-allocated on first call, attached to the function object so it survives
+across questions in the same run) and a `gap_context()` block per question.
+Engine reads via `current_gap_queue() / current_run_id() / current_question_id()`.
+
+### §11.4 Status / next iterations
+
+- D8.1 ✅ planner-stage emits + JSONL persistence + unit tests (9/9).
+- D8.2 (next): chunk-extractor handlers per question shape (DateExtractor,
+  ScalarExtractor, etc.) + Postgres-backed durable queue.
+- D8.3: human-completion UI reading from JSONL + writeback path that stamps
+  TRUSTED facts with `audit_trail.gap_record_id`.
+- D8.4: question-shape gap classifier (pre-planner) so we can route to the
+  right handler before the engine bails at the presup gate.

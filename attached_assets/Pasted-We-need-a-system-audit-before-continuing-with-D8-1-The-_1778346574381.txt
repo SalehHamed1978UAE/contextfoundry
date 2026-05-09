@@ -1,0 +1,47 @@
+We need a system audit before continuing with D8.1. The architectural understanding I'm working with may not match what's actually implemented, and we need to know which parts are real, which parts are partial, and which parts are aspirational.
+Do not fix anything. Do not auto-improve anything. Just inspect the codebase and answer these questions honestly. If something doesn't exist, say so. If something exists but isn't wired in, say so. If something exists and works, say so.
+Questions, in order:
+1. Domain reference data — does it exist?
+The product thesis is that Context Foundry has pre-built domain-aware vocabularies and relationships (financial, engineering, manufacturing, defense, etc.) that ground extraction. When a document is processed, the system should be using these to interpret terms within their domain context — e.g., "balance" in a financial document vs. "balance" in a vehicle dynamics report.
+Inspect the codebase and tell me:
+Where are domain reference vocabularies stored? Database tables, YAML files, JSON files, prompt files, hardcoded into Python? Show me the actual location.
+How many domains are currently defined? List them.
+For one domain (pick the most fully populated one), how many terms does it contain? How many relationship types? Are these terms defined (e.g., "balance: in financial context, the difference between debits and credits in an account") or just listed?
+Are the 1,016 entity types and 230 relationship types in the system organized by domain, or are they a flat list?
+2. Domain classification — does it run, and where?
+The thesis is that incoming documents are classified to one or more domains before extraction, and that classification routes the extraction step to use the appropriate domain reference.
+Is there a component in the ingestion pipeline that classifies a document to a domain before extraction runs? If yes, name the file and function. If no, say so.
+If domain classification exists, what's its output? A single domain label, multiple labels with weights, something else?
+Does the extraction step actually consume the domain classification? Show me the code path that takes domain classification → uses it to load domain-specific context → passes that context to the extraction LLM call.
+If extraction does not consume domain classification, where is the gap? Is the domain classification being discarded, or never produced in the first place?
+3. Domain context in extraction prompts — structured data or prompt-baked?
+Two possible implementations: (a) domain references are stored as structured data and looked up at extraction time, with the relevant subset injected into the LLM prompt as context; (b) domain references are baked into prompt files as instructions.
+For the extraction LLM call, what does the prompt actually contain? Show me the prompt template (file path).
+Does the prompt include domain-specific term definitions, relationship definitions, or interpretive guidance? If yes, where do they come from — a structured lookup or hardcoded prompt text?
+If structured: how is the domain-relevant subset selected for inclusion in the prompt? By document classification? By all-domains-included? By some other mechanism?
+4. Multi-domain documents — what happens?
+A corporate annual report typically contains financial statements, technical specifications, HR appointments, supply chain disclosures, and more — across multiple domains within a single document.
+How does the current pipeline handle a document that spans multiple domains?
+Is there per-chunk or per-section domain classification, or is domain assigned at the whole-document level?
+If whole-document, what happens to extraction quality on the non-primary-domain sections?
+5. Schema enforcement — what's actually enforced?
+The Gardener and Data Gates are described as governance that enforces schema validity on extracted facts.
+When the Gardener validates a fact for promotion to TRUSTED, what does it check? List the actual validations in the code.
+Does Gardener validation include domain-coherence checks (e.g., "this fact claims a financial relationship but was extracted from a non-financial document")?
+What happens to a fact that passes type-validity but fails some softer semantic-coherence check? Is it rejected, flagged, or silently promoted?
+6. Reference data maintenance — versioning and updates.
+Are the domain reference vocabularies versioned? Tracked in git? In a database with version history? Or are they unversioned static files?
+If a new domain were added (a healthcare customer arriving), what's the actual process? Is there a documented procedure? An admin interface? Or would it require code changes by an engineer?
+Are existing domain references being maintained — updated, refined, error-corrected over time — or are they a static asset created once?
+7. The Nexus benchmark — which domains apply?
+The Nexus Industries test corpus is defense/aerospace conglomerate documents. Which domain references in the system apply to it?
+For the 26 questions that fail, are there cases where the failure mode is "the system used the wrong domain context to interpret a term"? If you can identify any, list them.
+8. The honest summary.
+After inspecting, give me a one-paragraph honest assessment of: how much of the "domain-aware semantic interpretation" architecture is currently real and working in code, how much exists but is not fully wired in, and how much is aspirational or partially implemented. Be specific. "Mostly there" or "mostly aspirational" alone is not useful — tell me which components are which.
+Constraints:
+Do not modify any code.
+Do not "improve" anything you find that looks suboptimal.
+If something is broken or missing, say so plainly. Don't hedge.
+If the answer to a question is "I cannot determine this from the codebase without running the system," say so. Don't guess.
+Standing constraints unchanged. No replit.md edits, no Manus/Ontology, no auto-fixes.
+This is a read-only audit. Paste findings when complete. After I see the audit, we'll decide whether to continue D8.1 as planned or to pause and address gaps in the foundational architecture first.

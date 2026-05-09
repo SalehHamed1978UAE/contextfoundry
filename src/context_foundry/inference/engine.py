@@ -21,6 +21,8 @@ from .recursion import RecursionGuard
 from .tools import GraphTools
 from .llm.client import LLMClient
 from .observability.trace import tracer
+from .gaps import (GapRecord, GapSource, GapType, GapSeverity,
+                    current_gap_queue, current_run_id, current_question_id)
 
 logger = logging.getLogger(__name__)
 
@@ -102,6 +104,25 @@ class FactEvaluator:
                 except PlanValidationError as pve:
                     tracer.event("plan_validation_failed",
                                  message=pve.message)
+                    if guard.depth == 0:
+                        self._enqueue_gap(GapRecord(
+                            run_id=current_run_id() or "unknown_run",
+                            question_id=current_question_id(),
+                            source=GapSource.PLANNER_PRESUPPOSITION,
+                            gap_type=GapType.GAP_PLANNER_FAILED,
+                            severity=GapSeverity.HIGH,
+                            fact_key=fact.key(),
+                            trigger_stage="planner",
+                            trigger_rule="PlanValidationError",
+                            trigger_verdict="UNDERSPECIFIED",
+                            explanation=(
+                                f"Planner failed validation after retries: "
+                                f"{pve.message}"),
+                            remediation_hint=(
+                                "Inspect planner prompt + schema_context; "
+                                "human may need to provide a manual plan or "
+                                "answer."),
+                        ))
                     final = self._terminal(
                         fact, "UNDERSPECIFIED",
                         [f"planner failed validation after retries: "
@@ -187,6 +208,23 @@ class FactEvaluator:
                                  + identity_check_presups, sub_verdicts)],
                     any_disproven=any(sv.status == "DISPROVEN" for sv in sub_verdicts),
                 )
+                # ---- D8.1: emit typed Gaps for any disproven presup ----
+                # Direct method-call enqueue; do NOT rely on log subscription
+                # (structlog bypasses stdlib logging — see design §10.6).
+                # ROOT-ONLY emission BY DESIGN (architect-confirmed): nested
+                # presup checks (graph_fact recursive eval) run at depth>0
+                # and never reach depth==0 themselves, so they do NOT emit
+                # standalone gaps. The aggregate GATE gap at the root carries
+                # graph_fact sub-fact keys in evidence_refs as compensation.
+                # If D8.2/D8.3 needs nested visibility, change here, not at
+                # the call sites.
+                if guard.depth == 0:
+                    self._emit_presupposition_gaps(
+                        fact, plan,
+                        type_check_presups, type_check_verdicts,
+                        identity_check_presups, identity_check_verdicts,
+                        graph_fact_presups, graph_fact_verdicts,
+                    )
                 if any(sv.status == "DISPROVEN" for sv in sub_verdicts):
                     final = self._terminal(fact, "UNDERSPECIFIED",
                                            ["presupposition disproven"], guard.depth,
@@ -239,7 +277,155 @@ class FactEvaluator:
             verdict = self._maybe_stamp_root(verdict, is_root, is_outer_call)
             tracer.event("verdict", status=verdict.status,
                          surviving_challenges=len(verdict.surviving_challenges))
+            # ---- D8.1: gather succeeded but verdict insufficient ----
+            if guard.depth == 0 and verdict.status in (
+                "UNDERSUPPORTED", "UNKNOWN", "UNDERSPECIFIED",
+            ):
+                self._enqueue_gap(GapRecord(
+                    run_id=current_run_id() or "unknown_run",
+                    question_id=current_question_id(),
+                    source=GapSource.EVALUATOR,
+                    gap_type=GapType.GAP_EVIDENCE_INSUFFICIENT,
+                    severity=GapSeverity.MEDIUM,
+                    fact_key=fact.key(),
+                    trigger_stage="synthesizer",
+                    trigger_rule="post_gather_insufficient",
+                    trigger_verdict=verdict.status,
+                    explanation=(
+                        f"Gather opened and produced {len(evidence)} evidence "
+                        f"item(s), but synthesizer returned {verdict.status}. "
+                        f"Human should review the gathered evidence."),
+                    evidence_refs=[
+                        {"chunk_id": getattr(e, "chunk_id", None)}
+                        for e in (evidence or [])[:10]
+                        if getattr(e, "chunk_id", None) is not None
+                    ],
+                    remediation_hint=(
+                        "Either confirm the answer from gathered evidence "
+                        "(human-in-loop writeback) or escalate to chunk-"
+                        "extractor handler per gap routing."),
+                ))
             return verdict
+
+    # ------------------------------------------------------------------
+    # D8.1: typed-gap emit helpers
+    # ------------------------------------------------------------------
+    def _enqueue_gap(self, gap: GapRecord) -> None:
+        """Send a GapRecord to the active GapQueue (if any). No-op when
+        the engine runs outside a `gap_context()` block."""
+        q = current_gap_queue()
+        if q is None:
+            return
+        try:
+            q.enqueue(gap)
+        except Exception:
+            logger.exception("[engine] GapQueue.enqueue failed (non-fatal)")
+
+    def _emit_presupposition_gaps(
+        self, fact, plan,
+        type_check_presups, type_check_verdicts,
+        identity_check_presups, identity_check_verdicts,
+        graph_fact_presups, graph_fact_verdicts,
+    ) -> None:
+        """Emit one GapRecord per disproven presup, plus an aggregate
+        GAP_PLANNER_PRESUPPOSITION_GATE when the engine will short-circuit.
+        Called only at depth=0; recursive sub-evaluates emit their own.
+        """
+        run_id = current_run_id() or "unknown_run"
+        qid = current_question_id()
+        any_disproven = False
+
+        for cond, sv in zip(type_check_presups, type_check_verdicts):
+            if sv.status != "DISPROVEN":
+                continue
+            any_disproven = True
+            self._enqueue_gap(GapRecord(
+                run_id=run_id, question_id=qid,
+                source=GapSource.PLANNER_PRESUPPOSITION,
+                gap_type=GapType.GAP_TYPE_MISMATCH,
+                severity=GapSeverity.MEDIUM,
+                fact_key=fact.key(),
+                candidate_type=getattr(cond, "expected_type", None)
+                                or getattr(cond, "type_name", None),
+                trigger_stage="planner.presuppositions",
+                trigger_rule="type_check.DISPROVEN",
+                trigger_verdict=sv.status,
+                explanation=(
+                    "Planner asserted the candidate entity should be of "
+                    "a type that the type_check verifier disproved. Either "
+                    "the entity is misclassified (re-extract) or the "
+                    "planner over-narrowed (planner-prompt review)."),
+                evidence_refs=list(getattr(cond, "evidence_refs", []) or []),
+                remediation_hint=(
+                    "Surface candidate + asserted type to a human; route "
+                    "to ontology / re-extraction handler."),
+            ))
+
+        for cond, sv in zip(identity_check_presups, identity_check_verdicts):
+            if sv.status != "DISPROVEN":
+                continue
+            any_disproven = True
+            self._enqueue_gap(GapRecord(
+                run_id=run_id, question_id=qid,
+                source=GapSource.PLANNER_PRESUPPOSITION,
+                gap_type=GapType.GAP_IDENTITY_AMBIGUITY,
+                severity=GapSeverity.MEDIUM,
+                fact_key=fact.key(),
+                trigger_stage="planner.presuppositions",
+                trigger_rule="identity_check.DISPROVEN",
+                trigger_verdict=sv.status,
+                explanation=(
+                    "identity_check verifier disproved that the candidate "
+                    "IS the entity the question asks about. Possible "
+                    "duplicate/disambiguation issue."),
+                evidence_refs=list(getattr(cond, "evidence_refs", []) or []),
+                remediation_hint=(
+                    "Surface both candidate and asserted entity to a human "
+                    "for disambiguation."),
+            ))
+
+        # graph_fact presups disproven also count as gate-blocking. No
+        # specialized typed gap for graph_fact (yet) — collect their
+        # sub-fact keys here so the aggregate gate gap actually carries
+        # the actionable detail (architect D8.1 review fix).
+        graph_fact_disproven_refs: list[dict] = []
+        for cond, sv in zip(graph_fact_presups, graph_fact_verdicts):
+            if sv.status != "DISPROVEN":
+                continue
+            any_disproven = True
+            try:
+                sub_key = cond.fact.key() if cond.fact else None
+            except Exception:
+                sub_key = None
+            graph_fact_disproven_refs.append({
+                "kind": "graph_fact",
+                "sub_fact_key": sub_key,
+                "trigger_verdict": sv.status,
+            })
+
+        if any_disproven:
+            self._enqueue_gap(GapRecord(
+                run_id=run_id, question_id=qid,
+                source=GapSource.PLANNER_PRESUPPOSITION,
+                gap_type=GapType.GAP_PLANNER_PRESUPPOSITION_GATE,
+                severity=GapSeverity.HIGH,
+                fact_key=fact.key(),
+                trigger_stage="planner.presuppositions",
+                trigger_rule="any_presup_DISPROVEN",
+                trigger_verdict="UNDERSPECIFIED",
+                explanation=(
+                    "Engine will short-circuit at the presupposition gate; "
+                    "gatherer + prover + adversary will not run. The "
+                    "companion-specific gaps (GAP_TYPE_MISMATCH / "
+                    "GAP_IDENTITY_AMBIGUITY) carry per-presup detail; "
+                    "any graph_fact disprovals are listed in evidence_refs."),
+                evidence_refs=graph_fact_disproven_refs,
+                trace_refs=[],  # populated by trace plumbing in D8.2
+                remediation_hint=(
+                    "Route through chunk-extractor handler per question "
+                    "shape (DateExtractor, ScalarExtractor, etc.) — see "
+                    "config/gap_routing.yaml."),
+            ))
 
     def _maybe_stamp_root(self, verdict: Verdict, is_root: bool,
                            is_outer_call: bool) -> Verdict:

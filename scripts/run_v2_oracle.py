@@ -138,10 +138,21 @@ async def run_one_oracle(qid: int, question: str, expected: str,
     cap.setLevel(logging.INFO)
     cf_logger = logging.getLogger("cf.inference")
     cf_logger.addHandler(cap)
+    # D8.1: bind GapQueue + run/question identifiers so engine can emit
+    # typed gaps via direct method-call (NOT log subscription).
+    from src.context_foundry.inference.gaps import (
+        GapQueue as _GapQueue, gap_context as _gap_context)
+    _gq = getattr(run_one_oracle, "_gap_queue", None)
+    if _gq is None:
+        _gq = _GapQueue(output_dir="test_results/gaps")
+        run_one_oracle._gap_queue = _gq
+    _run_id = getattr(run_one_oracle, "_run_id", None) or f"oracle_{int(time.time())}"
+    run_one_oracle._run_id = _run_id
     try:
         try:
-            verdict = await asyncio.wait_for(
-                eng.evaluate(fact), timeout=PER_QUESTION_CEILING_S)
+            with _gap_context(_gq, run_id=_run_id, question_id=f"q{qid}"):
+                verdict = await asyncio.wait_for(
+                    eng.evaluate(fact), timeout=PER_QUESTION_CEILING_S)
         except asyncio.TimeoutError:
             rec["v2_timeout"] = True
             rec["v2_status"] = "V2_TIMEOUT"

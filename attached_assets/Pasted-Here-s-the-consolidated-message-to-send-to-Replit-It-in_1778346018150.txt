@@ -1,0 +1,196 @@
+Here's the consolidated message to send to Replit. It integrates the reviewer's protocol, my prior additions, and the diagnostic finding into a single instruction set.
+
+---
+
+D8.1 is greenlit. Run architect review in parallel. Do not block D8.1 on review unless review surfaces a factual error in the diagnostic finding.
+
+**Parallel architect review scope (do not block D8.1):**
+
+Review `docs/gap_detector_design_2026-05.md`, `scripts/_oracle_diag_postprocess.py`, and the diagnostic instrumentation edits. Confirm:
+
+1. The 5/5 GAP_PLANNER_PRESUPPOSITION_GATE conclusion is supported by the captured traces.
+2. REASONING_ENGINE_VERSION was reverted to "v2".
+3. The postprocessor did not overstate or misparse log events.
+4. The design doc distinguishes semantic gaps from infra failures.
+5. Q15/Q18 remain BLOCKING_BEFORE_DEMO and were not silently cleared.
+
+Patch only factual corrections or severe interpretation errors. Do not let review delay D8.1.
+
+**D8.1 scope: Gap Detector schema + scaffolding.**
+
+Build the foundation. Do not try to fix v2 reasoning.
+
+**1. Add the GapRecord schema.**
+
+```
+class GapRecord:
+    id: str
+    run_id: str
+    question_id: str | None
+    source: GapSource
+    gap_type: GapType
+    severity: GapSeverity
+
+    fact_key: str | None
+    candidate_type: str | None
+
+    trigger_stage: str
+    trigger_rule: str | None
+    trigger_verdict: str | None
+
+    explanation: str
+    evidence_refs: list[dict]
+    trace_refs: list[dict]
+
+    remediation_hint: str | None
+    created_at: datetime
+```
+
+Enums:
+
+```
+GapSource:
+  EXTRACTOR
+  ENTITY_RESOLUTION
+  PLANNER_PRESUPPOSITION
+  GATHERER
+  EVALUATOR
+  SYNTHESIZER
+  INFRA
+
+GapType:
+  GAP_TYPE_MISMATCH
+  GAP_IDENTITY_AMBIGUITY
+  GAP_EVIDENCE_INSUFFICIENT
+  GAP_PLANNER_FAILED
+  GAP_TEMPORAL_ATTRIBUTE
+  GAP_SCALAR_METRIC
+  GAP_LIST_AGGREGATION
+  GAP_COMPOSITE_ROLE_TARGET
+  GAP_QUANTITY_RANGE_TARGET
+  GAP_MATERIAL_SPEC_TARGET
+  GAP_OWNERSHIP_RESPONSIBILITY
+  GAP_AMBIGUOUS_SUBJECT
+  GAP_EVIDENCE_PIPELINE_DISCONNECT
+  GAP_EVALUATOR_REASONING_OR_PROMPT
+  GAP_PLANNER_PRESUPPOSITION_GATE
+  INFRA_TIMEOUT_CANCELLATION_FAILURE
+  INFRA_TRACE_CAPTURE_FAILURE
+  INFRA_VECTOR_GATHERER_AWAIT_BUG
+
+GapSeverity:
+  INFO
+  LOW
+  MEDIUM
+  HIGH
+  BLOCKING
+```
+
+**2. Add the GapQueue abstraction.**
+
+```
+class GapQueue:
+    def enqueue(gap: GapRecord) -> None
+    def list_by_run(run_id: str) -> list[GapRecord]
+    def list_by_question(question_id: str) -> list[GapRecord]
+```
+
+In-memory + JSONL-backed is fine for D8.1. Output path: `test_results/gaps/<run_id>.jsonl`. Do not overbuild persistence yet — that's D8.2 territory when the human-completion interface needs durable storage.
+
+**3. Plumb planner presupposition failures into the GapQueue directly from the code path where the verdict is known.**
+
+The mapping:
+
+- `type_check DISPROVEN` → `GAP_TYPE_MISMATCH`
+- `identity_check DISPROVEN` → `GAP_IDENTITY_AMBIGUITY`
+- planner returns no plan → `GAP_PLANNER_FAILED`
+- presupposition gate short-circuits before gather → `GAP_PLANNER_PRESUPPOSITION_GATE`
+- gather succeeds + UNDERSUPPORTED → `GAP_EVIDENCE_INSUFFICIENT`
+
+Emit both the specific gap and the aggregate gate gap. Example for Q17:
+
+```
+GAP_TYPE_MISMATCH
+GAP_TYPE_MISMATCH
+GAP_PLANNER_PRESUPPOSITION_GATE
+```
+
+The aggregate tells us the engine bailed before evidence. The specifics tell us why.
+
+**4. Critical: do not depend on log postprocessing for production gap capture.**
+
+The post-vector diagnostic exposed that structlog bypasses the stdlib `cf.inference` logger, so `_CounterCapture` collects nothing and the postprocess script became necessary as a workaround. That's acceptable for forensics. **It is not acceptable for production gap capture or audit trail writes.**
+
+D8.1 must emit GapRecord directly at the code path where the presupposition verdict is known. Two acceptable patterns:
+
+- Direct method call to `GapQueue.enqueue(gap)` at the point in `engine.py` where presupposition status is determined.
+- Add a proper structured event sink that the engine writes to and the GapQueue subscribes to.
+
+**Before scaffolding begins, audit the structlog/stdlib bypass and confirm the path D8.1 will use isn't subject to the same problem.** 10-minute audit. If a fix is needed, fix it as the first item in D8.1, not later. Paste findings before scaffolding.
+
+**5. Update the design doc's gap taxonomy and routing YAML before scaffolding.**
+
+The four planner-stage gap types (`GAP_TYPE_MISMATCH`, `GAP_IDENTITY_AMBIGUITY`, `GAP_EVIDENCE_INSUFFICIENT`, `GAP_PLANNER_FAILED`) are a fifth class — "Planner-stage gaps" — that should land in the design doc's taxonomy section before scaffolding. Add corresponding entries to `config/gap_routing.yaml`. Otherwise the scaffolding gets revised when these are wired in.
+
+**6. Update the design doc's per-question table to reflect the 5/5 finding.**
+
+Q17, Q25, Q46, Q61, Q83 are now confirmed `GAP_PLANNER_PRESUPPOSITION_GATE`. Their remediation is no longer "re-run after vector fix" (done) and they are not retrieval failures. The right remediation is: route through chunk-extractors (DateExtractor, ScalarExtractor, etc.) which bypass the v2 evaluator entirely. The presupposition-gate finding is *why* that bypass is necessary.
+
+Add an interpretation paragraph to the design doc:
+
+> The post-vector diagnostic found that v2's planner/presupposition gate can produce evidence-blind UNDERSPECIFIED verdicts before gatherer execution. This means retrieval improvements can be structurally unreachable for some failure modes. The Gap Detector treats planner and presupposition failures as first-class typed gaps rather than forcing those cases through the FactEvaluator.
+
+**7. Unit tests.**
+
+- `type_check DISPROVEN → GAP_TYPE_MISMATCH`
+- `identity_check DISPROVEN → GAP_IDENTITY_AMBIGUITY`
+- no plan → `GAP_PLANNER_FAILED`
+- presupposition disproven before gather → `GAP_PLANNER_PRESUPPOSITION_GATE`
+- timeout → `INFRA_TIMEOUT_CANCELLATION_FAILURE`
+- GapRecord serializes to JSONL.
+- GapQueue appends records deterministically.
+- Same input produces same gap type.
+
+**8. Smoke run.**
+
+Run the five-question diagnostic again (Q17, Q25, Q46, Q61, Q83) with the GapQueue wired in. Expected outcome:
+
+- Each question emits at least one specific presupposition gap.
+- Each question emits `GAP_PLANNER_PRESUPPOSITION_GATE`.
+- No gatherer-dependent gap is emitted unless gather actually opens.
+
+This validates that the production gap capture (item 4) works without log postprocessing.
+
+**9. Q15 and Q18 remain separate.**
+
+Status unchanged: `INFRA_TIMEOUT_CANCELLATION_FAILURE`, `BLOCKING_BEFORE_DEMO`. Subprocess timeout enforcement still needs to land before any demo work. Does not block D8.1.
+
+**Acceptance criteria for D8.1:**
+
+1. GapRecord schema exists.
+2. GapType, GapSource, GapSeverity enums exist.
+3. GapQueue exists and writes JSONL.
+4. Planner and presupposition failures produce GapRecords directly (not via log postprocessing).
+5. The five diagnostic questions emit `GAP_PLANNER_PRESUPPOSITION_GATE` plus their specific presupposition gaps in the smoke run.
+6. Unit tests cover the basic mappings and serialization.
+7. Design doc reflects the planner-stage gap taxonomy update and the interpretation paragraph.
+8. `config/gap_routing.yaml` has entries for the new gap types.
+9. Architect review either passes or factual corrections are patched.
+10. Structlog/stdlib bypass audit is documented (item 4 above).
+
+**Sequencing within D8.1:**
+
+1. Audit the structlog/stdlib bypass. Paste findings.
+2. Update design doc taxonomy and `config/gap_routing.yaml` for the planner-stage gaps.
+3. Implement GapRecord, enums, GapQueue.
+4. Wire planner and presupposition outputs to GapQueue.
+5. Unit tests.
+6. Smoke run on Q17/25/46/61/83.
+7. Architect review (running in parallel).
+8. Paste smoke run results and architect review summary.
+
+**Standing constraints unchanged.** No replit.md edits. No Manus/Ontology restarts. No auto-fixes outside D8.1 scope. Do not let architect review delay D8.1. Do not let parallel running workflows (Canonical Bench, Start All, Test: ClaudeCode Medsync, etc.) influence D8.1 work.
+
+---
+
+That's the message. Send as-is.
