@@ -1,3 +1,5 @@
+> Post-mortem of the parked v2 inference engine work. Not an architecture document. Canonical architecture is `docs/architecture.md`.
+
 # v2 (FactEvaluator) — Architecture Lessons Worth Preserving
 
 **Date:** 2026-05-09
