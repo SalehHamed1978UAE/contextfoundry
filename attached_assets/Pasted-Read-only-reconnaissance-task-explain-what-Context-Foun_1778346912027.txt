@@ -1,0 +1,160 @@
+Read-only reconnaissance task: explain what Context Foundry actually is.
+
+Do not edit files.
+Do not restart workflows.
+Do not fix bugs.
+Do not infer product intent from the Nexus benchmark alone.
+Do not reduce Context Foundry to “enterprise knowledge graph builder” unless the repo/docs explicitly frame it that way.
+
+Goal:
+Produce an evidence-grounded product and architecture brief that explains Context Foundry’s intended purpose, primitives, pipeline, and current implementation. The assistant previously over-indexed on the knowledge graph / benchmark implementation and may have misunderstood the product. Correct that misunderstanding using repo evidence.
+
+Primary question:
+What is Context Foundry, according to the project’s own docs, code, naming, workflows, and architecture?
+
+Inspect docs first, then code.
+
+Search terms to use:
+- "Context Foundry"
+- "world model"
+- "ontology"
+- "ontology pipeline"
+- "context"
+- "agent"
+- "memory"
+- "Data Gate"
+- "provenance"
+- "evidence"
+- "guardrail"
+- "gap"
+- "Gap Detector"
+- "GapQueue"
+- "competency"
+- "context pack"
+- "vocabulary"
+- "taxonomy"
+- "metadata"
+- "knowledge graph"
+- "graph"
+- "MCP"
+- "vault"
+- "ingest"
+- "pipeline"
+
+Answer these questions with file/path evidence and exact references where possible:
+
+1. Product identity
+   - How does the project define Context Foundry?
+   - What problem is it trying to solve?
+   - What user, buyer, or operator is implied?
+   - Is it framed as an ontology/context/world-model system, a knowledge graph system, an agent memory system, a RAG system, or something else?
+   - Where does the repo explicitly support that framing?
+
+2. Core thesis
+   - What is the central product thesis?
+   - Is the goal to create enterprise guardrails/context for agents?
+   - Is the goal to compile organizational knowledge into a usable world model?
+   - Is the goal continuous semantic governance?
+   - What exact language in the repo supports this?
+
+3. First-class artifacts
+   - What are the main domain objects?
+   - Examples to check: ontology, vault, graph, evidence, document, chunk, entity, relationship, fact, gap, policy, context, data gate, evaluation, trace.
+   - Which artifacts are first-class product primitives versus implementation details?
+   - Is the graph treated as the final product, one representation among several, or an internal substrate?
+
+4. Pipeline shape
+   - What is the intended end-to-end pipeline from ingestion to agent use?
+   - Map the stages as actually implemented or documented:
+     ingestion → extraction → normalization → ontology/vault/graph construction → validation → gap detection → context serving → agent use.
+   - Which parts exist in code?
+   - Which parts exist only in docs or design notes?
+   - Which parts are missing?
+
+5. Ontology pipeline alignment
+   - Does the project already implement or describe stages analogous to:
+     controlled vocabulary, metadata standards, taxonomy, thesaurus, ontology, knowledge graph, governance?
+   - If yes, where?
+   - If no, which parts are absent or implicit?
+   - Does the project treat failed answers as ontology/semantic gaps?
+
+6. Agent-facing purpose
+   - How do agents consume Context Foundry output?
+   - Are there APIs, MCP interfaces, tool interfaces, query routers, context packs, or data gates?
+   - What does Context Foundry provide to an agent: facts, documents, context, guardrails, citations, permissions, decisions, actions, or something else?
+
+7. Guardrails and zero-hallucination behavior
+   - What are Data Gates?
+   - How does the system refuse or fail closed?
+   - How is provenance represented?
+   - What evidence is required before an answer/action is allowed?
+   - Is this positioned as a core product feature?
+
+8. Evaluation role
+   - What is the Nexus benchmark for?
+   - Is it the product, a diagnostic harness, a competency-question suite, or a temporary benchmark?
+   - What do benchmark failures reveal about the system?
+   - How are failures intended to feed back into ontology/schema/context improvements?
+
+9. v1/v2/Gap Detector relationship
+   - What is v1?
+   - What is v2?
+   - What is the FactEvaluator?
+   - What is the Gap Detector intended to do?
+   - Is v2 the product direction or a failed/parked inference experiment?
+   - How should Gap Detector outputs be used in the broader product?
+
+10. Current implementation versus intended product
+   - What parts of the intended Context Foundry concept are already implemented?
+   - What parts are scaffolding?
+   - What parts are experimental?
+   - What parts are misleading if someone only reads the current Nexus benchmark path?
+   - Where is the largest mismatch between product intent and current implementation?
+
+11. Terminology map
+   Produce a glossary of project-specific terms:
+   - Context Foundry
+   - Ontology Vault
+   - Data Gate
+   - Gap Detector
+   - GapQueue
+   - FactEvaluator
+   - world model
+   - graph
+   - vault
+   - provenance
+   - evidence
+   - benchmark
+   - context
+
+   For each term:
+   - definition from repo evidence
+   - where it appears
+   - whether it is product-level or implementation-level
+
+12. Correction to prior misunderstanding
+   Explicitly answer:
+   - Was it accurate to frame Context Foundry as “an enterprise knowledge graph builder”?
+   - If not, what is the more accurate framing?
+   - What role does the knowledge graph play inside the larger system?
+   - What should an outside reviewer understand before comparing Context Foundry to RAG, GraphRAG, Palantir, Glean, Pinecone Nexus, or ontology-pipeline tooling?
+
+Output format:
+1. Executive summary, maximum 10 bullets.
+2. Product definition in one paragraph.
+3. Architecture map.
+4. Pipeline map.
+5. First-class artifacts table.
+6. What is product intent vs implementation detail.
+7. What I misunderstood if I called it a knowledge graph builder.
+8. Open questions where repo evidence is insufficient.
+9. File/path evidence appendix.
+
+Use citations like:
+- docs/foo.md:12-35
+- src/path/file.py:40-90
+
+Be strict:
+- If the repo proves something, say so.
+- If the repo only implies something, mark it as inference.
+- If evidence is missing, say evidence is missing.
