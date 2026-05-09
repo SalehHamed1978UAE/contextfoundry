@@ -1,0 +1,174 @@
+# Context Foundry — Current-State Architecture
+
+> Read-only audit, May 2026. Documents what exists and how it is wired today, not what should exist. Divergence between intent and implementation is captured by the `Currently wired?` column (`PARTIAL`, `FLAG_GATED`, `ORPHAN`) — not editorialized.
+
+## 1. System Summary
+
+Context Foundry ingests enterprise documents into a single Postgres+pgvector store, extracts entities and relationships from each document with an LLM-based extractor (default: dual-pass GPT-4o-mini + Claude Sonnet 4 with consensus reconciliation; alternative under `--use-ontology`: a document-type-classified ontology-constrained pipeline), writes results to a `STAGING` lifecycle state, runs a `VerificationWorker` and a `GardenerAgent.promotion_pass` (which checks confidence/corroboration thresholds and validates types against a flat union of all ontology types), and answers queries via a 4-step `QueryPipeline` (interpret → retrieve via `RetrievalRouter` → LLM synthesize → `QAVerifier`) with `DataGates` short-circuiting before the LLM when an entity is not found, evidence is unverified, or chunks are absent.
+
+## 2. Block Diagram
+
+### 2a. Default extraction → query path (production)
+
+```
+scripts/run_vault_extraction.py  (no flags)
+        │
+        ▼
+get_documents_for_extraction(skip_multi=True)
+        │
+        ▼
+PHASE 1 — run_extraction_from_db
+        │  per doc:
+        ▼
+MultiModelExtractor ── gpt-4o-mini ──┐    (hardcoded EXTRACTION_SYSTEM_PROMPT
+                  └── claude-sonnet ─┤     14 entity types, 16 relation types;
+                                     │     NO classifier, NO domain signal)
+                                     ▼
+                              JSON files on disk
+                                     │
+                                     ▼
+PHASE 2-4 — run_consensus_and_ingest
+   run_consensus → validate_consensus → resolve_conflicts → KGIngestor.ingest
+                                     │
+                                     ▼
+                       entities + relationships @ STAGING
+                                     │
+                                     ▼
+PHASE 5 — VerificationWorker.run() ──► fact_verifications, sets verified=true on a fraction
+                                     │
+                                     ▼
+PHASE 6 — GardenerAgent.promotion_pass
+   confidence/corroboration check + validate_against_ontology (flat 1016-type union)
+   require_verification_for_promotion=True (set by script; Gardener default is False)
+                                     │
+                                     ▼
+                       entities + relationships @ TRUSTED
+                                     │
+                                     ▼
+══════════════════════════════════════════════════════════════════════
+QUERY PATH  (web_app.py /api/vault/chat → QueryPipeline.execute)
+══════════════════════════════════════════════════════════════════════
+QueryInterpreter → RetrievalRouter.route(...) ──┬─ default route (GRAPH_ONLY|DOCS_ONLY|HYBRID)
+                                                │
+                                                └─ ─ ─ TreeBasedRetriever  [CF_TREE_BASED_RETRIEVAL]
+                                                        + _is_graph_hopping_query gate
+        │
+        ▼
+DataGates.evaluate ── ENTITY_NOT_FOUND ──┐
+                  ── NO_RELEVANT_CHUNKS ─┤── trip → return GATED, NO LLM CALL
+                  ── UNVERIFIED_EVIDENCE ┤
+        │ pass                          │
+        ▼                               │
+LLM synthesize (gpt-4o-mini) ───────────┘
+        │
+        ▼
+QAVerifier.verify ── status in {OFF_TOPIC, INSUFFICIENT, UNSUPPORTED, SUSPICIOUS, REJECTED, REVIEW}
+   → answer overridden with canned message; confidence floored
+        │
+        ▼
+PipelineResult → _trigger_learning_flow (LearningOrchestrator.on_query_response)
+```
+
+### 2b. Alternative + orphan modules
+
+```
+                 [--use-ontology flag]
+scripts/run_vault_extraction.py
+        │
+        ▼
+run_ontology_extraction → OntologyCentricPipeline.extract  (per doc)
+        │
+        ├── _store_document_chunks
+        ├── classify_with_fallback (filename hint → brain/classifier LLM)
+        ├── _extract_entities_with_ontology  ── uses SchemaPromptGenerator  [PARTIAL: ignores domain_id]
+        ├── _extract_relations_with_ontology
+        ├── _run_post_processor (regex, 11 spec patterns)
+        ├── _resolve_entities_against_existing
+        └── _stage_results  →  STAGING  (no multi-model consensus, no JSON files)
+        │
+        ▼
+        joins PHASE 5 + 6 above (verification + Gardener)
+
+┌──────────────── EXISTS BUT UNWIRED ────────────────────────────────────────┐
+│ ┌────────────────────────────┐  ┌────────────────────────────────────────┐ │
+│ │ src/context_foundry/       │  │ src/context_foundry/inference/         │ │
+│ │   inference/engine.py      │  │   gaps/{records,queue}.py  (D8.1)      │ │
+│ │   + planner, gatherer,     │  │   wired into engine.py only;           │ │
+│ │   prover, adversary,       │  │   engine.py invoked by tests only      │ │
+│ │   meta, synthesizer        │  │                                        │ │
+│ └────────────────────────────┘  └────────────────────────────────────────┘ │
+│ ┌────────────────────────────┐  ┌────────────────────────────────────────┐ │
+│ │ ontology_foundry/          │  │ validation/coherence_checker.py        │ │
+│ │   type_validator,          │  │   no callers found in repo grep        │ │
+│ │   collision_detector,      │  │                                        │ │
+│ │   hierarchy_enforcer,      │  │ extraction/document_classifier.py      │ │
+│ │   schema_version_manager,  │  │   only caller: entity_extractor.py     │ │
+│ │   type_lifecycle_manager,  │  │   (which is itself orphan — not used   │ │
+│ │   approval_manager,        │  │   by MultiModelExtractor)              │ │
+│ │   deprecation_manager      │  │                                        │ │
+│ │   no callers outside dir   │  │ agents/graph_builder, graph_loader,    │ │
+│ └────────────────────────────┘  │   semantic_agent, tool_agent,          │ │
+│                                 │   directed_retriever — not on default  │ │
+│                                 │   query path; need per-import audit    │ │
+│                                 └────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+## 3. Module Table
+
+| Module | File path | Responsibility (one sentence) | Currently wired? |
+|---|---|---|---|
+| `MultiModelExtractor` | `src/context_foundry/extraction/multi_extractor.py` | Per-document parallel extraction with GPT-4o-mini + Claude Sonnet using a hardcoded 14-entity / 16-relation prompt. | **PRODUCTION** |
+| `run_consensus` | `src/context_foundry/extraction/entity_resolver.py` | Builds entity/relationship consensus across the two model outputs with name normalization + fuzzy matching. | **PRODUCTION** |
+| `validate_consensus` / `resolve_conflicts` | `src/context_foundry/extraction/consensus_validator.py` | Validates consensus output against ontology constraints; auto-resolves conflicts. | **PRODUCTION** |
+| `KGIngestor.ingest` | `src/context_foundry/extraction/kg_ingestor.py` | Upserts consensus entities/relationships into Postgres at `STAGING`; creates evidence records. | **PRODUCTION** |
+| `StagingLoader` | `src/context_foundry/extraction/staging_loader.py` | Alternative writer used by ontology pipeline path; same STAGING semantics. | **FLAG_GATED** (`--use-ontology`) |
+| `OntologyCentricPipeline` | `src/context_foundry/extraction/ontology_centric_pipeline.py` | Document-classified, ontology-guided single-pass extraction; bypasses consensus and writes directly to STAGING. | **FLAG_GATED** (`--use-ontology`) |
+| `classify_with_fallback` | `src/context_foundry/extraction/document_classifier.py` | LLM document-type classifier (with filename-hint fallback). | **FLAG_GATED** (only `OntologyCentricPipeline` calls it) |
+| `entity_extractor.EntityExtractor` | `src/context_foundry/extraction/entity_extractor.py` | Domain-aware single-LLM entity extractor; calls `DomainSchemaLoader` and `classify_with_fallback`. | **ORPHAN** (no production caller; `MultiModelExtractor` uses its own hardcoded prompt) |
+| `relation_extractor` | `src/context_foundry/extraction/relation_extractor.py` | Companion to `entity_extractor`. | **ORPHAN** (same reason) |
+| `post_processor` | `src/context_foundry/extraction/post_processor.py` | Regex pass for 11 specification patterns; called inside `OntologyCentricPipeline._run_post_processor`. | **FLAG_GATED** (`--use-ontology`) |
+| `brain/classifier.py` | `brain/classifier.py` | Domain classifier with 7 domains and 0.50 threshold. | **PARTIAL** (imported by `entity_extractor` which is orphan; not on any production path) |
+| `SchemaPromptGenerator` | `src/context_foundry/ontology/prompt_generator.py` | Generates extraction prompts from `ontology.types`/`ontology.relations`. | **PARTIAL** (called by `OntologyCentricPipeline`, but `get_snapshot()` does not filter by `domain_id` — flat union loaded) |
+| `OntologyRepository` | `src/context_foundry/ontology/repository.py` | Postgres-backed lookup of types/relations, supports `domain_id` filter. | **PARTIAL** (filter capability exists but not used by production callers) |
+| `ontology_foundry/*` (TypeValidator, CollisionDetector, HierarchyEnforcer, ApprovalManager, SchemaVersionManager, TypeLifecycleManager, DeprecationManager) | `src/context_foundry/ontology_foundry/*.py` | Schema-governance agents (PROPOSED→APPROVED→ACTIVE lifecycle, collision/depth checks). | **ORPHAN** (no callers outside the directory itself per repo grep) |
+| `VerificationWorker` | `src/context_foundry/workers/verification_worker.py` | LLM-verifies a batch of unverified facts; writes `fact_verifications` and sets `verified=true`. | **PRODUCTION** (invoked by `run_vault_extraction.py` Phase 5) |
+| `GardenerAgent.promotion_pass` | `src/context_foundry/agents/gardener.py:731` | Promotes STAGING→TRUSTED on confidence/corroboration thresholds; optionally validates types against ontology and verification status. | **PRODUCTION** (other passes — `decay_pass`, `conflict_resolution_pass`, `demotion_pass`, `cleanup_pass` — exist but are not invoked by the extraction script; require running `run_cycle` separately) |
+| `DataGates` | `src/context_foundry/validation/data_gates.py` | Pre-LLM sufficiency check; emits `ENTITY_NOT_FOUND`, `NO_RELEVANT_CHUNKS`, `UNVERIFIED_EVIDENCE`, `ANSWER_NOT_GROUNDED`. | **PRODUCTION** |
+| `coherence_checker` | `src/context_foundry/validation/coherence_checker.py` | Post-response consistency / contradiction detector. | **ORPHAN** (no callers found in repo grep) |
+| `QueryPipeline` | `src/context_foundry/agents/query_pipeline.py` | 4-step orchestrator: `QueryInterpreter` → retrieval → LLM synthesize → `QAVerifier`. | **PRODUCTION** |
+| `RetrievalRouter` | `src/context_foundry/agents/retrieval_router.py` | Routes between `GRAPH_ONLY` / `DOCS_ONLY` / `HYBRID`; conditionally invokes `TreeBasedRetriever`. | **PRODUCTION** |
+| `TreeBasedRetriever` | `src/context_foundry/retrieval/tree_retriever.py` | BFS traversal from anchor org with intent-matching and chunk-grounded fallback. | **FLAG_GATED** (`CF_TREE_BASED_RETRIEVAL` env + `_is_graph_hopping_query` regex) |
+| `QAVerifier` | `src/context_foundry/agents/qa_verifier.py` | Two-layer (structural + LLM) post-synthesis answer check; can override answer with canned text. | **PRODUCTION** |
+| `LearningOrchestrator.on_query_response` | `src/context_foundry/learning/...` | Async hook fired after every query for gap detection. | **PRODUCTION** (fire-and-forget; learning side effects not audited here) |
+| `inference/engine.py` (FactEvaluator) + planner / gatherer / prover / adversary / meta / synthesizer | `src/context_foundry/inference/*.py` | Recursive deterministic+adversarial fact evaluator (v2 design). | **ORPHAN** (no production caller; only tests under `tests/inference/`) |
+| `inference/gaps/{records,queue}` | `src/context_foundry/inference/gaps/` | Typed `GapRecord` + `GapQueue` emitted by the inference engine at depth==0. | **ORPHAN** (wired into orphan engine only; D8.1 ships scaffolding, no consumer) |
+| `agents/graph_builder`, `graph_loader`, `semantic_agent`, `tool_agent`, `directed_retriever` | `src/context_foundry/agents/*.py` | Listed in `CF_MASTER_REFERENCE.md` agent inventory. | **needs per-module audit** — none appear in `QueryPipeline.execute` or `run_vault_extraction.py`; flagged as candidate orphans pending verification |
+| `web_app.py` | `web_app.py` | Flask service exposing auth, vault/extraction admin, test-runner UI; `/api/vault/chat` is the live query endpoint (route definition not located in this scan — needs verification, but `QueryPipeline` is the production query orchestrator per code grep). | **PRODUCTION** |
+
+## 4. Behaviors Table
+
+| When this happens | The system currently does this | Module(s) involved |
+|---|---|---|
+| A document is ingested via the default `scripts/run_vault_extraction.py` (no flags). | No document classification runs. The hardcoded `EXTRACTION_SYSTEM_PROMPT` (14 entity types, 16 relation types) is sent to GPT-4o-mini and Claude Sonnet in parallel. Outputs are written to JSON files under `extraction_outputs/<vault_slug>/<model_name>/`. | `MultiModelExtractor` |
+| A document is ingested via `--use-ontology`. | `classify_with_fallback` picks a document type (filename hint, then LLM). `SchemaPromptGenerator` builds an ontology-grounded prompt — but loads the **full flat union** of types/relations rather than filtering by document-type or domain (`get_snapshot()` does not apply `domain_id`). One LLM pass extracts entities, one extracts relations, post-processor regex applies, results staged directly via `StagingLoader`. No multi-model consensus. | `OntologyCentricPipeline`, `classify_with_fallback`, `SchemaPromptGenerator` (PARTIAL), `StagingLoader` |
+| Default-path extraction completes for a doc batch. | `run_consensus` builds cross-model consensus, `validate_consensus`+`resolve_conflicts` reconciles, `KGIngestor.ingest` upserts entities and relationships into Postgres at `lifecycle_state=STAGING`, creates `evidence_records` rows, and updates `platform.documents.extraction_level='multi'` per document. | `entity_resolver`, `consensus_validator`, `KGIngestor` |
+| A fact enters STAGING via `KGIngestor` or `StagingLoader`. | An `evidence_record` row is created linking the fact to its source span (synthesized fallback if span missing). No further validation runs at this point — `StagingValidatorAgent` (`agents/staging_validator.py`) exists but is not invoked by either ingest path. | `KGIngestor`, `StagingLoader`; `StagingValidatorAgent` is **not** triggered |
+| `VerificationWorker` runs (Phase 5 of extraction script). | Pulls a batch of unverified facts (default limit configurable), calls LLM for verdict, writes `fact_verifications` rows, sets `verified=true` and `evidence_verification_status` on the fact. Verifies only a fraction of facts per run. | `VerificationWorker` |
+| `GardenerAgent.promotion_pass` runs (Phase 6 of extraction script). | For each STAGING entity/relationship, checks (1) confidence ≥ type-weighted threshold + corroboration count + min age; (2) if `require_verification_for_promotion=True` (set by extraction script — Gardener default is `False`), requires `verified=true`; (3) if `validate_against_ontology=True`, checks the type is present in the loaded type/relation list (loaded as a **flat union** of all 1016 entity types and 230 relation types — no `domain_id` filter). On pass, writes `lifecycle_state=TRUSTED`. | `GardenerAgent.promotion_pass` |
+| `GardenerAgent.run_cycle` 5-pass loop (`decay_pass`, `promotion_pass`, `conflict_resolution_pass`, `demotion_pass`, `cleanup_pass`) is invoked. | All five passes execute in order. Note: the extraction script invokes only `promotion_pass` directly; the full 5-pass cycle is only run by separate Gardener invocation paths (scheduler / manual). Whether the scheduler is currently running was not verified in this audit. | `GardenerAgent.run_cycle` |
+| A query arrives at `/api/vault/chat`. | `QueryPipeline.execute` runs: `QueryInterpreter.interpret(query_text)` → `Retriever.execute(intent)` (which calls `RetrievalRouter.route(...)`) → `_synthesize_answer(...)` (LLM call to gpt-4o-mini) → `QAVerifier.verify(...)`. `_trigger_learning_flow` fires after every response. | `QueryPipeline`, `QueryInterpreter`, `Retriever`, `RetrievalRouter`, `QAVerifier`, `LearningOrchestrator` |
+| `RetrievalRouter.route` decides whether to use tree retrieval. | Reads the `CF_TREE_BASED_RETRIEVAL` env flag (or per-request `tree_based_retrieval` override) **and** runs `_is_graph_hopping_query(query)` regex. Tree retrieval is invoked **only when both are true**. Default in `start.sh` is `false`. | `RetrievalRouter.route`, `is_tree_based_retrieval_enabled`, `TreeBasedRetriever` |
+| `DataGates.evaluate` trips on `ENTITY_NOT_FOUND` or `NO_RELEVANT_CHUNKS`. | Returns `DataGateEvaluation` with the gate result; the pipeline returns the gated response without calling the synthesis LLM. | `DataGates` |
+| `DataGates.evaluate` trips on `UNVERIFIED_EVIDENCE`. | Soft warning — the LLM is still called, but the response carries an unverified-evidence marker. | `DataGates` |
+| `QAVerifier.verify` returns a non-`SUPPORTED` / non-`NEEDS_LLM` status. | The synthesized answer is overwritten with a canned message keyed on status (`OFF_TOPIC` → "I found related information but…", `INSUFFICIENT` → "I have partial information…", etc.) and confidence is floored to 0.10–0.25. | `QAVerifier`, `QueryPipeline._synthesize_answer` |
+| The `inference/engine.py` `FactEvaluator` is invoked. | Runs `EvaluationPlanner` → `EvidenceGatherer` → `ProofConstructor` → `AdversarialChallenger` → `MetaEvaluator` → `VerdictSynthesizer`, with cycle detection and replan loop (max 3). At depth==0, emits typed `GapRecord` entries to `GapQueue` for 5 wired gap types. **Currently invoked only by tests** — no production caller wires the engine into the query path. | `inference/engine.py`, `inference/{planner,gatherer,prover,adversary,meta,synthesizer}.py`, `inference/gaps/` |
+| A `coherence_checker` "shadow mode" check would run after a response. | Module exists at `src/context_foundry/validation/coherence_checker.py`, but no caller invokes it in any path — replit.md describes it as wired, code grep finds no callers. | `coherence_checker` (ORPHAN) |
+| A schema change (new entity type, new relationship type) is proposed. | `OntologyCentricPipeline._update_reference_ontology` writes new types directly into `ontology.types` / `ontology.relations` during extraction. The Ontology Foundry governance lifecycle (PROPOSED → VALIDATING → APPROVED → ACTIVE) and its agents (`TypeValidator`, `CollisionDetector`, `HierarchyEnforcer`, `ApprovalManager`, `SchemaVersionManager`, `TypeLifecycleManager`, `DeprecationManager`) **are not invoked** — they exist as code in `src/context_foundry/ontology_foundry/` but no caller outside that directory was found. | `OntologyCentricPipeline._update_reference_ontology`; `ontology_foundry/*` (ORPHAN) |
+
+---
+
+**Audit notes (cannot determine from code inspection alone):**
+- The `web_app.py` `/api/vault/chat` route definition was not located in this scan (grep timed out at line 1049). Existence of `QueryPipeline` as the production query orchestrator is inferred from import graph; the actual route handler should be confirmed by a follow-up grep or by running the system.
+- Whether `GardenerAgent.run_cycle` (the full 5-pass loop with decay/conflict/demotion/cleanup) is invoked by any running scheduler in production was not verified — the extraction script only invokes `promotion_pass` standalone.
+- Several `agents/*.py` modules (`graph_builder`, `graph_loader`, `semantic_agent`, `tool_agent`, `directed_retriever`) are listed in `CF_MASTER_REFERENCE.md` but were not traced for production callers in this audit. Marked "needs per-module audit" in the table; should not be assumed wired.
