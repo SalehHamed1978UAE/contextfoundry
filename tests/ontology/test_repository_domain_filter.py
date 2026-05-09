@@ -69,7 +69,11 @@ def test_null_domain_rows_excluded_from_domain_scoped_lookup(repo):
 
 def test_relations_strict_filter_core(repo):
     rows = repo.get_all_relations(domain_id="core")
-    # 17 deterministic from 00_shared + 4 pre-existing 'core' = 21
-    assert len(rows) == 21, f"expected 21 core relations, got {len(rows)}"
+    # 17 deterministic seed-file UUIDs from 00_shared_ontology.sql.
+    # The 4 untraceable_preexisting rows (HOLDS_POSITION, HAS_COMPENSATION,
+    # REPORTS_TO, WORKS_AT) were reset to NULL during Piece 0 closeout per
+    # Option A's strict-determinism rule. See docs/architecture.md Gap 5
+    # and the Piece 0.6 prerequisite note.
+    assert len(rows) == 17, f"expected 17 core relations, got {len(rows)}"
     for r in rows:
         assert r.domain_id == "core"

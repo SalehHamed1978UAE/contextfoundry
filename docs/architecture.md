@@ -390,3 +390,30 @@ Recent task context does not redefine Context Foundry unless the user explicitly
 > 24 layer-1 ACTIVE foundational types (e.g., `Person`, `Event`, `LegalInstrument`, with UUIDs in the `00000000-…` range) were loaded by a 2025-12-06 migration that is not present in `attached_assets/ontology_files/`. Conceptually these may be `core` types, but `core` is not an inference bucket per ADR-002. Types are assigned to `core` only by deterministic provenance. These 24 rows remain `domain_id = NULL` after Piece 0.
 >
 > **This finding is recorded, not solved.** Closing this gap is a small follow-up task: locate the original 2025-12-06 migration, confirm the types are genuinely foundation/cross-domain, and either reclassify them deterministically into `core` or document why they should remain unscoped.
+
+### Gap 5: 4 ontology.relations rows assigned `core` without seed-file provenance (corrected during Piece 0 closeout)
+
+> Piece 0 closeout audit identified 4 `ontology.relations` rows previously assigned `domain_id = 'core'` that have no seed-file provenance:
+>
+> - `479a23c5-22a1-45cf-83af-e200aa5ead87` — `HOLDS_POSITION` (PERSON → JOB_TITLE)
+> - `9dfd6070-cd8c-4f3c-9c44-9d898c293ff9` — `HAS_COMPENSATION` (PERSON → CONCEPT)
+> - `91b9ae86-fa99-4dbb-aa0e-bf5b478ddefa` — `REPORTS_TO` (PERSON → PERSON)
+> - `058414f9-7530-41e5-9c20-94789aa32452` — `WORKS_AT` (PERSON → ORGANIZATION)
+>
+> All four were inserted within a 13-minute window on 2026-01-12 with random v4 UUIDs (not the `30000000-0000-XXXX-...` seed-file scheme), and none appear in any of the 8 seed files in `attached_assets/ontology_files/`. They were assigned `'core'` directly by a runtime/extraction path that bypassed the Ontology Foundry `PROPOSED → APPROVED → ACTIVE` lifecycle. Per Option A's strict-determinism rule (assign `core` only by deterministic seed-file UUID provenance), they were reset to `domain_id = NULL` during Piece 0 closeout. The rows remain `ACTIVE` in the database; only their domain assignment was removed.
+>
+> **Three observed Ontology Foundry bypass patterns** are now on record. Schema changes have been bypassing the governance lifecycle by three distinct mechanisms:
+>
+> 1. **`_update_reference_ontology` writes** — 803 layer-2 ad-hoc types from January 2026 onward have no seed-file provenance and remain `domain_id = NULL` after Piece 0. (Gap 2)
+> 2. **Pre-seed migration** — 24 layer-1 foundational types from 2025-12-06 have no seed-file provenance and remain `domain_id = NULL` after Piece 0. (Gap 3)
+> 3. **Direct `core` assignment without provenance** — 4 `ontology.relations` rows from 2026-01-12 (`HOLDS_POSITION`, `HAS_COMPENSATION`, `REPORTS_TO`, `WORKS_AT`) were previously assigned `domain_id = 'core'` but lacked seed-file provenance. Piece 0 closeout reset them to `domain_id = NULL` under the strict-determinism rule. (Gap 5, this section)
+>
+> All such rows are preserved in the DB and remain available to non-domain-scoped queries (the `OntologyRepository` snapshot path), but they are not visible to domain-scoped ontology lookups until governed.
+
+#### Piece 0.6 (prerequisite to Piece 2): governed disposition of unscoped foundational relation candidates
+
+> The 4 relations recorded in Gap 5 — `HOLDS_POSITION`, `WORKS_AT`, `REPORTS_TO`, `HAS_COMPENSATION` — are likely **foundational relation candidates for organizational world modeling**. They are exactly the canonical role/employment edges Context Foundry's role-resolution and tree-retrieval paths depend on (see `replit.md` "Tree matcher fix — HOLDS_POSITION + affiliation traversal", 2026-05-08).
+>
+> **Piece 0.6 must resolve their disposition before Piece 2 (Domain-Aware Extraction) lands**, if domain-aware extraction needs any of these four verbs to appear in scoped prompts. The decision is one of: (a) retroactively bless them into `00_shared_ontology.sql` with their existing UUIDs, (b) re-create them under a governed `PROPOSED → APPROVED → ACTIVE` flow with new UUIDs (requires a corresponding migration to remap referencing rows), or (c) explicitly leave them unscoped and have Piece 2's prompt builder source them by other means.
+>
+> Piece 7 still owns the broader long-term Ontology Foundry governance lifecycle (Gap 2 + Gap 3 + Gap 5 in aggregate). Piece 0.6 is the **near-term, narrowly-scoped** decision for these 4 specific foundational relation candidates.

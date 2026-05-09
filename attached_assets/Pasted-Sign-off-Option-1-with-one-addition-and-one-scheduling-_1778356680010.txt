@@ -1,0 +1,92 @@
+Sign-off: Option 1 with one addition and one scheduling correction.
+
+Alignment:
+- Module touched: ontology.relations domain_id correction, Piece 0 closeout, architecture gap record
+- Product vs implementation: implementation-level closeout supporting domain-governed ontology integrity
+- Architecture-doc consistency: matches ADR-002 / ADR-005: core is shared/foundation ontology, not an unknown or unproven bucket
+- Drift risk: silently keeping untraceable runtime-inserted relations in core and contaminating domain-scoped extraction
+- Out of scope: Piece 1 document classification wiring, extraction prompts, Gardener, v2, Nexus, workflow restarts, replit.md edits
+
+Decision:
+Proceed with Option 1.
+
+Set domain_id = NULL for these four untraceable_preexisting relations:
+
+- 479a23c5-22a1-45cf-83af-e200aa5ead87 — HOLDS_POSITION
+- 9dfd6070-cd8c-4f3c-9c44-9d898c293ff9 — HAS_COMPENSATION
+- 91b9ae86-fa99-4dbb-aa0e-bf5b478ddefa — REPORTS_TO
+- 058414f9-7530-41e5-9c20-94789aa32452 — WORKS_AT
+
+Reason:
+The audit found that all four are absent from 00_shared_ontology.sql and all other seed files, have random UUIDs rather than seed-file UUIDs, and were inserted in a later 2026-01-12 window. They therefore do not have deterministic seed-file provenance. Under Option A’s strict-determinism rule, they must not remain assigned to core.
+
+Run:
+
+UPDATE ontology.relations
+SET domain_id = NULL
+WHERE id IN (
+  '479a23c5-22a1-45cf-83af-e200aa5ead87',
+  '9dfd6070-cd8c-4f3c-9c44-9d898c293ff9',
+  '91b9ae86-fa99-4dbb-aa0e-bf5b478ddefa',
+  '058414f9-7530-41e5-9c20-94789aa32452'
+);
+
+Expected corrected counts:
+- core relations: 21 → 17
+- NULL relations: 38 → 42
+- total relations: 254 unchanged
+- other domain relation counts unchanged
+
+After the update:
+1. Paste post-update relation counts by domain_id, including NULL.
+2. Re-run:
+   - get_all_relations(domain_id='core')
+   - get_all_relations(domain_id='finance')
+   - get_all_relations() with no domain filter
+3. Update repository-domain-filter unit test expectation:
+   - core relations expected count becomes 17, not 21.
+4. Re-run:
+   - tests/ontology/test_repository_domain_filter.py
+
+Architecture doc addition:
+Extend the existing implementation gaps section. Use either an expanded Gap 2 or a new Gap 5, whichever keeps docs/architecture.md more readable.
+
+Required substance:
+
+Three observed Ontology Foundry bypass patterns
+
+Three distinct database states reveal that schema changes have been bypassing the PROPOSED → APPROVED → ACTIVE lifecycle by different mechanisms:
+
+1. _update_reference_ontology writes:
+   803 layer-2 ad-hoc types from January 2026 onward have no seed-file provenance and remain domain_id = NULL after Piece 0.
+
+2. Pre-seed migration:
+   24 layer-1 foundational types from 2025-12-06 have no seed-file provenance and remain domain_id = NULL after Piece 0.
+
+3. Direct core assignment without provenance:
+   4 ontology.relations rows from 2026-01-12 — HOLDS_POSITION, HAS_COMPENSATION, REPORTS_TO, and WORKS_AT — were previously assigned domain_id='core' but lacked seed-file provenance. Piece 0 closeout reset them to domain_id = NULL under the strict-determinism rule.
+
+These rows are preserved in the DB and remain available to non-domain-scoped queries, but they are not visible to domain-scoped ontology lookups until governed.
+
+Scheduling correction:
+Do not mark this only as a Piece 7 concern.
+
+The four relation rows are likely foundational relation candidates for organizational world modeling. Therefore add a prerequisite note:
+
+Piece 0.6: governed disposition of unscoped foundational relation candidates.
+
+This must be resolved before Piece 2 if domain-aware extraction needs HOLDS_POSITION, WORKS_AT, REPORTS_TO, or HAS_COMPENSATION in scoped prompts.
+
+Piece 7 still owns the broader long-term Ontology Foundry governance lifecycle, but Piece 0.6 is the near-term decision point for these foundational relation candidates.
+
+Final report:
+- SQL run
+- corrected relation counts
+- repository check results
+- unit test results
+- architecture gap text added
+- Piece 0.6 prerequisite added
+- confirmation that no Piece 1 work started
+- confirmation that no extraction prompts, Gardener, v2, Nexus, workflows, or replit.md were touched
+
+Stop after this closeout.
