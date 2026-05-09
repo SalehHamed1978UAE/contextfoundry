@@ -80,7 +80,7 @@ class OntologyRepository:
                     base_query += " AND status = 'ACTIVE'"
                 
                 if domain_id:
-                    base_query += " AND (domain_id = %s OR domain_id IS NULL)"
+                    base_query += " AND domain_id = %s"
                     params.append(domain_id)
                 
                 base_query += " ORDER BY layer, type_name"
@@ -147,7 +147,7 @@ class OntologyRepository:
                     base_query += " AND r.status = 'ACTIVE'"
                 
                 if domain_id:
-                    base_query += " AND (r.domain_id = %s OR r.domain_id IS NULL)"
+                    base_query += " AND r.domain_id = %s"
                     params.append(domain_id)
                 
                 base_query += " ORDER BY r.relation_type, s.type_name, t.type_name"

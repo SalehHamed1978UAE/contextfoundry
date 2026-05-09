@@ -1,0 +1,155 @@
+Task: Piece 0 completion + Piece 0.5 repository filter fix.
+
+Alignment:
+- Module touched: ontology domain registry, OntologyRepository domain filtering, classifier domain labels, legacy schema registries, architecture gap records
+- Product vs implementation: implementation-level work supporting the domain-aware governed world model
+- Architecture-doc consistency: matches docs/architecture.md Piece 0 and the newly added Piece 0.5 required before domain-aware extraction
+- Drift risk: allowing NULL domain rows to leak into domain-scoped ontology lookups; assigning untraceable rows to core
+- Out of scope: Piece 1 document classification wiring, extraction prompt changes, Gardener validation changes, v2 FactEvaluator, Nexus hardcoding, workflow restarts, replit.md edits
+
+Standing constraints unchanged.
+
+Decision:
+Proceed with Option A.
+
+Backfill only deterministic seed-file-provenance rows:
+- 203 ontology.types rows
+- 212 ontology.relations rows
+
+Leave all untraceable rows as domain_id = NULL:
+- 834 ontology.types rows
+- 42 ontology.relations rows
+
+Do not heuristically assign the 24 layer-1 types to core.
+Do not assign the 803 extraction-time UPPER_SNAKE rows to any domain.
+Do not assign any untraceable row to core.
+
+core is shared/common/foundation ontology, not an unknown bucket.
+
+Addition:
+Fold Piece 0.5 into this task because it is required for Piece 0 to be meaningful.
+
+Piece 0.5:
+Fix OntologyRepository.get_all_types(domain_id=...) so domain-scoped lookups do not include NULL-domain rows.
+
+Before fix:
+repository.py currently uses a filter equivalent to:
+WHERE domain_id = %s OR domain_id IS NULL
+
+That makes every domain lookup include all 834 unassigned ontology.types rows.
+
+Required behavior:
+1. When domain_id is provided:
+   return only rows where domain_id = provided domain_id.
+   Do not include NULL rows.
+2. When domain_id is omitted or None:
+   return all rows, including NULL rows.
+3. Do not automatically include core rows unless the caller explicitly requests a scope that includes core.
+
+Pre/post verification:
+Before applying the repository filter fix:
+- Run OntologyRepository.get_all_types(domain_id='finance')
+- Paste the row count
+
+After applying the repository filter fix:
+- Run OntologyRepository.get_all_types(domain_id='finance')
+- Paste the row count
+
+Expected:
+- Before fix: high hundreds, roughly finance rows + 834 NULL rows
+- After fix: exactly 28 rows
+
+Also test:
+- get_all_types(domain_id='core') returns exactly 25 rows
+- get_all_types() with no domain filter returns 1037 rows
+
+If counts differ materially from the expected values, stop and report before continuing.
+
+Required actions:
+
+1. Run deterministic backfill using the verified seed-file UUID map:
+   - 00_shared_ontology.sql → core
+   - 01_infra_ontology.sql → it_infrastructure
+   - 02_supply_ontology.sql → supply_chain
+   - 03_health_ontology.sql → healthcare
+   - 04_mfg_ontology.sql → manufacturing
+   - 05_aviation_ontology.sql → aviation
+   - 06_finance_ontology.sql → finance
+   - 07_construct_ontology.sql → construction
+
+2. Paste post-backfill counts:
+   - ontology.types by domain_id, including NULL
+   - ontology.relations by domain_id, including NULL
+
+3. Apply Piece 0.5 repository filter fix:
+   - get_all_types(domain_id=...) must be strict
+   - get_all_types() with no domain_id must preserve full-set behavior
+
+4. Add unit tests for repository behavior:
+   - get_all_types(domain_id='core') returns exactly 25 type rows
+   - get_all_types(domain_id='finance') returns exactly 28 type rows
+   - get_all_types() with no domain filter returns 1037 rows
+   - NULL-domain rows do not appear in domain-scoped lookups
+
+5. Add core as the 8th classifier output:
+   - brain/classifier.py:DOMAIN_DESCRIPTIONS
+   - brain/classifier.py:DOMAIN_TYPES
+   - brain/domain_embeddings.json
+
+6. core must be an explicit classifier output, not a below-threshold fallback.
+
+7. Run the core classifier smoke test:
+   Feed a foundation/common document excerpt and confirm classifier returns:
+   primary_domain = core
+
+8. Run YAML import grep:
+   - config/domain_schema.yaml
+   - config/fiction_schema.yaml
+   - config/investment_schema.yaml
+   - config/examples/investment_portfolio.yaml
+
+   If no live imports exist, rename to _legacy.yaml and add the legacy note.
+   If live imports exist, do not rename; add the legacy note only and report the live import path.
+
+9. Append these two implementation gaps to docs/architecture.md.
+
+Gap 2: 803 ad-hoc types added outside Ontology Foundry governance
+
+803 of 1037 ontology.types rows were inserted by OntologyCentricPipeline._update_reference_ontology during extraction runs in 2026, bypassing the Ontology Foundry PROPOSED → APPROVED → ACTIVE lifecycle. These rows have no seed-file provenance and remain domain_id = NULL after Piece 0. They are visible only to non-domain-scoped queries.
+
+This finding is recorded, not solved. Closing this gap is Piece 7’s responsibility: Ontology Foundry wired to schema changes. The 803 rows need to be either retroactively classified through governance, archived as legacy, or rebuilt under proper provenance. Until Piece 7 lands, these types are not visible to domain-aware extraction.
+
+Gap 3: 24 layer-1 foundational types lack seed-file provenance
+
+24 layer-1 ACTIVE foundational types, such as Person, Event, LegalInstrument, and related foundational types, were loaded by a 2025-12-06 migration that is not present in attached_assets/ontology_files/. Conceptually these may be core types, but core is not an inference bucket. Types are assigned to core only by deterministic provenance. These 24 rows remain domain_id = NULL after Piece 0.
+
+This finding is recorded, not solved. Closing this gap is a small follow-up task: locate the original migration, confirm the types are foundation/cross-domain, and either reclassify them deterministically into core or document why they should remain unscoped.
+
+10. Run acceptance checks:
+   - ontology.domains contains exactly eight canonical IDs
+   - post-backfill counts match deterministic provenance counts
+   - untraceable rows remain NULL
+   - no untraceable rows assigned to core
+   - get_all_types(domain_id='core') returns exactly 25 rows
+   - get_all_types(domain_id='finance') returns exactly 28 rows
+   - get_all_types() with no filter returns 1037 rows
+   - classifier-emittable labels all exist in ontology.domains
+   - core classifier smoke test passes
+   - document_type remains separate from domain
+   - no extraction prompt, Gardener, v2, Nexus, workflow, or replit.md changes occurred
+
+Final report must include:
+- SQL run
+- post-backfill counts
+- unassigned counts
+- confirmation untraceable rows remain NULL
+- repository filter before/after counts
+- unit test results
+- docs/architecture.md gaps added
+- classifier labels after core addition
+- core smoke-test input and output
+- YAML legacy disposition
+- acceptance checks
+
+Stop after this task.
+Do not start Piece 1.

@@ -378,3 +378,15 @@ Recent task context does not redefine Context Foundry unless the user explicitly
 > `ontology.types.domain_id` is NULL for all 1037 rows. `ontology.relations.domain_id` is NULL for 250 of 254 rows (4 hold the literal `'core'`). The seed files (`00_shared` through `07_construct`) imply domain partitioning by filename but do not persist `domain_id` in their inserts. Therefore, before domain-aware extraction (Piece 2) can function, Piece 0 must construct and backfill the canonical domain registry.
 >
 > **This finding is recorded, not solved.** Piece 0 implementation is a separate task and is not authorized by this design-lock task.
+
+### Gap 2: 803 ad-hoc types added outside Ontology Foundry governance
+
+> 803 of 1037 `ontology.types` rows were inserted by `OntologyCentricPipeline._update_reference_ontology` during extraction runs in 2026, bypassing the Ontology Foundry `PROPOSED → APPROVED → ACTIVE` lifecycle. These rows have no seed-file provenance and remain `domain_id = NULL` after Piece 0. They are visible only to non-domain-scoped queries (`OntologyRepository.get_all_types()` with no `domain_id` filter).
+>
+> **This finding is recorded, not solved.** Closing this gap is Piece 7's responsibility: Ontology Foundry wired to schema changes. The 803 rows must be either retroactively classified through governance, archived as legacy, or rebuilt under proper provenance. Until Piece 7 lands, these types are not visible to domain-aware extraction (Piece 2).
+
+### Gap 3: 24 layer-1 foundational types lack seed-file provenance
+
+> 24 layer-1 ACTIVE foundational types (e.g., `Person`, `Event`, `LegalInstrument`, with UUIDs in the `00000000-…` range) were loaded by a 2025-12-06 migration that is not present in `attached_assets/ontology_files/`. Conceptually these may be `core` types, but `core` is not an inference bucket per ADR-002. Types are assigned to `core` only by deterministic provenance. These 24 rows remain `domain_id = NULL` after Piece 0.
+>
+> **This finding is recorded, not solved.** Closing this gap is a small follow-up task: locate the original 2025-12-06 migration, confirm the types are genuinely foundation/cross-domain, and either reclassify them deterministically into `core` or document why they should remain unscoped.

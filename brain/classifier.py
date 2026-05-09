@@ -20,6 +20,7 @@ DOMAIN_CONFIDENCE_THRESHOLD = 0.50
 EMBEDDINGS_CACHE_PATH = Path(__file__).parent / "domain_embeddings.json"
 
 DOMAIN_DESCRIPTIONS = {
+    'core': 'Foundation ontology and shared taxonomy: entity-relationship dictionary, glossary of canonical types, definitions of person, organization, document, event, location, concept, process, date, schema reference, ontology specification, type hierarchy, abstract foundational classes, cross-cutting governance vocabulary. Domain-agnostic dictionary content, not vertical operational data.',
     'it_infrastructure': 'Servers, databases, deployments, incidents, APIs, microservices, cloud infrastructure, Kubernetes, Docker, DevOps, monitoring, alerts, outages, services, components, teams, on-call',
     'healthcare': 'Patients, diagnoses, treatments, medications, procedures, clinical trials, hospitals, doctors, nurses, medical records, prescriptions, symptoms, diseases, healthcare providers, clinics',
     'finance': 'Bonds, equities, transactions, accounts, portfolios, financial instruments, investments, trading, stocks, funds, securities, banks, loans, credit, interest rates, dividends',
@@ -35,6 +36,7 @@ CORE_FOUNDATION_TYPES = [
 ]
 
 DOMAIN_TYPES = {
+    'core': CORE_FOUNDATION_TYPES,
     'it_infrastructure': ['SERVICE', 'INCIDENT', 'DATABASE', 'COMPONENT', 'TEAM'],
     'healthcare': ['Patient', 'Diagnosis', 'Procedure', 'Medication', 'Hospital', 'HealthcareProvider'],
     'finance': ['Bond', 'Equity', 'FinancialAccount', 'SecuritiesTrade', 'Fund', 'Portfolio'],
@@ -148,16 +150,22 @@ def classify_document(text: str, threshold: float = DOMAIN_CONFIDENCE_THRESHOLD)
         threshold: Minimum similarity score to assign a domain (default 0.75)
     
     Returns:
-        Tuple of (domain_name, confidence_score)
-        Returns ('core', score) if no domain meets threshold
+        Tuple of (domain_name, confidence_score).
+
+        `core` is emitted ONLY when its embedding is the closest match to the
+        document (i.e., explicitly classified as foundation/cross-domain), per
+        Piece 0 / ADR-002. It is NOT used as a below-threshold or
+        embedding-failure fallback. In those degenerate cases we return the
+        best-scoring domain (or `'unknown'` if no embedding could be produced)
+        with the actual low score so the caller can decide.
     """
     sample = text[:2000]
     
     doc_embedding = get_embedding(sample)
     
     if all(v == 0.0 for v in doc_embedding):
-        print("[Classifier] Failed to generate document embedding, defaulting to core")
-        return 'core', 0.0
+        print("[Classifier] Failed to generate document embedding (API failure); returning 'unknown'")
+        return 'unknown', 0.0
     
     domain_embeddings = get_domain_embeddings()
     
@@ -175,8 +183,8 @@ def classify_document(text: str, threshold: float = DOMAIN_CONFIDENCE_THRESHOLD)
         print(f"[Classifier] Document classified as: {best_domain} (confidence: {best_score:.3f})")
         return best_domain, best_score
     else:
-        print(f"[Classifier] No domain meets threshold {threshold}, using core (best was {best_domain}: {best_score:.3f})")
-        return 'core', best_score
+        print(f"[Classifier] Below threshold {threshold}, returning best-match {best_domain} ({best_score:.3f}) with low confidence")
+        return best_domain, best_score
 
 
 def get_entity_types_for_domain(domain: str) -> List[str]:

@@ -1,3 +1,6 @@
+# LEGACY schema. Superseded by canonical ontology registry in `ontology.domains` (PostgreSQL).
+# Live importers still reference this file; flagged for follow-up Piece (do not delete).
+# See docs/architecture.md Piece 0 + ADR-003.
 schema_version: "1.0"
 domain: "Investment Portfolio"
 description: "Schema for investment portfolio management including funds, companies, sectors, and analysts."
