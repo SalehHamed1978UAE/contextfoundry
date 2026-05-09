@@ -1,0 +1,281 @@
+Sign-off granted for drafting docs/gap_detector_design_2026-05.md, with four corrections to bake into the doc before treating the oracle as evidence.
+
+Sign-off decision
+
+The oracle result is strong enough to support the Gap Detector direction.
+
+The central conclusion is valid:
+
+The v2 FactEvaluator is not failing mainly because its logical validation is weak.
+It is failing because the candidate representation is too narrow:
+subject_entity -- relationship_type -- target_entity.
+
+The experiment shows that many Nexus failures are not representable as simple graph facts. They are dates, scalar values, lists, aggregations, role-scoped facts, quantities, ranges, materials, responsibility semantics, and retrieval gaps.
+
+That is exactly what a Gap Detector should catalog.
+
+Required corrections before D3
+
+1. Do not count Q17 as an oracle success without review
+
+This line is suspicious:
+
+Q17 graded correct=True only because the expected answer happened to also be a "not found"-like statement
+
+Earlier Q17 expected was:
+
+Nel Hydrogen
+
+So either:
+
+the baseline mapping is off,
+the oracle expected-answer input was wrong,
+the grader logic is wrong,
+or the record was misread.
+
+For the design doc, state:
+
+Oracle correct count is 0 or 1 pending Q17 audit.
+
+Do not headline 1/26 correct as a solid success. The safer headline is:
+
+0 PROVEN / STRONGLY_SUPPORTED / SUPPORTED outcomes across 26 oracle candidates.
+
+That is the important signal.
+
+2. Separate representational gaps from infrastructure gaps
+
+These are not the same class:
+
+GAP_TEMPORAL_ATTRIBUTE
+GAP_SCALAR_METRIC
+GAP_COMPOSITE_ROLE_TARGET
+
+versus:
+
+GAP_ENGINE_TIMEOUT
+GAP_GATHERER_VECTOR_BROKEN
+
+The design doc should split them:
+
+A. Ontology / representation gaps
+B. Candidate-generation gaps
+C. Retrieval/evidence gaps
+D. Runtime/infrastructure gaps
+
+Otherwise the Gap Detector will mix product insight with bugs.
+
+3. Do not overstate retrieval conclusions while vector retrieval is broken
+
+Since the gatherer’s vector strategies errored with:
+
+object list can't be used in 'await' expression
+
+any claim like:
+
+truth exists but v2 could not retrieve it
+
+should be caveated:
+
+under the degraded gatherer path: graph_endpoint + fts_chunks only
+
+For Q25, Q46, Q61, Q83, classify as:
+
+GAP_EVIDENCE_NOT_RETRIEVED_UNDER_DEGRADED_GATHERER
+
+or shorter:
+
+GAP_RETRIEVAL_DEGRADED
+
+Then separately note that a clean retrieval run is needed after fixing the sync/await embedder mismatch.
+
+4. Treat timeout as a cancellation bug, not a knowledge gap
+
+Q15 and Q18 are not semantic gap evidence. They are runtime failures.
+
+Use:
+
+INFRA_TIMEOUT_CANCELLATION_FAILURE
+
+not:
+
+GAP_ENGINE_TIMEOUT
+
+This matters because the Gap Detector should describe missing representational or reasoning capabilities, while timeout enforcement belongs to reliability engineering.
+
+Recommended D3 thesis
+
+Use this as the top-line thesis:
+
+The oracle-candidate experiment demonstrates that v2’s FactEvaluator cannot serve as the primary recovery mechanism for Nexus failures because the majority of failures cannot be expressed as Fact(subject_entity, relation_type, target_entity). The next system should introduce a Gap Detector that classifies unanswerable or failed questions into typed representational, retrieval, synthesis, and runtime gaps, then routes each gap to the appropriate remediation path.
+
+Suggested D3 structure
+
+1. Executive summary
+
+Include:
+
+26 v1-failing questions tested
+expected answer supplied to v2 oracle extractor
+0 accepted/proven fact validations
+19/26 no candidate or entity-resolution failure
+5 underspecified/not found
+2 timeout/cancellation failures
+
+With caveat:
+
+Q17 grading requires audit; do not treat as confirmed success.
+
+2. Why the FactEvaluator fails as a recovery layer
+
+State clearly:
+
+The FactEvaluator expects entity-relation-entity triples.
+Nexus failures often require non-triple answer objects.
+Therefore, feeding the correct answer to v2 still fails when the correct answer is not representable as a graph fact.
+
+Examples:
+
+date → TemporalCandidate
+money/count/rate → ScalarMetricCandidate
+range → QuantityRangeCandidate
+material composition → SpecMaterialCandidate
+list → ListCandidate
+sum/comparison → AggregationCandidate / ComparisonCandidate
+role scoped to org → ScopedRoleCandidate
+ownership responsibility → ResponsibilityCandidate
+
+3. Gap taxonomy
+
+Use these categories.
+
+Representation gaps
+
+GAP_TEMPORAL_ATTRIBUTE
+GAP_SCALAR_METRIC
+GAP_LIST_AGGREGATION
+GAP_COMPOSITE_ROLE_TARGET
+GAP_QUANTITY_RANGE_TARGET
+GAP_MATERIAL_SPEC_TARGET
+GAP_OWNERSHIP_RESPONSIBILITY
+GAP_AMBIGUOUS_SUBJECT
+
+Retrieval gaps
+
+GAP_EVIDENCE_NOT_RETRIEVED
+GAP_ENTITY_RESOLUTION_FAILED
+GAP_RELATION_NOT_IN_GRAPH
+
+Synthesis gaps
+
+GAP_ROLE_DEREFERENCE
+GAP_QUALIFIER_BINDING
+GAP_ATTRIBUTE_SELECTION
+GAP_TOTAL_OR_COMPARISON_OPERATION
+
+Runtime/infrastructure gaps
+
+INFRA_TIMEOUT_CANCELLATION_FAILURE
+INFRA_VECTOR_GATHERER_AWAIT_BUG
+INFRA_LLM_CACHE_VERSIONING_RISK
+INFRA_API_CREDIT_BLOCKER
+
+The last group should not be counted as product reasoning gaps.
+
+4. Per-question mapping
+
+Use a table like:
+
+Q	Expected answer shape	Oracle outcome	Primary gap	Remediation
+
+14	Date	Extractor rejected	GAP_TEMPORAL_ATTRIBUTE	Add DateCandidate + temporal extractor
+24	Qualified quantity	Entity resolution failed	GAP_QUANTITY_RANGE_TARGET	Add QualifiedValueCandidate
+29	List	Extractor rejected	GAP_LIST_AGGREGATION	Add ListCandidate
+38	Role scoped to org	Entity resolution failed	GAP_COMPOSITE_ROLE_TARGET	Add ScopedRoleCandidate
+79	Sum / corporate total	Extractor rejected	GAP_SCALAR_METRIC / aggregation	Add AggregationCandidate
+91	Responsibility	Extractor rejected	GAP_OWNERSHIP_RESPONSIBILITY	Add ResponsibilityCandidate
+
+
+Do not bury this table. It is the most useful artifact.
+
+5. Proposed Gap Detector design
+
+The detector should run before candidate evaluation.
+
+class GapDetector:
+
+    def classify(question, extraction_result, retrieval_trace, evaluator_trace):
+        if extraction_result.extractable == false:
+            return classify_from_extractor_reason(question, extraction_result.reason)
+
+        if extraction_result.fact_shape_invalid:
+            return classify_shape_gap(extraction_result)
+
+        if entity_resolution_failed:
+            return classify_entity_resolution_gap(extraction_result)
+
+        if retrieval_trace.expected_evidence_absent:
+            return GAP_EVIDENCE_NOT_RETRIEVED
+
+        if evaluator_timeout:
+            return INFRA_TIMEOUT_CANCELLATION_FAILURE
+
+        if evaluator_returned_underspecified:
+            return classify_underspecified(question, evaluator_trace)
+
+        return GAP_UNKNOWN
+
+The key is that the Gap Detector should not merely say “failed.” It should route to the missing subsystem.
+
+6. Candidate-type expansion
+
+This is the most important product implication.
+
+Add:
+
+Candidate =
+    FactCandidate
+  | ScopedRoleCandidate
+  | DateCandidate
+  | ScalarMetricCandidate
+  | QualifiedValueCandidate
+  | QuantityRangeCandidate
+  | MaterialSpecCandidate
+  | ListCandidate
+  | AggregationCandidate
+  | ComparisonCandidate
+  | ResponsibilityCandidate
+  | EventCandidate
+
+Then evaluators:
+
+FactEvaluator
+DateEvaluator
+MetricEvaluator
+SpecEvaluator
+AggregationEvaluator
+ComparisonEvaluator
+ResponsibilityEvaluator
+ScopedRoleEvaluator
+
+This is the real v3 direction.
+
+Recommended conclusion
+
+Use this conclusion:
+
+The oracle experiment falsifies the assumption that v2’s FactEvaluator can recover most Nexus failures once given the right answer. Even with oracle inputs, the majority of failures collapse before logical validation because the current candidate model cannot represent the answer shape. The next iteration should not tune confidence or add more FactEvaluator rules. It should introduce a Gap Detector and a typed candidate/evaluator architecture.
+
+Approved next action
+
+Draft docs/gap_detector_design_2026-05.md.
+
+Include the oracle results, but phrase them carefully:
+
+0/26 accepted as proven/supported by v2
+19/26 failed before evaluation due to candidate/extraction/entity-resolution shape issues
+5/26 reached evaluator but returned underspecified/not found
+2/26 exposed timeout/cancellation failures
+Q17 success count requires audit
+
+That will make the doc rigorous and hard to misread.

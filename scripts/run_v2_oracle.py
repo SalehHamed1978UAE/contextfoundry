@@ -212,12 +212,16 @@ async def main():
     llm = LLMClient(session=session, pin_model=True)
     log.info(f"llm: {llm.model}")
 
+    # Async embedder — gatherer awaits it. See run_v2_parallel.py for the bug
+    # this fixes (sync def silently disabled vector strategies).
     try:
         from openai import OpenAI
         oai = OpenAI()
-        def embedder(text_in: str) -> list:
-            r = oai.embeddings.create(model=EMBED_MODEL, input=text_in)
-            return r.data[0].embedding
+        async def embedder(text_in: str) -> list:
+            def _call():
+                r = oai.embeddings.create(model=EMBED_MODEL, input=text_in)
+                return r.data[0].embedding
+            return await asyncio.to_thread(_call)
     except Exception as e:
         log.warning(f"embedder unavailable: {e}")
         embedder = None

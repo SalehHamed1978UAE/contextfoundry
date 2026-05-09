@@ -364,14 +364,23 @@ async def main():
     llm = LLMClient(session=session, pin_model=True)
     log.info(f"llm: {llm.model}")
 
-    # Embedder for the gatherer (OpenAI text-embedding-3-small)
+    # Embedder for the gatherer (OpenAI text-embedding-3-small).
+    # NOTE: Gatherer signature is `Callable[[str], Awaitable[List[float]]]`,
+    # so the function MUST be `async def`. Previously this was a sync `def`
+    # returning a list, which raised `TypeError: object list can't be used in
+    # 'await' expression` inside the gatherer and silently disabled both
+    # vector_chunks and vector_entities_to_rels strategies.
     try:
         from openai import OpenAI
         oai = OpenAI()
 
-        def embedder(text_in: str) -> list:
-            r = oai.embeddings.create(model=EMBED_MODEL, input=text_in)
-            return r.data[0].embedding
+        async def embedder(text_in: str) -> list:
+            # OpenAI's sync client blocks; run it off the event loop so we
+            # don't stall other concurrent gatherer queries.
+            def _call():
+                r = oai.embeddings.create(model=EMBED_MODEL, input=text_in)
+                return r.data[0].embedding
+            return await asyncio.to_thread(_call)
     except Exception as e:
         log.warning(f"embedder unavailable, gatherer vector strategies will degrade: {e}")
         embedder = None
