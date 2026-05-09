@@ -113,6 +113,10 @@ class EvidenceItem(BaseModel):
     # 'STAGING' | 'TRUSTED' | 'ARCHIVED'. None when the evidence is a chunk
     # without an associated graph object.
     lifecycle_state: Optional[str] = None
+    # LLM polarity classifier's free-text justification for the polarity
+    # label. Captured so post-hoc analysis can audit conservative-neutral
+    # calls without re-running the classifier.
+    polarity_reasoning: Optional[str] = None
 
 
 class EvaluationPlan(BaseModel):

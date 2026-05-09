@@ -21,6 +21,7 @@ from typing import List, Optional, Callable, Awaitable, Set
 from pydantic import BaseModel
 from .contracts import Fact, EvaluationPlan, EvidenceItem
 from .llm.client import LLMClient
+from .observability.trace import tracer
 from .tools import GraphTools
 
 logger = logging.getLogger(__name__)
@@ -112,41 +113,88 @@ class EvidenceGatherer:
         return (f"relationship {rel.relationship_type} from {s_desc} "
                 f"to {t_desc}{archived}")
 
-    async def _search_one_query(self, query: str, fact: Fact) -> List[EvidenceItem]:
+    async def _search_one_query(self, query: str, fact: Fact,
+                                seen_chunks: Optional[Set[str]] = None,
+                                seen_rels: Optional[Set[str]] = None) -> List[EvidenceItem]:
         items: List[EvidenceItem] = []
+        # Per-strategy bookkeeping for the evidence_query_results trace event.
+        # Each strategy reports (chunks_returned, overlap_with_prior) where
+        # "prior" = chunks already seen in earlier rounds OR earlier strategies
+        # within this same query call.
+        sc = set(seen_chunks) if seen_chunks is not None else set()
+        sr = set(seen_rels) if seen_rels is not None else set()
+        per_strategy: List[dict] = []
+
+        def _record(strategy: str, batch: List[EvidenceItem]):
+            chunks = [it.chunk_id for it in batch if it.chunk_id]
+            rels = [it.relationship_id for it in batch if it.relationship_id]
+            overlap_chunks = sum(1 for c in chunks if c in sc)
+            overlap_rels = sum(1 for r in rels if r in sr)
+            distinct_chunks = len({c for c in chunks if c not in sc})
+            distinct_rels = len({r for r in rels if r not in sr})
+            per_strategy.append({
+                "strategy": strategy,
+                "items_returned": len(batch),
+                "chunks_returned": len(chunks),
+                "rels_returned": len(rels),
+                "overlap_chunks_with_prior": overlap_chunks,
+                "overlap_rels_with_prior": overlap_rels,
+                "distinct_new_chunks": distinct_chunks,
+                "distinct_new_rels": distinct_rels,
+            })
+            sc.update(c for c in chunks if c)
+            sr.update(r for r in rels if r)
+
         # (1) graph: search relationships whose source/target match fact endpoints
+        graph_batch: List[EvidenceItem] = []
         for rel in self.tools.get_relationships(source_id=fact.source_entity_id):
-            items.append(EvidenceItem(
+            graph_batch.append(EvidenceItem(
                 relationship_id=rel.id, chunk_id=rel.source_chunk_id,
                 content=self._hydrate_rel(rel),
                 speaks_to=query, polarity="neutral",
                 lifecycle_state=rel.lifecycle_state,
             ))
+        items.extend(graph_batch); _record("graph_endpoint", graph_batch)
         # (4) FTS over chunks
+        fts_batch: List[EvidenceItem] = []
         for ch in self.tools.search_chunks_text(query)[:50]:
-            items.append(EvidenceItem(
+            fts_batch.append(EvidenceItem(
                 chunk_id=ch.id, source_document_id=ch.document_id,
                 content=ch.text, speaks_to=query, polarity="neutral",
             ))
+        items.extend(fts_batch); _record("fts_chunks", fts_batch)
         # (2,3) vector similarity — only if embedder is wired
         if self.embedder is not None:
             try:
                 emb = await self.embedder(query)
+                vec_chunk_batch: List[EvidenceItem] = []
                 for ch in self.tools.search_chunks_vector(emb, top_k=50):
-                    items.append(EvidenceItem(
+                    vec_chunk_batch.append(EvidenceItem(
                         chunk_id=ch.id, source_document_id=ch.document_id,
                         content=ch.text, speaks_to=query, polarity="neutral",
                     ))
+                items.extend(vec_chunk_batch); _record("vector_chunks", vec_chunk_batch)
+                vec_ent_batch: List[EvidenceItem] = []
                 for ent in self.tools.find_entities_by_embedding(emb, top_k=50):
                     for rel in self.tools.get_relationships(source_id=ent.id):
-                        items.append(EvidenceItem(
+                        vec_ent_batch.append(EvidenceItem(
                             relationship_id=rel.id, chunk_id=rel.source_chunk_id,
                             content=self._hydrate_rel(rel),
                             speaks_to=query, polarity="neutral",
                             lifecycle_state=rel.lifecycle_state,
                         ))
+                items.extend(vec_ent_batch); _record("vector_entities_to_rels", vec_ent_batch)
             except Exception as e:
                 logger.warning(f"[Gatherer] embedder/vector search failed: {e}")
+                per_strategy.append({"strategy": "vector_failed", "error": repr(e)})
+        tracer.event(
+            "evidence_query_results",
+            query=query,
+            strategies=per_strategy,
+            total_items=len(items),
+            total_distinct_new_chunks=sum(s.get("distinct_new_chunks", 0) for s in per_strategy),
+            total_distinct_new_rels=sum(s.get("distinct_new_rels", 0) for s in per_strategy),
+        )
         return items
 
     async def _direct_endpoint_edges(self, fact: Fact) -> List[EvidenceItem]:
@@ -181,6 +229,18 @@ class EvidenceGatherer:
                 )
                 if resp.polarity in ("confirms", "disconfirms", "neutral"):
                     it.polarity = resp.polarity  # type: ignore
+                # Persist + emit classifier reasoning so post-hoc analysis can
+                # audit conservative-neutral calls without re-running the LLM.
+                it.polarity_reasoning = resp.reasoning or None
+                tracer.event(
+                    "polarity_classified",
+                    chunk_id=it.chunk_id,
+                    relationship_id=it.relationship_id,
+                    polarity=it.polarity,
+                    reasoning=resp.reasoning or "",
+                    evidence_preview=it.content[:200],
+                    speaks_to=it.speaks_to,
+                )
             except Exception as e:
                 logger.debug(f"polarity failed: {e}")
         await asyncio.gather(*[one(it) for it in evidence])

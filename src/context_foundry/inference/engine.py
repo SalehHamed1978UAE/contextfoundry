@@ -185,6 +185,7 @@ class FactEvaluator:
 
             with tracer.span("meta"):
                 audit = await self.meta.audit(plan, evidence, challenges, proof, disproof)
+                tracer.event("meta_audit", verdict=audit.model_dump())
 
             if audit.recommend_replan and replans_used < self.max_replans:
                 self._diag_replans_used = replans_used + 1

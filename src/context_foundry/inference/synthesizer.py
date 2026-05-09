@@ -94,7 +94,25 @@ class VerdictSynthesizer:
                     caveats=["presupposition could not be verified"], depth=depth,
                 )
 
-        # 2. Disproof succeeded with valid proof chain → fact is false
+        # 2a. Both proof AND disproof succeeded → CONTESTED.
+        #     This is exactly what CONTESTED is for: two compatible-but-
+        #     conflicting proofs (e.g., seeded edges supporting both Bob and
+        #     Alice for the same single-occupant role). Must be checked
+        #     BEFORE the disproof-only branch, otherwise a co-firing proof
+        #     gets silently overruled and we report DISPROVEN on a fact for
+        #     which we just constructed a positive proof chain.
+        if (proof and proof.succeeded and disproof and disproof.succeeded
+                and meta.proof_validity_verdict == "valid"):
+            trace.append("BOTH proof and disproof succeeded → CONTESTED")
+            return self._mk(
+                "CONTESTED", fact, plan, evidence, surviving,
+                proof, disproof, meta, sub_verdicts, trace,
+                caveats=["proof and disproof both succeeded — fact is contested"],
+                depth=depth,
+            )
+
+        # 2b. Disproof succeeded (and proof did NOT) with valid proof chain
+        #     → fact is false
         if disproof and disproof.succeeded and meta.proof_validity_verdict == "valid":
             trace.append("disproof succeeded; meta confirmed proof valid")
             return self._mk(

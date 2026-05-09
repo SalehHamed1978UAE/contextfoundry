@@ -119,6 +119,81 @@ def test_proof_succeeds_with_invalid_meta_does_not_return_proven():
     assert v.status != "PROVEN"
 
 
+# ============================================================ CONTESTED — both proof AND disproof succeeded
+def test_both_proof_and_disproof_succeed_returns_contested():
+    """When both proof and disproof produce valid chains, the fact is
+    literally contested — there's evidence for AND against. The synthesizer
+    must NOT silently route to DISPROVEN just because the disproof branch
+    appears earlier in the case-analysis (Q4 regression)."""
+    f = mk_fact()
+    v = SYNTH.synthesize(
+        f, mk_plan(), [], [],
+        proof=ProofAttempt(succeeded=True, chain=["bob_seeded_edge"], axioms_used=["rel-bob"]),
+        disproof=ProofAttempt(succeeded=True, chain=["alice_competing_edge"], axioms_used=["rel-alice"]),
+        meta=mk_meta(valid="valid"), sub_verdicts=[],
+    )
+    assert v.status == "CONTESTED"
+    # Both attempts must remain attached to the verdict for downstream audit.
+    assert v.proof_attempt.succeeded is True
+    assert v.disproof_attempt.succeeded is True
+    assert any("BOTH proof and disproof" in t for t in v.trace)
+
+
+def test_both_proof_and_disproof_succeed_with_invalid_meta_does_not_return_contested_via_branch_2a():
+    """The both-succeed shortcut requires meta='valid'. With 'invalid' meta
+    the synthesiser must NOT use branch 2a; it falls through to the no-formal-
+    proof logic (where surviving challenges or shallow-meta heuristics apply)."""
+    f = mk_fact()
+    v = SYNTH.synthesize(
+        f, mk_plan(), [], [],
+        proof=ProofAttempt(succeeded=True), disproof=ProofAttempt(succeeded=True),
+        meta=mk_meta(valid="invalid"), sub_verdicts=[],
+    )
+    # With no surviving challenges, no confirming evidence, and meta=invalid
+    # we land in the "no proof, no challenges, no authoritative confirms" leaf.
+    # Status must NOT be CONTESTED via the new branch (which requires valid).
+    # Empty evidence + invalid meta → UNDERSUPPORTED is the expected fall-through.
+    assert v.status == "UNDERSUPPORTED"
+
+
+def test_only_proof_succeeds_no_challenges_returns_proven():
+    """Coverage check that disproof.succeeded=False does not trip 2a."""
+    f = mk_fact()
+    v = SYNTH.synthesize(
+        f, mk_plan(), [], [],
+        proof=ProofAttempt(succeeded=True, chain=["a"]),
+        disproof=ProofAttempt(succeeded=False),
+        meta=mk_meta(valid="valid"), sub_verdicts=[],
+    )
+    assert v.status == "PROVEN"
+
+
+def test_only_disproof_succeeds_returns_disproven():
+    """Coverage check that proof.succeeded=False does not trip 2a — the
+    pure-disproof branch (2b) must still fire."""
+    f = mk_fact()
+    v = SYNTH.synthesize(
+        f, mk_plan(), [], [],
+        proof=ProofAttempt(succeeded=False),
+        disproof=ProofAttempt(succeeded=True, chain=["x"]),
+        meta=mk_meta(valid="valid"), sub_verdicts=[],
+    )
+    assert v.status == "DISPROVEN"
+
+
+def test_neither_proof_nor_disproof_succeeds_falls_through():
+    """Both False → fall through to surviving-challenge / authority-counting
+    logic. With no challenges and no evidence: UNDERSUPPORTED."""
+    f = mk_fact()
+    v = SYNTH.synthesize(
+        f, mk_plan(), [], [],
+        proof=ProofAttempt(succeeded=False),
+        disproof=ProofAttempt(succeeded=False),
+        meta=mk_meta(valid="no_proof_attempted"), sub_verdicts=[],
+    )
+    assert v.status == "UNDERSUPPORTED"
+
+
 # ============================================================ CONTESTED
 def test_proof_succeeds_with_surviving_challenge_returns_contested():
     f = mk_fact()

@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 from typing import List
 from .contracts import Fact, EvaluationPlan, EvidenceItem, ProofAttempt
 from .llm.client import LLMClient
+from .observability.trace import tracer
 from .tools import GraphTools
 
 PROMPT_PATH = Path(__file__).parent / "llm" / "prompts" / "prover_system.md"
@@ -73,12 +74,28 @@ class ProofConstructor:
                 f"axioms not found in DB: {sorted(missing)[:10]}"
                 f"{' (and more)' if len(missing) > 10 else ''}"
             )
-        return ProofAttempt(
+        attempt = ProofAttempt(
             succeeded=succeeded,
             chain=list(proposed.chain),
             axioms_used=sorted(verified_axioms),
             gaps=gaps,
         )
+        # Structured trace event so post-hoc benchmark analysis can audit the
+        # exact chain + axioms a (dis)proof relied on without re-running.
+        tracer.event(
+            "prover_proof_attempt" if prove else "prover_disproof_attempt",
+            succeeded=attempt.succeeded,
+            llm_claimed_succeeded=proposed.succeeded,
+            chain=attempt.chain,
+            axioms_used=attempt.axioms_used,
+            axioms_claimed=list(proposed.axioms_used),
+            axioms_missing=sorted(missing),
+            gaps=attempt.gaps,
+            fact_source=fact.source_entity_id,
+            fact_target=fact.target_entity_id,
+            fact_relationship_type=fact.relationship_type,
+        )
+        return attempt
 
     def _verify_axioms(self, axiom_ids: List[str], fact: Fact, prove: bool):
         """Check every cited axiom is a real, non-archived relationship.
