@@ -1,0 +1,161 @@
+# Task: Piece 1.5 — Classification Metadata Parity for Ontology Extraction Path
+
+## Alignment
+
+- **Module touched:** ontology-extraction path metadata flow, document classification persistence, extraction runner
+- **Product vs implementation:** implementation-level completion of Piece 1
+- **Architecture-doc consistency:** matches `docs/architecture.md` Piece 1; ensures both production extraction paths persist the same classification metadata before Piece 2 begins
+- **Drift risk:** accidentally starting Piece 2 by using classification metadata to filter ontology prompts or alter `SchemaPromptGenerator`
+- **Out of scope:** Piece 2 prompt generation, `SchemaPromptGenerator` domain filtering, ontology prompt changes, Gardener validation, confidence-floor policy, v2 FactEvaluator, Nexus 100, workflow restarts, `replit.md` edits
+
+## Standing Constraints
+
+- No `replit.md` edits.
+- No Manus/Ontology workflow restarts.
+- No workflow restarts.
+- No v2 work.
+- No Nexus benchmark run.
+- No extraction prompt changes.
+- No `SchemaPromptGenerator` behavior changes.
+- No Gardener changes.
+- No confidence-floor policy in this task.
+
+## Read First
+
+1. `docs/architecture.md`
+2. `docs/decisions.md`
+3. Piece 1 final report
+4. `scripts/run_vault_extraction.py`
+5. `brain/classification_wrapper.py`
+6. `src/context_foundry/extraction/ontology_centric_pipeline.py`
+7. `src/context_foundry/extraction/multi_extractor.py`
+
+## Goal
+
+Wire the same classification metadata flow into the ontology-centric extraction path that Piece 1 added to the default multi-model path.
+
+This is metadata parity only.
+
+The ontology path should:
+
+```text
+classify → log → persist → pass metadata through extraction context
+
+It must not use classification metadata to change prompt contents, ontology scoping, or schema filtering.
+
+Requirements
+A. Locate ontology extraction flow
+
+Identify the exact call chain for the flag-gated ontology path:
+
+run_ontology_extraction
+→ OntologyCentricPipeline.extract
+→ _store_document_chunks
+→ _extract_entities_with_ontology
+→ _extract_relations_with_ontology
+→ _stage_results
+
+Report where classification metadata should enter the path before making changes.
+
+B. Wire classification metadata
+
+Before ontology-centric extraction runs for each document:
+
+Call the existing classifier wrapper from Piece 1.
+Persist classification metadata to platform.documents.
+Pass the classification metadata into the ontology extraction context as metadata only.
+Reuse the same empty-text guard and partial-failure semantics from Piece 1.
+Reuse the same logging style from Piece 1.
+C. Do not change prompt behavior
+
+Do not:
+
+filter ontology types by domain
+filter ontology relations by domain
+alter SchemaPromptGenerator
+alter entity extraction prompt content
+alter relation extraction prompt content
+add confidence thresholds
+start Piece 2 behavior
+D. Architecture doc update
+
+Append an open Piece 2 design question to docs/architecture.md:
+
+Open design question for Piece 2: Confidence-driven prompt scoping behavior
+
+Real-document classification confidence is materially lower than synthetic-case confidence observed in Piece 1 smoke tests. Piece 2 must decide how prompt construction should respond to low-confidence classifications:
+
+(a) load only the primary domain's vocabulary regardless of confidence;
+(b) fall back to the full union when confidence is below a measured threshold;
+(c) load primary domain plus close runner-up domains when the top-2 confidence margin is small.
+
+Thresholds, if any, must be based on measurement, not guessed. This is recorded as a Piece 2 design question and is not actioned in Piece 1.5.
+
+Do not implement any confidence-floor behavior in this task.
+
+E. Smoke test
+
+Run one of these, in order of preference:
+
+A 2–3 document ontology-path smoke test, if affordable and safe.
+A 1-document ontology-path smoke test, if the full smoke is too slow.
+A dry-run/unit-level check proving:
+classification wrapper is called;
+metadata is persisted;
+metadata reaches the ontology pipeline context;
+prompt-generation code is untouched.
+
+The smoke test must show:
+
+classification log output;
+document row classification metadata;
+ontology path still runs or dry-runs;
+metadata is passed as metadata only.
+F. Prompt-change verification
+
+Paste one of:
+
+prompt diff showing no ontology prompt-generating code changed; or
+explicit file diff confirming SchemaPromptGenerator and ontology prompt templates were not modified.
+
+The load-bearing constraint is:
+
+Piece 1.5 must not change prompt behavior.
+Acceptance Checks
+
+All must pass:
+
+Ontology extraction path receives classification metadata.
+Classification metadata is persisted to platform.documents.
+Metadata is passed into ontology pipeline context.
+Empty-text guard and partial-failure semantics are reused.
+Logging matches Piece 1 classification logs.
+SchemaPromptGenerator unchanged.
+Ontology prompt contents unchanged.
+No domain-scoped prompt filtering started.
+No Gardener changes.
+No confidence-floor policy added.
+No v2 changes.
+No Nexus 100 run.
+No workflow restarts.
+No replit.md edits.
+Final Report
+
+Report:
+
+files changed;
+exact insertion point in run_ontology_extraction;
+how metadata is persisted;
+how metadata is passed into ontology pipeline context;
+smoke/dry-run results;
+prompt-change verification;
+architecture doc update for the Piece 2 confidence question;
+acceptance-check table;
+confirmation that Piece 2 was not started.
+Stop Condition
+
+Stop after Piece 1.5.
+
+Do not start Piece 2.
+Do not start Piece 0.6.
+Wait for confirmation

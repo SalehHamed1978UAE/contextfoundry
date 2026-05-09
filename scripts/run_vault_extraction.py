@@ -743,6 +743,34 @@ def run_ontology_extraction(
             log(f"  [{i}/{len(documents)}] Skipping {doc_name}: no content")
             continue
         
+        # Piece 1.5: Document classification — runs BEFORE ontology extraction.
+        # Mirrors the Piece 1 multi-model wiring exactly: same wrapper
+        # (empty-text guard + partial-failure semantics built in), same
+        # log format, same persist helper, same DB-error tolerance. The
+        # classification metadata is passed into pipeline.extract() as
+        # metadata only — it does NOT influence document_type
+        # classification, ontology loading, or any prompt content. That
+        # consumption decision is Piece 2.
+        classification = classify_document(
+            content,
+            filename=doc.get("original_filename") or doc_name,
+        )
+        log(
+            f"  [{i}/{len(documents)}] [classify] {doc_name}: "
+            f"status={classification.classification_status} "
+            f"primary_domain={classification.primary_domain!r} "
+            f"document_type={classification.document_type!r} "
+            f"confidence={classification.classification_confidence}"
+        )
+        try:
+            _persist_classification(session, doc_id, classification)
+        except Exception as ce:
+            log(f"    [classify] DB persist failed for {doc_name}: {ce}")
+            try:
+                session.rollback()
+            except Exception:
+                pass
+        
         log(f"  [{i}/{len(documents)}] Ontology extracting: {doc_name} (content: {content_source})")
         
         try:
@@ -750,6 +778,7 @@ def run_ontology_extraction(
                 text=content,
                 document_id=doc_id,
                 filename=doc_name,
+                classification_metadata=classification.to_dict(),
             )
             
             if result.success:

@@ -417,3 +417,30 @@ Recent task context does not redefine Context Foundry unless the user explicitly
 > **Piece 0.6 must resolve their disposition before Piece 2 (Domain-Aware Extraction) lands**, if domain-aware extraction needs any of these four verbs to appear in scoped prompts. The decision is one of: (a) retroactively bless them into `00_shared_ontology.sql` with their existing UUIDs, (b) re-create them under a governed `PROPOSED → APPROVED → ACTIVE` flow with new UUIDs (requires a corresponding migration to remap referencing rows), or (c) explicitly leave them unscoped and have Piece 2's prompt builder source them by other means.
 >
 > Piece 7 still owns the broader long-term Ontology Foundry governance lifecycle (Gap 2 + Gap 3 + Gap 5 in aggregate). Piece 0.6 is the **near-term, narrowly-scoped** decision for these 4 specific foundational relation candidates.
+
+## Open design question for Piece 2: Confidence-driven prompt scoping behavior
+
+Real-document classification confidence (Piece 1 / Piece 1.5 smoke
+measurements on Nexus content) is materially lower than synthetic-case
+confidence:
+
+  - synthetic foundation glossary  → core @ 0.7435
+  - synthetic 10-K narrative       → finance @ 0.3981
+  - real Nexus board memo          → construction @ 0.2604 (vs runner-up it_infrastructure @ 0.207)
+  - real Nexus quarterly review    → it_infrastructure @ 0.3407 (vs construction @ 0.310)
+  - real Nexus FedRAMP press rel.  → it_infrastructure @ 0.2522 (vs construction @ 0.233)
+
+Piece 2 must decide how prompt construction should respond to
+low-confidence and small-margin classifications:
+
+  (a) load only the primary domain's vocabulary regardless of confidence;
+  (b) fall back to the full union when confidence is below a measured
+      threshold;
+  (c) load primary domain plus close runner-up domains when the top-2
+      confidence margin is small.
+
+Thresholds, if any, must be measurement-driven (extraction recall on a
+held-out set of Nexus + Manus + Ontology Vault docs across a range of
+candidate cutoffs), not guessed.
+
+Recorded as a Piece 2 design question; not actioned in Piece 1 or Piece 1.5.

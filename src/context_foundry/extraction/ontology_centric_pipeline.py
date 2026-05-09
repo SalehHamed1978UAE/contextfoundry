@@ -47,7 +47,12 @@ class OntologyCentricResult:
     chunks_stored: int = 0
     success: bool = True
     error: Optional[str] = None
-    
+    # Piece 1.5 — classification metadata parity. Carried through as
+    # metadata only. NOT used to alter document_type, ontology selection,
+    # prompt content, or any extraction behavior. Piece 2 will decide
+    # whether/how to consume this.
+    classification_metadata: Optional[Dict] = None
+
     def to_dict(self) -> Dict:
         return {
             "document_id": self.document_id,
@@ -61,6 +66,7 @@ class OntologyCentricResult:
             "chunks_stored": self.chunks_stored,
             "success": self.success,
             "error": self.error,
+            "classification_metadata": self.classification_metadata,
         }
 
 
@@ -149,6 +155,7 @@ class OntologyCentricPipeline:
         filename: Optional[str] = None,
         document_type_override: Optional[str] = None,
         content_hash: Optional[str] = None,
+        classification_metadata: Optional[Dict] = None,
     ) -> OntologyCentricResult:
         """
         Run full ontology-centric extraction pipeline.
@@ -161,6 +168,13 @@ class OntologyCentricPipeline:
             filename: Original filename (for type inference)
             document_type_override: Override automatic classification
             content_hash: Hash of document content for cache optimization
+            classification_metadata: Piece 1.5 — classification result
+                produced by brain.classification_wrapper.classify(), passed
+                through as metadata only. Stored on the returned
+                OntologyCentricResult so downstream consumers can inspect
+                it. NOT used to alter document_type selection, ontology
+                loading, prompt construction, or any extraction behavior.
+                Piece 2 will decide whether/how to consume this.
             
         Returns:
             OntologyCentricResult with all extraction data
@@ -339,6 +353,7 @@ class OntologyCentricPipeline:
                 staging_result=staging_result,
                 chunks_stored=len(chunks_stored),
                 success=True,
+                classification_metadata=classification_metadata,
             )
             
         except Exception as e:
@@ -358,6 +373,7 @@ class OntologyCentricPipeline:
                 chunks_stored=len(chunks_stored) if chunks_stored else 0,
                 success=False,
                 error=str(e),
+                classification_metadata=classification_metadata,
             )
     
     def _chunk_text(self, text: str, chunk_size: int = 2000, overlap: int = 400) -> List[Tuple[str, int, int]]:
