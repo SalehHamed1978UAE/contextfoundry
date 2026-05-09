@@ -1,3 +1,7 @@
+> Superseded. This document describes design intent as of December 2025. The canonical architecture document is `docs/architecture.md`.
+
+---
+
 # Context Foundry: Functional Architecture (Top-Down)
 
 **Purpose**

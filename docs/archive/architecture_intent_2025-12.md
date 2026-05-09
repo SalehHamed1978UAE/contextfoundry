@@ -1,3 +1,7 @@
+> Superseded. This document describes design intent as of December 2025. The canonical architecture document is `docs/architecture.md`.
+
+---
+
 # Context Foundry - System Architecture
 
 > Canonical reference for the actual implemented system.

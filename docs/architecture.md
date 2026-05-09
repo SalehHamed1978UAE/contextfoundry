@@ -1,14 +1,166 @@
-# Context Foundry — Current-State Architecture
+# Context Foundry — Architecture (Canonical)
 
-> Read-only audit, May 2026. Documents what exists and how it is wired today, not what should exist. Divergence between intent and implementation is captured by the `Currently wired?` column (`PARTIAL`, `FLAG_GATED`, `ORPHAN`) — not editorialized.
+> **Status:** Canonical target architecture document. Locked May 2026.
+> **Supersedes:** `docs/archive/architecture_intent_2025-12.md`, `docs/archive/architecture_summary_intent.md`.
+> **Companion:** `docs/decisions.md` (ADRs).
+>
+> Sections 1–8 describe the **target** architecture. Section 9 preserves the May 2026 current-state audit verbatim as a snapshot. Sections 10 and below are governance: authority rule, alignment block protocol, implementation gate, and recorded implementation gaps.
 
-## 1. System Summary
+---
+
+## 1. What Context Foundry Is
+
+> Context Foundry is a system that turns enterprise documents into a governed, domain-aware world model that AI agents query through a refuse-or-answer-with-evidence contract. The product surface is the **ContextBundle**. The graph is an internal substrate, not the product.
+
+---
+
+## 2. The Target Pipeline
+
+```
+Document arrives
+        ↓
+Classifier: assigns primary_domain, secondary_domains, document_type, confidence, evidence
+        ↓
+Extractor: domain-scoped ontology + document-type hints → entities, relationships, values, evidence spans
+        ↓
+STAGING (facts tagged with domain, document_type, source, evidence span)
+        ↓
+Verification: LLM checks fact against evidence
+        ↓
+Gardener: validates against domain-scoped ontology, checks corroboration, promotes
+        ↓
+TRUSTED (governed world model)
+        ↓
+Query arrives
+        ↓
+Query Interpreter → Retrieval Router → Data Gates
+        ↓
+├─ refuse → Gap Detector emits typed gap
+└─ pass → LLM synthesis → QA Verifier
+        ↓
+ContextBundle (answer or refusal + entities + facts + provenance + confidence + gates fired + gaps + reasoning trace)
+```
+
+---
+
+## 3. Domain Model
+
+Eight canonical domains:
+
+- `core` — shared/foundation ontology, cross-domain types
+- `it_infrastructure`
+- `healthcare`
+- `finance`
+- `aviation`
+- `supply_chain`
+- `manufacturing`
+- `construction`
+
+`core` is shared/foundation scope, **not** an "unknown" bucket.
+
+Document type is separate from domain. Documents have:
+
+- `primary_domain`
+- `secondary_domains` (list)
+- `document_type`
+- `classification_confidence`
+- `classification_evidence`
+
+`domain` controls **ontology scope** (which entity types and relationships are allowed). `document_type` controls **extraction hints and source authority** (board minutes are authoritative for executive appointments; policies are authoritative for ownership; etc.).
+
+---
+
+## 4. Governance Model
+
+Facts enter STAGING.
+
+Gardener promotes to TRUSTED based on:
+
+- confidence threshold (type-specific)
+- corroboration count
+- time in staging
+- domain coherence (fact's type belongs to document's primary domain, an allowed secondary domain, or `core`)
+- verification status
+
+Cross-domain facts are not auto-rejected. Facts whose type sits outside the document's allowed domain scope are held in STAGING and surface as `GAP_DOMAIN_MISMATCH` for review.
+
+Schema changes go through the Ontology Foundry lifecycle:
+
+```
+PROPOSED → APPROVED → ACTIVE
+```
+
+Direct writes to `ontology.types` and `ontology.relations` outside this lifecycle are not part of the target design.
+
+---
+
+## 5. Query Model
+
+Query Interpreter classifies question shape (triple lookup, attribute, scalar, list, date, range, ownership, aggregation).
+
+Retrieval Router dispatches to the appropriate handler.
+
+Data Gates refuse before LLM call when entity not found, no relevant chunks, or unverified evidence.
+
+On refusal, Gap Detector emits a typed gap to the GapQueue.
+
+On pass, LLM synthesis produces a grounded answer; QA Verifier validates structural and semantic consistency before return.
+
+---
+
+## 6. ContextBundle Contract
+
+Every query response is a ContextBundle containing:
+
+- `answer` (text) **or** `refusal` (typed)
+- `entities` (list, with provenance per entity)
+- `facts` (list, with provenance and confidence per fact)
+- `provenance` (document IDs, chunk IDs, evidence spans)
+- `confidence` (overall, per-fact, per-entity)
+- `gates_fired` (list of Data Gate evaluations)
+- `gaps` (list of typed GapRecords emitted during this query)
+- `reasoning_trace` (the path the system took)
+
+ContextBundle is the agent-facing contract. Downstream consumers (agents, MCP clients, internal callers) depend on this shape.
+
+---
+
+## 7. Implementation Sequence
+
+The work to bring the running system in line with the target design is sequenced as the following Pieces. **No Piece begins without the implementation gate (below) being satisfied.**
+
+- **Piece 0:** Domain registry canonicalization (backfill `ontology.types.domain_id`, `ontology.relations.domain_id`; add `core` to classifier; rename orphan YAMLs to `_legacy.yaml`)
+- **Piece 1:** Document classification in production extraction (classifier wired before `MultiModelExtractor`; metadata persisted on `platform.documents`)
+- **Piece 2:** Domain-aware extraction (`SchemaPromptGenerator` filters by `domain_id`; `MultiModelExtractor` uses domain-scoped prompt; consensus pattern preserved)
+- **Piece 3:** Domain-coherent Gardener (promotion validates against domain scope; full 5-pass cycle confirmed running)
+- **Piece 4:** Governance gap types (`GAP_DOMAIN_MISMATCH`, `GAP_ONTOLOGY_TYPE_INVALID`, `GAP_ONTOLOGY_RELATION_INVALID`, `GAP_DOCUMENT_TYPE_AUTHORITY_MISMATCH`, `GAP_EXTRACTION_SCOPE_MISSING`)
+- **Piece 5:** GapQueue wired into production query pipeline (currently wired to orphan v2 engine; rewire to Data Gate refusal paths)
+- **Piece 6:** ContextBundle response contract (query pipeline returns the structured bundle)
+- **Piece 7:** Ontology Foundry wired to schema changes (route `_update_reference_ontology` writes through TypeValidator → CollisionDetector → ApprovalManager)
+- **Piece 8:** Nexus 100 re-run against the wired-in system; classify remaining failures via the gap taxonomy
+
+---
+
+## 8. Parked and Salvage Modules
+
+- `inference/engine.py` (v2 FactEvaluator) and the planner/gatherer/prover/adversary/meta/synthesizer chain — **parked**. Planner and presupposition outputs are reused as gap signals (D8.1, already shipped). Salvage gatherer strategies if needed for retrieval improvements.
+- `validation/coherence_checker.py` — **salvage audit pending**. Decide whether to wire into QAVerifier or archive.
+- `agents/graph_builder`, `agents/graph_loader`, `agents/semantic_agent`, `agents/tool_agent`, `agents/directed_retriever` — **salvage audit pending**. Each module gets a one-page disposition (keep and wire, salvage parts, archive, delete).
+- Orphan YAMLs (`config/domain_schema.yaml`, `config/fiction_schema.yaml`, `config/investment_schema.yaml`, `config/examples/investment_portfolio.yaml`) — **legacy candidates**, renamed during Piece 0, not deleted until salvage audit completes.
+
+---
+
+## 9. Current State at Design Lock
+
+> The block diagram, module table, and behaviors table below are the **May 2026 read-only audit** of the running system at the moment this target design was locked. Preserved verbatim so the reader can compare target (Sections 1–8) against current state and see the gap. Do not edit this section to track ongoing changes — create a new dated audit instead.
+
+### 9.1 System Summary (current state, May 2026)
 
 Context Foundry ingests enterprise documents into a single Postgres+pgvector store, extracts entities and relationships from each document with an LLM-based extractor (default: dual-pass GPT-4o-mini + Claude Sonnet 4 with consensus reconciliation; alternative under `--use-ontology`: a document-type-classified ontology-constrained pipeline), writes results to a `STAGING` lifecycle state, runs a `VerificationWorker` and a `GardenerAgent.promotion_pass` (which checks confidence/corroboration thresholds and validates types against a flat union of all ontology types), and answers queries via a 4-step `QueryPipeline` (interpret → retrieve via `RetrievalRouter` → LLM synthesize → `QAVerifier`) with `DataGates` short-circuiting before the LLM when an entity is not found, evidence is unverified, or chunks are absent.
 
-## 2. Block Diagram
+### 9.2 Block Diagram (current state, May 2026)
 
-### 2a. Default extraction → query path (production)
+#### 9.2a Default extraction → query path (production)
 
 ```
 scripts/run_vault_extraction.py  (no flags)
@@ -69,7 +221,7 @@ QAVerifier.verify ── status in {OFF_TOPIC, INSUFFICIENT, UNSUPPORTED, SUSPIC
 PipelineResult → _trigger_learning_flow (LearningOrchestrator.on_query_response)
 ```
 
-### 2b. Alternative + orphan modules
+#### 9.2b Alternative + orphan modules (current state, May 2026)
 
 ```
                  [--use-ontology flag]
@@ -114,7 +266,7 @@ run_ontology_extraction → OntologyCentricPipeline.extract  (per doc)
 └────────────────────────────────────────────────────────────────────────────┘
 ```
 
-## 3. Module Table
+### 9.3 Module Table (current state, May 2026)
 
 | Module | File path | Responsibility (one sentence) | Currently wired? |
 |---|---|---|---|
@@ -146,7 +298,7 @@ run_ontology_extraction → OntologyCentricPipeline.extract  (per doc)
 | `agents/graph_builder`, `graph_loader`, `semantic_agent`, `tool_agent`, `directed_retriever` | `src/context_foundry/agents/*.py` | Listed in `CF_MASTER_REFERENCE.md` agent inventory. | **needs per-module audit** — none appear in `QueryPipeline.execute` or `run_vault_extraction.py`; flagged as candidate orphans pending verification |
 | `web_app.py` | `web_app.py` | Flask service exposing auth, vault/extraction admin, test-runner UI; `/api/vault/chat` is the live query endpoint (route definition not located in this scan — needs verification, but `QueryPipeline` is the production query orchestrator per code grep). | **PRODUCTION** |
 
-## 4. Behaviors Table
+### 9.4 Behaviors Table (current state, May 2026)
 
 | When this happens | The system currently does this | Module(s) involved |
 |---|---|---|
@@ -166,9 +318,63 @@ run_ontology_extraction → OntologyCentricPipeline.extract  (per doc)
 | A `coherence_checker` "shadow mode" check would run after a response. | Module exists at `src/context_foundry/validation/coherence_checker.py`, but no caller invokes it in any path — replit.md describes it as wired, code grep finds no callers. | `coherence_checker` (ORPHAN) |
 | A schema change (new entity type, new relationship type) is proposed. | `OntologyCentricPipeline._update_reference_ontology` writes new types directly into `ontology.types` / `ontology.relations` during extraction. The Ontology Foundry governance lifecycle (PROPOSED → VALIDATING → APPROVED → ACTIVE) and its agents (`TypeValidator`, `CollisionDetector`, `HierarchyEnforcer`, `ApprovalManager`, `SchemaVersionManager`, `TypeLifecycleManager`, `DeprecationManager`) **are not invoked** — they exist as code in `src/context_foundry/ontology_foundry/` but no caller outside that directory was found. | `OntologyCentricPipeline._update_reference_ontology`; `ontology_foundry/*` (ORPHAN) |
 
----
-
 **Audit notes (cannot determine from code inspection alone):**
 - The `web_app.py` `/api/vault/chat` route definition was not located in this scan (grep timed out at line 1049). Existence of `QueryPipeline` as the production query orchestrator is inferred from import graph; the actual route handler should be confirmed by a follow-up grep or by running the system.
 - Whether `GardenerAgent.run_cycle` (the full 5-pass loop with decay/conflict/demotion/cleanup) is invoked by any running scheduler in production was not verified — the extraction script only invokes `promotion_pass` standalone.
 - Several `agents/*.py` modules (`graph_builder`, `graph_loader`, `semantic_agent`, `tool_agent`, `directed_retriever`) are listed in `CF_MASTER_REFERENCE.md` but were not traced for production callers in this audit. Marked "needs per-module audit" in the table; should not be assumed wired.
+
+---
+
+## 10. Authority Rule
+
+When in doubt, authority order is:
+
+1. User's explicit current instruction
+2. This architecture document (`docs/architecture.md`)
+3. `docs/decisions.md`
+4. Task-specific brief
+5. Recent chat context
+6. Agent inference
+
+Recent task context does not redefine Context Foundry unless the user explicitly says it does.
+
+---
+
+## Required Replit Alignment Block
+
+> Every Replit response begins with this alignment block before any other content:
+>
+> ```
+> Alignment:
+> - Module touched: [name]
+> - Product vs implementation: [product-level | implementation-level | both]
+> - Architecture-doc consistency: [matches | departs because X]
+> - Drift risk: [main risk]
+> - Out of scope: [what will not be touched]
+> ```
+>
+> If a task instruction conflicts with the architecture document or the decisions document, flag the conflict in the alignment block and stop before doing work.
+
+---
+
+## Implementation Gate
+
+> No implementation task begins unless:
+>
+> 1. `docs/architecture.md` has been read.
+> 2. `docs/decisions.md` has been read.
+> 3. The response begins with the alignment block.
+> 4. The task is mapped to a specific implementation Piece (0 through 8) from the implementation sequence.
+> 5. The out-of-scope list is explicit.
+>
+> Tasks that do not satisfy all five conditions stop and request clarification.
+
+---
+
+## Implementation gaps recorded at design lock
+
+### Gap 1: Domain registry not populated (blocking Piece 0)
+
+> `ontology.types.domain_id` is NULL for all 1037 rows. `ontology.relations.domain_id` is NULL for 250 of 254 rows (4 hold the literal `'core'`). The seed files (`00_shared` through `07_construct`) imply domain partitioning by filename but do not persist `domain_id` in their inserts. Therefore, before domain-aware extraction (Piece 2) can function, Piece 0 must construct and backfill the canonical domain registry.
+>
+> **This finding is recorded, not solved.** Piece 0 implementation is a separate task and is not authorized by this design-lock task.
