@@ -6,6 +6,7 @@ the recursive source-authority hook on the gatherer.
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 from typing import List, Optional, Iterable
 from sqlalchemy import text as _sql_text
@@ -107,6 +108,26 @@ class FactEvaluator:
                          f"{pve.message}"],
                         guard.depth)
                     return self._maybe_stamp_root(final, is_root, is_outer_call)
+            # Plan summary event — diagnostic runs need plan_hash + presup
+            # counts to distinguish planner-cache-hit from gather-blocked.
+            try:
+                import hashlib as _hl
+                _plan_blob = json.dumps({
+                    "tc": [c.model_dump(mode="json") for c in plan.truth_conditions],
+                    "fa": [c.model_dump(mode="json") for c in plan.falsifiers],
+                    "ps": [c.model_dump(mode="json") for c in plan.presuppositions],
+                    "eq": list(plan.evidence_queries),
+                }, sort_keys=True).encode()
+                _plan_hash = _hl.sha256(_plan_blob).hexdigest()[:16]
+            except Exception:
+                _plan_hash = "unhashable"
+            tracer.event(
+                "planner_complete",
+                plan_hash=_plan_hash,
+                presupposition_count=len(plan.presuppositions),
+                evidence_query_count=len(plan.evidence_queries),
+                falsifier_count=len(plan.falsifiers),
+            )
 
             # Snapshot the plan into the trace so we can compare initial
             # vs replan offline. `which_plan` is "initial" on the first
@@ -156,6 +177,16 @@ class FactEvaluator:
                     sub_verdicts = (type_check_verdicts
                                     + identity_check_verdicts
                                     + graph_fact_verdicts)
+                tracer.event(
+                    "presuppositions_complete",
+                    results=[{"kind": c.kind,
+                              "status": sv.status,
+                              "fact_key": (c.fact.key() if c.fact else None)}
+                             for c, sv in zip(
+                                 graph_fact_presups + type_check_presups
+                                 + identity_check_presups, sub_verdicts)],
+                    any_disproven=any(sv.status == "DISPROVEN" for sv in sub_verdicts),
+                )
                 if any(sv.status == "DISPROVEN" for sv in sub_verdicts):
                     final = self._terminal(fact, "UNDERSPECIFIED",
                                            ["presupposition disproven"], guard.depth,

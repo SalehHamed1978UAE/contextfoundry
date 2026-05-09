@@ -1,0 +1,103 @@
+====================================================================================================
+Diagnostic oracle post-process — 5 questions, 50 trace events parsed from log
+====================================================================================================
+
+--- Q17 (GAP_PLANNER_PRESUPPOSITION_GATE) ---
+  question: Who supplied the electrolyzers for the GreenHydrogen facility?
+  expected: 'Nel Hydrogen'
+  v2_status=UNDERSPECIFIED  correct=True  wall=33.84s  trace_count=1
+  candidate fact: 42e2ac33 --SUPPLIES--> c7f051a2
+  spans_seen: {'planner': 1, 'presuppositions': 1}
+  events: planner_complete=1 presuppositions_complete=1 evidence_query_results=0 polarity_classified=0 evidence_gathered=0
+  PLANNER: reached=True hash=7f51297d7666fe6e presup=6 ev_q=10 falsif=6 llm_calls=1 miss/hit=1/0
+  PRESUPPOSITIONS (any_disproven=True):
+     type_check     DISPROVEN       
+     type_check     DISPROVEN       
+     identity_check SUPPORTED       
+     identity_check SUPPORTED       
+  GATHER: reached=False chunks_retrieved=0 polarity_total=0 llm_calls=0 miss/hit=0/0
+     strategies: {'graph_endpoint': 0, 'fts_chunks': 0, 'vector_chunks': 0, 'vector_entities_to_rels': 0}
+     polarity:   {'confirms': 0, 'disconfirms': 0, 'neutral': 0, 'unset': 0}
+  PROVER:    llm_calls=0 miss/hit=0/0
+  ADVERSARY: llm_calls=0
+
+--- Q25 (GAP_PLANNER_PRESUPPOSITION_GATE) ---
+  question: What is the target energy density for the solid-state battery?
+  expected: '400 Wh/kg'
+  v2_status=UNDERSPECIFIED  correct=False  wall=42.61s  trace_count=1
+  candidate fact: 0b89d4cf --HAS_SPEC--> 28f19ede
+  spans_seen: {'planner': 1, 'presuppositions': 1}
+  events: planner_complete=1 presuppositions_complete=1 evidence_query_results=0 polarity_classified=0 evidence_gathered=0
+  PLANNER: reached=True hash=562586384698ee22 presup=6 ev_q=10 falsif=6 llm_calls=1 miss/hit=1/0
+  PRESUPPOSITIONS (any_disproven=True):
+     type_check     SUPPORTED       
+     type_check     DISPROVEN       
+     identity_check DISPROVEN       
+     identity_check SUPPORTED       
+  GATHER: reached=False chunks_retrieved=0 polarity_total=0 llm_calls=0 miss/hit=0/0
+     strategies: {'graph_endpoint': 0, 'fts_chunks': 0, 'vector_chunks': 0, 'vector_entities_to_rels': 0}
+     polarity:   {'confirms': 0, 'disconfirms': 0, 'neutral': 0, 'unset': 0}
+  PROVER:    llm_calls=0 miss/hit=0/0
+  ADVERSARY: llm_calls=0
+
+--- Q46 (GAP_PLANNER_PRESUPPOSITION_GATE) ---
+  question: Who supplies solar panels for the Desert Sun project?
+  expected: 'First Solar'
+  v2_status=UNDERSPECIFIED  correct=False  wall=35.79s  trace_count=1
+  candidate fact: 9b0cc3ec --SUPPLIES--> 08e9ff2a
+  spans_seen: {'planner': 1, 'presuppositions': 1}
+  events: planner_complete=1 presuppositions_complete=1 evidence_query_results=0 polarity_classified=0 evidence_gathered=0
+  PLANNER: reached=True hash=589133236501a2fa presup=6 ev_q=13 falsif=6 llm_calls=1 miss/hit=1/0
+  PRESUPPOSITIONS (any_disproven=True):
+     type_check     DISPROVEN       
+     type_check     DISPROVEN       
+     identity_check DISPROVEN       
+     identity_check SUPPORTED       
+  GATHER: reached=False chunks_retrieved=0 polarity_total=0 llm_calls=0 miss/hit=0/0
+     strategies: {'graph_endpoint': 0, 'fts_chunks': 0, 'vector_chunks': 0, 'vector_entities_to_rels': 0}
+     polarity:   {'confirms': 0, 'disconfirms': 0, 'neutral': 0, 'unset': 0}
+  PROVER:    llm_calls=0 miss/hit=0/0
+  ADVERSARY: llm_calls=0
+
+--- Q61 (GAP_PLANNER_PRESUPPOSITION_GATE) ---
+  question: Who replaced Thomas Anderson as Digital President?
+  expected: 'Robert Kim'
+  v2_status=UNDERSPECIFIED  correct=False  wall=35.12s  trace_count=1
+  candidate fact: 359c4e79 --HOLDS_POSITION--> 97702c09
+  spans_seen: {'planner': 1, 'presuppositions': 1}
+  events: planner_complete=1 presuppositions_complete=1 evidence_query_results=0 polarity_classified=0 evidence_gathered=0
+  PLANNER: reached=True hash=5de6a4515a3073a5 presup=6 ev_q=12 falsif=6 llm_calls=1 miss/hit=1/0
+  PRESUPPOSITIONS (any_disproven=True):
+     type_check     SUPPORTED       
+     type_check     DISPROVEN       
+     identity_check SUPPORTED       
+     identity_check SUPPORTED       
+  GATHER: reached=False chunks_retrieved=0 polarity_total=0 llm_calls=0 miss/hit=0/0
+     strategies: {'graph_endpoint': 0, 'fts_chunks': 0, 'vector_chunks': 0, 'vector_entities_to_rels': 0}
+     polarity:   {'confirms': 0, 'disconfirms': 0, 'neutral': 0, 'unset': 0}
+  PROVER:    llm_calls=0 miss/hit=0/0
+  ADVERSARY: llm_calls=0
+
+--- Q83 (GAP_PLANNER_PRESUPPOSITION_GATE) ---
+  question: Who is the primary customer for the SmartGrid Controller?
+  expected: 'Pacific Power (pilot customer)'
+  v2_status=UNDERSPECIFIED  correct=False  wall=68.78s  trace_count=1
+  candidate fact: 97950ced --CUSTOMER_OF--> 461a6d72
+  spans_seen: {'planner': 1, 'presuppositions': 1}
+  events: planner_complete=1 presuppositions_complete=1 evidence_query_results=0 polarity_classified=0 evidence_gathered=0
+  PLANNER: reached=True hash=25ff8b6545fd9290 presup=5 ev_q=10 falsif=7 llm_calls=2 miss/hit=2/0
+  PRESUPPOSITIONS (any_disproven=True):
+     type_check     DISPROVEN       
+     type_check     DISPROVEN       
+     identity_check SUPPORTED       
+     identity_check SUPPORTED       
+  GATHER: reached=False chunks_retrieved=0 polarity_total=0 llm_calls=0 miss/hit=0/0
+     strategies: {'graph_endpoint': 0, 'fts_chunks': 0, 'vector_chunks': 0, 'vector_entities_to_rels': 0}
+     polarity:   {'confirms': 0, 'disconfirms': 0, 'neutral': 0, 'unset': 0}
+  PROVER:    llm_calls=0 miss/hit=0/0
+  ADVERSARY: llm_calls=0
+
+====================================================================================================
+CASE TALLY:
+  GAP_PLANNER_PRESUPPOSITION_GATE            (5):  [17, 25, 46, 61, 83]
+====================================================================================================

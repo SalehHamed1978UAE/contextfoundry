@@ -537,3 +537,140 @@ After sign-off:
    without LLM, ≤ 1.5s with.
 
 Awaiting sign-off before any implementation.
+
+---
+
+## 10. Post-Vector-Fix Oracle — Diagnostic Findings (2026-05-09)
+
+### 10.1 Why this section exists
+
+Earlier in this thread we corrected a vector-search bug (`gatherer.py`:
+`vector_chunks` and `vector_entities_to_rels` strategies) and re-ran the v2
+oracle on the 26 failures. Wall-time collapsed (avg ~5s/Q vs ~70s previously)
+and the score went from 0/26 to 0/26 — same result, but instantaneous.
+
+This was suspicious. Possibilities:
+- (a) cache hit replay across runs — the prior cache-key generation was
+  buggy (D1 fix landed) but stale rows could still be matching;
+- (b) a planner/presup short-circuit on every Q;
+- (c) the gatherer never running because evidence was filtered out before it.
+
+The diagnostic protocol below was built to answer this conclusively.
+
+### 10.2 Protocol
+
+1. Bumped `REASONING_ENGINE_VERSION` to `v3_oracle_vector_clean_20260509`
+   for the duration of the run. Cache keys mix this version in, so 100% of
+   prior cache rows must miss. **Reverted to `v2` immediately after.**
+2. Ran 5 representative cases (`--qids 17,25,46,61,83`) deferring Q15/Q18
+   (subprocess timeout still BLOCKING — see §10.5).
+3. Added depth-0 events `planner_complete` (with `plan_hash`) and
+   `presuppositions_complete` (with per-presup `(kind, status, fact_key)`),
+   extended `span_end` to emit ALL counters bumped within the span (not just
+   the historical `llm_call_count` + `db_query_count`), and bumped
+   `llm_cache_miss_count` on every API-bound LLM call.
+4. Post-processed the trace log (`scripts/_oracle_diag_postprocess.py`) into
+   per-question diagnostic records — the in-process `_CounterCapture` is a
+   no-op because structlog's filtering bound logger writes directly to stderr,
+   bypassing the stdlib `cf.inference` logger. See §10.4.
+
+### 10.3 Per-Question Table
+
+| Q  | Question                                                | Expected      | v2 status      | wall  | spans          | planner LLM | presup verdicts                            | gatherer reached | case                              |
+|----|---------------------------------------------------------|---------------|----------------|-------|----------------|-------------|--------------------------------------------|------------------|-----------------------------------|
+| 17 | Who supplied electrolyzers for the GreenHydrogen facility? | Nel Hydrogen  | UNDERSPECIFIED | 33.8s | planner+presup | 1 call,0 hit | type×2 DISPROVEN, identity×2 SUPPORTED | NO               | GAP_PLANNER_PRESUPPOSITION_GATE |
+| 25 | Target energy density for the solid-state battery?      | 400 Wh/kg     | UNDERSPECIFIED | 42.6s | planner+presup | 1 call,0 hit | type SUP+DISPROVEN, identity DISPROVEN+SUP | NO               | GAP_PLANNER_PRESUPPOSITION_GATE |
+| 46 | Who supplies solar panels for Desert Sun project?       | First Solar   | UNDERSPECIFIED | 35.8s | planner+presup | 1 call,0 hit | type×2 DISPROVEN, identity DISPROVEN+SUP   | NO               | GAP_PLANNER_PRESUPPOSITION_GATE |
+| 61 | Who replaced Thomas Anderson as Digital President?      | Robert Kim    | UNDERSPECIFIED | 35.1s | planner+presup | 1 call,0 hit | type SUP+DISPROVEN, identity×2 SUPPORTED   | NO               | GAP_PLANNER_PRESUPPOSITION_GATE |
+| 83 | Primary customer for the SmartGrid Controller?          | Pacific Power | UNDERSPECIFIED | 68.8s | planner+presup | 2 call,0 hit | type×2 DISPROVEN, identity×2 SUPPORTED     | NO               | GAP_PLANNER_PRESUPPOSITION_GATE |
+
+**100% (5/5) classified as `GAP_PLANNER_PRESUPPOSITION_GATE`.** No instances of
+the other four cases (`GAP_EVIDENCE_PIPELINE_DISCONNECT`,
+`GAP_EVALUATOR_REASONING_OR_PROMPT`, `VECTOR_GATHERER_RECOVERY`,
+`INFRA_TIMEOUT_CANCELLATION_FAILURE`).
+
+### 10.4 What This Tells Us
+
+1. **The vector-gatherer fix is correct code but architecturally unreachable
+   for these failures.** The engine never opens the `gatherer` span on any of
+   the 5 cases. Strategy counts are all zero. Polarity classifier never runs.
+2. **The bottleneck is the planner's presupposition gate, not retrieval.**
+   Every plan emits exactly two `type_check` and two `identity_check`
+   presuppositions, and at least one is DISPROVEN on every Q. Engine.py L192
+   short-circuits to `UNDERSPECIFIED` with `["presupposition disproven"]` and
+   skips gather + prover + adversary.
+3. **No `graph_fact` presuppositions in any of the 5 plans.** The planner
+   isn't generating the kind of presupposition that triggers recursive sub-
+   evaluation; it's generating shallow type/identity assertions whose
+   verifiers are too strict.
+4. **No cache replay was happening.** Every planner span shows `llm_call_count
+   ≥ 1` AND `llm_cache_miss_count ≥ 1`. The wall-time collapse hypothesis
+   from the suspicious-fast prior run is now refuted: that run was real LLM
+   calls but stopping at the same gate.
+5. **Wall-time is dominated by the planner LLM call** (~30-70s per Q for
+   1-2 calls). All downstream stages run zero LLM calls because they never
+   open.
+
+### 10.5 Cache & Memoization Invariants (D8.0 audit, ratified)
+
+- **NO `@lru_cache` and NO fact-key memoization at engine level.** Audit
+  confirmed (engine.py, evaluator.py, gatherer.py, prover.py, planner.py).
+- **Only two caches active**: per-`FactEvaluator`-instance `_authority_cache`
+  (reset per question via `engine_factory()` in `run_v2_oracle.py:230`); and
+  the content-keyed Postgres `llm_cache` whose key mixes
+  `(prompt_template_version, schema_field_version, reasoning_engine_version,
+  prompt_text, schema_blob, model_id)`. Bumping any version tag invalidates
+  the entire cache without DDL.
+- **Diagnostic protocol for any future suspicious-fast oracle**: bump
+  `REASONING_ENGINE_VERSION` to a one-shot tag, re-run, post-process trace
+  log via `scripts/_oracle_diag_postprocess.py`, then revert. Do NOT rely on
+  in-process `_CounterCapture` — see §10.6.
+- **`llm_cache_miss_count` counter** added so cache hit/miss is auditable
+  per stage from `span_end` events.
+
+### 10.6 Trace Capture Note (caveat for future runners)
+
+`_CounterCapture` in `run_v2_parallel.py` (and inherited by
+`run_v2_oracle.py`) is a stdlib-`logging.Handler` attached to the
+`cf.inference` stdlib logger. **It captures nothing under the current
+structlog config**: `make_filtering_bound_logger` writes JSON-rendered events
+straight to `sys.stderr`, never going through stdlib's `cf.inference` logger.
+The events ARE in the tee'd log file. For diagnostic runs use
+`scripts/_oracle_diag_postprocess.py --log <log> --jsonl <jsonl>` which
+parses the tee'd log, fences events by `--- Q{n} ---` markers, scopes them
+to each question's depth-0 trace_id, and emits the per-Q diagnostic table.
+A long-term fix would route structlog through `LoggerFactory(stdlib)` — not
+done in this iteration to avoid touching tracing during a demo build.
+
+### 10.7 BLOCKING_BEFORE_DEMO (promoted from "deferred")
+
+- **Subprocess timeout for Q15 / Q18.** These two questions hit a recursion
+  loop that the engine's depth-ceiling does NOT terminate (see prior thread
+  notes). They block the oracle indefinitely. We need a hard `subprocess`-
+  level timeout in `run_v2_oracle.py` — e.g., `multiprocessing.Process` per
+  question with `.join(timeout=180)` then `.terminate()`. Until this lands,
+  Q15/Q18 are excluded from any oracle run via `--qids` filter or skip-list.
+  **Promoted from D-priority to BLOCKING_BEFORE_DEMO** because the demo will
+  iterate the oracle many times during the human-loop experience and one
+  hung Q poisons the entire run.
+
+### 10.8 Implication for Gap Detector (D8.1)
+
+The diagnostic confirms that the v2 engine's existing presupposition system
+is **already a typed-gap signal source we can route**. Each disproven
+`type_check` or `identity_check` IS a typed gap reason — we don't need to
+build the entire reasoning loop to populate the GapQueue:
+
+- `type_check DISPROVEN` → `GAP_TYPE_MISMATCH` (entity isn't of the
+  asserted type — needs human ontology disambiguation or re-extraction).
+- `identity_check DISPROVEN` → `GAP_IDENTITY_AMBIGUITY` (the candidate
+  entity may not be the one the question is asking about).
+- Plan that succeeds presups but yields `UNDERSUPPORTED` after gather →
+  `GAP_EVIDENCE_INSUFFICIENT`.
+- Planner returns 0 valid presup/queries → `GAP_PLANNER_FAILED`.
+
+This narrows D8.1's scope: we plumb the planner's presupposition output
+directly into the GapQueue with a typed reason, rather than waiting for the
+full v2 engine to mature. Given the v2 engine is parked, this is the right
+factoring. **D8.1 is greenlit on this basis.**
+

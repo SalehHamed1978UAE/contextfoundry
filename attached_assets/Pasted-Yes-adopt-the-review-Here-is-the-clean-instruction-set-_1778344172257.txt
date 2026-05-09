@@ -1,0 +1,364 @@
+Yes, adopt the review. Here is the clean instruction set I would pass to Replit.
+
+
+---
+
+Clean instruction set: post-vector oracle rerun + Gap Detector doc update
+
+Objective
+
+Run a clean post-vector-fix oracle measurement to determine whether the fixed gatherer’s new evidence reaches the v2 evaluator, or whether v2’s planner/presupposition gate short-circuits before evidence gathering.
+
+This run is not a full v2 benchmark. It is a diagnostic run for the seven cases where the gatherer/evaluator path could matter:
+
+Q15, Q17, Q18, Q25, Q46, Q61, Q83
+
+Run the five cleaner cases first:
+
+Q17, Q25, Q46, Q61, Q83
+
+Handle Q15 and Q18 separately under enforced subprocess timeout if feasible.
+
+Standing constraints remain unchanged:
+
+Do not edit replit.md.
+Do not restart Manus/Ontology workflows.
+Do not kill Run Canonical Bench, Start All, or other unrelated workflows.
+Do not auto-fix unrelated issues discovered during this task.
+
+
+---
+
+Required protocol
+
+1. Temporary cache bust
+
+Temporarily change:
+
+REASONING_ENGINE_VERSION = "v2"
+
+to:
+
+REASONING_ENGINE_VERSION = "v3_oracle_vector_clean_20260509"
+
+Use this only for the clean oracle rerun.
+
+After the rerun completes, revert it back to:
+
+REASONING_ENGINE_VERSION = "v2"
+
+This is a measurement-specific cache-bust, not a permanent version change.
+
+Future temporary cache-busts should use the same convention:
+
+<version_or_tag>_<experiment_name>_<yyyymmdd>
+
+Example:
+
+v3_oracle_vector_clean_20260509
+
+
+---
+
+2. Add instrumentation before rerun
+
+For every rerun question, emit a self-contained per-question record with these fields:
+
+{
+  "qid": 17,
+  "reasoning_engine_version": "v3_oracle_vector_clean_20260509",
+
+  "prefix_verdict": "UNDERSPECIFIED",
+  "final_verdict": "...",
+  "verdict_changed_vs_prefix": true,
+
+  "extractable": true,
+  "entity_resolution_status": "...",
+
+  "planner_reached": true,
+  "planner_cache_hit": false,
+  "plan_hash": "...",
+
+  "presupposition_count": 0,
+  "presupposition_results": [],
+
+  "gather_reached": true,
+  "gatherer_strategy_counts": {
+    "graph_endpoint": 0,
+    "fts_chunks": 0,
+    "vector_chunks": 0,
+    "vector_entities_to_rels": 0
+  },
+
+  "chunks_retrieved": 0,
+  "chunks_passed_to_polarity": 0,
+  "chunks_passed_to_prover": 0,
+
+  "polarity_llm_cache_hits": 0,
+  "polarity_llm_cache_misses": 0,
+  "prover_llm_cache_hits": 0,
+  "prover_llm_cache_misses": 0,
+
+  "polarity_verdicts_distribution": {
+    "confirms": 0,
+    "contradicts": 0,
+    "neutral": 0
+  },
+
+  "case_classification": "...",
+  "wall_seconds": 0
+}
+
+The added fields are required:
+
+polarity_verdicts_distribution
+prefix_verdict
+verdict_changed_vs_prefix
+
+Without the polarity distribution, the rerun cannot cleanly distinguish “retrieved useful evidence but evaluator failed” from “retrieved only neutral evidence.”
+
+
+---
+
+3. Case classification rules
+
+Use these exact classifications.
+
+Case A
+
+GAP_PLANNER_PRESUPPOSITION_GATE
+
+Use when fresh planner/presupposition evaluation short-circuits before gather.
+
+Meaning:
+
+The engine produces an evidence-blind verdict because the planner/presupposition path gates evaluation before retrieval.
+
+Case B
+
+GAP_EVIDENCE_PIPELINE_DISCONNECT
+
+Use when gather runs and vector retrieval gets new chunks, but those chunks are not passed to polarity/prover/evaluator stages.
+
+Meaning:
+
+Retrieval works, but the new evidence is not consumed downstream.
+
+Case C
+
+GAP_EVALUATOR_REASONING_OR_PROMPT
+
+Use when gather runs, vector chunks are passed downstream, fresh LLM calls run, but the verdict remains UNDERSPECIFIED.
+
+Meaning:
+
+Retrieval is no longer the blocker; the evaluator cannot use the evidence.
+
+Case D
+
+VECTOR_GATHERER_RECOVERY
+
+Use when vector retrieval changes the outcome materially, for example from UNDERSPECIFIED to SUPPORTED, STRONGLY_SUPPORTED, or PROVEN, or when correct evidence reaches the evaluator and improves the answer.
+
+Meaning:
+
+The vector gatherer fix is materially useful.
+
+Case E
+
+INFRA_TIMEOUT_CANCELLATION_FAILURE
+
+Use when Q15 or Q18 exceed the enforced timeout or still cannot be measured reliably.
+
+Meaning:
+
+This is a runtime/cancellation reliability failure, not a semantic reasoning gap.
+
+Drop the old loose A-E framing. Use only the named classifications above.
+
+
+---
+
+4. Run sequence
+
+Step 1: Patch cache version
+
+Temporarily set:
+
+REASONING_ENGINE_VERSION = "v3_oracle_vector_clean_20260509"
+
+Step 2: Run the five cleaner cases first
+
+Run only:
+
+Q17, Q25, Q46, Q61, Q83
+
+Do not rerun all 26 oracle cases.
+
+The 19 V2_NO_CANDIDATE cases fail before gatherer/evaluator and cannot be affected by the vector fix.
+
+Step 3: Handle Q15 and Q18 separately
+
+If subprocess timeout enforcement is quick to implement, add it now and run:
+
+Q15, Q18
+
+under enforced subprocess timeout.
+
+If subprocess timeout is not quick, do not block the five-question rerun. Instead:
+
+1. Finish the five-question rerun.
+2. Record Q15/Q18 as pending INFRA_TIMEOUT_CANCELLATION_FAILURE.
+3. Add subprocess timeout as a separate deliverable before demo work.
+
+Subprocess timeout enforcement must land before the demo run. Do not clear the BLOCKING_BEFORE_DEMO flag until Q15 and Q18 are measured cleanly under enforced timeout.
+
+Step 4: Revert cache version
+
+After the rerun completes, revert:
+
+REASONING_ENGINE_VERSION = "v3_oracle_vector_clean_20260509"
+
+back to:
+
+REASONING_ENGINE_VERSION = "v2"
+
+Step 5: Save outputs
+
+Save:
+
+test_results/v2_parallel/oracle_vector_clean_20260509.jsonl
+test_results/v2_parallel/oracle_vector_clean_20260509.log
+
+Include the run manifest with:
+
+run_id
+question_ids
+reasoning_engine_version
+cache-bust method
+graph/vault build
+baseline file
+vector gatherer state
+start/end timestamps
+
+
+---
+
+5. Design doc updates
+
+Update:
+
+docs/gap_detector_design_2026-05.md
+
+Add cache and memoization invariants section
+
+Use this corrected language:
+
+Engine layer: FactEvaluator.evaluate(fact) has no memoization on fact.key(). Every invocation runs the full plan → presupposition → gather → adversary → prover → synth pipeline. The only instance-level cache is _authority_cache for source-authority sub-evaluations, scoped to a single FactEvaluator instance. Test runners that construct one FactEvaluator per question reset this cache between questions; long-lived servers that share an evaluator across requests would not.
+
+RecursionGuard._path is cycle-detection only. Child guards copy the parent's path so sibling sub-evaluations of the same parent do not short-circuit each other.
+
+LLM layer: LLM calls are cached in the llm_cache Postgres table, keyed by sha256(PROMPT_TEMPLATE_VERSION, SCHEMA_FIELD_VERSION, REASONING_ENGINE_VERSION, model, system_prompt, user_prompt, schema_name). Cache keys include prompt content, so changes to chunks included in the prompt invalidate downstream calls. Changes to retrieval logic that surface the same chunks do not invalidate.
+
+A retrieval-logic change is not guaranteed to invalidate planner or presupposition-stage LLM calls, because those prompts may not include retrieved evidence. Clean measurement of retrieval changes therefore requires either a run-specific cache namespace/version or explicit cache bypass.
+
+For clean measurement, use a run-specific cache namespace/version tag or perform a scoped deletion by tenant, run_id, or exact experiment window. Broad timestamp deletion should be a last resort.
+
+Promote timeout reliability
+
+Add or update:
+
+8.0 BLOCKING_BEFORE_DEMO: Cancellation/timeout reliability
+
+Include:
+
+Q15 and Q18 timed out under both pre-fix and post-fix oracle runs. asyncio.wait_for did not reliably enforce the per-question ceiling, likely because execution enters synchronous DB, retrieval, or LLM paths. Before demo work, timeout enforcement must move to a subprocess or equivalent hard-kill mechanism.
+
+Update per-question table
+
+For each of:
+
+Q15, Q17, Q18, Q25, Q46, Q61, Q83
+
+add:
+
+prefix verdict
+post-vector-clean verdict
+verdict_changed_vs_prefix
+polarity verdict distribution
+case classification
+remediation path
+
+Use the named classifications:
+
+GAP_PLANNER_PRESUPPOSITION_GATE
+GAP_EVIDENCE_PIPELINE_DISCONNECT
+GAP_EVALUATOR_REASONING_OR_PROMPT
+VECTOR_GATHERER_RECOVERY
+INFRA_TIMEOUT_CANCELLATION_FAILURE
+
+
+---
+
+6. Interpretation requirement
+
+If the five-question rerun lands mostly as:
+
+GAP_PLANNER_PRESUPPOSITION_GATE
+
+frame that as an architectural finding, not merely a retrieval failure.
+
+Use this interpretation:
+
+The clean rerun confirms that v2's plan → evaluate presuppositions → gate before gather sequence can produce evidence-blind verdicts. When a presupposition is deterministically DISPROVEN from existing graph state, the engine can short-circuit before considering newly retrieved evidence. In those cases, vector retrieval is structurally downstream of a gate that fires too early. This supports the decision to park v2 as the main recovery path and move toward a Gap Detector plus typed candidate/evaluator architecture.
+
+If instead the rerun lands as:
+
+VECTOR_GATHERER_RECOVERY
+
+then record the vector fix as useful, but still keep the broader conclusion:
+
+The v2 FactEvaluator remains too narrow for the 19 representation-gap cases that fail before gatherer/evaluator.
+
+Either way, the rerun’s diagnostic value is captured.
+
+
+---
+
+7. Acceptance criteria
+
+The task is complete when:
+
+1. REASONING_ENGINE_VERSION was temporarily bumped with descriptive experiment tag.
+2. Five cleaner cases were rerun: Q17, Q25, Q46, Q61, Q83.
+3. Per-question records include polarity verdict distribution and prefix/post verdict comparison.
+4. Each rerun case has one of the named case classifications.
+5. Q15/Q18 were either run under subprocess timeout or explicitly scheduled as BLOCKING_BEFORE_DEMO.
+6. REASONING_ENGINE_VERSION was reverted to "v2".
+7. docs/gap_detector_design_2026-05.md includes the cache/memoization invariants section.
+8. docs/gap_detector_design_2026-05.md promotes timeout reliability to BLOCKING_BEFORE_DEMO.
+9. The per-question table is updated with rerun results.
+10. The report explicitly states whether v2 short-circuited before gather, consumed evidence but failed, or recovered due to vector retrieval.
+
+
+---
+
+8. After this task
+
+Greenlight deliverable 8.1 regardless of which case lands.
+
+The diagnostic value is sufficient either way:
+
+If vector retrieval recovers cases, we know salvage has value.
+If planner/presupposition gating blocks gather, we have stronger evidence for parking v2.
+If evidence reaches evaluator but verdict stays underspecified, we know the bottleneck is evaluator reasoning/prompting.
+If Q15/Q18 still timeout, timeout reliability remains BLOCKING_BEFORE_DEMO.
+
+Paste rerun results with:
+
+case classification
+polarity verdicts distribution
+prefix verdict
+post-vector verdict
+verdict_changed_vs_prefix
+architectural interpretation

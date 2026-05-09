@@ -172,7 +172,133 @@ async def run_one_oracle(qid: int, question: str, expected: str,
         rec["v2_correct"] = None
         rec["v2_error"] = f"grade_error: {e}"
 
+    # ---- diagnostic record (post-vector-fix oracle protocol) ----
+    rec["diag"] = _build_diag_record(cap.events, rec)
     return rec
+
+
+def _build_diag_record(events: List[Dict[str, Any]], rec: Dict[str, Any]) -> Dict[str, Any]:
+    """Aggregate trace events into the per-question diagnostic record
+    specified in the post-vector-fix oracle protocol."""
+    from src.context_foundry.inference.llm.client import REASONING_ENGINE_VERSION
+    diag: Dict[str, Any] = {
+        "qid": rec.get("q"),
+        "reasoning_engine_version": REASONING_ENGINE_VERSION,
+        "extractable": rec.get("v2_extractable"),
+        "entity_resolution_status": (
+            "resolved" if rec.get("v2_subject_id") and rec.get("v2_target_id")
+            else "missing_subject" if not rec.get("v2_subject_id")
+            else "missing_target"),
+        "planner_reached": False,
+        "planner_cache_hit": None,
+        "plan_hash": None,
+        "presupposition_count": 0,
+        "presupposition_results": [],
+        "any_presupposition_disproven": False,
+        "gather_reached": False,
+        "gatherer_strategy_counts": {
+            "graph_endpoint": 0, "fts_chunks": 0,
+            "vector_chunks": 0, "vector_entities_to_rels": 0,
+        },
+        "chunks_retrieved": 0,
+        "chunks_passed_to_polarity": 0,
+        "chunks_passed_to_prover": None,  # not separately instrumented
+        "polarity_llm_cache_hits": 0,
+        "polarity_llm_cache_misses": 0,
+        "prover_llm_cache_hits": 0,
+        "prover_llm_cache_misses": 0,
+        "planner_llm_cache_hits": 0,
+        "planner_llm_cache_misses": 0,
+        "polarity_verdicts_distribution": {
+            "confirms": 0, "disconfirms": 0, "neutral": 0, "unset": 0,
+        },
+        "wall_seconds": rec.get("v2_wall_time_s"),
+        "final_verdict": rec.get("v2_status"),
+    }
+    # planner_complete event (depth=0 only; replans tagged as such)
+    for ev in events:
+        if ev.get("event") == "planner_complete" and ev.get("depth", 0) == 0:
+            diag["planner_reached"] = True
+            diag["plan_hash"] = ev.get("plan_hash")
+            diag["presupposition_count"] = ev.get("presupposition_count", 0)
+            break
+    # presuppositions_complete
+    for ev in events:
+        if ev.get("event") == "presuppositions_complete" and ev.get("depth", 0) == 0:
+            diag["presupposition_results"] = ev.get("results", [])
+            diag["any_presupposition_disproven"] = bool(ev.get("any_disproven"))
+            break
+    # gather_reached + strategy aggregation
+    strategy_totals = diag["gatherer_strategy_counts"]
+    polarity_chunks = 0
+    for ev in events:
+        et = ev.get("event")
+        if et == "evidence_query_results":
+            for s in ev.get("strategies", []):
+                name = s.get("strategy")
+                if name in strategy_totals:
+                    strategy_totals[name] += s.get("items_returned", 0)
+            diag["gather_reached"] = True
+        elif et == "evidence_gathered" and ev.get("depth", 0) == 0:
+            diag["chunks_retrieved"] = ev.get("count", 0)
+        elif et == "polarity_classified":
+            polarity_chunks += 1
+            pol = ev.get("polarity") or "unset"
+            if pol not in diag["polarity_verdicts_distribution"]:
+                diag["polarity_verdicts_distribution"][pol] = 0
+            diag["polarity_verdicts_distribution"][pol] += 1
+    diag["chunks_passed_to_polarity"] = polarity_chunks
+    # span_end events carry per-stage llm_cache_hit/miss counts.
+    for ev in events:
+        if ev.get("event") != "span_end":
+            continue
+        stage = ev.get("stage")
+        hits = ev.get("llm_cache_hit_count", 0) or 0
+        misses = ev.get("llm_cache_miss_count", 0) or 0
+        if stage == "planner":
+            diag["planner_llm_cache_hits"] += hits
+            diag["planner_llm_cache_misses"] += misses
+        elif stage == "gatherer":
+            # polarity calls happen inside the gatherer span
+            diag["polarity_llm_cache_hits"] += hits
+            diag["polarity_llm_cache_misses"] += misses
+        elif stage == "prover":
+            diag["prover_llm_cache_hits"] += hits
+            diag["prover_llm_cache_misses"] += misses
+    # planner_cache_hit boolean: True iff planner span had only cache hits
+    if diag["planner_reached"]:
+        diag["planner_cache_hit"] = (
+            diag["planner_llm_cache_misses"] == 0
+            and diag["planner_llm_cache_hits"] > 0
+        )
+    # case_classification per protocol
+    diag["case_classification"] = _classify_case(rec, diag)
+    return diag
+
+
+def _classify_case(rec: Dict[str, Any], diag: Dict[str, Any]) -> str:
+    """Apply the named case classifications from the post-vector-fix
+    oracle protocol (Cases A-E)."""
+    if rec.get("v2_timeout"):
+        return "INFRA_TIMEOUT_CANCELLATION_FAILURE"
+    if rec.get("v2_status") in ("PROVEN", "STRONGLY_SUPPORTED", "SUPPORTED"):
+        return "VECTOR_GATHERER_RECOVERY"
+    # Did the engine short-circuit before gather?
+    if diag.get("planner_reached") and not diag.get("gather_reached"):
+        # planner_complete fired but evidence_query_results didn't
+        # — engine bailed out at presupposition gate (or similar)
+        return "GAP_PLANNER_PRESUPPOSITION_GATE"
+    # Gather reached. Did fresh evidence reach polarity?
+    new_chunks = (diag["gatherer_strategy_counts"]["vector_chunks"]
+                  + diag["gatherer_strategy_counts"]["vector_entities_to_rels"])
+    polarity_total = sum(diag["polarity_verdicts_distribution"].values())
+    if diag.get("gather_reached") and new_chunks > 0 and polarity_total == 0:
+        return "GAP_EVIDENCE_PIPELINE_DISCONNECT"
+    if (diag.get("gather_reached") and polarity_total > 0
+            and rec.get("v2_status") in ("UNDERSPECIFIED", "UNDERSUPPORTED",
+                                          "UNKNOWN", "DISPROVEN", "CONTESTED")):
+        return "GAP_EVALUATOR_REASONING_OR_PROMPT"
+    return "UNCLASSIFIED"
 
 
 async def main():
@@ -182,6 +308,9 @@ async def main():
     ap.add_argument("--vault-id", default=VAULT_ID)
     ap.add_argument("--out", required=True, help="output JSONL path")
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--qids", default=None,
+                    help="Comma-separated question IDs to run (filter applied "
+                         "after FAILED filter). Diagnostic mode.")
     ap.add_argument("--include-passed", action="store_true",
                      help="oracle-test ALL 100 questions, not just failures")
     args = ap.parse_args()
@@ -196,6 +325,10 @@ async def main():
     if not args.include_passed:
         questions = [q for q in questions if not q.get("passed")]
         log.info(f"filtered to {len(questions)} FAILED questions (oracle scope)")
+    if args.qids:
+        wanted = {int(x.strip()) for x in args.qids.split(",") if x.strip()}
+        questions = [q for q in questions if int(q.get("q")) in wanted]
+        log.info(f"--qids filter: kept {len(questions)} of {len(wanted)} requested")
     if args.limit:
         questions = questions[: args.limit]
     log.info(f"running {len(questions)} questions")

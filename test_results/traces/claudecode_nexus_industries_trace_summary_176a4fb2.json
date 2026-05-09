@@ -1,18 +1,18 @@
 {
-  "run_timestamp": "2026-05-09T13:18:51.973112",
+  "run_timestamp": "2026-05-09T16:26:52.502729",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_176a4fb2.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.3699999999999988,
-    "avg_semantic_score": 0.05469099999999997,
+    "avg_chunks_retrieved": 3.3800000000000003,
+    "avg_semantic_score": 0.05489699999999999,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
       "no_data": 10,
       "exact_match": 42,
-      "component_match": 23,
-      "number_match": 7,
+      "component_match": 22,
+      "number_match": 8,
       "no_match": 16,
       "percentage_match": 1,
       "semantic_match": 1
@@ -198,7 +198,7 @@
     {
       "q_id": 40,
       "question": "What is the total company backlog?",
-      "avg_score": 0.2665
+      "avg_score": 0.2896
     },
     {
       "q_id": 41,
@@ -496,10 +496,17 @@
         "expected": "January 2026 (effective January 15, 2026",
         "actual": "The appointment date was not found in th",
         "files_retrieved": [
-          "02_organizational_announcement.md",
           "10_quarterly_newsletter.md",
-          "09_competitive_intelligence.md"
+          "02_organizational_announcement.md",
+          "Unknown"
         ]
+      },
+      {
+        "q_id": 15,
+        "question": "Who does Michael Chang report to?",
+        "expected": "Dr. Victoria Chen (CEO)",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": []
       },
       {
         "q_id": 18,
@@ -514,9 +521,9 @@
         "expected": "400 Wh/kg",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "11_batterytech_solid_state.md",
+          "04_toyota_partnership_announcement.md",
           "Unknown",
-          "06_solid_state_battery_design.md"
+          "11_batterytech_solid_state.md"
         ]
       },
       {
@@ -535,16 +542,6 @@
           "10_data_privacy.md",
           "01_executive_team.md",
           "01_corporate_strategy_2026_2030.md"
-        ]
-      },
-      {
-        "q_id": 45,
-        "question": "When was Dr. Victoria Chen appointed CEO?",
-        "expected": "2019",
-        "actual": "The appointment date was not found in th",
-        "files_retrieved": [
-          "13_shell_partner.md",
-          "14_lockheed_martin_customer.md"
         ]
       },
       {
@@ -567,9 +564,9 @@
         "expected": "-30\u00b0C to 60\u00b0C",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "01_ceo_all_hands_memo.md",
-          "11_batterytech_solid_state.md",
-          "Unknown"
+          "04_toyota_partnership_announcement.md",
+          "Unknown",
+          "11_batterytech_solid_state.md"
         ]
       }
     ],
@@ -589,7 +586,7 @@
         "files_retrieved": [
           "04_greenhydrogen_initiative.md",
           "09_greenhydrogen_milestone.md",
-          "02_greenhydrogen_process_specification.md"
+          "08_global_locations.md"
         ]
       },
       {
@@ -598,9 +595,9 @@
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "02_organizational_announcement.md",
-          "01_ceo_all_hands_memo.md",
-          "05_talent_strategy.md"
+          "09_investor_presentation_q4.md",
+          "03_press_release_fy2025.md",
+          "04_toyota_partnership_announcement.md"
         ]
       },
       {
@@ -620,8 +617,19 @@
         "actual": "The total company backlog is **$11.5 bil",
         "files_retrieved": [
           "05_digital_division_budget.md",
-          "01_annual_report_2025.md",
-          "03_aerospace_division_budget.md"
+          "06_materials_division_budget.md",
+          "01_annual_report_2025.md"
+        ]
+      },
+      {
+        "q_id": 45,
+        "question": "When was Dr. Victoria Chen appointed CEO?",
+        "expected": "2019",
+        "actual": "March 2018. Dr. Victoria Chen was appoin",
+        "files_retrieved": [
+          "06_market_expansion_asia.md",
+          "06_quantumleap_computing.md",
+          "01_executive_team.md"
         ]
       },
       {
@@ -630,9 +638,9 @@
         "expected": "Siemens Healthineers ($65 million)",
         "actual": "The primary customer for HTS superconduc",
         "files_retrieved": [
-          "05_siemens_healthineers_customer.md",
           "Unknown",
-          "01_boeing_customer_profile.md"
+          "01_boeing_customer_profile.md",
+          "05_siemens_healthineers_customer.md"
         ]
       },
       {
@@ -678,25 +686,14 @@
         ]
       },
       {
-        "q_id": 73,
-        "question": "How many new employees will Nexus hire in FY2026?",
-        "expected": "1,200 net new positions",
-        "actual": "The retrieved information does not speci",
-        "files_retrieved": [
-          "01_ceo_all_hands_memo.md",
-          "05_digital_division_budget.md",
-          "05_talent_strategy.md"
-        ]
-      },
-      {
         "q_id": 79,
         "question": "What is the 2030 revenue target in the corporate strategy?",
         "expected": "$15 billion",
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
           "06_market_expansion_asia.md",
-          "02_aerospace_division_strategy.md",
-          "01_corporate_strategy_2026_2030.md"
+          "01_corporate_strategy_2026_2030.md",
+          "02_aerospace_division_strategy.md"
         ]
       },
       {
@@ -725,8 +722,8 @@
         "expected": "LLZO (Li7La3Zr2O12, Al-doped)",
         "actual": "The electrolyte material used in the sol",
         "files_retrieved": [
-          "11_batterytech_solid_state.md",
           "Unknown",
+          "11_batterytech_solid_state.md",
           "06_toyota_jv_negotiation_summary.md"
         ]
       },
@@ -736,9 +733,9 @@
         "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
         "actual": "The total value of the top 3 customer re",
         "files_retrieved": [
-          "11_microsoft_customer.md",
-          "02_airbus_customer_profile.md",
-          "05_siemens_healthineers_customer.md"
+          "05_siemens_healthineers_customer.md",
+          "Unknown",
+          "11_microsoft_customer.md"
         ]
       }
     ]

@@ -160,10 +160,12 @@ class _Tracer:
             raise
         finally:
             duration_ms = int((time.perf_counter() - sp.started_at) * 1000)
+            # Emit ALL counters bumped within this span (not just the
+            # historical 2 — diagnostic runs need llm_cache_hit_count and
+            # llm_cache_miss_count per stage).
             self.log.info(
                 "span_end", duration_ms=duration_ms,
-                llm_call_count=sp.counters.get("llm_call_count", 0),
-                db_query_count=sp.counters.get("db_query_count", 0),
+                **{k: v for k, v in sp.counters.items()},
                 **{k: v for k, v in sp.extra.items() if k != "error"},
             )
             structlog.contextvars.unbind_contextvars(*ctx_tok.keys())

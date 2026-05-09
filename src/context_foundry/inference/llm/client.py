@@ -129,6 +129,8 @@ class LLMClient:
                 logger.debug(f"[LLMClient] cache HIT key={key[:12]}")
                 tracer.bump("llm_cache_hit_count")
                 return self._coerce(cached, output_schema)
+        # Cache miss (or cache disabled) — about to call the API.
+        tracer.bump("llm_cache_miss_count")
 
         logger.debug(f"[LLMClient] cache MISS key={key[:12]} → API")
         tracer.bump("llm_call_count")
