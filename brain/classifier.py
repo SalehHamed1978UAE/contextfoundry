@@ -187,6 +187,29 @@ def classify_document(text: str, threshold: float = DOMAIN_CONFIDENCE_THRESHOLD)
         return best_domain, best_score
 
 
+def score_domains(text: str) -> Tuple[str, float, Dict[str, float]]:
+    """Score `text` against all domain embeddings.
+
+    Returns (best_domain, best_score, all_scores). This is an additive
+    helper introduced for the Piece 1 classification wrapper so it can build
+    classification_evidence with the full per-domain score breakdown. It
+    does NOT change the behavior of classify_document() — that function
+    still returns (best_domain, best_score) and is unchanged.
+
+    Returns ('unknown', 0.0, {}) if the embedding API fails.
+    """
+    sample = text[:2000]
+    doc_embedding = get_embedding(sample)
+    if all(v == 0.0 for v in doc_embedding):
+        return 'unknown', 0.0, {}
+    domain_embeddings = get_domain_embeddings()
+    scores: Dict[str, float] = {
+        d: cosine_similarity(doc_embedding, e) for d, e in domain_embeddings.items()
+    }
+    best = max(scores, key=scores.get)
+    return best, scores[best], scores
+
+
 def get_entity_types_for_domain(domain: str) -> List[str]:
     """
     Get combined entity types for extraction.

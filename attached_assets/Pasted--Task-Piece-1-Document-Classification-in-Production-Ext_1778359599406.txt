@@ -1,0 +1,303 @@
+# Task: Piece 1 — Document Classification in Production Extraction Path
+
+## Alignment
+
+- **Module touched:** classifier wrapper, production extraction runner, `MultiModelExtractor` metadata flow, `platform.documents` schema, document classification persistence
+- **Product vs implementation:** implementation-level work supporting the domain-aware governed world model
+- **Architecture-doc consistency:** matches `docs/architecture.md` Piece 1; builds on completed Piece 0 / 0.5 / closeout; respects the recorded classifier-role decision that domain and document_type are separate axes
+- **Drift risk:** re-auditing settled design decisions; accidentally modifying extraction prompts; collapsing `domain` into `document_type`; using the wrong classifier for the wrong axis; defaulting pre-existing unclassified rows to “ok”
+- **Out of scope:** Piece 2 prompt generation, `SchemaPromptGenerator` domain filtering, Piece 3 Gardener work, Piece 0.6 foundational relation disposition, v2 FactEvaluator, Nexus hardcoding, workflow restarts, `replit.md` edits, multi-domain detection
+
+## Standing Constraints
+
+- No `replit.md` edits.
+- No Manus/Ontology workflow restarts.
+- No code changes outside Piece 1 scope.
+- One destructive or schema-changing action at a time.
+- Schema changes are sign-off-gated.
+- Postgres only.
+- Every response begins with the alignment block per `docs/architecture.md` protocol.
+
+## Read First
+
+1. `docs/architecture.md`
+2. `docs/decisions.md`
+3. `brain/classifier.py`
+4. `src/context_foundry/extraction/document_classifier.py`
+5. `scripts/run_vault_extraction.py`
+6. `src/context_foundry/extraction/multi_extractor.py`
+7. Current schema for the canonical documents table
+
+## Goal
+
+Wire document classification metadata into the production extraction path.
+
+Every document gets a structured classification result before extraction runs. Metadata is persisted on the canonical documents table and passed to `MultiModelExtractor`.
+
+**Extraction prompt behavior must not change in this Piece.** Prompt generation is Piece 2.
+
+## Locked Decisions
+
+Do not re-audit these unless files contradict `docs/architecture.md` or `docs/decisions.md`.
+
+1. Two classifiers, two roles:
+   - `brain/classifier.py` is the canonical **domain** classifier.
+   - `src/context_foundry/extraction/document_classifier.py` is the canonical **document_type** classifier.
+   - They serve different axes and must not be confused.
+
+2. The classifier wrapper uses both:
+   - domain from `brain/classifier.py`
+   - document_type from `extraction/document_classifier.py`
+
+3. `secondary_domains` exists but returns `[]` this iteration.
+
+4. Piece 1 is metadata flow only:
+   - no prompt content changes
+   - no Gardener changes
+   - no domain-aware extraction yet
+
+5. `classification_status` default is intentionally `unclassified`.
+   Pre-existing documents that predate this Piece must default to `classification_status='unclassified'`, not `'ok'`. The system distinguishes:
+   - successfully classified: `ok`
+   - classification attempted and failed: `failed`
+   - never classified: `unclassified`
+
+   Defaulting unclassified rows to `ok` would silently assert successful classification where none occurred. That is the kind of semantic drift the architecture is designed to prevent.
+
+## A. Build classifier wrapper
+
+Create a wrapper, either in `brain/classifier.py` or a new `brain/classification_wrapper.py`, whichever is cleaner.
+
+It must return:
+
+```python
+{
+    "primary_domain": str | None,
+    "secondary_domains": list[str],
+    "document_type": str | None,
+    "classification_confidence": float | None,
+    "classifier_version": str,
+    "classification_evidence": str | None,
+    "classification_status": str,       # "ok" | "failed"
+    "classification_error": str | None,
+}
+
+Wrapper behavior:
+
+Calls brain/classifier.py for:
+primary_domain
+classification_confidence
+Calls src/context_foundry/extraction/document_classifier.py for:
+document_type
+Returns:
+secondary_domains = []
+Adds a fixed classifier_version, for example:
+"v1.0.0-2026-05"
+Builds classification_evidence from available classifier scoring/reasoning.
+Failure behavior:
+do not raise if classification fails
+return classification_status = "failed"
+set primary_domain = None
+set document_type = None
+set classification_error
+extraction must continue using existing behavior
+
+Document this failure behavior in the wrapper docstring.
+
+B. Wrapper smoke tests
+
+Run three wrapper smoke tests before touching schema.
+
+Use these concrete cases:
+
+Foundation / dictionary-style document:
+entity-relationship glossary
+canonical type definitions
+ontology or taxonomy reference
+expected primary_domain = "core"
+Finance document:
+10-K, financial statement, investment report, or portfolio document
+expected primary_domain = "finance"
+Mixed document:
+board memo with finance, HR/people, and operations content
+no fixed expected domain
+confirm confidence is lower or more ambiguous than the clean foundation/finance cases
+
+Paste:
+
+input excerpt
+structured output
+whether the result passed expectation
+C. Documents table preflight
+
+Before writing migration SQL, confirm the canonical documents table.
+
+Check whether the correct table is:
+
+platform.documents
+
+Report:
+
+exact schema-qualified table name
+relevant existing columns
+row count
+whether any duplicate active document table exists
+whether existing rows will remain valid after nullable-column migration
+
+If platform.documents is not the correct canonical table, stop and report.
+
+D. Compose migration SQL — sign-off gated
+
+Compose migration SQL adding these columns to the canonical documents table:
+
+primary_domain varchar(64) nullable
+secondary_domains jsonb nullable default '[]'
+document_type varchar nullable
+classification_confidence numeric nullable
+classifier_version varchar nullable
+classification_evidence text nullable
+classification_status varchar nullable default 'unclassified'
+classification_error text nullable
+
+Important:
+
+classification_status default must be 'unclassified', not 'ok'
+
+Existing documents should remain valid and should not be made to look classified.
+
+If practical, add a check constraint:
+
+classification_status IN ('ok', 'failed', 'unclassified')
+
+If practical, add a nullable FK:
+
+primary_domain REFERENCES ontology.domains(domain_id)
+
+If either constraint is risky in the current schema, do not force it; explain why.
+
+Paste the migration SQL.
+
+Stop and wait for sign-off. Do not run the migration yet.
+
+E. After sign-off: run migration
+
+After sign-off:
+
+Run the migration.
+Paste post-migration verification:
+table description
+new columns
+existing rows preserved
+default classification_status = 'unclassified' works for existing rows
+F. Wire classification into production extraction path
+
+Modify scripts/run_vault_extraction.py so that before MultiModelExtractor is invoked per document:
+
+The classifier wrapper is called on document content.
+Classification result is persisted on the document row.
+Classification result is passed into MultiModelExtractor as metadata only.
+
+Do not use the classification metadata to change prompt content.
+
+G. Modify MultiModelExtractor metadata flow only
+
+Modify MultiModelExtractor to accept classification metadata.
+
+It should:
+
+Accept the classification parameter.
+Store it on result objects or output metadata.
+Log it for observability.
+
+It must not change prompt construction.
+
+This constant must remain unchanged:
+
+EXTRACTION_SYSTEM_PROMPT
+H. Logging
+
+For every classified document, emit an INFO log:
+
+[classification] doc_id={doc_id} title={title_or_filename} primary={primary_domain} secondary={secondary_domains} type={document_type} confidence={classification_confidence:.2f} status={classification_status} version={classifier_version}
+
+If classification failed, also log the error at WARNING level.
+
+I. Smoke test on 3–5 Nexus documents
+
+Run a small extraction on 3–5 existing Nexus documents.
+
+Confirm:
+
+Each document gets classification log output.
+Each document row has classification columns populated.
+Extraction completes successfully.
+Entities and relationships still land in STAGING.
+MultiModelExtractor receives classification metadata.
+Classification distribution looks plausible for Nexus.
+
+Paste:
+
+classification logs
+sample document rows
+STAGING confirmation
+classification distribution
+
+Do not run Nexus 100.
+
+J. Verify prompt did not change
+
+Diff the MultiModelExtractor.EXTRACTION_SYSTEM_PROMPT constant before and after Piece 1.
+
+Paste the diff.
+
+The diff must show no changes to the prompt string.
+
+This is load-bearing. If the prompt changes, Piece 1 has drifted into Piece 2.
+
+Acceptance Checks
+
+All must pass:
+
+Classifier wrapper exists.
+Wrapper returns the specified structured shape.
+secondary_domains returns [].
+document_type comes from extraction/document_classifier.py, not brain/classifier.py.
+Canonical documents table has the new classification columns.
+Existing rows default to classification_status = 'unclassified'.
+scripts/run_vault_extraction.py calls the wrapper before extraction.
+Classification metadata is persisted.
+MultiModelExtractor receives classification metadata.
+MultiModelExtractor.EXTRACTION_SYSTEM_PROMPT is unchanged.
+Logs show classification per document.
+3–5 document smoke extraction passes.
+Wrapper smoke tests pass for foundation, finance, and mixed cases.
+Classification failure does not crash extraction.
+No Gardener changes.
+No Piece 2 prompt generation.
+No v2 FactEvaluator changes.
+No replit.md edits.
+No workflow restarts.
+Final Report
+
+Report:
+
+files changed
+wrapper path and key excerpt
+wrapper smoke test results
+table preflight result
+migration SQL
+post-migration verification
+Nexus smoke test output
+classification distribution
+prompt diff showing no prompt-string change
+acceptance-check pass/fail table
+confirmation that Gardener was not changed
+confirmation that Piece 2 was not started
+any unresolved mismatch
+Stop Condition
+
+Stop after Piece 1.
+
+Do not begin Piece 2.
+Do not begin Piece 0.6.
+Wait for confirmation
