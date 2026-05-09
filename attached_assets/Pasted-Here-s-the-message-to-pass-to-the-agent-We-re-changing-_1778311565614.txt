@@ -1,0 +1,74 @@
+Here's the message to pass to the agent:
+
+---
+
+We're changing direction this week. Stop iterating on the canonical-4 bench. The loop has consumed seven iterations without ever measuring against the benchmark that defines the v1 ceiling, and three independent external reviews of the architecture converge on the same diagnosis: we are polishing the synthesis layer of a system whose retrieval substrate may be the actual bottleneck. We need empirical grounding before any more engine work.
+
+Five tasks this week. Do them in order. Do not skip ahead. Do not auto-fix anything that comes up along the way — paste findings and wait for direction.
+
+**Task 1 — Classify the 23 Nexus failures (Monday, ~2 hours).**
+
+Pull the most recent Nexus 100 run's results. For each of the 23 wrong answers, assign exactly one primary failure mode from this fixed taxonomy:
+
+- `RETRIEVAL_VOID` — no documents retrieved or no entity surfaced
+- `RETRIEVAL_WRONG_ENTITY` — wrong entity surfaced (e.g. centrality bias)
+- `EXTRACTION_MISSED` — right document retrieved, relationship not in graph
+- `DATE_TEMPORAL` — answer requires date arithmetic or temporal scoping
+- `CROSS_DOCUMENT` — answer requires reasoning across multiple documents
+- `CONFIDENCE_MISCALIBRATED` — right fact present, wrong confidence assigned (this is v2's target class)
+- `SYNTHESIS` — right evidence present, wrong reasoning over it
+- `OTHER` — explain in one sentence
+
+Output: a table of 23 rows with question_id, expected_answer, actual_answer, primary_failure_mode, one-sentence justification. Paste this when done. Do not start Task 2 until I see the table.
+
+**Task 2 — Run v2 against Nexus 100 in parallel mode (Monday afternoon, budget 4 hours).**
+
+Run v2 *alongside* v1 on all 100 questions. Do not replace v1. Do not fix any v2 bugs first — we want the current state's actual performance, not a state after another round of local fixes. For each question, capture:
+
+- v1's answer and correctness
+- v2's verdict (PROVEN / STRONGLY_SUPPORTED / SUPPORTED / CONTESTED / UNDERSUPPORTED / DISPROVEN / UNKNOWN) and v2's derived answer if applicable
+- Per-question avg_semantic_score
+- Number of evidence items v2 gathered
+- Total LLM calls per question (cache hit vs miss)
+
+If v2 cannot produce an answer for a question (crashes, times out beyond a per-question ceiling, returns UNKNOWN with no derivation), record that explicitly. Set a hard per-question ceiling — recommend 5 minutes wall-clock — and tag any question that hits it as `V2_TIMEOUT`. Do not retry timeouts.
+
+Paste the run summary when complete: total runtime, total Anthropic spend (estimate from cache misses), v2 score, v1 score, count of v2 timeouts. Do not start Task 3 until I see the summary.
+
+**Task 3 — Cross-reference taxonomy with v2 results (Tuesday).**
+
+Build a 2×2 matrix per failure mode: for each of the seven failure modes from Task 1, count how many were (v1 wrong, v2 right), (v1 wrong, v2 wrong), (v1 right, v2 right), (v1 right, v2 wrong). Special attention to:
+
+- Did v2 *recover* any v1 failures? Which failure modes did it recover from?
+- Did v2 *break* any v1 successes? Which failure modes did it introduce?
+- For the `CONFIDENCE_MISCALIBRATED` class specifically — what was v2's hit rate? This is v2's stated target class; this number tells us whether v2 works on the problem it was designed for.
+
+Paste the matrix and a one-paragraph plain-English read of what it shows. Do not start Task 4 until I see it.
+
+**Task 4 — Decision (Wednesday).**
+
+Based on Tasks 1–3, one of three outcomes:
+
+- v2 is *net positive* on Nexus 100 (improves overall score and/or recovers `CONFIDENCE_MISCALIBRATED` failures cleanly): continue v2 work, but with full benchmark feedback as the primary signal, not canonical-4. Canonical-4 fixes resume but only as regression tracking against full-bench performance.
+- v2 is *neutral* (overall score unchanged ±1, no net recovery on its target class): pause v2 indefinitely. The substrate is the binding constraint. Pivot to retrieval and extraction work — most likely tree-traversal selectivity (the -11 point gap) and date-temporal handling.
+- v2 is *net negative* (overall score regresses, or v2 introduces regressions in classes it wasn't targeting): kill v2 in its current form. The architecture has correctness problems that only appear at scale. Decide separately whether to start the relation-spec-driven rewrite or pause inference-engine work entirely.
+
+Do not make this decision unilaterally. Paste the matrix and your read; I'll make the call.
+
+**Task 5 — Write down the decision and the evidence (Friday).**
+
+Whatever the outcome, produce a one-page written record: what we ran, what the numbers were, what we decided, why. Not for external communication — for internal continuity. The bench history shows we have made many locally-correct decisions without a shared written record, and the result is a system that has consumed significant resources while the primary metric has not moved. This document closes the loop.
+
+---
+
+Three things to flag along the way as you do this work:
+
+1. **Cache-key contamination check.** Before running Task 2, verify the LLM cache key includes the prompt-template version, not just the rendered prompt content hash. If it doesn't, the 2,700 existing cache entries may be returning responses from prior prompt versions to current code paths, which would explain the iter-4 zero-trace anomaly. If you find this, paste the finding before running Task 2 — we may need to invalidate cache first.
+
+2. **Latency capture.** Record per-question wall-clock time for v2 in Task 2. The product's stated success metric is sub-second answer latency. If v2's median is 30+ seconds per question, that's a separate decision input from accuracy — even if v2 helps accuracy, an unshippable latency profile changes the calculus.
+
+3. **v1 confidence calibration baseline.** While running Task 2, also log v1's confidence level on each of the 100 answers (the existing v1 confidence output, whatever shape it takes). We've never measured whether v1's confidence is well-calibrated against correctness. If v1's confidence already correlates well with correctness, v2's whole premise is weaker than we thought.
+
+Standing constraints unchanged. No replit.md edits. No 10 generality tests. No Manus/Ontology workflow work unless they share fixtures with the v2 bench. If you find yourself wanting to fix something rather than measure, stop and paste the finding instead.
+
+The goal this week is not to pass canonical-4. The goal is to know whether v2 is the right investment. By Friday we will have an answer grounded in numbers, not in iteration count.
