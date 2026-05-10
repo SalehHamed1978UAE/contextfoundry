@@ -1,0 +1,245 @@
+# Stage 1B β — Pre-S Sign-off
+
+## Alignment
+
+- **Module touched:** Stage 1B β execution control only
+- **Product vs implementation:** implementation-level continuation of L-vs-S pilot
+- **Architecture-doc consistency:** preserves signed-off β design: L and S run sequentially, same corpus, same current codebase, only env-var differs
+- **Drift risk:** using the wrong S vault ID; overstating β as an adaptive-ontology-growth test; starting S without final pre-S checks
+- **Out of scope:** Stage 2, Nexus 100 scoring, prompt changes, MultiModelExtractor changes, `brain/app.py`, Gardener changes, Data Gates, v2, workflow restarts, `replit.md` edits
+
+## Decision
+
+Proceed to the final pre-S checks and then start S if clean.
+
+## Sign-off on current findings
+
+### 1. Stability gate accepted
+
+Accepted.
+
+The stable L snapshot is:
+
+```text
+entities total: 2258
+relationships total: 2192
+entities lifecycle: STAGING 1785 / TRUSTED 78 / ARCHIVED 395
+relationships lifecycle: STAGING 1892 / TRUSTED 9 / ARCHIVED 291
+audit_records: 0
+ontology.types: 1037
+ontology.relations: 254
+````
+
+The 21:51 snapshot is mid-L and should not be treated as frozen. The final stable 22:01–22:03 snapshot is the L baseline.
+
+### 2. Grep result accepted
+
+Accepted.
+
+The scoped flag controls prompt branching only:
+
+```text
+CF_PIECE2_SCOPED_EXTRACTION
+→ enforce_scoped_prompts
+→ OntologyCentricPipeline scoped-vs-legacy prompt branch
+```
+
+It does not control ontology writes.
+
+### 3. β interpretation narrowed
+
+Record this in the findings doc:
+
+```text
+Nexus is saturated for adaptive ontology-growth testing. L did not mutate ontology.types or ontology.relations, so β does not test ontology-growth suppression. β tests scoped prompt activation, prompt-scope correctness, audit behavior, and extraction-output differences.
+```
+
+## Required read-only check before S
+
+Resolve the S vault ID ambiguity before any command references it.
+
+You have two candidates:
+
+```text
+5df41308-4033-441d-b712-77928b8ea93e
+5df41308-4033-471d-b712-77928b8ea93e
+```
+
+Run a read-only lookup in:
+
+```text
+/tmp/s1b_beta/
+Corpus Maker registry
+platform.tenants
+platform.documents
+any upload manifest/logs
+```
+
+Canonical S vault ID must satisfy:
+
+```text
+tenant exists
+name/slug corresponds to Stage1B-S
+document count = 100
+corpus equality with L already verified or re-verifiable
+graph outputs still empty before S
+```
+
+If both IDs exist or neither exists, stop and report.
+
+If exactly one is valid, use that ID for S.
+
+## Final pre-S checks
+
+After canonical S vault ID is locked, run:
+
+```text
+S graph outputs still empty
+EXTRACTION_SYSTEM_PROMPT SHA unchanged
+pre-S global ontology substrate snapshot:
+  ontology.types total/count by domain_id
+  ontology.relations total/count by domain_id/status
+CF_PIECE2_SCOPED_EXTRACTION=true logged for S
+```
+
+Expected:
+
+```text
+S entities = 0
+S relationships = 0
+ontology.types = 1037
+ontology.relations = 254
+prompt SHA = 5d299a6786b975539006470e66424f27ac8bd4f4f4c9577f758c22748db08963
+```
+
+If any check fails, stop and report.
+
+## Start S
+
+If all pre-S checks pass, start:
+
+```bash
+CF_PIECE2_SCOPED_EXTRACTION=true \
+python -u scripts/run_vault_extraction.py --vault-id <canonical_S_vault_id>
+```
+
+Use the same one-shot workflow pattern as L.
+
+Do not run S concurrently with L. L is finished, so this condition is satisfied.
+
+## During S
+
+Poll and report:
+
+```text
+workflow status
+documents processed
+entities total
+relationships total
+audit_records count
+low_confidence count
+skip_failed count/rate
+ontology.types count
+ontology.relations count
+```
+
+Stop if:
+
+```text
+skip_failed rate > 25%
+scoped prompts include NULL-domain rows
+scoped prompts fall back to full union
+core is missing from scope
+primary_domain is missing from scope
+ontology.types changes
+ontology.relations changes
+MultiModelExtractor prompt SHA changes
+brain/app.py changes
+tests fail
+runtime/spend becomes concerning
+```
+
+## After S
+
+Produce the full β final report:
+
+```text
+canonical S vault ID
+L final snapshot
+S final snapshot
+L-vs-S comparison table
+global ontology substrate checks
+prompt-scope evidence for at least 3 scoped S docs
+audit_records summary
+whether HOLDS_POSITION / WORKS_AT / REPORTS_TO appeared in scoped prompts
+whether HAS_COMPENSATION appeared only in finance-scoped prompts
+findings doc path
+architect review result
+```
+
+## Findings doc updates
+
+Update:
+
+```text
+docs/findings/piece_2_stage1b_nexus_l_vs_s_findings_2026-05-10.md
+```
+
+Add:
+
+```text
+The final L baseline was captured after workflow exit and stable counts.
+The 21:51 snapshot was mid-L and not final.
+The scoped flag controls prompt branching, not ontology writes.
+Nexus is saturated for adaptive ontology-growth testing.
+β validates scoped prompt execution and extraction-output differences, not adaptive ontology growth.
+Lifecycle-state split is secondary because Start All/Gardener may alter lifecycle_state while the experiment runs.
+Primary comparison uses total entity/relationship counts and type/relation distributions.
+```
+
+## Continue constraints
+
+Do not kill or restart Start All.
+
+Do not change Gardener.
+
+Do not edit `staging_loader.py`.
+
+Do not start Stage 2.
+
+Do not run Nexus 100 scoring.
+
+Do not touch prompts, MultiModelExtractor, `brain/app.py`, Data Gates, v2, unrelated workflows, or `replit.md`.
+
+## Stop condition
+
+If pre-S checks pass, start S.
+
+After S completes, produce the full β final report and architect review.
+
+Do not start Stage 2.
+
+````
+
+Compact handoff:
+
+```text
+Decision:
+Proceed to S after resolving S vault ID.
+
+Accepted:
+L stable.
+Global ontology unchanged.
+Scoped flag controls prompt branch only.
+β interpretation narrowed: output comparison, not adaptive ontology growth.
+
+Next:
+Lock canonical S vault ID.
+Run pre-S checks.
+Start S if clean.
+
+Do not:
+Do not start S with ambiguous vault ID.
+Do not claim β tests ontology growth.
+Do not start Stage 2.
+````
