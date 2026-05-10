@@ -1,0 +1,266 @@
+{
+  "document_id": "b078155f-094e-48ca-b3fa-b9542e07e05b",
+  "document_path": "08_cybersecurity_advisory.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-05-10T22:59:29.090635",
+  "entities": [
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Information Security Officer",
+        "role": "CISO"
+      },
+      "confidence": 1.0,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "From: Robert Kim, Chief Information Security Officer",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "company"
+      },
+      "confidence": 1.0,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "sophisticated phishing attacks targeting Nexus Industries",
+      "aliases": []
+    },
+    {
+      "name": "CSA-2025-018",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "CSA-2025-018",
+        "category": "cybersecurity advisory"
+      },
+      "confidence": 1.0,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Advisory Number: CSA-2025-018",
+      "aliases": []
+    },
+    {
+      "name": "Phishing Campaign Alert",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "active",
+        "timeline": "December 11-13, 2025"
+      },
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Cybersecurity Advisory: Phishing Campaign Alert",
+      "aliases": []
+    },
+    {
+      "name": "IT Department",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Information Technology"
+      },
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Appears to be from \"IT Department\" or \"Nexus IT Support\"",
+      "aliases": []
+    },
+    {
+      "name": "Nexus IT Support",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "IT Support Services"
+      },
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Appears to be from \"IT Department\" or \"Nexus IT Support\"",
+      "aliases": []
+    },
+    {
+      "name": "Security Operations Center",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "24/7 security monitoring"
+      },
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Security Operations Center 24/7",
+      "aliases": []
+    },
+    {
+      "name": "Okta",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "identity and access management platform"
+      },
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "All legitimate password changes go through Okta portal",
+      "aliases": []
+    },
+    {
+      "name": "Outlook",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "email client with phishing reporting feature"
+      },
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Report the email using the \"Report Phishing\" button in Outlook",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Learning Portal",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "employee training platform"
+      },
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Location: Nexus Learning Portal",
+      "aliases": []
+    },
+    {
+      "name": "Security Awareness Training",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "deadline December 31, 2025",
+        "status": "mandatory"
+      },
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "All employees must complete the updated Security Awareness training module by December 31, 2025",
+      "aliases": []
+    },
+    {
+      "name": "Identifying Phishing Attacks",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "15-minute training module"
+      },
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Module: \"Identifying Phishing Attacks\" Duration: 15 minutes",
+      "aliases": []
+    },
+    {
+      "name": "Post-Incident Review",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "December 18, 2025",
+        "status": "scheduled"
+      },
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "For detailed incident information, see the Post-Incident Review scheduled for December 18, 2025",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Robert Kim, Chief Information Security Officer"
+    },
+    {
+      "source_entity": "IT Department",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Appears to be from \"IT Department\" targeting Nexus employees"
+    },
+    {
+      "source_entity": "Nexus IT Support",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Appears to be from \"IT Department\" or \"Nexus IT Support\""
+    },
+    {
+      "source_entity": "Security Operations Center",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Security Operations Center 24/7 contact for urgent security matters"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Okta",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "All legitimate password changes go through Okta portal"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Outlook",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Report the email using the \"Report Phishing\" button in Outlook"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Nexus Learning Portal",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Nexus Learning Portal for mandatory training"
+    },
+    {
+      "source_entity": "Security Awareness Training",
+      "source_type": "PROJECT",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "All employees must complete the updated Security Awareness training"
+    },
+    {
+      "source_entity": "CSA-2025-018",
+      "source_type": "POLICY",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Advisory Number: CSA-2025-018 from Nexus CISO"
+    }
+  ],
+  "metadata": {
+    "filename": "08_cybersecurity_advisory.md",
+    "raw_entity_count": 13,
+    "raw_relationship_count": 9,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 1
+  }
+}

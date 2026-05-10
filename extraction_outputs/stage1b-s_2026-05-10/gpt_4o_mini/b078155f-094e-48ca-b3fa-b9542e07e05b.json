@@ -1,0 +1,89 @@
+{
+  "document_id": "b078155f-094e-48ca-b3fa-b9542e07e05b",
+  "document_path": "08_cybersecurity_advisory.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-10T22:59:06.582170",
+  "entities": [
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Information Security Officer",
+        "role": "CISO"
+      },
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Robert Kim, Chief Information Security Officer",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Technology"
+      },
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "targeting Nexus Industries",
+      "aliases": []
+    },
+    {
+      "name": "Security Awareness training module",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": null,
+        "timeline": "by December 31, 2025",
+        "status": "Mandatory"
+      },
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "All employees must complete the updated Security Awareness training module by December 31, 2025",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Robert Kim, Chief Information Security Officer"
+    },
+    {
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Robert Kim, Chief Information Security Officer"
+    },
+    {
+      "source_entity": "Security Awareness training module",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "All employees must complete the updated Security Awareness training module"
+    }
+  ],
+  "metadata": {
+    "filename": "08_cybersecurity_advisory.md",
+    "raw_entity_count": 3,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}
