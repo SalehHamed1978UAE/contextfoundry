@@ -1,0 +1,169 @@
+# Piece 0.6 Mutation — Final Readiness Before UPDATE
+
+## Alignment
+
+- **Module touched:** `ontology.relations`, `docs/decisions.md`, `docs/architecture.md`, repository-domain-filter tests
+- **Product vs implementation:** implementation-level prerequisite for Piece 2 domain-scoped prompts
+- **Architecture-doc consistency:** matches signed-off Piece 2.0 design and approved Piece 0.6 audit disposition
+- **Drift risk:** mutating while a running extraction workflow may still read ontology metadata; appending incomplete ADR text; starting Piece 2 before relation governance is complete
+- **Out of scope:** Piece 2 implementation, prompt changes, `SchemaPromptGenerator`, Gardener, v2, Nexus 100, workflow restarts, `replit.md` edits
+
+## Decision
+
+Do not run the mutation while `Test: ClaudeCode Medsync` is still running unless you confirm it is not an extraction/ontology-reading job.
+
+The idle-in-transaction blocker is cleared and no locks are currently held on `ontology.relations`, but the broader stop condition remains: do not mutate while extraction is actively running.
+
+Do not kill Medsync.
+Do not restart workflows.
+Wait/recheck only.
+
+## Step 1 — Recheck Medsync
+
+Check whether `Test: ClaudeCode Medsync` is still running.
+
+If still running:
+- do not mutate;
+- wait and recheck;
+- if still running after 10 minutes, stop and paste status.
+
+If no longer running:
+- continue to Step 2.
+
+## Step 2 — Append Piece 0.6 disposition ADR
+
+Append only the explicit Piece 0.6 disposition ADR below.
+
+Do not append unspecified ADRs.
+
+Use the next available ADR number in `docs/decisions.md`.
+
+```markdown
+## ADR-XXX: Piece 0.6 governed disposition of foundational relations
+
+Date: 2026-05
+
+Decision:
+`HOLDS_POSITION`, `WORKS_AT`, and `REPORTS_TO` are governed as `core` relations. Both existing `HOLDS_POSITION` signature rows are preserved and adopted into `core`: `PERSON → JOB_TITLE` and `PERSON → ORGANIZATION`. `WORKS_AT PERSON → ORGANIZATION` and `REPORTS_TO PERSON → PERSON` are also adopted into `core`.
+
+`HAS_COMPENSATION PERSON → COMPENSATION` is governed as a `finance` relation. The older `HAS_COMPENSATION PERSON → CONCEPT` row is deprecated, preserved by UUID, and not deleted.
+
+No sibling relations are changed in Piece 0.6. `HELD_POSITION`, `AFFILIATED_WITH`, `MANAGES`, `OWNS`, and other sibling or near-duplicate relations remain future governance scope unless separately approved.
+
+Rationale:
+Piece 2 scoped prompts use `core ∪ primary_domain`. If required organizational relations remain `domain_id = NULL`, they are excluded from scoped prompts and domain-aware extraction loses foundational organizational facts. The Piece 0.6 audit showed that both `HOLDS_POSITION` rows are valid signature overloads and actively used, `WORKS_AT` is the canonical employment relation expected by code paths, and `REPORTS_TO` is cross-domain organizational structure. The audit also showed that the canonical compensation row is `PERSON → COMPENSATION`, while the older `PERSON → CONCEPT` row is unused and mis-targeted.
+
+Implication:
+Piece 2 can build scoped prompts without losing organizational role, employment, and reporting relations. Compensation extraction remains finance-scoped. HR-domain compensation extraction remains recorded under Gap 6 and is not solved by this decision.
+
+After appending, paste the ADR number and the final sentence of the Implication paragraph to confirm it was not truncated.
+
+Step 3 — Just-in-time DB preflight
+
+Immediately before the mutation, re-run:
+
+pg_stat_activity check for idle-in-transaction on ontology.relations.
+pg_locks check on ontology.relations.
+Six target-row state check.
+Backup count check.
+
+Proceed only if:
+
+- no idle transaction on ontology.relations;
+- no lock on ontology.relations;
+- Medsync is not running or confirmed unrelated to ontology/extraction;
+- six target rows remain NULL / ACTIVE;
+- backup count matches source count.
+Step 4 — Approved mutation
+
+Run a single transaction using the exact full UUIDs already reverified:
+
+HOLDS_POSITION   PERSON → JOB_TITLE      479a23c5-22a1-45cf-83af-e200aa5ead87
+HOLDS_POSITION   PERSON → ORGANIZATION   5c615de9-d365-4253-8474-95de22dfce99
+WORKS_AT         PERSON → ORGANIZATION   058414f9-7530-41e5-9c20-94789aa32452
+REPORTS_TO       PERSON → PERSON         91b9ae86-fa99-4dbb-aa0e-bf5b478ddefa
+HAS_COMPENSATION PERSON → COMPENSATION   247c30fc-f06c-4891-8626-7dcf35046679
+HAS_COMPENSATION PERSON → CONCEPT        9dfd6070-cd8c-4f3c-9c44-9d898c293ff9
+
+Set:
+
+HOLDS_POSITION x2 → domain_id='core'
+WORKS_AT → domain_id='core'
+REPORTS_TO → domain_id='core'
+HAS_COMPENSATION PERSON→COMPENSATION → domain_id='finance'
+HAS_COMPENSATION PERSON→CONCEPT → deprecated, domain_id remains NULL
+
+Do not mutate sibling rows.
+
+Step 5 — Verification before COMMIT
+
+Before COMMIT, verify:
+
+HOLDS_POSITION      core     ACTIVE      count 2
+WORKS_AT            core     ACTIVE      count 1
+REPORTS_TO          core     ACTIVE      count 1
+HAS_COMPENSATION    finance  ACTIVE      count 1
+HAS_COMPENSATION    NULL     DEPRECATED  count 1
+
+If verification does not match, ROLLBACK and report.
+
+If verification matches, COMMIT.
+
+Step 6 — Post-mutation checks
+
+After COMMIT, run:
+
+get_all_relations(domain_id='core')
+get_all_relations(domain_id='finance')
+get_all_relations()
+get_all_relations(include_deprecated=True)
+
+Update and run:
+
+tests/ontology/test_repository_domain_filter.py
+
+Update docs/architecture.md Gap 5 / Piece 0.6 section with final disposition.
+
+Keep Gap 6 open. Piece 0.6 does not solve HR-domain compensation extraction.
+
+Final report
+
+Report:
+
+Medsync status and why mutation was safe;
+ADR number appended;
+just-in-time preflight results;
+SQL transaction run;
+pre-COMMIT verification;
+COMMIT confirmation;
+post-mutation relation counts;
+repository checks;
+unit test results;
+docs updated;
+confirmation Piece 2 implementation did not start;
+confirmation no prompts, SchemaPromptGenerator, Gardener, v2, Nexus, workflow restarts, or replit.md work occurred.
+Stop condition
+
+Stop after Piece 0.6 mutation final report.
+
+Do not begin Piece 2 implementation.
+
+
+This preserves the categorical safety rule and avoids the ADR ambiguity.
+
+Compact handoff:
+
+```text
+Current state:
+Piece 0.6 mutation approved in principle.
+Idle transaction cleared.
+Medsync still running was the remaining blocker.
+
+Next allowed action:
+Wait/recheck Medsync, append explicit Piece 0.6 disposition ADR, run JIT preflight, then mutate only if clean.
+
+Do not do:
+Do not mutate while Medsync is active unless confirmed unrelated.
+Do not append unspecified ADRs.
+Do not start Piece 2.
+Do not touch prompts, SchemaPromptGenerator, Gardener, v2, Nexus, workflows, or replit.md.
