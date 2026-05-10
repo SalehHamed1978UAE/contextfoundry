@@ -96,3 +96,22 @@ Decisions are listed in chronological order of acceptance. Each ADR is immutable
 - The Required Replit Alignment Block (in `docs/architecture.md`) requires every response to declare alignment against this document before doing work.
 - The Implementation Gate (in `docs/architecture.md`) requires every implementation task to be mapped to a specific Piece (0–8) from the locked implementation sequence.
 - Conflicts between a task instruction and this document or the architecture document must be flagged in the alignment block and stop work — not silently resolved by following the task.
+
+---
+
+## ADR-007: Piece 0.6 governed disposition of foundational relations
+
+Date: 2026-05
+
+Decision:
+`HOLDS_POSITION`, `WORKS_AT`, and `REPORTS_TO` are governed as `core` relations. Both existing `HOLDS_POSITION` rows are preserved: `PERSON → JOB_TITLE` and `PERSON → ORGANIZATION`. `WORKS_AT PERSON → ORGANIZATION` and `REPORTS_TO PERSON → PERSON` are also adopted into `core`.
+
+`HAS_COMPENSATION PERSON → COMPENSATION` is governed as a `finance` relation. The older `HAS_COMPENSATION PERSON → CONCEPT` row is deprecated, preserved by UUID, and not deleted.
+
+No sibling relations are changed in Piece 0.6. `HELD_POSITION`, `AFFILIATED_WITH`, `MANAGES`, `OWNS`, and other near-duplicates remain future governance scope unless separately approved.
+
+Rationale:
+Piece 2 scoped prompts use `core ∪ primary_domain`. If required organizational relations stay `domain_id = NULL`, they are excluded from scoped prompts. The Piece 0.6 audit showed that both `HOLDS_POSITION` rows are valid and used, `WORKS_AT` is the canonical employment relation, and `REPORTS_TO` is cross-domain organizational structure. The audit also showed that `HAS_COMPENSATION PERSON → COMPENSATION` is the canonical compensation relation, while `HAS_COMPENSATION PERSON → CONCEPT` is unused and mis-targeted.
+
+Implication:
+Piece 2 can build scoped prompts without losing role, employment, and reporting relations. Compensation remains finance-scoped. HR-domain compensation extraction remains recorded under Gap 6 and is not solved by this decision.

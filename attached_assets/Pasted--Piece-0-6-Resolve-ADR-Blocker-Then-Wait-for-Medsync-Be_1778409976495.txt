@@ -1,0 +1,45 @@
+# Piece 0.6 — Resolve ADR Blocker, Then Wait for Medsync Before Mutation
+
+## Alignment
+
+- **Module touched:** `docs/decisions.md` first; DB mutation only after Medsync clears and JIT preflight passes
+- **Product vs implementation:** implementation governance record + mutation safety gate
+- **Architecture-doc consistency:** matches signed-off Piece 0.6 audit and Piece 2.0 dependency
+- **Drift risk:** appending truncated ADR text; mutating while Medsync extraction is active
+- **Out of scope:** Piece 2 implementation, prompt changes, SchemaPromptGenerator, Gardener, v2, Nexus 100, workflow restarts, `replit.md` edits
+
+## Decision
+
+You were correct not to append truncated ADR text.
+
+Use the short ADR text below. It is intentionally concise to avoid truncation.
+
+Append only this ADR. Do not append the previously truncated ADR text.
+
+Use the next available ADR number after ADR-006.
+
+## Append this ADR
+
+```markdown
+## ADR-XXX: Piece 0.6 governed disposition of foundational relations
+
+Date: 2026-05
+
+Decision:
+`HOLDS_POSITION`, `WORKS_AT`, and `REPORTS_TO` are governed as `core` relations. Both existing `HOLDS_POSITION` rows are preserved: `PERSON → JOB_TITLE` and `PERSON → ORGANIZATION`. `WORKS_AT PERSON → ORGANIZATION` and `REPORTS_TO PERSON → PERSON` are also adopted into `core`.
+
+`HAS_COMPENSATION PERSON → COMPENSATION` is governed as a `finance` relation. The older `HAS_COMPENSATION PERSON → CONCEPT` row is deprecated, preserved by UUID, and not deleted.
+
+No sibling relations are changed in Piece 0.6. `HELD_POSITION`, `AFFILIATED_WITH`, `MANAGES`, `OWNS`, and other near-duplicates remain future governance scope unless separately approved.
+
+Rationale:
+Piece 2 scoped prompts use `core ∪ primary_domain`. If required organizational relations stay `domain_id = NULL`, they are excluded from scoped prompts. The Piece 0.6 audit showed that both `HOLDS_POSITION` rows are valid and used, `WORKS_AT` is the canonical employment relation, and `REPORTS_TO` is cross-domain organizational structure. The audit also showed that `HAS_COMPENSATION PERSON → COMPENSATION` is the canonical compensation relation, while `HAS_COMPENSATION PERSON → CONCEPT` is unused and mis-targeted.
+
+Implication:
+Piece 2 can build scoped prompts without losing role, employment, and reporting relations. Compensation remains finance-scoped. HR-domain compensation extraction remains recorded under Gap 6 and is not solved by this decision.
+
+After appending, paste:
+
+the ADR number used;
+the final sentence of the Rationale paragraph;
+the final sentence of the Implication paragraph.
