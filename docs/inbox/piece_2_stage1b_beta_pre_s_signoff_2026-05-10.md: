@@ -1,0 +1,213 @@
+# Stage 1B β — Pre-S Decision After Active L Writes
+
+## Alignment
+
+- **Module touched:** Stage 1B β measurement/control only
+- **Product vs implementation:** execution control for L-vs-S pilot
+- **Architecture-doc consistency:** preserves signed-off β design: L and S run sequentially, same corpus, same current codebase, only env-var differs
+- **Drift risk:** treating a moving mid-L snapshot as final; starting S before L finishes; overstating what β proves when L does not mutate global ontology
+- **Out of scope:** Stage 2, prompt changes, MultiModelExtractor changes, `brain/app.py`, Gardener changes, Data Gates, v2, Nexus 100 scoring, workflow restarts, `replit.md` edits
+
+## Decision
+
+Do **not** start S.
+
+L is still actively writing extraction outputs. The earlier `100/100 docs both models` marker was only Phase-1 per-model extraction completion, not full pipeline completion.
+
+Strict sequential control remains in force.
+
+## Decision 1 — Frozen snapshot
+
+Use option **(b)**.
+
+Do not treat the 21:51 snapshot as frozen. Treat it as a mid-L snapshot.
+
+Final L snapshot is captured only after all of these are true:
+
+```text
+L workflow exited successfully
+no active L extraction process remains
+entity total stable across two polls at least 2 minutes apart
+relationship total stable across two polls at least 2 minutes apart
+global ontology.types unchanged from pre-L
+global ontology.relations unchanged from pre-L
+S graph outputs still empty before S
+````
+
+The 21:51 snapshot should be kept as evidence of L still writing, but not used as the L baseline.
+
+## Decision 2 — Ontology-write path interpretation
+
+The `staging_loader.py` ontology-write path is not a stop trigger by itself.
+
+Record it as:
+
+```text
+Path exists.
+It is called defensively to ensure entity_type exists.
+It only inserts into ontology.types when LOWER(type_name) is missing from active ontology.types.
+For Nexus L, it did not fire: ontology.types / ontology.relations counts and timestamps stayed unchanged.
+```
+
+Do not edit `staging_loader.py`.
+
+Continue checking global ontology state until L exits.
+
+## Decision 3 — β still proceeds after L stabilizes
+
+Do not stop β.
+
+But revise the β interpretation:
+
+```text
+For this corpus, β does not test ontology-growth suppression because L did not mutate global ontology. β tests scoped prompt execution and extraction-output differences.
+```
+
+The S run is still valuable because it tests:
+
+```text
+scoped prompts execute under CF_PIECE2_SCOPED_EXTRACTION=true
+core + primary_domain are included
+NULL-domain rows are excluded
+other named domains are excluded
+organizational relations survive after Piece 0.6
+entity / relationship counts and type distributions differ or remain stable
+audit_records behave as expected
+```
+
+Update the findings doc with this limitation.
+
+## Authorized read-only check before S
+
+Run a read-only grep/read of:
+
+```text
+CF_PIECE2_SCOPED_EXTRACTION
+enforce_scoped_prompts
+```
+
+Goal:
+
+```text
+confirm the flag controls scoped prompt behavior, not ontology-write behavior.
+```
+
+Do not change code.
+
+Report the call path.
+
+## Decision 4 — Polling
+
+Continue waiting for L.
+
+Poll roughly every 10 minutes.
+
+At each poll, report:
+
+```text
+timestamp
+L workflow status
+entities total
+relationships total
+entity delta from previous poll
+relationship delta from previous poll
+audit_records count
+global ontology.types count
+global ontology.relations count
+ontology rows created/updated since L start
+```
+
+Do not kill or restart L.
+
+Do not start S until L exits and counts stabilize.
+
+## Final post-L checks before S
+
+When L exits and counts stabilize:
+
+```text
+capture final L snapshot
+compare final L snapshot to mid-L snapshots
+confirm global ontology unchanged
+confirm S graph still empty
+confirm EXTRACTION_SYSTEM_PROMPT SHA unchanged
+capture pre-S global ontology snapshot
+```
+
+If clean, start S.
+
+## Stop triggers
+
+Stop and report before S if:
+
+```text
+L workflow fails
+L workflow does not exit after a materially concerning runtime
+entity/relationship totals keep changing after workflow exit
+global ontology.types changes
+global ontology.relations changes
+staging_loader ontology-write path appears to have fired
+S graph is no longer empty before S
+S would start before L is stable
+```
+
+## Findings doc update
+
+Update:
+
+```text
+docs/findings/piece_2_stage1b_nexus_l_vs_s_findings_2026-05-10.md
+```
+
+Add:
+
+```text
+The 21:51 snapshot was mid-L, not final.
+The earlier 100/100 per-model milestone was not full extraction completion.
+Final L baseline was captured only after workflow exit and stable total counts.
+staging_loader.py contains a defensive ontology.types insert path, but it did not fire during Nexus L.
+For this corpus, β does not test ontology-growth suppression; it tests scoped prompt execution and extraction-output differences.
+Lifecycle_state split is secondary because Start All / Gardener may alter lifecycle state while the experiment runs.
+```
+
+## Continue constraints
+
+Do not kill or restart Start All.
+
+Do not change Gardener.
+
+Do not edit `staging_loader.py`.
+
+Do not start Stage 2.
+
+Do not run Nexus 100 scoring.
+
+Do not touch prompts, MultiModelExtractor, `brain/app.py`, Data Gates, v2, unrelated workflows, or `replit.md`.
+
+## Stop condition
+
+If L stabilizes cleanly and all final post-L checks pass, start S.
+
+If any stop trigger fires, stop and report.
+
+After S completes, produce the full β final report and architect review as previously authorized.
+
+````
+
+Compact handoff:
+
+```text
+Current state:
+L still actively writing.
+Do not start S.
+
+Decision:
+Use stable post-exit L snapshot, not 21:51 mid-L snapshot.
+Ontology-write path exists but did not fire.
+Continue β after L stabilizes, but revise interpretation: output comparison, not ontology-growth suppression.
+
+Next:
+Poll L every ~10 min until exit + stable counts.
+Run read-only flag/call-path grep.
+Start S only after final L checks are clean.
+````
