@@ -153,13 +153,17 @@ Initial Piece 2 implementation (post Piece 0.6, post sign-off):
 
   Prompt scope formula:        core_types ∪ primary_domain_types
                                core_relations ∪ primary_domain_relations
-  NULL-domain rows:            EXCLUDED (must be enforced by repository)
+  NULL-domain rows:            EXCLUDED from scoped prompt construction via explicit
+                               domain-scoped repository calls. Repository no-filter
+                               behavior remains unchanged for legacy/full-snapshot callers.
   Confidence policy:           No effect on scope. Triggers audit_records emission only.
   secondary_domains:           Reserved (always [] today). No-op in scope formula.
   document_type:               Reserved (no overlay). Piece 2.5.
   classification_status:       No new values. No schema change.
-  Path coverage:               Both MultiModelExtractor AND OntologyCentricPipeline must use
-                               the same SchemaPromptGenerator scoping signature.
+  Stage 1 path coverage:       OntologyCentricPipeline uses scoped prompts.
+                               MultiModelExtractor remains on its existing prompt in Stage 1.
+                               MultiModelExtractor adapter and prompt replacement are staged
+                               behind separate sign-off, prompt diff review, and SHA verification.
 ```
 
 The two prompts that change (entity extraction prompt, relationship extraction prompt) must both narrow to the scope above. System prompt unchanged.

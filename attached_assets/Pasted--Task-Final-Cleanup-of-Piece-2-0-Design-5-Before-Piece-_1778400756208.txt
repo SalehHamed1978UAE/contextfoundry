@@ -1,0 +1,91 @@
+# Task: Final Cleanup of Piece 2.0 Design §5 Before Piece 0.6
+
+## Alignment
+
+- **Module touched:** `docs/piece2_domain_scoped_prompting_design_2026-05.md` only
+- **Product vs implementation:** design cleanup before implementation
+- **Architecture-doc consistency:** aligns §5 target behavior with §6 repository/no-filter contract and MultiModelExtractor staging plan
+- **Drift risk:** stale wording could cause Piece 2 implementation to replace `MultiModelExtractor` prompt too early or globally break repository no-filter behavior
+- **Out of scope:** code edits, DB mutations, prompt changes, Piece 0.6 mutation, Piece 2 implementation, Gardener, v2, Nexus, workflows, `replit.md`
+
+## Standing Constraints
+
+- Documentation edit only.
+- No code edits.
+- No DB mutations.
+- No prompt changes.
+- Do not start Piece 0.6.
+- Do not start Piece 2 implementation.
+- No workflow restarts.
+- No `replit.md` edits.
+
+## Goal
+
+Patch only §5 of `docs/piece2_domain_scoped_prompting_design_2026-05.md` to remove stale wording that contradicts §6.
+
+## Required Edits
+
+### Edit 1 — NULL-domain row enforcement
+
+Replace:
+
+```text
+NULL-domain rows:            EXCLUDED (must be enforced by repository)
+
+with:
+
+NULL-domain rows:            EXCLUDED from scoped prompt construction via explicit domain-scoped repository calls. Repository no-filter behavior remains unchanged for legacy/full-snapshot callers.
+Edit 2 — Path coverage / MultiModelExtractor staging
+
+Replace:
+
+Path coverage:               Both MultiModelExtractor AND OntologyCentricPipeline must use
+                              the same SchemaPromptGenerator scoping signature.
+
+with:
+
+Stage 1 path coverage:       OntologyCentricPipeline uses scoped prompts. MultiModelExtractor remains on its existing prompt in Stage 1.
+                              MultiModelExtractor adapter and prompt replacement are staged behind separate sign-off, prompt diff review, and SHA verification.
+Do Not Touch
+
+Do not edit any other section unless required to preserve formatting.
+
+Report
+
+Report:
+
+exact lines changed;
+confirmation no code changed;
+confirmation no DB mutated;
+confirmation no prompts changed;
+confirmation Piece 0.6 did not start;
+confirmation Piece 2 implementation did not start.
+Stop Condition
+
+Stop after this cleanup.
+
+Wait for sign-off before Piece 0.6.
+
+
+After that, the sequence is:
+
+```text
+1. §5 cleanup
+2. sign off patched design
+3. Piece 0.6 audit-only
+4. sign off 0.6 disposition
+5. Piece 2 implementation
+
+Compact handoff:
+
+Current state:
+Piece 2.0 design is patched in most sections, but §5 has stale wording.
+
+Next allowed action:
+Final §5 doc cleanup only.
+
+Do not do:
+No code. No DB. No prompts. No Piece 0.6. No Piece 2 implementation. No workflows. No replit.md.
+
+Stop condition:
+Replit reports the two §5 wording changes and waits for sign-off.
