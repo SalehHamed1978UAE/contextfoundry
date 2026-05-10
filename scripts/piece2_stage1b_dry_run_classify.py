@@ -17,9 +17,22 @@ Usage:
     python scripts/piece2_stage1b_dry_run_classify.py --vault-id <uuid> --limit 20
 """
 import argparse
+import logging
 import os
 import sys
 from pathlib import Path
+
+# Suppress DEBUG noise from httpcore/httpx/openai/litellm BEFORE any imports
+# trigger their loggers. Without this the script bloats /tmp logs to 100s of
+# MB during full-corpus runs and the sandbox kills the process.
+logging.basicConfig(level=logging.WARNING)
+for noisy in (
+    "httpcore", "httpcore.http11", "httpcore.connection",
+    "httpx", "openai", "openai._base_client", "litellm",
+    "anthropic", "urllib3",
+):
+    logging.getLogger(noisy).setLevel(logging.WARNING)
+    logging.getLogger(noisy).propagate = False
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
