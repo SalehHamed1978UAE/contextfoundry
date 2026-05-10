@@ -91,6 +91,7 @@ class OntologyCentricPipeline:
         enable_canonicalization: bool = True,
         auto_stage: bool = True,
         enable_job_tracking: bool = True,
+        enforce_scoped_prompts: bool = False,
     ):
         """
         Initialize the pipeline.
@@ -102,6 +103,20 @@ class OntologyCentricPipeline:
             enable_canonicalization: Whether to run canonicalization step
             auto_stage: Whether to automatically stage results
             enable_job_tracking: Whether to track extraction jobs for monitoring
+            enforce_scoped_prompts: Piece 2 Stage 1. When True, ontology
+                extraction REQUIRES valid classification_metadata
+                (status='ok' + primary_domain). Missing or invalid
+                classification triggers an audit_records signal AND
+                returns a failed extraction result rather than silently
+                falling back to full-union prompts. When False (default,
+                backward-compat), missing/invalid classification falls
+                back to the legacy OntologyManager per-doc-type prompt
+                construction (NOT a full-union fallback — different code
+                path entirely; legacy behavior is preserved for callers
+                that have not yet been wired to provide classification
+                metadata, e.g. run_vault_extraction.py and the batch
+                reextract scripts). See
+                docs/inbox/piece_2_stage1_implementation_2026-05-10.md.
         """
         self.session = session
         self.tenant_id = tenant_id
@@ -109,6 +124,7 @@ class OntologyCentricPipeline:
         self.enable_canonicalization = enable_canonicalization
         self.auto_stage = auto_stage
         self.enable_job_tracking = enable_job_tracking
+        self.enforce_scoped_prompts = enforce_scoped_prompts
         
         self.ontology_manager = OntologyManager(session, tenant_id)
         self.canonicalizer = Canonicalizer(session, tenant_id) if enable_canonicalization else None
@@ -116,6 +132,10 @@ class OntologyCentricPipeline:
         
         self.entity_extractor = EntityExtractor(model=model, temperature=0.0)
         self.relation_extractor = RelationExtractor(model=model, temperature=0.0)
+
+        # Piece 2 Stage 1 — lazy components for scoped prompts + audit signals.
+        self._prompt_generator = None
+        self._audit_recorder = None
 
         # Component 2 (TypeDiscoveryAgent) hook — attached via
         # set_type_discovery_agent(). When attached, every staged document is
@@ -224,23 +244,127 @@ class OntologyCentricPipeline:
             # the 'unknown' default. This is what makes doc-diversity scoring
             # in the agent meaningful.
             self._current_document_type = document_type or "unknown"
-            
-            ontology = self.ontology_manager.get_or_create_ontology(document_type, text)
-            
-            entity_types = self.ontology_manager.get_entity_type_names(document_type)
-            
-            relationship_type_defs = [rt.to_dict() for rt in ontology.relationship_types]
-            
-            if not relationship_type_defs:
-                relationship_type_defs = [
-                    {"name": "RELATED_TO", "definition": "General relationship between entities", "source_types": [], "target_types": []},
-                    {"name": "PART_OF", "definition": "Entity is part of or belongs to another", "source_types": [], "target_types": []},
-                    {"name": "WORKS_WITH", "definition": "Entity works with or collaborates with another", "source_types": [], "target_types": []},
-                    {"name": "HAS_PROPERTY", "definition": "Entity has a property or attribute", "source_types": [], "target_types": []},
-                    {"name": "HOLDS_POSITION", "definition": "Person holds a job position", "source_types": ["PERSON"], "target_types": ["ROLE", "JOB_TITLE", "POSITION"]},
-                    {"name": "WORKED_AT", "definition": "Person worked at an organization", "source_types": ["PERSON"], "target_types": ["ORGANIZATION"]},
-                ]
-                logger.warning(f"[OntologyCentricPipeline] No relationship types in ontology for {document_type}, using fallback")
+
+            # =================================================================
+            # Piece 2 Stage 1 — classification-driven scope decision
+            # =================================================================
+            # Three branches:
+            #   "scoped"      → use SchemaPromptGenerator scoped prompts
+            #                   (core ∪ primary_domain, NULL-domain excluded).
+            #   "skip_failed" → emit audit_record + return failed result
+            #                   (only when enforce_scoped_prompts=True).
+            #   "legacy"      → use OntologyManager per-doc-type prompts
+            #                   (existing behavior; NOT a full-union fallback,
+            #                   different code path entirely).
+            scope_decision = self._classify_for_scoped(classification_metadata)
+            ontology = None  # set in legacy branch only
+
+            if scope_decision == "skip_failed":
+                self._emit_classification_failed_audit(
+                    classification_metadata, document_id
+                )
+                logger.warning(
+                    f"[OntologyCentricPipeline] enforce_scoped_prompts=True but "
+                    f"classification_metadata is missing/invalid for {document_id}; "
+                    f"returning failed result and emitting audit_records signal "
+                    f"(no full-union fallback)."
+                )
+                if self.job_tracker and job_id:
+                    self.job_tracker.fail_job(
+                        job_id,
+                        "classification_metadata invalid; ontology extraction "
+                        "skipped to avoid full-union fallback (Piece 2 Stage 1)"
+                    )
+                return OntologyCentricResult(
+                    document_id=document_id,
+                    document_type=document_type,
+                    entities=[],
+                    relations=[],
+                    canonical_triplets=[],
+                    new_entity_types=[],
+                    new_relationship_types=[],
+                    chunks_stored=len(chunks_stored),
+                    success=False,
+                    error=(
+                        "classification_metadata invalid; ontology extraction "
+                        "skipped to avoid full-union fallback (Piece 2 Stage 1)"
+                    ),
+                    classification_metadata=classification_metadata,
+                )
+
+            if scope_decision == "scoped":
+                primary_domain = classification_metadata["primary_domain"]
+                # Audit signal for low confidence — does NOT change scope.
+                self._maybe_emit_low_confidence_audit(
+                    classification_metadata, document_id
+                )
+                entity_types, relationship_type_defs = (
+                    self._load_scoped_extraction_lists(primary_domain)
+                )
+                # Unknown-domain validation: if the domain isn't seeded in
+                # ontology.types (returns 0 non-core types after dedup with
+                # core), treat this as a classification failure rather than
+                # silently extracting with core-only types. Per architect
+                # review of Piece 2 Stage 1: an unrecognized primary_domain
+                # is a misclassification, not a degraded-but-valid scope.
+                from ..ontology.repository import OntologyRepository
+                domain_only_types = OntologyRepository().get_all_types(
+                    domain_id=primary_domain
+                )
+                if len(domain_only_types) == 0:
+                    self._emit_classification_failed_audit(
+                        {**classification_metadata, "_reason": "unknown_primary_domain"},
+                        document_id,
+                    )
+                    logger.warning(
+                        f"[OntologyCentricPipeline] primary_domain={primary_domain} "
+                        f"has 0 types in ontology.types; treating as classification "
+                        f"failure for {document_id} (no scope widening)."
+                    )
+                    if self.job_tracker and job_id:
+                        self.job_tracker.fail_job(
+                            job_id,
+                            f"unknown primary_domain '{primary_domain}'; "
+                            f"ontology extraction skipped"
+                        )
+                    return OntologyCentricResult(
+                        document_id=document_id,
+                        document_type=document_type,
+                        entities=[],
+                        relations=[],
+                        canonical_triplets=[],
+                        new_entity_types=[],
+                        new_relationship_types=[],
+                        chunks_stored=len(chunks_stored),
+                        success=False,
+                        error=(
+                            f"unknown primary_domain '{primary_domain}'; "
+                            f"ontology extraction skipped (Piece 2 Stage 1)"
+                        ),
+                        classification_metadata=classification_metadata,
+                    )
+                logger.info(
+                    f"[OntologyCentricPipeline] Using SCOPED prompts for {document_id}: "
+                    f"primary_domain={primary_domain}, "
+                    f"{len(entity_types)} entity types, "
+                    f"{len(relationship_type_defs)} relationship types"
+                )
+            else:
+                # Legacy path — OntologyManager per-doc-type prompts.
+                ontology = self.ontology_manager.get_or_create_ontology(document_type, text)
+                entity_types = self.ontology_manager.get_entity_type_names(document_type)
+                relationship_type_defs = [rt.to_dict() for rt in ontology.relationship_types]
+
+                if not relationship_type_defs:
+                    relationship_type_defs = [
+                        {"name": "RELATED_TO", "definition": "General relationship between entities", "source_types": [], "target_types": []},
+                        {"name": "PART_OF", "definition": "Entity is part of or belongs to another", "source_types": [], "target_types": []},
+                        {"name": "WORKS_WITH", "definition": "Entity works with or collaborates with another", "source_types": [], "target_types": []},
+                        {"name": "HAS_PROPERTY", "definition": "Entity has a property or attribute", "source_types": [], "target_types": []},
+                        {"name": "HOLDS_POSITION", "definition": "Person holds a job position", "source_types": ["PERSON"], "target_types": ["ROLE", "JOB_TITLE", "POSITION"]},
+                        {"name": "WORKED_AT", "definition": "Person worked at an organization", "source_types": ["PERSON"], "target_types": ["ORGANIZATION"]},
+                    ]
+                    logger.warning(f"[OntologyCentricPipeline] No relationship types in ontology for {document_type}, using fallback")
             
             all_entities = []
             all_relations = []
@@ -318,17 +442,24 @@ class OntologyCentricPipeline:
                             rel.relation_type = ct.relationship_type
                             break
             
-            new_entity_types = self._find_new_entity_types(all_entities, ontology)
-            new_relationship_types = self._find_new_relationship_types(all_relations, ontology)
-            
-            if new_entity_types or new_relationship_types:
-                self._update_reference_ontology(
-                    document_type, 
-                    new_entity_types, 
-                    new_relationship_types,
-                    all_entities,
-                    all_relations
-                )
+            # In scoped mode `ontology` is None (no per-doc-type ontology
+            # to diff against). new_entity_types / new_relationship_types
+            # tracking is skipped — type discovery flows through the
+            # TypeDiscoveryAgent hook in StagingLoader instead.
+            new_entity_types = []
+            new_relationship_types = []
+            if ontology is not None:
+                new_entity_types = self._find_new_entity_types(all_entities, ontology)
+                new_relationship_types = self._find_new_relationship_types(all_relations, ontology)
+
+                if new_entity_types or new_relationship_types:
+                    self._update_reference_ontology(
+                        document_type,
+                        new_entity_types,
+                        new_relationship_types,
+                        all_entities,
+                        all_relations
+                    )
             
             staging_result = None
             if self.auto_stage:
@@ -762,6 +893,144 @@ class OntologyCentricPipeline:
                    f"{result.relations_created} relations (resolved {len(name_to_existing_id)} to existing)")
         
         return result
+
+
+    # =========================================================================
+    # Piece 2 Stage 1 — classification-decision + scoped-prompt helpers
+    # =========================================================================
+    LOW_CONFIDENCE_THRESHOLD = 0.30
+    NARROW_MARGIN_THRESHOLD = 0.05
+
+    def _get_prompt_generator(self):
+        """Lazy SchemaPromptGenerator — used only in scoped mode."""
+        if self._prompt_generator is None:
+            from ..ontology.prompt_generator import SchemaPromptGenerator
+            self._prompt_generator = SchemaPromptGenerator()
+        return self._prompt_generator
+
+    def _get_audit_recorder(self):
+        """Lazy AuditRecorder — used for governance signals."""
+        if self._audit_recorder is None:
+            from .audit_recorder import AuditRecorder
+            self._audit_recorder = AuditRecorder(self.session)
+        return self._audit_recorder
+
+    def _classify_for_scoped(
+        self, classification_metadata: Optional[Dict]
+    ) -> str:
+        """Decide which extraction mode to use based on classification metadata.
+
+        Returns one of:
+          "scoped"      — use scoped prompts (core ∪ primary_domain).
+                           Triggered ONLY when enforce_scoped_prompts=True
+                           AND status='ok' AND primary_domain present.
+          "skip_failed" — emit audit + return failed result.
+                           Triggered ONLY when enforce_scoped_prompts=True
+                           AND metadata is missing/invalid/incomplete.
+          "legacy"      — fall through to OntologyManager per-doc-type prompts.
+                           Default branch when enforce_scoped_prompts=False
+                           regardless of metadata content. Preserves
+                           backward compat for existing pipeline callers
+                           (notably scripts/run_vault_extraction.py which
+                           ALREADY passes classification_metadata at
+                           line 781 — gating scoped mode behind the
+                           constructor flag is what keeps Stage 1 from
+                           silently changing that caller's behavior).
+
+        Stage 2 will flip enforce_scoped_prompts default to True after
+        callers have been audited.
+
+        Per brief lines 161-170: do not silently fall back to FULL UNION
+        prompts. The legacy OntologyManager path is NOT a full-union
+        fallback — it constructs prompts from per-document-type generated
+        ontologies, a separate code path that pre-dates Piece 2.
+        """
+        if not self.enforce_scoped_prompts:
+            return "legacy"
+        if classification_metadata is None:
+            return "skip_failed"
+        status = classification_metadata.get("classification_status")
+        primary_domain = classification_metadata.get("primary_domain")
+        if status == "ok" and primary_domain:
+            return "scoped"
+        return "skip_failed"
+
+    def _load_scoped_extraction_lists(self, primary_domain: str):
+        """Return (entity_type_names: List[str], relation_type_defs: List[Dict])
+        for scope = core ∪ primary_domain.
+
+        Delegates to SchemaPromptGenerator.get_scoped_extraction_lists
+        which enforces NULL-domain exclusion and dedup-by-id.
+        """
+        pg = self._get_prompt_generator()
+        return pg.get_scoped_extraction_lists(primary_domain)
+
+    def _maybe_emit_low_confidence_audit(
+        self,
+        classification_metadata: Dict,
+        document_id: str,
+    ) -> None:
+        """Emit low_confidence audit_record if confidence < 0.30.
+
+        Per brief lines 174-187. Does NOT change prompt scope.
+        Narrow_margin (top_two_margin < 0.05) is NOT implemented in
+        Stage 1 because top-two margin cannot be parsed reliably from
+        the current classification_evidence shape (brief line 113
+        explicit limitation). Reserved for Stage 1.5 / Stage 2.
+        """
+        confidence = classification_metadata.get("classification_confidence")
+        if confidence is None:
+            return
+        try:
+            confidence_float = float(confidence)
+        except (TypeError, ValueError):
+            logger.warning(
+                f"[OntologyCentricPipeline] non-numeric classification_confidence "
+                f"for {document_id}: {confidence!r}; skipping low_confidence audit"
+            )
+            return
+        if confidence_float < self.LOW_CONFIDENCE_THRESHOLD:
+            try:
+                self._get_audit_recorder().emit_low_confidence(
+                    confidence=confidence_float,
+                    primary_domain=classification_metadata.get("primary_domain"),
+                    classifier_version=classification_metadata.get("classifier_version"),
+                    classification_evidence=classification_metadata.get("classification_evidence"),
+                    document_id=document_id,
+                )
+            except Exception as e:
+                # Audit failures must not break extraction.
+                logger.error(
+                    f"[OntologyCentricPipeline] low_confidence audit emit failed "
+                    f"for {document_id}: {e}; continuing extraction"
+                )
+
+    def _emit_classification_failed_audit(
+        self,
+        classification_metadata: Optional[Dict],
+        document_id: str,
+    ) -> None:
+        """Emit classification_failed (or _missing) audit_record."""
+        try:
+            recorder = self._get_audit_recorder()
+            if classification_metadata is None:
+                recorder.emit_classification_missing(document_id=document_id)
+            else:
+                recorder.emit_classification_failed(
+                    reason=(
+                        "classification_status != 'ok' or primary_domain absent"
+                    ),
+                    classification_status=classification_metadata.get("classification_status"),
+                    primary_domain=classification_metadata.get("primary_domain"),
+                    classifier_version=classification_metadata.get("classifier_version"),
+                    classification_metadata=classification_metadata,
+                    document_id=document_id,
+                )
+        except Exception as e:
+            logger.error(
+                f"[OntologyCentricPipeline] classification_failed audit emit "
+                f"failed for {document_id}: {e}"
+            )
 
 
 def run_ontology_centric_extraction(
