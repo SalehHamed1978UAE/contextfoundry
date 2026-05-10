@@ -1,0 +1,347 @@
+markdown# Task: Piece 0.6 Mutation — Govern Foundational Relation Candidates
+
+## Alignment
+
+- **Module touched:** `ontology.relations`, `tests/ontology/test_repository_domain_filter.py`, `docs/architecture.md`, `docs/decisions.md`
+- **Product vs implementation:** implementation-level prerequisite for Piece 2 domain-scoped prompts
+- **Architecture-doc consistency:** matches signed-off Piece 2.0 design (scoped prompts use `core ∪ primary_domain`, so required relations must be governed before Piece 2 implementation); resolves Gap 5
+- **Drift risk:** mutating relation governance without verifying exact UUIDs, current row state, deprecation semantics, secondary FK references, and backup state; race with in-flight extraction jobs reading `ontology.relations`
+- **Out of scope:** Piece 2 implementation, prompt changes, `SchemaPromptGenerator`, Gardener, v2 FactEvaluator, Nexus 100, workflow restarts, `replit.md` edits, sibling relations not in the approved list
+
+## Standing Constraints
+
+- No prompt changes.
+- No `SchemaPromptGenerator` changes.
+- No Gardener changes.
+- No v2 work.
+- No Nexus 100 run.
+- No workflow restarts.
+- No `replit.md` edits.
+- One DB mutation transaction only.
+- Stop if any preflight check contradicts the Piece 0.6 audit.
+- Do not use truncated UUIDs or placeholder SQL.
+- Every response begins with the alignment block per `docs/architecture.md` protocol.
+
+## Read First
+
+1. `docs/architecture.md` — particularly Gap 5 (the four unscoped relations) and Gap 6 (HR-domain compensation)
+2. `docs/decisions.md`
+3. `docs/piece2_domain_scoped_prompting_design_2026-05.md` — particularly §4
+4. The Piece 0.6 audit final report (in conversation history) — Sections A through H
+5. `src/context_foundry/ontology/repository.py` — to confirm deprecation semantics for `get_all_relations`
+6. Current schema of `ontology.relations` — column types, constraints, indexes
+
+## Approved Disposition (from audit sign-off)
+
+These dispositions are approved. The mutation transaction implements them exactly:
+
+| # | relation_type | source → target | Disposition |
+|---|---|---|---|
+| 1 | `HOLDS_POSITION` | PERSON → JOB_TITLE | `domain_id = 'core'`, preserve UUID, keep ACTIVE |
+| 2 | `HOLDS_POSITION` | PERSON → ORGANIZATION | `domain_id = 'core'`, preserve UUID, keep ACTIVE |
+| 3 | `WORKS_AT` | PERSON → ORGANIZATION | `domain_id = 'core'`, preserve UUID, keep ACTIVE |
+| 4 | `REPORTS_TO` | PERSON → PERSON | `domain_id = 'core'`, preserve UUID, keep ACTIVE |
+| 5 | `HAS_COMPENSATION` | PERSON → COMPENSATION | `domain_id = 'finance'`, preserve UUID, keep ACTIVE |
+| 6 | `HAS_COMPENSATION` | PERSON → CONCEPT | `domain_id` stays NULL, **deprecate** using established semantics, preserve UUID, do not delete |
+
+**Sibling rows that must NOT be mutated in this task:** `HELD_POSITION`, `AFFILIATED_WITH`, `MANAGES`, `OWNS`, `HAS_ROLE`, `HAS_TITLE`, `HAS_POSITION`, `HOLDS_ROLE`, `FORMERLY_HELD`, `EMPLOYED_BY`. These were audited and explicitly out of scope. Some have no DB rows; some are deferred to Piece 7.
+
+## Preflight Checks (required before any mutation)
+
+Run all preflight checks. Paste findings. Stop if any check contradicts the audit.
+
+### Preflight 1 — Re-query exact target rows
+
+Query `ontology.relations` joined with `ontology.types` for the source/target type names. Filter for the four canonical relation types:
+
+- `HOLDS_POSITION`
+- `WORKS_AT`
+- `REPORTS_TO`
+- `HAS_COMPENSATION`
+
+For each row, paste:
+
+- `id` (full UUID, not truncated)
+- `relation_type`
+- `source_type` (resolved name)
+- `target_type` (resolved name)
+- `domain_id` (current)
+- `status`
+- `valid_to`
+- `created_at`
+- `approved_by`
+- `approved_at`
+- `updated_at`
+
+Confirm:
+- All six target rows are present (2 × HOLDS_POSITION, 1 × WORKS_AT, 1 × REPORTS_TO, 2 × HAS_COMPENSATION).
+- All currently have `domain_id = NULL`.
+- All currently have `status = 'ACTIVE'`.
+- No unexpected duplicates.
+
+If any expected row is missing, already mutated, or in unexpected state, **stop and report**.
+
+### Preflight 2 — Confirm exact full UUIDs
+
+From the Preflight 1 output, paste the exact full UUIDs for the six target rows in a clean list:
+HOLDS_POSITION PERSON → JOB_TITLE       = <full UUID>
+HOLDS_POSITION PERSON → ORGANIZATION    = <full UUID>
+WORKS_AT       PERSON → ORGANIZATION    = <full UUID>
+REPORTS_TO     PERSON → PERSON          = <full UUID>
+HAS_COMPENSATION PERSON → COMPENSATION  = <full UUID>
+HAS_COMPENSATION PERSON → CONCEPT       = <full UUID>
+
+The mutation SQL must use these exact UUIDs. No truncation. No placeholders.
+
+### Preflight 3 — Check secondary references
+
+Query each of these tables for references to the six target UUIDs and to the relation_type strings:
+
+- `ontology.canonical_relations`
+- `public.ontology_relations`
+- `public.ontology_relationship_types`
+- `public.proposed_relationships`
+- `public.relationship_contexts`
+- `public.relationships`
+
+For each table:
+- If the table doesn't exist or has no relevant column, report `n/a — no relevant column`.
+- If the table has UUID references (FK by UUID), paste the count and at least 3 sample rows.
+- If the table has text-key references (relation_type string), paste the count.
+
+If any secondary table has UUID-FK references that would be affected by the deprecation of `HAS_COMPENSATION PERSON → CONCEPT`, **stop and report**. The migration becomes more complex than the planned UPDATE statements and needs separate review.
+
+### Preflight 4 — Inspect deprecation semantics
+
+Inspect `src/context_foundry/ontology/repository.py`, specifically `get_all_relations`. Determine which of these patterns the repository uses to filter out deprecated rows:
+
+- `WHERE status = 'ACTIVE'`
+- `WHERE valid_to IS NULL`
+- `WHERE status = 'ACTIVE' AND valid_to IS NULL`
+- Other (paste the exact filter)
+
+Based on the established pattern, decide how to deprecate the row:
+
+- If `status` is the filter mechanism: set `status = 'DEPRECATED'`.
+- If `valid_to` is the filter mechanism: set `valid_to = now()`.
+- If both: set both.
+- If neither and no clear pattern exists: set `status = 'DEPRECATED'` and report the ambiguity.
+
+Paste:
+- The exact `get_all_relations` filter clause (or equivalent active-row filter).
+- The chosen deprecation field(s) and value(s) for `HAS_COMPENSATION PERSON → CONCEPT`.
+- Reasoning.
+
+### Preflight 5 — Inspect approval metadata column types
+
+Inspect `ontology.relations` column types for:
+
+- `approved_by`
+- `approved_at`
+- `updated_at`
+- `proposed_by`
+
+For each:
+
+- If `approved_by` is `text` or `varchar`: set it to `'piece_0_6_user_signoff_2026_05'`.
+- If `approved_by` is `uuid` or has FK constraint to a users table: do not set it; record the approval in the ADR instead.
+- If `approved_at` exists: set to `now()`.
+- If `updated_at` exists: set to `now()`.
+- If `proposed_by` exists: leave as-is (don't backfill historical proposer).
+
+Paste the column types and the chosen behavior.
+
+### Preflight 6 — Check in-flight extraction risk
+
+Do not kill workflows. Check whether any of these are actively reading or writing `ontology.relations`:
+
+- Run Canonical Bench
+- Test: ClaudeCode Medsync
+- Test: ClaudeCode Nexus
+- Start All
+- Any other workflow currently in `running` state
+
+Method: check workflow status; if uncertain, query for active SELECTs/UPDATEs against `ontology.relations` (e.g., `pg_stat_activity`).
+
+If an active extraction job is detected, **stop and report**. Wait for the user to decide whether to wait for completion or proceed. Do not mutate while extraction is actively running.
+
+### Preflight 7 — Backup
+
+Create the backup table:
+
+```sql
+CREATE TABLE IF NOT EXISTS ontology.relations_backup_pre_piece_0_6 AS
+SELECT * FROM ontology.relations;
+```
+
+If the backup table already exists, do **not** overwrite it. Report `backup table already exists from prior attempt`.
+
+Paste:
+- Source `ontology.relations` row count.
+- Backup table row count.
+- Match: yes/no.
+
+Counts must match exactly before mutation proceeds. If they don't match, stop and report.
+
+## Stop Point — Mandatory Pause Before Mutation
+
+After all seven preflight checks complete, **paste the consolidated preflight report and stop**. Do not run the mutation transaction yet.
+
+Wait for the user to confirm preflight is clean before running the transaction.
+
+## Mutation Transaction (only after preflight sign-off)
+
+After preflight sign-off, run a single transaction using the exact full UUIDs from Preflight 2 and the deprecation semantics from Preflight 4.
+
+```sql
+BEGIN;
+
+-- 1-4: Adopt organizational relations into core
+UPDATE ontology.relations
+   SET domain_id = 'core',
+       updated_at = now()
+       -- approved_by / approved_at: set per Preflight 5 decision
+ WHERE id IN (
+   '<HOLDS_POSITION PERSON→JOB_TITLE UUID>'::uuid,
+   '<HOLDS_POSITION PERSON→ORGANIZATION UUID>'::uuid,
+   '<WORKS_AT PERSON→ORGANIZATION UUID>'::uuid,
+   '<REPORTS_TO PERSON→PERSON UUID>'::uuid
+ )
+   AND domain_id IS NULL
+   AND status = 'ACTIVE';
+
+-- Confirm exactly 4 rows updated; if not, ROLLBACK and stop.
+
+-- 5: Adopt canonical compensation relation into finance
+UPDATE ontology.relations
+   SET domain_id = 'finance',
+       updated_at = now()
+       -- approved_by / approved_at: set per Preflight 5 decision
+ WHERE id = '<HAS_COMPENSATION PERSON→COMPENSATION UUID>'::uuid
+   AND domain_id IS NULL
+   AND status = 'ACTIVE';
+
+-- Confirm exactly 1 row updated; if not, ROLLBACK and stop.
+
+-- 6: Deprecate mis-targeted compensation relation
+-- Use deprecation semantics determined in Preflight 4
+UPDATE ontology.relations
+   SET <deprecation field(s) per Preflight 4>,
+       updated_at = now()
+       -- approved_by / approved_at: set per Preflight 5 decision
+ WHERE id = '<HAS_COMPENSATION PERSON→CONCEPT UUID>'::uuid
+   AND domain_id IS NULL
+   AND status = 'ACTIVE';
+
+-- Confirm exactly 1 row updated; if not, ROLLBACK and stop.
+
+-- Verification block — must pass before COMMIT
+SELECT relation_type, domain_id, status, valid_to, COUNT(*)
+  FROM ontology.relations
+ WHERE relation_type IN ('HOLDS_POSITION','WORKS_AT','REPORTS_TO','HAS_COMPENSATION')
+ GROUP BY 1, 2, 3, 4
+ ORDER BY 1, 2 NULLS FIRST, 3;
+
+-- Expected after mutation (modulo deprecation field choice):
+--   HOLDS_POSITION   | core    | ACTIVE      | (valid_to)  | 2
+--   WORKS_AT         | core    | ACTIVE      | (valid_to)  | 1
+--   REPORTS_TO       | core    | ACTIVE      | (valid_to)  | 1
+--   HAS_COMPENSATION | finance | ACTIVE      | (valid_to)  | 1
+--   HAS_COMPENSATION | <NULL>  | DEPRECATED  | (valid_to)  | 1
+-- (or equivalent shape per Preflight 4 deprecation choice)
+
+-- COMMIT;
+-- Leave commented. Verify the SELECT output matches expectations, then un-comment and run COMMIT.
+```
+
+Paste the verification block output. If any row count is off or any state is unexpected, **ROLLBACK** and report.
+
+## Post-Mutation Verification
+
+After commit, run repository checks:
+
+```python
+get_all_relations(domain_id='core')
+get_all_relations(domain_id='finance')
+get_all_relations()                       # no filter — legacy behavior
+get_all_relations(include_deprecated=True) # if this signature exists
+```
+
+Paste the row counts. Confirm:
+
+- `core` count increased by 4 (was 17 post-Piece 0; now 21).
+- `finance` count increased by 1 (was 27 post-Piece 0; now 28).
+- No-filter count behavior preserved per the legacy contract from Piece 0.5.
+- Deprecated row excluded or included according to Preflight 4 semantics.
+
+If actual counts differ from expectations, explain why.
+
+## Tests
+
+Update `tests/ontology/test_repository_domain_filter.py`:
+
+- Update expected `core` relation count (was 17, now 21).
+- Update expected `finance` relation count (was 27, now 28).
+- Add a test asserting `HOLDS_POSITION`, `WORKS_AT`, `REPORTS_TO` are returned by `get_all_relations(domain_id='core')`.
+- Add a test asserting `HAS_COMPENSATION (PERSON → COMPENSATION)` is returned by `get_all_relations(domain_id='finance')`.
+- Add a test asserting the deprecated `HAS_COMPENSATION (PERSON → CONCEPT)` row is excluded from active default calls (per Preflight 4 semantics).
+- Confirm NULL-domain rows still don't leak into scoped calls.
+- Confirm no-filter legacy behavior preserved.
+
+Run the tests. Paste pass/fail results.
+
+## Documentation Updates
+
+### `docs/architecture.md` Gap 5 update
+
+Update the existing Gap 5 section to reflect Piece 0.6 completion:
+
+> ### Gap 5 (RESOLVED by Piece 0.6, 2026-05): Foundational relations governed
+>
+> Piece 0.6 adopted the four foundational relations into governed domains:
+>
+> - `HOLDS_POSITION` (both PERSON → JOB_TITLE and PERSON → ORGANIZATION) → `core`
+> - `WORKS_AT` (PERSON → ORGANIZATION) → `core`
+> - `REPORTS_TO` (PERSON → PERSON) → `core`
+> - `HAS_COMPENSATION` (PERSON → COMPENSATION) → `finance`
+> - `HAS_COMPENSATION` (PERSON → CONCEPT) → deprecated; mis-targeted older row, zero usage
+>
+> Sibling rows audited but not mutated: `HELD_POSITION`, `AFFILIATED_WITH`, `MANAGES`, `OWNS`, and the LLM-output strings (`HAS_ROLE`, `HAS_TITLE`, etc.) that the extractor canonicalizes upstream to `HOLDS_POSITION`. Those remain in scope for Piece 7 governance.
+>
+> Gap 6 (HR-domain compensation extraction) remains open — Piece 0.6's disposition does not solve it.
+
+### `docs/decisions.md` ADR
+
+Append a new ADR using the next available number:
+
+> ### ADR-XXX (2026-05): Piece 0.6 governed disposition of foundational relations
+>
+> **Decision:** `HOLDS_POSITION`, `WORKS_AT`, and `REPORTS_TO` are governed as `core` relations. `HAS_COMPENSATION` (PERSON → COMPENSATION, the v1.0.0 canonical row) is governed as `finance`. `HAS_COMPENSATION` (PERSON → CONCEPT, the v0.0.1 mis-targeted row) is deprecated. All UUIDs preserved.
+>
+> **Rationale:** Piece 2 scoped prompts use `core ∪ primary_domain`. Without this disposition, organizational role/reports/employment extraction would silently disappear under domain-scoped prompts. The canonical compensation relation belongs to finance per Piece 2.0 design §4. The PERSON → CONCEPT compensation row is mis-targeted (CONCEPT is a generic catch-all type), has zero usage in `relationships`, and is replaced by the v1.0.0 PERSON → COMPENSATION row.
+>
+> **Implication:** Piece 2 can build scoped prompts without losing organizational role-resolution edges. Compensation extraction remains finance-scoped; HR-domain compensation extraction remains an open architecture-level gap (Gap 6) to be addressed via secondary_domains support, document_type overlays, or an explicit HR domain — none of which are in Piece 0.6 scope.
+
+## Final Report
+
+Report:
+
+- Preflight 1 target rows table.
+- Preflight 2 exact full UUIDs.
+- Preflight 3 secondary reference findings.
+- Preflight 4 deprecation semantics chosen and rationale.
+- Preflight 5 approval metadata behavior.
+- Preflight 6 in-flight extraction status.
+- Preflight 7 backup table status and count match.
+- The mutation transaction SQL with full UUIDs filled in.
+- Verification block output.
+- Post-mutation repository check results.
+- Test update summary and pass/fail results.
+- `docs/architecture.md` Gap 5 update confirmation.
+- `docs/decisions.md` ADR added (paste the ADR number used).
+- Confirmation that no Piece 2 implementation work was started.
+- Confirmation that no prompt code, `SchemaPromptGenerator`, Gardener, v2, Nexus, workflow, or `replit.md` work occurred.
+
+## Stop Condition
+
+Stop after Piece 0.6 mutation final report. Do not begin Piece 2 implementation. Wait for confirmation
