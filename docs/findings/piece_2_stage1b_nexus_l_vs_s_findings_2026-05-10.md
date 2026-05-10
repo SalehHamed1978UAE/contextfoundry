@@ -247,3 +247,19 @@ Deferred. Will be added after β results are in.
 - ✅ Env-var gate isolated to `scripts/run_vault_extraction.py` (lines 711-732).
 - ✅ Telemetry event_type `scoped_extraction_decision` writes to `platform.extraction_events` (no schema change).
 - ✅ 106/106 Stage 1B tests still passing as of last run.
+
+---
+
+## Addendum (user, 2026-05-10): Corpus history limitation
+
+The Nexus corpus has been the primary test bed for Context Foundry extraction development over several months. The current 1037-type ontology has accumulated entries through repeated Nexus extraction iterations (see Gap 2 in `docs/architecture.md`: 803 layer-2 ad-hoc types created by `_update_reference_ontology` outside governance). This means the ontology is effectively saturated on Nexus vocabulary.
+
+**Implication for Stage 1B β.** Stage 1B β on Nexus therefore tests prompt-scoping mechanics (does the flag change what the LLM is asked to extract), not adaptive ontology behavior (does the system handle genuinely novel domains correctly).
+
+**Empirical confirmation in this run.** The L extraction produced 2258 entities and 2192 relationships across 100 Nexus docs while making **zero modifications** to `ontology.types` (1037→1037, 0 inserts, 0 updates) or `ontology.relations` (254→254, 0 inserts, 0 updates). The defensive `staging_loader._ensure_entity_type_exists` insert path was reached on every entity but found a match every time — every observed entity_type already existed in the ontology with `status='ACTIVE'`. This is consistent with saturation, not with the path being broken.
+
+**Recommended future validation.** A future run should exercise scoped extraction against a fresh corpus the system has not previously extracted, to test the adaptive-ontology claim. Candidates:
+- a new industry the system has never seen
+- a deliberate "cold corpus" introduction with documents drawn from a domain absent from the current 8 (e.g., legal, energy, biotech, agriculture, retail, telecom)
+
+The "cold corpus" test is the only way to falsify or confirm the adaptive-ontology behavior. Until such a test runs, β results from Nexus must be reported as evidence about prompt-scope mechanics only.
