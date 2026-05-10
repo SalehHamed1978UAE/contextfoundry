@@ -391,6 +391,10 @@ Recent task context does not redefine Context Foundry unless the user explicitly
 >
 > **This finding is recorded, not solved.** Closing this gap is a small follow-up task: locate the original 2025-12-06 migration, confirm the types are genuinely foundation/cross-domain, and either reclassify them deterministically into `core` or document why they should remain unscoped.
 
+### Gap 4: Reserved (intentionally unused)
+
+This gap number is reserved and intentionally unused. During Piece 0 closeout (2026-05), the choice between expanding Gap 2 vs. adding a new Gap 5 to record the four untraceable `core` relations finding was made in favor of Gap 5 (different concrete category — types vs relations). Gap 4 was left unused rather than renumbering subsequent gaps, which would have churned cross-references throughout the document. This entry exists so future readers see the skip is deliberate, not a missing entry.
+
 ### Gap 5: 4 ontology.relations rows assigned `core` without seed-file provenance (corrected during Piece 0 closeout)
 
 > Piece 0 closeout audit identified 4 `ontology.relations` rows previously assigned `domain_id = 'core'` that have no seed-file provenance:
