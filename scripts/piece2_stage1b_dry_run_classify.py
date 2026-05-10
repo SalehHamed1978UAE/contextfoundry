@@ -55,6 +55,18 @@ def main():
         default=None,
         help="Max docs to inspect (sample for cost control)",
     )
+    parser.add_argument(
+        "--offset",
+        type=int,
+        default=0,
+        help="OFFSET into ORDER BY created_at DESC (for batched runs)",
+    )
+    parser.add_argument(
+        "--output-jsonl",
+        type=str,
+        default=None,
+        help="Append per-doc results as JSON lines for downstream aggregation",
+    )
     args = parser.parse_args()
 
     db_url = os.environ.get("DATABASE_URL")
@@ -66,14 +78,13 @@ def main():
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    rows = session.execute(
-        sql_text(
-            "SELECT id, original_filename, name FROM platform.documents "
-            "WHERE tenant_id = :tid ORDER BY created_at DESC "
-            + (f"LIMIT {int(args.limit)}" if args.limit else "")
-        ),
-        {"tid": args.vault_id},
-    ).fetchall()
+    sql = (
+        "SELECT id, original_filename, name FROM platform.documents "
+        "WHERE tenant_id = :tid ORDER BY created_at DESC "
+        + (f"LIMIT {int(args.limit)}" if args.limit else "")
+        + (f" OFFSET {int(args.offset)}" if args.offset else "")
+    )
+    rows = session.execute(sql_text(sql), {"tid": args.vault_id}).fetchall()
 
     if not rows:
         print(f"No documents found for tenant {args.vault_id}")
@@ -90,6 +101,9 @@ def main():
     )
 
     repo = OntologyRepository()
+
+    import json as _json
+    jsonl_fp = open(args.output_jsonl, "a") if args.output_jsonl else None
 
     counts = {
         "scoped": 0,
@@ -121,6 +135,12 @@ def main():
 
         if len(text_sample.strip()) < 50:
             counts["no_text"] += 1
+            if jsonl_fp:
+                jsonl_fp.write(_json.dumps({
+                    "doc_id": str(doc_id), "filename": display_name,
+                    "decision": "no_text",
+                }) + "\n")
+                jsonl_fp.flush()
             print(
                 f"{str(doc_id)[:38]:<40} {display_name[:53]:<55} "
                 f"{'no_text':<28} {'-':<18} {'-':<8} -"
@@ -133,6 +153,12 @@ def main():
             metadata = classification.to_dict()
         except Exception as e:
             counts["classifier_error"] += 1
+            if jsonl_fp:
+                jsonl_fp.write(_json.dumps({
+                    "doc_id": str(doc_id), "filename": display_name,
+                    "decision": "classifier_error", "error": f"{type(e).__name__}: {e}",
+                }) + "\n")
+                jsonl_fp.flush()
             print(
                 f"{str(doc_id)[:38]:<40} {display_name[:53]:<55} "
                 f"{'classifier_error':<28} {'-':<18} {'-':<8} {type(e).__name__}"
@@ -158,12 +184,28 @@ def main():
             decision = "skip_failed_no_metadata"
             counts["skip_failed_no_metadata"] += 1
 
+        if jsonl_fp:
+            jsonl_fp.write(_json.dumps({
+                "doc_id": str(doc_id),
+                "filename": display_name,
+                "decision": decision,
+                "primary_domain": primary_domain,
+                "document_type": metadata.get("document_type"),
+                "classification_status": cls_status,
+                "classification_confidence": metadata.get("classification_confidence"),
+                "classification_evidence": (metadata.get("classification_evidence") or "")[:200],
+                "n_types": n_types if isinstance(n_types, int) else None,
+            }) + "\n")
+            jsonl_fp.flush()
+
         print(
             f"{str(doc_id)[:38]:<40} {display_name[:53]:<55} "
             f"{decision:<28} {(primary_domain or '-'):<18} "
             f"{str(n_types):<8} {cls_status or '-'}"
         )
 
+    if jsonl_fp:
+        jsonl_fp.close()
     print("-" * 165)
     print(f"\nSummary: {counts}")
     total = sum(counts.values())
