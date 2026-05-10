@@ -1,0 +1,229 @@
+{
+  "document_id": "a82d4a61-fdd0-4ea0-af0b-e2478040db9d",
+  "document_path": "01_ceo_all_hands_memo.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-10T22:59:51.086962",
+  "entities": [
+    {
+      "name": "Dr. Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "From: Dr. Victoria Chen, CEO",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Aerospace and Defense"
+      },
+      "confidence": 0.95,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Nexus Industries delivered its strongest year in company history.",
+      "aliases": []
+    },
+    {
+      "name": "Falcon X UAV Program",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": null,
+        "timeline": "First flight targeted for May 2026",
+        "status": "on schedule and under budget"
+      },
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Falcon X UAV Program: Our largest aerospace program remains on schedule and under budget.",
+      "aliases": []
+    },
+    {
+      "name": "GreenHydrogen Initiative",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$450 million",
+        "timeline": "First hydrogen production expected in March",
+        "status": "68% complete"
+      },
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "GreenHydrogen Initiative: Construction is 68% complete at our El Paso facility.",
+      "aliases": []
+    },
+    {
+      "name": "Toyota",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership type": "joint venture"
+      },
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "finalized our solid-state battery joint venture with Toyota.",
+      "aliases": []
+    },
+    {
+      "name": "CyberShield",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": null,
+        "timeline": null,
+        "status": "achieved FedRAMP High authorization"
+      },
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "CyberShield Success: Our Digital Solutions division achieved FedRAMP High authorization.",
+      "aliases": []
+    },
+    {
+      "name": "El Paso",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "El Paso",
+        "country": "USA"
+      },
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Construction is 68% complete at our El Paso facility.",
+      "aliases": []
+    },
+    {
+      "name": "NexusConnect",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "AI processing capabilities",
+        "category": "Digital Solutions"
+      },
+      "confidence": 0.8,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Edge AI processing capabilities for NexusConnect.",
+      "aliases": []
+    },
+    {
+      "name": "Leadership Academy",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$23 million",
+        "timeline": null,
+        "status": "new initiative"
+      },
+      "confidence": 0.8,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "launch our new Leadership Academy.",
+      "aliases": []
+    },
+    {
+      "name": "Board of Directors",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Governing Body"
+      },
+      "confidence": 0.8,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "our Board of Directors approved a 12% dividend increase.",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "I am honored to lead this incredible team"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Falcon X UAV Program",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "Falcon X UAV Program: Our largest aerospace program"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "GreenHydrogen Initiative",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "GreenHydrogen Initiative: Construction is 68% complete"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Toyota",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "finalized our solid-state battery joint venture with Toyota."
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "CyberShield",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "CyberShield Success: Our Digital Solutions division achieved FedRAMP High authorization."
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "El Paso",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "Construction is 68% complete at our El Paso facility."
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Leadership Academy",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "invest in career development. The new Leadership Academy will prepare our next generation of leaders."
+    },
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "Dr. Victoria Chen, CEO"
+    }
+  ],
+  "metadata": {
+    "filename": "01_ceo_all_hands_memo.md",
+    "raw_entity_count": 10,
+    "raw_relationship_count": 8,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}
