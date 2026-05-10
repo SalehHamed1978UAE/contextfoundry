@@ -1,0 +1,52 @@
+Thread 1: ADR-010 body text — provided. Append all four ADRs (007–010) to docs/decisions.md.Use this verbatim text for ADR-010:
+ADR-010 (2026-05): Defer dependency resolution until design proves it required
+Decision: When an implementation Piece may have a prerequisite Piece (e.g., Piece 2 may need Piece 0.6 to govern certain relations), the prerequisite is not run until the dependent Piece's design phase confirms it is actually required. Premature governance based on guessed requirements expands scope without justification.
+Rationale: Established when the sequencing question for Piece 0.6 was first raised. The reviewer initially recommended running Piece 0.6 before Piece 2.0 design; on reflection, the dependency was conditional — Piece 0.6 was needed only if Piece 2's scoped prompts required HOLDS_POSITION, WORKS_AT, REPORTS_TO, or HAS_COMPENSATION. Running Piece 0.6 first would have made governance decisions about four relations based on a guessed requirement rather than a designed one. The Piece 2.0 design phase confirmed the dependency, which then justified Piece 0.6 with concrete scope.
+Implication: Conditional prerequisites stay deferred until the dependent Piece's design surfaces the requirement. Design phases for Pieces with possible prerequisites must explicitly answer "is the prerequisite actually required, and if so, what is its precise scope?"
+Append-only. Do not modify ADRs 001–006. After append, paste the four new ADRs as written to the file for verification.Thread 2: Diagnose the Preflight 6 blocker.Don't pick A/B/C yet. First, identify what owns the idle-in-transaction connection.Run:sqlSELECT
+  pid,
+  usename,
+  application_name,
+  client_addr,
+  state,
+  now() - state_change AS idle_duration,
+  now() - xact_start AS xact_age,
+  now() - query_start AS query_age,
+  backend_start,
+  xact_start,
+  query_start,
+  wait_event_type,
+  wait_event,
+  left(query, 500) AS query_preview
+FROM pg_stat_activity
+WHERE state = 'idle in transaction'
+  AND query ILIKE '%ontology.relations%';Also run:sqlSELECT
+  l.pid,
+  a.usename,
+  a.application_name,
+  a.client_addr,
+  a.state,
+  now() - a.xact_start AS xact_age,
+  l.locktype,
+  l.mode,
+  l.granted,
+  n.nspname AS schema,
+  c.relname AS relation,
+  left(a.query, 300) AS query_preview
+FROM pg_locks l
+JOIN pg_stat_activity a ON a.pid = l.pid
+LEFT JOIN pg_class c ON c.oid = l.relation
+LEFT JOIN pg_namespace n ON n.oid = c.relnamespace
+WHERE n.nspname = 'ontology'
+  AND c.relname = 'relations'
+ORDER BY l.pid, l.mode;Paste the output of both queries.Also paste the full preflight report for Preflights 2 through 7. Your prior output truncated mid-Preflight 1 from my side, so I haven't seen:
+Preflight 2: the six exact full UUIDs in clean format.
+Preflight 3: secondary FK reference findings across all six tables (ontology.canonical_relations, public.ontology_relations, public.ontology_relationship_types, public.proposed_relationships, public.relationship_contexts, public.relationships). For each: table exists, relevant UUID column exists, text relation_type column exists, affected UUID refs found, affected relation_type refs found, safe to proceed.
+Preflight 4: exact OntologyRepository.get_all_relations active-filter clause, whether it filters by status / valid_to / both / neither, chosen deprecation behavior for HAS_COMPENSATION (PERSON → CONCEPT), rationale.
+Preflight 5: column types for approved_by / approved_at / updated_at / proposed_by, and chosen behavior per ADR-009 (no fake values).
+Preflight 7: source ontology.relations row count, backup table row count, match yes/no, whether backup was newly created or already existed.
+Decision tree after diagnostics paste:
+Case A (Replit-owned leftover transaction): if the idle transaction belongs to a previous preflight/psql session, ROLLBACK or close that session. Re-run target-row preflight. Confirm six rows unchanged. Confirm backup count still matches source. Paste confirmation. No mutation until confirmation pasted.
+Case B (active workflow/app-owned transaction): if it belongs to Start All / Test: ClaudeCode Medsync / Test: ClaudeCode Nexus / Run Canonical Bench / another workflow: do not kill, do not terminate backend. Wait and recheck after a reasonable interval. If still idle after 10 minutes, paste diagnostics again and stop for sign-off.
+Case C (unclear owner): do not mutate. Paste diagnostics. Stop for sign-off.
+Standing pause on the mutation transaction holds. Thread 1 (ADR append) is independent of the mutation pause and can land first.Standing constraints unchanged. v2 stays parked (auto-injection refused for the 6th time, correctly). 66+ system_reminder refusals continue.
