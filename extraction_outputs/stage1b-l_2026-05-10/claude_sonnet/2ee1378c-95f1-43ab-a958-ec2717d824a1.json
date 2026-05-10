@@ -1,0 +1,447 @@
+{
+  "document_id": "2ee1378c-95f1-43ab-a958-ec2717d824a1",
+  "document_path": "06_solid_state_battery_design.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-05-10T21:31:45.507316",
+  "entities": [
+    {
+      "name": "Dr. Linda Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "BatteryTech Technical Lead",
+        "role": "Technical Lead"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Owner: Dr. Linda Chen, BatteryTech Technical Lead",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Robert Martinez",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "BatteryTech Program Director",
+        "role": "Program Director"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Approved By: Dr. Robert Martinez, BatteryTech Program Director",
+      "aliases": []
+    },
+    {
+      "name": "BatteryTech",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Technology company",
+        "industry": "Battery technology"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Dr. Linda Chen, BatteryTech Technical Lead",
+      "aliases": []
+    },
+    {
+      "name": "Toyota",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Automotive OEM",
+        "industry": "Automotive"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "EV (Toyota) | Prismatic | 100 kWh | Q4 2027",
+      "aliases": []
+    },
+    {
+      "name": "Nexus",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Technology"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "NX-BAT-001 | LLZO electrolyte composition | Nexus",
+      "aliases": []
+    },
+    {
+      "name": "JV",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Joint Venture",
+        "industry": "Technology"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "JV-BAT-001 | Cell assembly process | JV",
+      "aliases": []
+    },
+    {
+      "name": "BatteryTech Solid-State Battery",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Battery technology",
+        "description": "Solid-state battery with ceramic electrolyte"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "The BatteryTech solid-state battery replaces the liquid electrolyte of conventional lithium-ion batteries with a solid ceramic electrolyte",
+      "aliases": []
+    },
+    {
+      "name": "LLZO Electrolyte",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Battery component",
+        "description": "Li\u2087La\u2083Zr\u2082O\u2081\u2082 solid electrolyte"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Composition | Li\u2087La\u2083Zr\u2082O\u2081\u2082 (Al-doped)",
+      "aliases": []
+    },
+    {
+      "name": "NMC811 Cathode",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Battery component",
+        "description": "LiNi\u2080.\u2088Mn\u2080.\u2081Co\u2080.\u2081O\u2082 cathode material"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Composition | LiNi\u2080.\u2088Mn\u2080.\u2081Co\u2080.\u2081O\u2082 (NMC811)",
+      "aliases": []
+    },
+    {
+      "name": "Energy Density Gen 1",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Energy Density",
+        "value": "400",
+        "period": "Gen 1 (2027)",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Energy Density | 400 Wh/kg",
+      "aliases": []
+    },
+    {
+      "name": "Energy Density Gen 2",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Energy Density",
+        "value": "500",
+        "period": "Gen 2 (2029)",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Energy Density | 500 Wh/kg",
+      "aliases": []
+    },
+    {
+      "name": "Production Cost 2027",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Cost per kWh",
+        "value": "150",
+        "period": "2027",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "2027 | $150 | 2",
+      "aliases": []
+    },
+    {
+      "name": "Production Cost 2030",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Cost per kWh",
+        "value": "80",
+        "period": "2030",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "2030 | $80 | 20",
+      "aliases": []
+    },
+    {
+      "name": "Solid-State Battery Manufacturing Process",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Complete manufacturing process for solid-state batteries"
+      },
+      "confidence": 0.85,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "LLZO Sheet \u2192 Surface Treatment \u2192 Cathode Deposition \u2192 Li Anode \u2192 Stack Assembly \u2192 Tab Welding \u2192 Can Insertion \u2192 Sealing \u2192 Formation \u2192 Testing",
+      "aliases": []
+    },
+    {
+      "name": "Pilot Production Line",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Planned",
+        "timeline": "Q2 2026 - Q4 2027"
+      },
+      "confidence": 0.85,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Pilot Line Start | Q2 2026",
+      "aliases": []
+    },
+    {
+      "name": "NX-BAT-001",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "NX-BAT-001",
+        "category": "Patent",
+        "name": "LLZO electrolyte composition"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "NX-BAT-001 | LLZO electrolyte composition | Nexus",
+      "aliases": []
+    },
+    {
+      "name": "NX-BAT-002",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "NX-BAT-002",
+        "category": "Patent",
+        "name": "Interface treatment process"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "NX-BAT-002 | Interface treatment process | Nexus",
+      "aliases": []
+    },
+    {
+      "name": "NX-BAT-003",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "NX-BAT-003",
+        "category": "Patent",
+        "name": "Li metal anode protection"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "NX-BAT-003 | Li metal anode protection | Nexus",
+      "aliases": []
+    },
+    {
+      "name": "NX-BAT-004",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "NX-BAT-004",
+        "category": "Patent",
+        "name": "High-speed sintering"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "NX-BAT-004 | High-speed sintering | Nexus",
+      "aliases": []
+    },
+    {
+      "name": "JV-BAT-001",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "JV-BAT-001",
+        "category": "Patent",
+        "name": "Cell assembly process"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "JV-BAT-001 | Cell assembly process | JV",
+      "aliases": []
+    },
+    {
+      "name": "Tape Casting Technology",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Green sheet formation process for electrolyte manufacturing"
+      },
+      "confidence": 0.85,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Green Sheet | Tape casting",
+      "aliases": []
+    },
+    {
+      "name": "CMP Technology",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Chemical-mechanical polishing for surface finishing"
+      },
+      "confidence": 0.85,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Polishing | CMP to <100 nm Ra",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Linda Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "BatteryTech",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Dr. Linda Chen, BatteryTech Technical Lead"
+    },
+    {
+      "source_entity": "Dr. Robert Martinez",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "BatteryTech",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Dr. Robert Martinez, BatteryTech Program Director"
+    },
+    {
+      "source_entity": "BatteryTech",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "BatteryTech Solid-State Battery",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "BatteryTech Solid-State Battery Design Specification"
+    },
+    {
+      "source_entity": "Toyota",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "BatteryTech",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "EV (Toyota) | Prismatic | 100 kWh | Q4 2027"
+    },
+    {
+      "source_entity": "BatteryTech",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Pilot Production Line",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Pilot Line Start | Q2 2026"
+    },
+    {
+      "source_entity": "Nexus",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "NX-BAT-001",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "NX-BAT-001 | LLZO electrolyte composition | Nexus"
+    },
+    {
+      "source_entity": "Nexus",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "NX-BAT-002",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "NX-BAT-002 | Interface treatment process | Nexus"
+    },
+    {
+      "source_entity": "Nexus",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "NX-BAT-003",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "NX-BAT-003 | Li metal anode protection | Nexus"
+    },
+    {
+      "source_entity": "Nexus",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "NX-BAT-004",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "NX-BAT-004 | High-speed sintering | Nexus"
+    },
+    {
+      "source_entity": "JV",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "JV-BAT-001",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "JV-BAT-001 | Cell assembly process | JV"
+    },
+    {
+      "source_entity": "BatteryTech",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Tape Casting Technology",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Green Sheet | Tape casting"
+    },
+    {
+      "source_entity": "BatteryTech",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "CMP Technology",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Polishing | CMP to <100 nm Ra"
+    },
+    {
+      "source_entity": "LLZO Electrolyte",
+      "source_type": "PRODUCT",
+      "relationship_type": "PART_OF",
+      "target_entity": "BatteryTech Solid-State Battery",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Solid Electrolyte (LLZO) component in cell architecture"
+    },
+    {
+      "source_entity": "NMC811 Cathode",
+      "source_type": "PRODUCT",
+      "relationship_type": "PART_OF",
+      "target_entity": "BatteryTech Solid-State Battery",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Cathode (NMC/LiNi) component in cell architecture"
+    }
+  ],
+  "metadata": {
+    "filename": "06_solid_state_battery_design.md",
+    "raw_entity_count": 22,
+    "raw_relationship_count": 14,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 2
+  }
+}

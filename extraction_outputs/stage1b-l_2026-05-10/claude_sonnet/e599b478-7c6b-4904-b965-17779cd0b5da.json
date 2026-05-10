@@ -1,0 +1,269 @@
+{
+  "document_id": "e599b478-7c6b-4904-b965-17779cd0b5da",
+  "document_path": "10_data_privacy.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-05-10T20:23:04.744986",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Technology"
+      },
+      "confidence": 1.0,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "Nexus Industries is committed to protecting the privacy",
+      "aliases": []
+    },
+    {
+      "name": "Chief Privacy Officer",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Privacy Officer",
+        "role": "Privacy Officer"
+      },
+      "confidence": 0.9,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "Owner: Chief Privacy Officer",
+      "aliases": []
+    },
+    {
+      "name": "Lisa Thompson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "General Counsel",
+        "role": "Legal Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "Approved by: Lisa Thompson, General Counsel",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "Approved by: Dr. Victoria Chen, CEO",
+      "aliases": []
+    },
+    {
+      "name": "CISO",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Information Security Officer",
+        "role": "Security Officer"
+      },
+      "confidence": 0.9,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "Privacy Council: Chief Privacy Officer (Chair), General Counsel, CISO",
+      "aliases": []
+    },
+    {
+      "name": "CHRO",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Human Resources Officer",
+        "role": "HR Officer"
+      },
+      "confidence": 0.9,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "Privacy Council: Chief Privacy Officer (Chair), General Counsel, CISO, CHRO",
+      "aliases": []
+    },
+    {
+      "name": "Division Privacy Leads",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Privacy Lead"
+      },
+      "confidence": 0.8,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "Privacy Council: Division Privacy Leads",
+      "aliases": []
+    },
+    {
+      "name": "Data Privacy Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "POL-010",
+        "category": "Corporate Policy",
+        "effective_date": "January 1, 2025"
+      },
+      "confidence": 1.0,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "Policy Number: POL-010, Effective Date: January 1, 2025",
+      "aliases": []
+    },
+    {
+      "name": "Privacy Council",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Privacy governance and oversight"
+      },
+      "confidence": 1.0,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "Privacy Council: Chief Privacy Officer (Chair), General Counsel, CISO, CHRO, Division Privacy Leads",
+      "aliases": []
+    },
+    {
+      "name": "Privacy Office",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Data privacy management"
+      },
+      "confidence": 0.9,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "Privacy Office: privacy@nexus-industries.com",
+      "aliases": []
+    },
+    {
+      "name": "Standard Contractual Clauses",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Data transfer mechanism"
+      },
+      "confidence": 0.9,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "Standard Contractual Clauses: Required for transfers to countries without adequacy decisions",
+      "aliases": []
+    },
+    {
+      "name": "Data Processing Agreement",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Contract requirement"
+      },
+      "confidence": 0.9,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "Data Processing Agreement Requirements: All processors must agree to",
+      "aliases": []
+    },
+    {
+      "name": "Privacy Impact Assessment",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Assessment procedure"
+      },
+      "confidence": 0.9,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "Privacy Impact Assessments: Required for new products processing personal data",
+      "aliases": []
+    },
+    {
+      "name": "EU/EEA",
+      "entity_type": "LOCATION",
+      "properties": {
+        "region": "European Union/European Economic Area"
+      },
+      "confidence": 1.0,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "EU/EEA: Adequacy (where applicable)",
+      "aliases": []
+    },
+    {
+      "name": "UK",
+      "entity_type": "LOCATION",
+      "properties": {
+        "country": "United Kingdom"
+      },
+      "confidence": 1.0,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "UK: UK adequacy, SCCs",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Lisa Thompson",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "10_data_privacy.md",
+      "evidence": "Approved by: Lisa Thompson, General Counsel"
+    },
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "10_data_privacy.md",
+      "evidence": "Approved by: Dr. Victoria Chen, CEO"
+    },
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "10_data_privacy.md",
+      "evidence": "Dr. Victoria Chen, CEO"
+    },
+    {
+      "source_entity": "Chief Privacy Officer",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Privacy Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "10_data_privacy.md",
+      "evidence": "Chief Privacy Officer (Chair)"
+    },
+    {
+      "source_entity": "Privacy Council",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "10_data_privacy.md",
+      "evidence": "Privacy Council governance structure within Nexus Industries"
+    },
+    {
+      "source_entity": "Privacy Office",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "10_data_privacy.md",
+      "evidence": "Privacy Office: privacy@nexus-industries.com"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Data Privacy Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "10_data_privacy.md",
+      "evidence": "Nexus Industries corporate policy document"
+    }
+  ],
+  "metadata": {
+    "filename": "10_data_privacy.md",
+    "raw_entity_count": 15,
+    "raw_relationship_count": 7,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 4
+  }
+}

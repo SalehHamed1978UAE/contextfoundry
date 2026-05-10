@@ -1,0 +1,77 @@
+{
+  "document_id": "31ea9133-c01d-4a58-abd4-1b88adb2d2d2",
+  "document_path": "03_travel_expense.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-10T20:28:25.581172",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "This policy applies to all Nexus Industries employees and contractors",
+      "aliases": []
+    },
+    {
+      "name": "Michael Chang",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO",
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Approved by: Michael Chang, CFO",
+      "aliases": []
+    },
+    {
+      "name": "Travel and Expense Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "POL-003",
+        "category": "Corporate Policy"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "This policy establishes guidelines for business travel and expense reimbursement",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Michael Chang",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Approved by: Michael Chang, CFO"
+    },
+    {
+      "source_entity": "Travel and Expense Policy",
+      "source_type": "POLICY",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "03_travel_expense.md",
+      "evidence": "This policy applies to all Nexus Industries employees and contractors"
+    }
+  ],
+  "metadata": {
+    "filename": "03_travel_expense.md",
+    "raw_entity_count": 3,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

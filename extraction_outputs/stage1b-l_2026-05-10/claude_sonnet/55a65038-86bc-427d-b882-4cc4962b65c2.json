@@ -1,0 +1,293 @@
+{
+  "document_id": "55a65038-86bc-427d-b882-4cc4962b65c2",
+  "document_path": "07_safety_alert_bulletin.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-05-10T19:34:26.276062",
+  "entities": [
+    {
+      "name": "Dr. Patricia Martinez",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Environmental, Health & Safety",
+        "role": "Vice President"
+      },
+      "confidence": 0.95,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "From: Dr. Patricia Martinez, VP Environmental, Health & Safety",
+      "aliases": []
+    },
+    {
+      "name": "Materials Division",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "composite materials manufacturing"
+      },
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "To: All Employees - Materials Division",
+      "aliases": []
+    },
+    {
+      "name": "Albuquerque Manufacturing Facility",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Albuquerque",
+        "type": "manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "occurred on December 2, 2025, at the Albuquerque Manufacturing Facility",
+      "aliases": []
+    },
+    {
+      "name": "Building 3",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "building",
+        "area": "Curing Oven Area"
+      },
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Location: Building 3, Curing Oven Area",
+      "aliases": []
+    },
+    {
+      "name": "Curing Oven #7",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "industrial curing oven with exhaust system"
+      },
+      "confidence": 0.95,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Equipment: Curing Oven #7",
+      "aliases": []
+    },
+    {
+      "name": "SAB-2025-042",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "SAB-2025-042",
+        "category": "Safety Alert Bulletin"
+      },
+      "confidence": 1.0,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Bulletin Number: SAB-2025-042",
+      "aliases": []
+    },
+    {
+      "name": "OSHA Recordable",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "safety regulation",
+        "type": "Restricted Work"
+      },
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Severity: OSHA Recordable (Restricted Work)",
+      "aliases": []
+    },
+    {
+      "name": "5 days",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Days Restricted",
+        "value": "5",
+        "type": "COUNT"
+      },
+      "confidence": 0.85,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Days Restricted: 5",
+      "aliases": []
+    },
+    {
+      "name": "sarah.chen@nexus-industries.com",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "email": "sarah.chen@nexus-industries.com",
+        "department": "incident management"
+      },
+      "confidence": 0.8,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Incident Details: sarah.chen@nexus-industries.com",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "manufacturing company",
+        "industry": "industrial manufacturing"
+      },
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "sarah.chen@nexus-industries.com, ehs@nexus-industries.com",
+      "aliases": []
+    },
+    {
+      "name": "EHS Learning Management System",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "environmental health and safety training system"
+      },
+      "confidence": 0.85,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Acknowledgment is tracked in the EHS Learning Management System",
+      "aliases": []
+    },
+    {
+      "name": "Safety Committee",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "workplace safety oversight"
+      },
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "reviewed and discussed at the next Safety Committee meeting",
+      "aliases": []
+    },
+    {
+      "name": "half-face respirator with organic vapor cartridge",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "respiratory protection equipment",
+        "category": "PPE"
+      },
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Half-face respirator with organic vapor cartridge",
+      "aliases": []
+    },
+    {
+      "name": "exhaust fan motor",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "ventilation system component"
+      },
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "The exhaust fan motor failed due to bearing wear",
+      "aliases": []
+    },
+    {
+      "name": "vibration analysis",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "equipment condition monitoring service"
+      },
+      "confidence": 0.85,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Vibration analysis had flagged this unit 3 weeks prior",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Patricia Martinez",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "Dr. Patricia Martinez, VP Environmental, Health & Safety"
+    },
+    {
+      "source_entity": "Materials Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "Materials Division employees receiving bulletin from Nexus Industries VP"
+    },
+    {
+      "source_entity": "Albuquerque Manufacturing Facility",
+      "source_type": "FACILITY",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "Manufacturing facility where incident occurred, referenced in company bulletin"
+    },
+    {
+      "source_entity": "Building 3",
+      "source_type": "FACILITY",
+      "relationship_type": "PART_OF",
+      "target_entity": "Albuquerque Manufacturing Facility",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "Location: Building 3, Curing Oven Area"
+    },
+    {
+      "source_entity": "Curing Oven #7",
+      "source_type": "TECHNOLOGY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Building 3",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "Equipment: Curing Oven #7 in Building 3, Curing Oven Area"
+    },
+    {
+      "source_entity": "Materials Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "USES",
+      "target_entity": "Curing Oven #7",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "All employees working with composite materials must read bulletin about oven incident"
+    },
+    {
+      "source_entity": "Safety Committee",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "Safety Committee meeting mentioned in company bulletin"
+    },
+    {
+      "source_entity": "Materials Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "USES",
+      "target_entity": "EHS Learning Management System",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "Acknowledgment is tracked in the EHS Learning Management System"
+    },
+    {
+      "source_entity": "exhaust fan motor",
+      "source_type": "TECHNOLOGY",
+      "relationship_type": "PART_OF",
+      "target_entity": "Curing Oven #7",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "The exhaust fan motor failed during oven operation"
+    }
+  ],
+  "metadata": {
+    "filename": "07_safety_alert_bulletin.md",
+    "raw_entity_count": 15,
+    "raw_relationship_count": 9,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 1,
+    "filtered_relationships": 2
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "document_id": "cf46b3d3-a60e-4350-bd08-8dec2be54660",
+  "document_path": "06_remote_work.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-10T20:25:28.480095",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "06_remote_work.md",
+      "source_excerpt": "This policy establishes guidelines for remote work and flexible working arrangements at Nexus Industries",
+      "aliases": []
+    },
+    {
+      "name": "Maria Santos",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CHRO",
+        "role": "Chief Human Resources Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "06_remote_work.md",
+      "source_excerpt": "*Approved by: Maria Santos, CHRO*",
+      "aliases": []
+    },
+    {
+      "name": "POL-006",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Corporate Policy"
+      },
+      "confidence": 0.9,
+      "source_document": "06_remote_work.md",
+      "source_excerpt": "**Policy Number:** POL-006",
+      "aliases": []
+    },
+    {
+      "name": "Remote Work and Flexible Arrangements Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "POL-006",
+        "category": "Corporate Policy"
+      },
+      "confidence": 0.9,
+      "source_document": "06_remote_work.md",
+      "source_excerpt": "# Remote Work and Flexible Arrangements Policy",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maria Santos",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_remote_work.md",
+      "evidence": "Approved by: Maria Santos, CHRO"
+    },
+    {
+      "source_entity": "Remote Work and Flexible Arrangements Policy",
+      "source_type": "POLICY",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_remote_work.md",
+      "evidence": "This policy establishes guidelines for remote work and flexible working arrangements at Nexus Industries"
+    }
+  ],
+  "metadata": {
+    "filename": "06_remote_work.md",
+    "raw_entity_count": 4,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

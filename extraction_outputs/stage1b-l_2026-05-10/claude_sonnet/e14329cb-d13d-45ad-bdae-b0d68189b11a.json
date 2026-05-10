@@ -1,0 +1,447 @@
+{
+  "document_id": "e14329cb-d13d-45ad-bdae-b0d68189b11a",
+  "document_path": "07_environmental_health_safety.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-05-10T20:27:34.050014",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "corporation",
+        "industry": "manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Nexus Industries is committed to providing a safe and healthy workplace",
+      "aliases": []
+    },
+    {
+      "name": "VP Environmental, Health & Safety",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Environmental, Health & Safety",
+        "role": "Vice President"
+      },
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Owner: VP Environmental, Health & Safety",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Approved by: Dr. Victoria Chen, CEO",
+      "aliases": []
+    },
+    {
+      "name": "Environmental, Health, and Safety Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "POL-007",
+        "category": "environmental health safety",
+        "effective_date": "January 1, 2024"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Environmental, Health, and Safety Policy, Policy Number: POL-007",
+      "aliases": []
+    },
+    {
+      "name": "OSHA Standards",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "workplace safety",
+        "policy_id": "OSHA"
+      },
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "OSHA Standards | Workplace safety | Compliant",
+      "aliases": []
+    },
+    {
+      "name": "EPA Clean Air Act",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "air emissions",
+        "policy_id": "EPA Clean Air Act"
+      },
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "EPA Clean Air Act | Air emissions | Compliant",
+      "aliases": []
+    },
+    {
+      "name": "EPA Clean Water Act",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "water discharge",
+        "policy_id": "EPA Clean Water Act"
+      },
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "EPA Clean Water Act | Water discharge | Compliant",
+      "aliases": []
+    },
+    {
+      "name": "RCRA",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "hazardous waste",
+        "policy_id": "RCRA"
+      },
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "RCRA | Hazardous waste | Compliant",
+      "aliases": []
+    },
+    {
+      "name": "DOT",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "hazmat transport",
+        "policy_id": "DOT"
+      },
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "DOT | Hazmat transport | Compliant",
+      "aliases": []
+    },
+    {
+      "name": "TRIR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Recordable Injury Rate",
+        "target_value": "<0.80",
+        "actual_value": "0.82",
+        "period": "FY2025",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "TRIR (Total Recordable) | <0.80 | 0.82",
+      "aliases": []
+    },
+    {
+      "name": "LTIR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Lost Time Injury Rate",
+        "target_value": "<0.20",
+        "actual_value": "0.18",
+        "period": "FY2025",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "LTIR (Lost Time) | <0.20 | 0.18",
+      "aliases": []
+    },
+    {
+      "name": "Fatalities",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Fatalities",
+        "target_value": "0",
+        "actual_value": "0",
+        "period": "FY2025",
+        "type": "COUNT"
+      },
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Fatalities | 0 | 0",
+      "aliases": []
+    },
+    {
+      "name": "Near Misses Reported",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Near Misses Reported",
+        "target_value": ">2,000",
+        "actual_value": "2,450",
+        "period": "FY2025",
+        "type": "COUNT"
+      },
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Near Misses Reported | >2,000 | 2,450",
+      "aliases": []
+    },
+    {
+      "name": "Safety Training Hours",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Safety Training Hours",
+        "target_value": ">50,000",
+        "actual_value": "52,000",
+        "period": "FY2025",
+        "type": "COUNT"
+      },
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Safety Training Hours | >50,000 | 52,000",
+      "aliases": []
+    },
+    {
+      "name": "GHG Reduction",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Greenhouse Gas Reduction",
+        "target_value": "-50% by 2030",
+        "actual_value": "-26% achieved",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "GHG Reduction | -50% by 2030 (vs 2020) | -26% achieved",
+      "aliases": []
+    },
+    {
+      "name": "Renewable Energy",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Renewable Energy",
+        "target_value": "100% by 2028",
+        "actual_value": "65% achieved",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Renewable Energy | 100% by 2028 | 65% achieved",
+      "aliases": []
+    },
+    {
+      "name": "Zero Waste to Landfill",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Zero Waste to Landfill",
+        "target_value": "2028",
+        "actual_value": "28% to landfill",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Zero Waste to Landfill | 2028 | 28% to landfill",
+      "aliases": []
+    },
+    {
+      "name": "Water Reduction",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Water Reduction",
+        "target_value": "-25% by 2030",
+        "actual_value": "-12% achieved",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Water Reduction | -25% by 2030 | -12% achieved",
+      "aliases": []
+    },
+    {
+      "name": "EHS Council",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "name": "EHS Council",
+        "focus_areas": "environmental health safety governance"
+      },
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "EHS Council: VP EHS (Chair), Division EHS Directors, Site EHS Managers",
+      "aliases": []
+    },
+    {
+      "name": "Division Presidents",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Division President"
+      },
+      "confidence": 0.85,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Division Presidents | Division performance",
+      "aliases": []
+    },
+    {
+      "name": "Site Managers",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Site Manager"
+      },
+      "confidence": 0.85,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Site Managers | Site-level implementation",
+      "aliases": []
+    },
+    {
+      "name": "Supervisors",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Supervisor"
+      },
+      "confidence": 0.85,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Supervisors | Daily safety management",
+      "aliases": []
+    },
+    {
+      "name": "EHS Manager",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "EHS Manager"
+      },
+      "confidence": 0.85,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Recordable Injury | EHS Manager | 24 hours",
+      "aliases": []
+    },
+    {
+      "name": "Division EHS Directors",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Division EHS Director"
+      },
+      "confidence": 0.85,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Division EHS Directors",
+      "aliases": []
+    },
+    {
+      "name": "Site EHS Managers",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Site EHS Manager"
+      },
+      "confidence": 0.85,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Site EHS Managers",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Approved by: Dr. Victoria Chen, CEO"
+    },
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Dr. Victoria Chen, CEO"
+    },
+    {
+      "source_entity": "VP Environmental, Health & Safety",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Environmental, Health, and Safety Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Owner: VP Environmental, Health & Safety"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "OSHA Standards",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "OSHA Standards | Workplace safety | Compliant"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "EPA Clean Air Act",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "EPA Clean Air Act | Air emissions | Compliant"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "EPA Clean Water Act",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "EPA Clean Water Act | Water discharge | Compliant"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "RCRA",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "RCRA | Hazardous waste | Compliant"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "DOT",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "DOT | Hazmat transport | Compliant"
+    },
+    {
+      "source_entity": "EHS Council",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "EHS Council governance structure at Nexus"
+    },
+    {
+      "source_entity": "VP Environmental, Health & Safety",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "EHS Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "VP EHS (Chair)"
+    }
+  ],
+  "metadata": {
+    "filename": "07_environmental_health_safety.md",
+    "raw_entity_count": 25,
+    "raw_relationship_count": 10,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 1
+  }
+}

@@ -1,0 +1,484 @@
+{
+  "document_id": "31ea9133-c01d-4a58-abd4-1b88adb2d2d2",
+  "document_path": "03_travel_expense.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-05-10T20:29:01.979194",
+  "entities": [
+    {
+      "name": "Travel and Expense Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "POL-003",
+        "category": "Corporate Policy",
+        "effective_date": "January 1, 2025",
+        "classification": "Internal"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Travel and Expense Policy - Policy Number: POL-003",
+      "aliases": []
+    },
+    {
+      "name": "Michael Chang",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO",
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Owner: Chief Financial Officer - Approved by: Michael Chang, CFO",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "This policy applies to all Nexus Industries employees and contractors",
+      "aliases": []
+    },
+    {
+      "name": "Concur",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Corporate travel portal"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Use corporate travel portal (Concur/SAP)",
+      "aliases": []
+    },
+    {
+      "name": "SAP",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Corporate travel portal"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Use corporate travel portal (Concur/SAP)",
+      "aliases": []
+    },
+    {
+      "name": "United",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Airline",
+        "industry": "Transportation"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Preferred Airlines: United, Delta, American (domestic)",
+      "aliases": []
+    },
+    {
+      "name": "Delta",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Airline",
+        "industry": "Transportation"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Preferred Airlines: United, Delta, American (domestic)",
+      "aliases": []
+    },
+    {
+      "name": "American",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Airline",
+        "industry": "Transportation"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Preferred Airlines: United, Delta, American (domestic)",
+      "aliases": []
+    },
+    {
+      "name": "Marriott",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Hotel Chain",
+        "industry": "Hospitality"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Preferred Hotels: Marriott, Hilton, Hyatt (corporate rates available)",
+      "aliases": []
+    },
+    {
+      "name": "Hilton",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Hotel Chain",
+        "industry": "Hospitality"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Preferred Hotels: Marriott, Hilton, Hyatt (corporate rates available)",
+      "aliases": []
+    },
+    {
+      "name": "Hyatt",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Hotel Chain",
+        "industry": "Hospitality"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Preferred Hotels: Marriott, Hilton, Hyatt (corporate rates available)",
+      "aliases": []
+    },
+    {
+      "name": "Enterprise",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Car Rental Company",
+        "industry": "Transportation"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Preferred vendors: Enterprise, National, Hertz",
+      "aliases": []
+    },
+    {
+      "name": "National",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Car Rental Company",
+        "industry": "Transportation"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Preferred vendors: Enterprise, National, Hertz",
+      "aliases": []
+    },
+    {
+      "name": "Hertz",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Car Rental Company",
+        "industry": "Transportation"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Preferred vendors: Enterprise, National, Hertz",
+      "aliases": []
+    },
+    {
+      "name": "NYC",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "New York City",
+        "country": "United States"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "High-Cost Cities (NYC, SF, London)",
+      "aliases": []
+    },
+    {
+      "name": "SF",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "San Francisco",
+        "country": "United States"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "High-Cost Cities (NYC, SF, London)",
+      "aliases": []
+    },
+    {
+      "name": "London",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "London",
+        "country": "United Kingdom"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "High-Cost Cities (NYC, SF, London)",
+      "aliases": []
+    },
+    {
+      "name": "$200 hotel limit",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Hotel per night limit for Individual Contributors",
+        "value": "200",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Individual Contributor: $200",
+      "aliases": []
+    },
+    {
+      "name": "$250 hotel limit",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Hotel per night limit for Manager/Director",
+        "value": "250",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Manager/Director: $250",
+      "aliases": []
+    },
+    {
+      "name": "$350 hotel limit",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Hotel per night limit for VP+",
+        "value": "350",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "VP+: $350",
+      "aliases": []
+    },
+    {
+      "name": "$95 daily meal allowance",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Daily meal allowance US domestic",
+        "value": "95",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Daily Total: $95",
+      "aliases": []
+    },
+    {
+      "name": "$135 daily meal allowance",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Daily meal allowance international",
+        "value": "135",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Daily Total: $135",
+      "aliases": []
+    },
+    {
+      "name": "$5,000 card limit",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Corporate card monthly limit for Individual Contributors",
+        "value": "5000",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Individual Contributor: $5,000",
+      "aliases": []
+    },
+    {
+      "name": "$10,000 card limit",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Corporate card monthly limit for Managers",
+        "value": "10000",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Manager: $10,000",
+      "aliases": []
+    },
+    {
+      "name": "$15,000 card limit",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Corporate card monthly limit for Directors",
+        "value": "15000",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Director: $15,000",
+      "aliases": []
+    },
+    {
+      "name": "$25,000 card limit",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Corporate card monthly limit for VP+",
+        "value": "25000",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "VP+: $25,000",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Michael Chang",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Michael Chang, CFO - Owner: Chief Financial Officer"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Travel and Expense Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "evidence": "This policy applies to all Nexus Industries employees"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Concur",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Use corporate travel portal (Concur/SAP)"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "SAP",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Use corporate travel portal (Concur/SAP)"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "United",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Preferred Airlines: United, Delta, American (domestic)"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Delta",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Preferred Airlines: United, Delta, American (domestic)"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "American",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Preferred Airlines: United, Delta, American (domestic)"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Marriott",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Preferred Hotels: Marriott, Hilton, Hyatt (corporate rates available)"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Hilton",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Preferred Hotels: Marriott, Hilton, Hyatt (corporate rates available)"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Hyatt",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Preferred Hotels: Marriott, Hilton, Hyatt (corporate rates available)"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Enterprise",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Preferred vendors: Enterprise, National, Hertz"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "National",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Preferred vendors: Enterprise, National, Hertz"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Hertz",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Preferred vendors: Enterprise, National, Hertz"
+    }
+  ],
+  "metadata": {
+    "filename": "03_travel_expense.md",
+    "raw_entity_count": 26,
+    "raw_relationship_count": 13,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 1
+  }
+}

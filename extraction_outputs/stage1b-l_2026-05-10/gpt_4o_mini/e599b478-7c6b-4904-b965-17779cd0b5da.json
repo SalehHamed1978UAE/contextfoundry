@@ -1,0 +1,121 @@
+{
+  "document_id": "e599b478-7c6b-4904-b965-17779cd0b5da",
+  "document_path": "10_data_privacy.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-10T20:22:42.468854",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "Nexus Industries is committed to protecting the privacy of personal data",
+      "aliases": []
+    },
+    {
+      "name": "Chief Privacy Officer",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Privacy Officer",
+        "role": "Policy Owner"
+      },
+      "confidence": 0.85,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "Owner: Chief Privacy Officer",
+      "aliases": []
+    },
+    {
+      "name": "Lisa Thompson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "General Counsel"
+      },
+      "confidence": 0.9,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "Approved by: Lisa Thompson, General Counsel",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO"
+      },
+      "confidence": 0.9,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "Approved by: Dr. Victoria Chen, CEO",
+      "aliases": []
+    },
+    {
+      "name": "Data Privacy Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "POL-010",
+        "category": "Corporate Policy"
+      },
+      "confidence": 0.95,
+      "source_document": "10_data_privacy.md",
+      "source_excerpt": "Data Privacy Policy",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Chief Privacy Officer",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "10_data_privacy.md",
+      "evidence": "Owner: Chief Privacy Officer"
+    },
+    {
+      "source_entity": "Lisa Thompson",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "10_data_privacy.md",
+      "evidence": "Approved by: Lisa Thompson, General Counsel"
+    },
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "10_data_privacy.md",
+      "evidence": "Approved by: Dr. Victoria Chen, CEO"
+    },
+    {
+      "source_entity": "Data Privacy Policy",
+      "source_type": "POLICY",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "10_data_privacy.md",
+      "evidence": "Nexus Industries is committed to protecting the privacy of personal data"
+    }
+  ],
+  "metadata": {
+    "filename": "10_data_privacy.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

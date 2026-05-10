@@ -1,0 +1,460 @@
+{
+  "document_id": "7b31e293-c022-492e-a83c-e839aa996159",
+  "document_path": "10_cybersecurity_incident_response.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-05-10T19:56:49.124797",
+  "entities": [
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CISO",
+        "role": "Chief Information Security Officer",
+        "department": "Digital"
+      },
+      "confidence": 0.95,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "Robert Kim (Digital) | CISO (Chair)",
+      "aliases": []
+    },
+    {
+      "name": "James Foster",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Aerospace CISO",
+        "role": "Chief Information Security Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "James Foster | Aerospace CISO",
+      "aliases": []
+    },
+    {
+      "name": "Sarah Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Incident Commander",
+        "role": "Incident Response Leader"
+      },
+      "confidence": 0.95,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "Sarah Chen | Incident Commander",
+      "aliases": []
+    },
+    {
+      "name": "Michael Torres",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "SOC Manager",
+        "role": "Security Operations Center Manager"
+      },
+      "confidence": 0.95,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "Michael Torres | SOC Manager",
+      "aliases": []
+    },
+    {
+      "name": "David Lee",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Forensics Lead",
+        "role": "Digital Forensics Leader"
+      },
+      "confidence": 0.95,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "David Lee | Forensics Lead",
+      "aliases": []
+    },
+    {
+      "name": "Lisa Thompson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "General Counsel",
+        "role": "Chief Legal Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "Lisa Thompson | General Counsel",
+      "aliases": []
+    },
+    {
+      "name": "Jennifer Walsh",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Communications",
+        "role": "Communications Lead"
+      },
+      "confidence": 0.95,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "Jennifer Walsh | Communications",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "Dr. Victoria Chen, CEO",
+      "aliases": []
+    },
+    {
+      "name": "Agent Williams",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "FBI Agent",
+        "department": "FBI Cyber Division"
+      },
+      "confidence": 0.9,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "FBI Cyber Division (Agent Williams)",
+      "aliases": []
+    },
+    {
+      "name": "Phoenix SOC",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Security Operations Center",
+        "location": "Phoenix"
+      },
+      "confidence": 0.9,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "Phoenix SOC + Virtual",
+      "aliases": []
+    },
+    {
+      "name": "INC-2025-0142",
+      "entity_type": "PROJECT",
+      "properties": {
+        "type": "Cybersecurity Incident",
+        "status": "Closed",
+        "severity": "High (P1)",
+        "category": "Attempted Ransomware"
+      },
+      "confidence": 0.95,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "Incident ID | INC-2025-0142",
+      "aliases": []
+    },
+    {
+      "name": "BlackCat/ALPHV",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Threat Actor Group",
+        "category": "Criminal ransomware-as-a-service"
+      },
+      "confidence": 0.85,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "Suspected Group | BlackCat/ALPHV affiliate",
+      "aliases": []
+    },
+    {
+      "name": "CrowdStrike",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Cybersecurity Company",
+        "category": "EDR Provider"
+      },
+      "confidence": 0.9,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "EDR (CrowdStrike) | Detected PowerShell malware staging",
+      "aliases": []
+    },
+    {
+      "name": "FBI",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Government Agency",
+        "category": "Federal Law Enforcement"
+      },
+      "confidence": 0.95,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "FBI notification (advisory basis)",
+      "aliases": []
+    },
+    {
+      "name": "FBI Cyber Division",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Cybercrime Investigation"
+      },
+      "confidence": 0.9,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "FBI Cyber Division (Agent Williams)",
+      "aliases": []
+    },
+    {
+      "name": "CISA",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Government Agency",
+        "category": "Cybersecurity"
+      },
+      "confidence": 0.9,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "CISA | IOCs shared",
+      "aliases": []
+    },
+    {
+      "name": "Digital",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Digital Technology and Cybersecurity"
+      },
+      "confidence": 0.85,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "Robert Kim (Digital) | CISO (Chair)",
+      "aliases": []
+    },
+    {
+      "name": "IT Infrastructure",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Information Technology Infrastructure"
+      },
+      "confidence": 0.85,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "VPN security hardening | IT Infrastructure",
+      "aliases": []
+    },
+    {
+      "name": "SOC",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Security Operations Center"
+      },
+      "confidence": 0.9,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "SOC Manager | Michael Torres",
+      "aliases": []
+    },
+    {
+      "name": "Finance",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Financial Operations"
+      },
+      "confidence": 0.85,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "Force password reset (all Finance)",
+      "aliases": []
+    },
+    {
+      "name": "Zero Trust Architecture Pilot",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$2.5M",
+        "timeline": "Mar 31",
+        "type": "Security Initiative"
+      },
+      "confidence": 0.95,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "Zero Trust architecture pilot | CISO | Mar 31 | $2.5M",
+      "aliases": []
+    },
+    {
+      "name": "SIEM Upgrade",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$800K",
+        "timeline": "Mar 15",
+        "type": "Technology Upgrade"
+      },
+      "confidence": 0.95,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "SIEM upgrade to cloud-native | SOC | Mar 15 | $800K",
+      "aliases": []
+    },
+    {
+      "name": "Security Awareness Program",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$350K",
+        "timeline": "Feb 28",
+        "type": "Training Initiative"
+      },
+      "confidence": 0.95,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "Security awareness program overhaul | HR/Security | Feb 28 | $350K",
+      "aliases": []
+    },
+    {
+      "name": "Network Microsegmentation",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$1.2M",
+        "timeline": "Mar 31",
+        "type": "Infrastructure Project"
+      },
+      "confidence": 0.95,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "Network microsegmentation | Network | Mar 31 | $1.2M",
+      "aliases": []
+    },
+    {
+      "name": "Privileged Access Management",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$450K",
+        "timeline": "Feb 28",
+        "type": "Security Technology"
+      },
+      "confidence": 0.95,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "Privileged Access Management | Identity | Feb 28 | $450K",
+      "aliases": []
+    },
+    {
+      "name": "Direct Response Cost",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Direct Incident Response Cost",
+        "value": "$285,000",
+        "type": "CURRENCY",
+        "period": "December 2025"
+      },
+      "confidence": 0.95,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "Total Direct | $285,000",
+      "aliases": []
+    },
+    {
+      "name": "Security Investment",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Security Improvement Investment",
+        "value": "$5.3M",
+        "type": "CURRENCY",
+        "period": "2025-2026"
+      },
+      "confidence": 0.95,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "I'm authorizing the $5.3M security investment immediately",
+      "aliases": []
+    },
+    {
+      "name": "EDR",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Endpoint Detection and Response system"
+      },
+      "confidence": 0.9,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "EDR (CrowdStrike) | Detected PowerShell malware staging",
+      "aliases": []
+    },
+    {
+      "name": "VPN",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Virtual Private Network"
+      },
+      "confidence": 0.9,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "VPN Configuration | MFA not enforced for VPN",
+      "aliases": []
+    },
+    {
+      "name": "MFA",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Multi-Factor Authentication"
+      },
+      "confidence": 0.9,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "source_excerpt": "MFA on Critical Systems | Prevented access to servers",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Digital",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "evidence": "Robert Kim (Digital) | CISO (Chair)"
+    },
+    {
+      "source_entity": "FBI Cyber Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "FBI",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "evidence": "FBI Cyber Division (Agent Williams)"
+    },
+    {
+      "source_entity": "INC-2025-0142",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "EDR",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "evidence": "EDR (CrowdStrike) | Detected PowerShell malware staging"
+    },
+    {
+      "source_entity": "EDR",
+      "source_type": "TECHNOLOGY",
+      "relationship_type": "PRODUCES",
+      "target_entity": "CrowdStrike",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "evidence": "EDR (CrowdStrike)"
+    },
+    {
+      "source_entity": "Zero Trust Architecture Pilot",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Robert Kim",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "evidence": "Zero Trust architecture pilot | CISO"
+    },
+    {
+      "source_entity": "SIEM Upgrade",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "SOC",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "evidence": "SIEM upgrade to cloud-native | SOC"
+    },
+    {
+      "source_entity": "Network Microsegmentation",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "IT Infrastructure",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "10_cybersecurity_incident_response.md",
+      "evidence": "Network microsegmentation | Network"
+    }
+  ],
+  "metadata": {
+    "filename": "10_cybersecurity_incident_response.md",
+    "raw_entity_count": 30,
+    "raw_relationship_count": 7,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 3
+  }
+}

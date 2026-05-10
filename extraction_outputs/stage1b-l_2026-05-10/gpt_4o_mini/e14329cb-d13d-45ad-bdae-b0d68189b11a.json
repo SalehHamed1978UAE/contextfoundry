@@ -1,0 +1,99 @@
+{
+  "document_id": "e14329cb-d13d-45ad-bdae-b0d68189b11a",
+  "document_path": "07_environmental_health_safety.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-10T20:26:58.138823",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Nexus Industries is committed to providing a safe and healthy workplace",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Approved by: Dr. Victoria Chen, CEO",
+      "aliases": []
+    },
+    {
+      "name": "VP Environmental, Health & Safety",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP",
+        "role": "Vice President"
+      },
+      "confidence": 0.85,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Owner: VP Environmental, Health & Safety",
+      "aliases": []
+    },
+    {
+      "name": "POL-007",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Corporate Policy"
+      },
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Policy Number: POL-007",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Approved by: Dr. Victoria Chen, CEO"
+    },
+    {
+      "source_entity": "VP Environmental, Health & Safety",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Owner: VP Environmental, Health & Safety"
+    },
+    {
+      "source_entity": "POL-007",
+      "source_type": "POLICY",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "This policy applies to: All employees, contractors, and visitors"
+    }
+  ],
+  "metadata": {
+    "filename": "07_environmental_health_safety.md",
+    "raw_entity_count": 4,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

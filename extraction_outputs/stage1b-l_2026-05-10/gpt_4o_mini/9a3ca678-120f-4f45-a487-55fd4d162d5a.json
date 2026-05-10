@@ -1,0 +1,99 @@
+{
+  "document_id": "9a3ca678-120f-4f45-a487-55fd4d162d5a",
+  "document_path": "05_intellectual_property.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-10T20:27:41.607628",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "05_intellectual_property.md",
+      "source_excerpt": "All IP created in scope of employment belongs to Nexus Industries.",
+      "aliases": []
+    },
+    {
+      "name": "General Counsel",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "General Counsel",
+        "role": "Legal"
+      },
+      "confidence": 0.9,
+      "source_document": "05_intellectual_property.md",
+      "source_excerpt": "Owner: General Counsel",
+      "aliases": []
+    },
+    {
+      "name": "Lisa Thompson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "General Counsel",
+        "role": "Legal"
+      },
+      "confidence": 0.9,
+      "source_document": "05_intellectual_property.md",
+      "source_excerpt": "Approved by: Lisa Thompson, General Counsel",
+      "aliases": []
+    },
+    {
+      "name": "IP Department",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Intellectual Property Management"
+      },
+      "confidence": 0.85,
+      "source_document": "05_intellectual_property.md",
+      "source_excerpt": "Submit to IP Department",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Lisa Thompson",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_intellectual_property.md",
+      "evidence": "Approved by: Lisa Thompson, General Counsel"
+    },
+    {
+      "source_entity": "General Counsel",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "IP Department",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "05_intellectual_property.md",
+      "evidence": "General Counsel (Chair)"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "General Counsel",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "05_intellectual_property.md",
+      "evidence": "Owner: General Counsel"
+    }
+  ],
+  "metadata": {
+    "filename": "05_intellectual_property.md",
+    "raw_entity_count": 4,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

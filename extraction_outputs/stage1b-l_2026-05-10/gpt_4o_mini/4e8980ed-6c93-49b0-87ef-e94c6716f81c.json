@@ -1,0 +1,292 @@
+{
+  "document_id": "4e8980ed-6c93-49b0-87ef-e94c6716f81c",
+  "document_path": "08_innovation_strategy.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-10T21:19:40.207360",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "Nexus Industries Innovation Strategy 2026-2030",
+      "aliases": []
+    },
+    {
+      "name": "Dr. James Wilson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CTO",
+        "role": "Chief Technology Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "Document Owner: Dr. James Wilson, CTO",
+      "aliases": []
+    },
+    {
+      "name": "MIT",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "University",
+        "industry": "Education"
+      },
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "University Partners: MIT",
+      "aliases": []
+    },
+    {
+      "name": "Stanford",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "University",
+        "industry": "Education"
+      },
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "University Partners: Stanford",
+      "aliases": []
+    },
+    {
+      "name": "Caltech",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "University",
+        "industry": "Education"
+      },
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "University Partners: Caltech",
+      "aliases": []
+    },
+    {
+      "name": "Georgia Tech",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "University",
+        "industry": "Education"
+      },
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "University Partners: Georgia Tech",
+      "aliases": []
+    },
+    {
+      "name": "UC Berkeley",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "University",
+        "industry": "Education"
+      },
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "University Partners: UC Berkeley",
+      "aliases": []
+    },
+    {
+      "name": "Carnegie Mellon",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "University",
+        "industry": "Education"
+      },
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "University Partners: Carnegie Mellon",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Ventures I",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$50M",
+        "timeline": "5 years",
+        "status": "Active"
+      },
+      "confidence": 0.85,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "Fund: Nexus Ventures I | Size: $50M",
+      "aliases": []
+    },
+    {
+      "name": "SBIR Partnerships",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$10M/year",
+        "timeline": "Annual",
+        "status": "Active"
+      },
+      "confidence": 0.85,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "Fund: SBIR Partnerships | Size: $10M/year",
+      "aliases": []
+    },
+    {
+      "name": "Accelerator Programs",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$5M/year",
+        "timeline": "Annual",
+        "status": "Active"
+      },
+      "confidence": 0.85,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "Fund: Accelerator Programs | Size: $5M/year",
+      "aliases": []
+    },
+    {
+      "name": "R&D Investment",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "R&D Investment",
+        "value": "$966M",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "| R&D Investment | $966M (11.4% of revenue) |",
+      "aliases": []
+    },
+    {
+      "name": "New Product Revenue (5-yr)",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "New Product Revenue",
+        "value": "$1.8B",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "| New Product Revenue (5-yr) | $1.8B (21%) |",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. James Wilson",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_innovation_strategy.md",
+      "evidence": "Document Owner: Dr. James Wilson, CTO"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Nexus Ventures I",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "08_innovation_strategy.md",
+      "evidence": "Fund: Nexus Ventures I | Size: $50M"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "SBIR Partnerships",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "08_innovation_strategy.md",
+      "evidence": "Fund: SBIR Partnerships | Size: $10M/year"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Accelerator Programs",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "08_innovation_strategy.md",
+      "evidence": "Fund: Accelerator Programs | Size: $5M/year"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "MIT",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "evidence": "University Partners: MIT"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Stanford",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "evidence": "University Partners: Stanford"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Caltech",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "evidence": "University Partners: Caltech"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Georgia Tech",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "evidence": "University Partners: Georgia Tech"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "UC Berkeley",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "evidence": "University Partners: UC Berkeley"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Carnegie Mellon",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "evidence": "University Partners: Carnegie Mellon"
+    }
+  ],
+  "metadata": {
+    "filename": "08_innovation_strategy.md",
+    "raw_entity_count": 13,
+    "raw_relationship_count": 10,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

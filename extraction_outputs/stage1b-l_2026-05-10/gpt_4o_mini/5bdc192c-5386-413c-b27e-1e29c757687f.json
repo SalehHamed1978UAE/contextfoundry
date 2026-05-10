@@ -1,0 +1,156 @@
+{
+  "document_id": "5bdc192c-5386-413c-b27e-1e29c757687f",
+  "document_path": "05_fedramp_announcement.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-10T19:35:21.581072",
+  "entities": [
+    {
+      "name": "Nexus Industries, Inc.",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Public Company",
+        "industry": "Technology and Advanced Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "Nexus Industries, Inc. (NYSE: NEXS) today announced that its CyberShield Security Platform has achieved Federal Risk and Authorization Management Program (FedRAMP) High authorization",
+      "aliases": []
+    },
+    {
+      "name": "CyberShield Security Platform",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Enterprise security platform that combines endpoint protection, SIEM, and threat intelligence",
+        "category": "Security"
+      },
+      "confidence": 0.95,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "Nexus Industries' CyberShield Security Platform has achieved Federal Risk and Authorization Management Program (FedRAMP) High authorization",
+      "aliases": []
+    },
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "President",
+        "role": "President of Nexus Digital Solutions"
+      },
+      "confidence": 0.9,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "\"FedRAMP High authorization is the gold standard for federal cloud security,\" said Robert Kim, President of Nexus Digital Solutions.",
+      "aliases": []
+    },
+    {
+      "name": "Department of Defense",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Government Agency",
+        "industry": "Defense"
+      },
+      "confidence": 0.9,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "| Authorizing Agency | Department of Defense |",
+      "aliases": []
+    },
+    {
+      "name": "Jennifer Walsh",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Investor Relations"
+      },
+      "confidence": 0.85,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "Jennifer Walsh VP Investor Relations",
+      "aliases": []
+    },
+    {
+      "name": "Sarah Mitchell",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Corporate Communications"
+      },
+      "confidence": 0.85,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "Sarah Mitchell VP Corporate Communications",
+      "aliases": []
+    },
+    {
+      "name": "CyberShield",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Comprehensive security capabilities including endpoint detection, SIEM, threat intelligence, incident response, and managed SOC"
+      },
+      "confidence": 0.9,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "CyberShield provides comprehensive security capabilities",
+      "aliases": []
+    },
+    {
+      "name": "Phoenix",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Phoenix",
+        "country": "USA"
+      },
+      "confidence": 0.95,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "Headquartered in Phoenix, Arizona",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Nexus Industries, Inc.",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "CyberShield Security Platform",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "05_fedramp_announcement.md",
+      "evidence": "Nexus Industries' CyberShield Security Platform has achieved Federal Risk and Authorization Management Program (FedRAMP) High authorization"
+    },
+    {
+      "source_entity": "Nexus Industries, Inc.",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Robert Kim",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_fedramp_announcement.md",
+      "evidence": "Robert Kim, President of Nexus Digital Solutions"
+    },
+    {
+      "source_entity": "Nexus Industries, Inc.",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Phoenix",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "05_fedramp_announcement.md",
+      "evidence": "Headquartered in Phoenix, Arizona"
+    },
+    {
+      "source_entity": "Nexus Industries, Inc.",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Department of Defense",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "05_fedramp_announcement.md",
+      "evidence": "FedRAMP High authorization allows CyberShield to be deployed across: Department of Defense"
+    }
+  ],
+  "metadata": {
+    "filename": "05_fedramp_announcement.md",
+    "raw_entity_count": 8,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

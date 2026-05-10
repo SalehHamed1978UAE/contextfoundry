@@ -1,0 +1,191 @@
+{
+  "document_id": "a2728d5b-2907-45c8-a0c0-4b3fc924c5d8",
+  "document_path": "09_greenhydrogen_milestone.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-10T19:39:06.198808",
+  "entities": [
+    {
+      "name": "Dr. Sarah Park",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "President",
+        "role": "President of Nexus Energy Systems"
+      },
+      "confidence": 0.95,
+      "source_document": "09_greenhydrogen_milestone.md",
+      "source_excerpt": "Dr. Sarah Park, President, Nexus Energy Systems",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Energy"
+      },
+      "confidence": 0.95,
+      "source_document": "09_greenhydrogen_milestone.md",
+      "source_excerpt": "Nexus Industries and our Energy Systems Division",
+      "aliases": []
+    },
+    {
+      "name": "Energy Systems Division",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Energy systems and clean hydrogen production"
+      },
+      "confidence": 0.9,
+      "source_document": "09_greenhydrogen_milestone.md",
+      "source_excerpt": "Energy Systems Division Employees",
+      "aliases": []
+    },
+    {
+      "name": "GreenHydrogen Facility",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "El Paso, Texas",
+        "type": "Hydrogen production facility"
+      },
+      "confidence": 0.9,
+      "source_document": "09_greenhydrogen_milestone.md",
+      "source_excerpt": "GreenHydrogen facility in El Paso, Texas",
+      "aliases": []
+    },
+    {
+      "name": "Nel Hydrogen",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership type": "Electrolyzers supplier"
+      },
+      "confidence": 0.9,
+      "source_document": "09_greenhydrogen_milestone.md",
+      "source_excerpt": "Key Partners: Nel Hydrogen (Electrolyzers)",
+      "aliases": []
+    },
+    {
+      "name": "Turner Construction",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership type": "EPC contractor"
+      },
+      "confidence": 0.9,
+      "source_document": "09_greenhydrogen_milestone.md",
+      "source_excerpt": "Key Partners: Turner Construction (EPC)",
+      "aliases": []
+    },
+    {
+      "name": "Emerson",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership type": "Controls supplier"
+      },
+      "confidence": 0.9,
+      "source_document": "09_greenhydrogen_milestone.md",
+      "source_excerpt": "Key Partners: Emerson (Controls)",
+      "aliases": []
+    },
+    {
+      "name": "Shell",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership type": "Offtake Partner"
+      },
+      "confidence": 0.9,
+      "source_document": "09_greenhydrogen_milestone.md",
+      "source_excerpt": "Key Partners: Shell (Offtake Partner)",
+      "aliases": []
+    },
+    {
+      "name": "Greg Abbott",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Governor",
+        "role": "Governor of Texas"
+      },
+      "confidence": 0.9,
+      "source_document": "09_greenhydrogen_milestone.md",
+      "source_excerpt": "Texas Governor Greg Abbott joined us for today's ceremony",
+      "aliases": []
+    },
+    {
+      "name": "Investment",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Investment",
+        "value": 225000000,
+        "period": "2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "09_greenhydrogen_milestone.md",
+      "source_excerpt": "Investment | $225 million",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Sarah Park",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_greenhydrogen_milestone.md",
+      "evidence": "Dr. Sarah Park, President, Nexus Energy Systems"
+    },
+    {
+      "source_entity": "Dr. Sarah Park",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_greenhydrogen_milestone.md",
+      "evidence": "Dr. Sarah Park, President, Nexus Energy Systems"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "GreenHydrogen Facility",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_greenhydrogen_milestone.md",
+      "evidence": "Nexus Industries and our Energy Systems Division"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Shell",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_greenhydrogen_milestone.md",
+      "evidence": "We look forward to receiving green hydrogen from Nexus"
+    },
+    {
+      "source_entity": "Shell",
+      "source_type": "PARTNER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_greenhydrogen_milestone.md",
+      "evidence": "We look forward to receiving green hydrogen from Nexus"
+    }
+  ],
+  "metadata": {
+    "filename": "09_greenhydrogen_milestone.md",
+    "raw_entity_count": 10,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

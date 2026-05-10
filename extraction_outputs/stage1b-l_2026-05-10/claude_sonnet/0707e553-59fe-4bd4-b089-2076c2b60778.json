@@ -1,0 +1,549 @@
+{
+  "document_id": "0707e553-59fe-4bd4-b089-2076c2b60778",
+  "document_path": "07_smartgrid_controller_specification.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-05-10T21:32:44.768913",
+  "entities": [
+    {
+      "name": "David Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "SmartGrid Product Manager",
+        "role": "Product Manager"
+      },
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Owner: David Kim, SmartGrid Product Manager",
+      "aliases": []
+    },
+    {
+      "name": "SmartGrid Controller",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Advanced distribution grid management system",
+        "category": "Grid Management System"
+      },
+      "confidence": 1.0,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "The SmartGrid Controller is an advanced distribution grid management system",
+      "aliases": []
+    },
+    {
+      "name": "SmartGrid Controller Platform",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Platform integrating renewable energy sources, battery storage, and demand response"
+      },
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "SmartGrid Controller Platform",
+      "aliases": []
+    },
+    {
+      "name": "SG-5000",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Controller Unit",
+        "category": "Hardware Controller"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Controller Unit (SG-5000)",
+      "aliases": []
+    },
+    {
+      "name": "Intel Xeon D-2183IT",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "16-core processor",
+        "category": "Processor"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Processor: Intel Xeon D-2183IT (16-core)",
+      "aliases": []
+    },
+    {
+      "name": "SG-1000",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Edge Gateway",
+        "category": "Hardware Gateway"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Edge Gateway (SG-1000)",
+      "aliases": []
+    },
+    {
+      "name": "ARM Cortex-A72",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "4-core processor",
+        "category": "Processor"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Processor: ARM Cortex-A72 (4-core)",
+      "aliases": []
+    },
+    {
+      "name": "Real-time Linux",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Operating system with RT-Preempt kernel",
+        "category": "Operating System"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "OS: Real-time Linux (RT-Preempt kernel)",
+      "aliases": []
+    },
+    {
+      "name": "InfluxDB",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Time-series database",
+        "category": "Database"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Database: Time-series DB (InfluxDB)",
+      "aliases": []
+    },
+    {
+      "name": "Apache Kafka",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Event bus messaging system",
+        "category": "Messaging"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Messaging: Event bus (Apache Kafka)",
+      "aliases": []
+    },
+    {
+      "name": "TensorFlow Lite",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "AI/ML inference engine",
+        "category": "AI/ML Framework"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "AI/ML: Inference engine (TensorFlow Lite)",
+      "aliases": []
+    },
+    {
+      "name": "IEC 61850",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "IEC 61850",
+        "category": "Communication Standard"
+      },
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "IEC 61850: MMS, GOOSE, SV (Substation automation)",
+      "aliases": []
+    },
+    {
+      "name": "DNP3",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "IEEE 1815",
+        "category": "Communication Protocol"
+      },
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "DNP3: IEEE 1815 (SCADA communication)",
+      "aliases": []
+    },
+    {
+      "name": "Modbus",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "RS-485, TCP communication protocol",
+        "category": "Communication Protocol"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Modbus: RS-485, TCP (Legacy devices)",
+      "aliases": []
+    },
+    {
+      "name": "MQTT",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "IoT communication protocol",
+        "category": "Communication Protocol"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "MQTT: 3.1.1, 5.0 (IoT devices)",
+      "aliases": []
+    },
+    {
+      "name": "OPC UA",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "IEC 62541 enterprise integration",
+        "category": "Communication Protocol"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "OPC UA: IEC 62541 (Enterprise integration)",
+      "aliases": []
+    },
+    {
+      "name": "TLS 1.3",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Encryption technology",
+        "category": "Security Protocol"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Encryption: TLS 1.3",
+      "aliases": []
+    },
+    {
+      "name": "UL 61010",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "UL 61010",
+        "category": "Safety Certification"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Certifications: UL 61010, IEC 61850, IEEE 1686",
+      "aliases": []
+    },
+    {
+      "name": "IEEE 1686",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "IEEE 1686",
+        "category": "Security Standard"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Certifications: UL 61010, IEC 61850, IEEE 1686",
+      "aliases": []
+    },
+    {
+      "name": "Load Forecasting",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "AI-powered demand prediction",
+        "category": "Grid Service"
+      },
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Load Forecasting: AI-powered demand prediction",
+      "aliases": []
+    },
+    {
+      "name": "Renewable Integration",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Solar, wind dispatch optimization",
+        "category": "Grid Service"
+      },
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Renewable Integration: Solar, wind dispatch optimization",
+      "aliases": []
+    },
+    {
+      "name": "Storage Management",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Battery charge/discharge optimization",
+        "category": "Grid Service"
+      },
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Storage Management: Battery charge/discharge optimization",
+      "aliases": []
+    },
+    {
+      "name": "Demand Response",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Automated load shedding",
+        "category": "Grid Service"
+      },
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Demand Response: Automated load shedding",
+      "aliases": []
+    },
+    {
+      "name": "Fault Detection",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Real-time grid anomaly detection",
+        "category": "Grid Service"
+      },
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Fault Detection: Real-time grid anomaly detection",
+      "aliases": []
+    },
+    {
+      "name": "Self-Healing",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Automated fault isolation and restoration",
+        "category": "Grid Service"
+      },
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Self-Healing: Automated fault isolation and restoration",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "SmartGrid Controller Platform",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "SmartGrid Controller integrates components on the platform"
+    },
+    {
+      "source_entity": "SG-5000",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Intel Xeon D-2183IT",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "Controller Unit (SG-5000) Processor: Intel Xeon D-2183IT (16-core)"
+    },
+    {
+      "source_entity": "SG-1000",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "ARM Cortex-A72",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "Edge Gateway (SG-1000) Processor: ARM Cortex-A72 (4-core)"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Real-time Linux",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "OS layer uses Real-time Linux with RT-Preempt kernel"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "InfluxDB",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "Database layer uses InfluxDB for time-series data"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Apache Kafka",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "Messaging layer uses Apache Kafka for event bus"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "TensorFlow Lite",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "AI/ML layer uses TensorFlow Lite for inference engine"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "IEC 61850",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "System implements IEC 61850 for substation automation"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "DNP3",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "System supports DNP3 IEEE 1815 for SCADA communication"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Modbus",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "System supports Modbus for legacy device communication"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "MQTT",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "System supports MQTT for IoT device communication"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "OPC UA",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "System supports OPC UA for enterprise integration"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "TLS 1.3",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "System uses TLS 1.3 for encryption"
+    },
+    {
+      "source_entity": "SG-5000",
+      "source_type": "PRODUCT",
+      "relationship_type": "PART_OF",
+      "target_entity": "SmartGrid Controller",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "SG-5000 Controller Unit is part of SmartGrid Controller system"
+    },
+    {
+      "source_entity": "SG-1000",
+      "source_type": "PRODUCT",
+      "relationship_type": "PART_OF",
+      "target_entity": "SmartGrid Controller",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "SG-1000 Edge Gateway is part of SmartGrid Controller system"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Load Forecasting",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "SmartGrid Controller provides Load Forecasting capability"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Renewable Integration",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "SmartGrid Controller provides Renewable Integration capability"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Storage Management",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "SmartGrid Controller provides Storage Management capability"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Demand Response",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "SmartGrid Controller provides Demand Response capability"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Fault Detection",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "SmartGrid Controller provides Fault Detection capability"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Self-Healing",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "SmartGrid Controller provides Self-Healing capability"
+    }
+  ],
+  "metadata": {
+    "filename": "07_smartgrid_controller_specification.md",
+    "raw_entity_count": 25,
+    "raw_relationship_count": 21,
+    "used_partial_parse": false,
+    "truncated": true,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 1
+  }
+}

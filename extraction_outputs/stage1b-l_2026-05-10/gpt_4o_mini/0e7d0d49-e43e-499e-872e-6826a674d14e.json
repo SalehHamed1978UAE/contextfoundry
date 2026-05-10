@@ -1,0 +1,146 @@
+{
+  "document_id": "0e7d0d49-e43e-499e-872e-6826a674d14e",
+  "document_path": "03_nexusconnect_api_specification.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-10T21:33:51.943892",
+  "entities": [
+    {
+      "name": "Dr. Alan Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Engineering",
+        "role": "Vice President of Engineering"
+      },
+      "confidence": 0.95,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "Owner: Dr. Alan Chen, VP Engineering",
+      "aliases": []
+    },
+    {
+      "name": "NexusConnect",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "enterprise IoT platform that enables device management, data ingestion, analytics, and edge computing across industrial environments",
+        "category": "IoT Platform"
+      },
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "NexusConnect is an enterprise IoT platform",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Technology"
+      },
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "recipients: [\"ops@nexus-industries.com\"]",
+      "aliases": []
+    },
+    {
+      "name": "Temperature Sensor 1",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "sensor device",
+        "category": "sensor"
+      },
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "name: \"Temperature Sensor 1\"",
+      "aliases": []
+    },
+    {
+      "name": "Vibration Sensor 1",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "sensor device",
+        "category": "sensor"
+      },
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "name: \"Vibration Sensor 1\"",
+      "aliases": []
+    },
+    {
+      "name": "Anomaly Detection v2",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "anomaly detection model",
+        "category": "machine learning model"
+      },
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "name: \"Anomaly Detection v2\"",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Alan Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "Owner: Dr. Alan Chen, VP Engineering"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "NexusConnect",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "NexusConnect is an enterprise IoT platform"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Temperature Sensor 1",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "metadata: { manufacturer: \"Nexus\" }"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Vibration Sensor 1",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "metadata: { manufacturer: \"Nexus\" }"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Anomaly Detection v2",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "name: \"Anomaly Detection v2\""
+    }
+  ],
+  "metadata": {
+    "filename": "03_nexusconnect_api_specification.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": true,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}
