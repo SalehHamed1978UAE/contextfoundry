@@ -65,33 +65,44 @@ Always the same shape. Confidence does not widen scope. Confidence drives a **go
 
 **The architecture does not use confidence to alter prompt scope.** Confidence only drives governance signals.
 
-### What we measure before setting any threshold
+### Threshold revision plan (staged, NOT audit-only calibration)
 
-1. **Confidence histogram** across a held-out set of ≥30 docs per domain spanning Nexus + Manus + Ontology Vault (≥240 docs total). Plot Top-1 score and Top-1−Top-2 margin.
-2. **Extraction recall by confidence band** on the same set: compute what fraction of ground-truth entities/relations are extracted under Option D scoping, bucketed by classification confidence (e.g., `<0.20`, `0.20–0.30`, `0.30–0.40`, `>0.40`) and by Top-2 margin (`<0.05`, `0.05–0.10`, `>0.10`).
-3. **False-domain rate**: for each held-out doc, has the wrapper picked the right domain? (Requires ground-truth domain labels — small effort, ≤30 minutes per corpus).
+Audit-only feedback alone is **not** a substitute for formal calibration — `audit_records` rows are biased toward uncertain documents (that's their selection criterion), so they cannot stand in for a labeled, randomly-sampled set. Calibration is staged across three horizons:
 
-These three datasets together are sufficient to set a defensible threshold. **Without them, every threshold is a guess.**
+1. **Initial Piece 2 (provisional sentinels).**
+   - `classification_confidence < 0.30` → emit one `audit_records` row.
+   - `top_two_margin < 0.05` → emit one `audit_records` row.
+   - These produce `audit_records` only. **They do not change prompt scope.**
+
+2. **Piece 2.5 first sentinel review.**
+   - Trigger: ≥50 `audit_records` accumulated **OR** two weeks of real extraction activity, whichever comes first.
+   - Output: revised sentinel thresholds based on the observed distribution + qualitative review of flagged docs.
+   - Still audit-only — still no scope change.
+
+3. **Longer-term calibration (separate epic, NOT deleted).**
+   - A labeled held-out document set remains the gold standard for real threshold work because `audit_records` are biased toward uncertain cases.
+   - Earlier ≥240-doc target may be **reduced or staged** (e.g., start with ≥10 ground-truth-labeled docs per domain = ~80 total, expand iteratively), but the requirement for labeled calibration is **not deleted**.
+   - Plot confidence histograms, extraction recall by confidence band, false-domain rate. Use these to set defensible thresholds.
 
 ### Temporary defaults for initial Piece 2 implementation
 
 | Setting | Initial value | Reasoning |
 |---|---|---|
 | Prompt scope formula | `core ∪ primary_domain` | Locked by Option D |
-| Confidence threshold for governance signal | `< 0.30` | Below 50% of all real-doc observations to date (0.26, 0.26, 0.34, 0.27, 0.27); strictly an interim audit trigger, not a behavior gate |
-| Top-2 margin threshold for governance signal | `< 0.05` | All four real-doc cases observed have margins in 0.03–0.08 range; this triggers on the tightest cases |
+| Confidence threshold for `audit_records` emission | `< 0.30` | Below 50% of all real-doc observations to date (0.26, 0.26, 0.34, 0.27, 0.27); strictly an interim audit trigger, not a behavior gate |
+| Top-2 margin threshold for `audit_records` emission | `< 0.05` | All four real-doc cases observed have margins in 0.03–0.08 range; this triggers on the tightest cases |
 | Prompt scope behavior at low confidence | **unchanged** | Option D — scope is never widened |
 
-These thresholds are **sentinels for measurement**, not behavior gates. They populate the audit log so Piece 2.1 can revise them with data instead of intuition.
+These thresholds are **provisional sentinels**, not behavior gates. Revised at the Piece 2.5 review and again after labeled-set calibration.
 
 ### What confidence affects, by surface
 
 | Surface | Affected by confidence today? | Proposed change in Piece 2 |
 |---|---|---|
 | Prompt scope | No | **Stays no.** Locked. |
-| `classification_status` | Yes (`ok`/`failed`/`unclassified`) | **No new value.** A `needs_review` status would be a schema + CHECK-constraint + contract change; the brief explicitly defers it to a separate sign-off. Use `audit_records` instead (§3.1 below). |
-| `audit_records` table emission | N/A (does not exist as a Piece 1 surface) | **NEW:** when confidence < threshold OR Top-2 margin < threshold OR `secondary_domains != []`, append one row tagging the document for review. Schema spec is a Piece 2.1 deliverable. |
-| Human review queue UI | Out of scope here | Piece 2.1 — read from `audit_records` |
+| `classification_status` | Yes (`ok`/`failed`/`unclassified`) | **No new value.** A `needs_review` status would be a schema + CHECK-constraint + contract change; the brief explicitly defers it to a separate sign-off. Use `audit_records` instead. |
+| `audit_records` table emission | N/A (does not exist as a Piece 1 surface) | **NEW in Piece 2 (minimal write-only path):** when confidence < threshold OR Top-2 margin < threshold OR `secondary_domains != []`, append one row tagging the document for review. Schema below in §6. |
+| Human review queue / consumption UI | Out of scope here | Piece 2.1 or later — read from `audit_records` |
 
 **No `classification_status` value is added.** Avoiding the schema change keeps Piece 2 narrow.
 
@@ -121,13 +132,15 @@ Confirmed in DB at 2026-05:
 
 ### Piece 0.6 dependency conclusion
 
-**Piece 0.6 is required before Piece 2 implementation if the system is to extract organizational-structure facts under domain-scoped prompts.** This is not optional. The three Piece-0.6 disposition options from the brief evaluate as:
+**Piece 0.6 is required before Piece 2 implementation if the system is to extract organizational-structure facts under domain-scoped prompts.** This is not optional.
 
-- **(a) Retroactively bless into `00_shared_ontology.sql`:** Recommended for `HOLDS_POSITION`, `WORKS_AT`, `REPORTS_TO` → `core`; `HAS_COMPENSATION` → `finance`. Keeps existing UUIDs, no remapping, fastest. **Must also dedupe sibling duplicates as part of the same migration.**
+**Piece 0.6 is itself audit-and-sign-off gated.** The three Piece-0.6 disposition options from the brief are evaluated below, but **no relation mutation is approved by the Piece 2 design alone.** The Piece 2 design's role is to record the recommendation; the disposition is decided by Piece 0.6's own audit and a separate sign-off.
+
+- **(a) Retroactively bless into `00_shared_ontology.sql`:** **Design recommendation** for `HOLDS_POSITION`, `WORKS_AT`, `REPORTS_TO` likely → `core`; `HAS_COMPENSATION` likely → `finance` (open question — see §9 #4 and architecture.md Gap 6). Keeps existing UUIDs, no remapping, fastest. **Sibling duplicates should also be deduped in the same migration window.**
 - **(b) Re-create under governed `PROPOSED → APPROVED → ACTIVE` flow with new UUIDs:** More principled, but requires migration to remap every referencing row in `relationships` table — not free, and the four verbs are already `ACTIVE`. Justified only if (a) is rejected for governance reasons.
 - **(c) Leave unscoped, source from elsewhere in prompt builder:** **Recommend against.** Maintains the NULL-domain pool as a permanent bypass mechanism, undermining the architecture from the inside.
 
-**Recommendation: option (a) + sibling-duplicate cleanup, scoped as Piece 0.6.**
+**Design recommendation: option (a) + sibling-duplicate cleanup, scoped as Piece 0.6 — pending Piece 0.6 audit and a separate sign-off, not approved by Piece 2.**
 
 (This section is analysis only. No mutation. No migration is being proposed in this document.)
 
@@ -155,15 +168,62 @@ The two prompts that change (entity extraction prompt, relationship extraction p
 
 ## 6. Implementation boundaries
 
+### Repository vs scoped prompt-builder behavior — load-bearing distinction
+
+The "no full-union fallback" rule applies to **scoped prompt construction**, not to the underlying `OntologyRepository`. Globally breaking no-filter repository callers would break legacy/full-snapshot consumers (Gardener, validators, analytics, the existing `get_snapshot()` path). The enforcement lives at the prompt-builder layer:
+
+- **Scoped prompt builder APIs require explicit scope:**
+  - `build_entity_extraction_prompt(domain_id=None)` **must raise.**
+  - `build_relationship_extraction_prompt(domain_id=None)` **must raise.**
+  - Any new scoped prompt API must require an explicit `domain_id`.
+- **Repository no-filter behavior is unchanged for legacy callers:**
+  - `OntologyRepository.get_all_types()` (no domain filter) continues returning the full active set.
+  - `OntologyRepository.get_all_relations()` (no domain filter) continues returning the full active set.
+  - **Piece 2 must not globally break no-filter repository callers.**
+
+Equivalently: scoping is a *prompt-construction* concern, not a *data-access* concern. The repository remains a neutral data layer; scope is a contract enforced at the prompt boundary.
+
 ### What Piece 2 implementation will change after sign-off
 
-- `SchemaPromptGenerator.build_entity_extraction_prompt(...)` — gain a required `domain_id: str` parameter. No default. No `None` fallback.
+- `SchemaPromptGenerator.build_entity_extraction_prompt(...)` — gain a required `domain_id: str` parameter. No default. No `None` fallback (raises on `None`).
 - `SchemaPromptGenerator.build_relationship_extraction_prompt(...)` — same.
-- `OntologyRepository.get_all_types(domain_id=...)` — gain `domain_id` filter; must reject `None` (no silent "all").
+- `OntologyRepository.get_all_types(domain_id=...)` — gain an **optional** `domain_id` filter. Calling without it continues to return the full active set (legacy contract preserved).
 - `OntologyRepository.get_all_relations(domain_id=...)` — same.
-- `OntologyCentricPipeline.extract(...)` — read `classification_metadata['primary_domain']` and pass to repository/prompt-builder. (The kwarg already exists from Piece 1.5; Piece 2 is the first piece that reads it.)
-- `MultiModelExtractor` prompt assembly — same wiring at its prompt-construction site.
-- `audit_records` table (new) — minimal schema for governance signal emission. Spec is a Piece 2.1 deliverable.
+- `OntologyCentricPipeline.extract(...)` — read `classification_metadata['primary_domain']` and pass to the scoped prompt builder. (The kwarg already exists from Piece 1.5; Piece 2 is the first piece that reads it.)
+- `MultiModelExtractor` prompt assembly — staged change (see "MultiModelExtractor staging" below); not a silent replacement.
+- **`audit_records` table (new — minimal Piece 2 deliverable, write-only).** Schema below.
+
+### `audit_records` minimal schema (Piece 2 deliverable, NOT Piece 2.1)
+
+```sql
+CREATE TABLE platform.audit_records (
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  document_id   uuid REFERENCES platform.documents(id),
+  signal_type   varchar(64) NOT NULL,   -- 'low_confidence' | 'narrow_margin' | 'multi_domain' | ...
+  severity      varchar(16) NOT NULL,   -- 'info' | 'warn' | 'error'
+  payload       jsonb NOT NULL,         -- e.g. {"confidence": 0.27, "primary_domain": "construction", "top_2_margin": 0.04}
+  created_at    timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX audit_records_document_id_idx ON platform.audit_records(document_id);
+CREATE INDEX audit_records_signal_type_idx ON platform.audit_records(signal_type);
+```
+
+**Piece 2 boundaries on `audit_records`:**
+
+- Piece 2 creates the minimal table and writes `low_confidence` / `narrow_margin` signals.
+- Piece 2 **does not** build UI, review queue, routing, notifications, or any human workflow.
+- Consumer logic (read paths, dashboards, queue routing, notification rules) is **Piece 2.1 or later**.
+- Write-only. The signal must be persisted, not just logged — otherwise it disappears.
+
+### MultiModelExtractor staging (load-bearing)
+
+`MultiModelExtractor.EXTRACTION_SYSTEM_PROMPT` is a hardcoded string that Piece 1.5 SHA-tracked specifically because it is load-bearing for the multi-model path. Piece 2 may intentionally change prompt behavior after sign-off, **but the rollout must be staged**:
+
+1. **Stage 1 (in-scope for Piece 2 merge):** Implement scoped prompt generation in `SchemaPromptGenerator` and use it on the `OntologyCentricPipeline` path. The multi-model path continues to use its existing prompts unchanged.
+2. **Stage 2 (later in Piece 2, separate sign-off):** Build a reviewed adapter that lets `MultiModelExtractor` consume the scoped prompt builder's output.
+3. **Stage 3 (separate sign-off, prompt diff in PR):** Replace or bypass the hardcoded `EXTRACTION_SYSTEM_PROMPT`. Reviewer must see the literal old-vs-new prompt diff before merge.
+
+**Piece 2 must not silently replace the multi-model prompt without reviewed prompt output.** SHA-tracking discipline from Piece 1.5 carries forward.
 
 ### What it must not change
 
@@ -174,6 +234,7 @@ The two prompts that change (entity extraction prompt, relationship extraction p
 - `classification_wrapper` thresholds.
 - `classification_status` CHECK constraint (no new value).
 - Relation governance beyond Piece 0.6's narrow scope.
+- Legacy no-filter `OntologyRepository` callers.
 
 ---
 
@@ -184,13 +245,13 @@ Required tests before any Nexus re-run:
 1. **Prompt scope contract.** For each of the 8 domains, build the entity prompt and assert: (a) every type listed is in `core ∪ that_domain`; (b) zero types from any other named domain; (c) zero NULL-domain types.
 2. **NULL-domain exclusion.** Insert a sentinel NULL-domain type into the snapshot at test setup; assert it does not appear in any built prompt.
 3. **Core-inclusion check.** Each scoped prompt must contain all 25 core types and all 17 (post-0.6: 20+) core relations.
-4. **No full-union fallback.** Call `build_entity_extraction_prompt(domain_id=None)` — must raise, not return the union.
+4. **No full-union fallback at the prompt-builder layer.** Call `SchemaPromptGenerator.build_entity_extraction_prompt(domain_id=None)` and `build_relationship_extraction_prompt(domain_id=None)` — both must raise. **Test enforcement is at the scoped prompt-builder API layer, NOT by globally breaking `OntologyRepository` no-filter calls** — legacy `get_all_types()` / `get_all_relations()` no-filter callers must continue returning the full active set (separate test asserting this contract is preserved).
 5. **Token-count regression budget.** Snapshot prompt token count per domain and fail CI if any domain's prompt exceeds 1.5× its post-Piece-2 baseline.
 6. **Snapshot tests.** Capture the exact prompt string for one canonical (domain, document_type) pair per domain and diff on every change. Reviewer must approve the diff.
-7. **Confidence-policy emission.** Mock a doc with confidence 0.25; assert one `audit_records` row written with reason='low_confidence'. Mock a doc with margin 0.03; assert one row with reason='narrow_margin'. Both: scope unchanged.
-8. **Both paths covered.** Run the test in (1) once via `MultiModelExtractor` and once via `OntologyCentricPipeline` — same scope formula must apply to both.
+7. **`audit_records` minimal-write tests.** (a) Mock a doc with confidence 0.25; assert one `audit_records` row inserted with `signal_type='low_confidence'`, payload containing the confidence value, scope unchanged. (b) Mock a doc with Top-2 margin 0.03; assert one row with `signal_type='narrow_margin'`. (c) Verify the table exists with the §6 schema. (d) Confirm Piece 2 ships **no** consumer/UI/queue code reading from this table.
+8. **Both paths covered (staged, per §6 staging).** Stage 1: assert `OntologyCentricPipeline` uses scoped prompts. Multi-model path remains on its existing prompt — assert this explicitly (no silent replacement). Stage 2/3 multi-model adapter + prompt replacement land under separate sign-off with a literal old-vs-new prompt diff in the PR.
 9. **3–5 doc end-to-end smoke.** On a small Nexus subset, before/after Piece 2: report (a) prompt size delta per doc, (b) extracted entity count delta, (c) extracted relation count delta. Acceptance: extraction still runs to completion with `errors=0` and no domain-misclassification regressions.
-10. **Prompt-SHA discipline.** Same SHA-tracking style as Piece 1 / Piece 1.5 — capture pre-Piece-2 SHAs of all prompt-bearing files; the diff is expected and must be reviewed line-by-line.
+10. **Prompt-SHA discipline.** Same SHA-tracking style as Piece 1 / Piece 1.5 — capture pre-Piece-2 SHAs of all prompt-bearing files; any diff is expected for the ontology-path prompts and must be reviewed line-by-line. The `MultiModelExtractor.EXTRACTION_SYSTEM_PROMPT` SHA must remain unchanged in Stage 1.
 
 ---
 
@@ -199,12 +260,13 @@ Required tests before any Nexus re-run:
 | # | Gate | Recommendation |
 |---|---|---|
 | 1 | Prompt-scope policy | **Option D**: `core ∪ primary_domain`. No widening. |
-| 2 | Confidence/margin policy | Sentinels `< 0.30` confidence, `< 0.05` Top-2 margin → `audit_records` emission only. **No effect on scope.** Pending measurement on held-out set per §3. |
-| 3 | Whether Piece 0.6 is required | **Yes.** Bless `HOLDS_POSITION`, `WORKS_AT`, `REPORTS_TO` to `core`; `HAS_COMPENSATION` to `finance`. Dedupe sibling duplicates. |
+| 2 | Confidence/margin policy | Provisional sentinels `< 0.30` confidence, `< 0.05` Top-2 margin → `audit_records` emission only. **No effect on scope.** Staged revision per §3 threshold revision plan (Piece 2.5 first review, longer-term labeled-set calibration). |
+| 3 | Whether Piece 0.6 is required | **Yes** — Piece 0.6 is required before Piece 2 implementation. Piece 0.6 is itself audit-and-sign-off gated. **Design recommendation** (not approved by Piece 2): `HOLDS_POSITION` / `WORKS_AT` / `REPORTS_TO` likely → `core`; `HAS_COMPENSATION` likely → `finance`. Disposition decided by Piece 0.6 audit + a separate sign-off, not by this design. |
 | 4 | Whether core inclusion is automatic | **Yes.** Always included unconditionally. Tested by §7 #3. |
-| 5 | Confirmation no full-union fallback | **Confirmed.** §7 #4 enforces this in code. |
+| 5 | Confirmation no full-union fallback **at the prompt-builder layer** | **Confirmed.** §7 #4 enforces this at the scoped prompt-builder API only. Repository no-filter callers preserved (legacy contract — see §6 "Repository vs scoped prompt-builder behavior"). |
 | 6 | Schema/contract change for `needs_review` | **None proposed.** Use new `audit_records` table instead. |
-| 7 | New `audit_records` table schema | Deferred to Piece 2.1 design — not in Piece 2 critical path. |
+| 7 | `audit_records` minimal write-only path is in Piece 2 | **Yes — Piece 2 deliverable** (§6 schema). Piece 2 creates the table and writes signals. UI / consumer / review queue / routing / notifications are explicitly **not** in Piece 2 — Piece 2.1 or later. |
+| 8 | MultiModelExtractor staging | **3-stage rollout** per §6: Stage 1 (Piece 2 merge) ontology path only; Stage 2 reviewed adapter; Stage 3 explicit prompt diff review before any `EXTRACTION_SYSTEM_PROMPT` replacement. No silent multi-model prompt replacement. |
 
 ---
 

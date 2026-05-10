@@ -418,6 +418,21 @@ Recent task context does not redefine Context Foundry unless the user explicitly
 >
 > Piece 7 still owns the broader long-term Ontology Foundry governance lifecycle (Gap 2 + Gap 3 + Gap 5 in aggregate). Piece 0.6 is the **near-term, narrowly-scoped** decision for these 4 specific foundational relation candidates.
 
+### Gap 6: HR-domain compensation extraction
+
+`HAS_COMPENSATION` is expected to be governed as a **finance** relation under the Piece 2 design recommendation (see `docs/piece2_domain_scoped_prompting_design_2026-05.md` §4 and §9 #4) unless Piece 0.6's audit proves otherwise. Under Piece 2's scope formula `core ∪ primary_domain`, **HR or employee-communication documents whose `primary_domain` is not `finance` may not extract compensation facts** — the relation simply will not be present in the scoped prompt for those documents.
+
+Concretely, this affects documents like `06_employee_benefits_update.md` (Piece 1.5 smoke classified it as `primary_domain='construction'`), HR memos, internal benefits announcements, and any non-finance HR communication that nonetheless mentions compensation amounts.
+
+Resolution options (none decided here — recorded for surfacing before any future compensation-specific extraction work):
+
+1. **(a) `secondary_domains` support, deferred.** Once `classification_wrapper` populates `secondary_domains` (currently always `[]`), scope can become `core ∪ primary_domain ∪ secondary_domains` and compensation in HR docs would be reachable when `finance` is a secondary classification. Deferred — wrapper does not emit Top-N today.
+2. **(b) `document_type`-driven scope overlays, deferred to Piece 2.5+.** A `document_type → ontology overlay` mapping (e.g., any `employee_communication` doc adds `HAS_COMPENSATION`) would solve this without widening domain scope. Deferred because the overlay mapping does not exist.
+3. **(c) Explicit HR / People domain in canonical registry.** Adds a 9th named domain (HR / People / Compensation) and re-scopes the four NULL-domain organizational verbs across `core` + `hr` + `finance` rather than collapsing them into `core` alone. Requires registry expansion + Piece 0 re-baseline.
+4. **(d) Governed cross-domain relation policy.** Introduce a small set of relations explicitly tagged "cross-domain" that always appear in scoped prompts regardless of `primary_domain`. Bypasses the architectural principle of strict domain scoping for a narrowly-justified subset.
+
+**This finding is recorded, not solved.** It must not block Piece 2, but it should be surfaced before any future compensation-specific extraction work and re-evaluated as part of Piece 0.6's relation disposition.
+
 ## Open design question for Piece 2: Confidence-driven prompt scoping behavior
 
 Real-document classification confidence (Piece 1 / Piece 1.5 smoke
