@@ -395,7 +395,22 @@ Recent task context does not redefine Context Foundry unless the user explicitly
 
 This gap number is reserved and intentionally unused. During Piece 0 closeout (2026-05), the choice between expanding Gap 2 vs. adding a new Gap 5 to record the four untraceable `core` relations finding was made in favor of Gap 5 (different concrete category — types vs relations). Gap 4 was left unused rather than renumbering subsequent gaps, which would have churned cross-references throughout the document. This entry exists so future readers see the skip is deliberate, not a missing entry.
 
-### Gap 5: 4 ontology.relations rows assigned `core` without seed-file provenance (corrected during Piece 0 closeout)
+### Gap 5 (RESOLVED by Piece 0.6, 2026-05-10): 4 ontology.relations rows assigned `core` without seed-file provenance (corrected during Piece 0 closeout)
+
+> **Resolution (Piece 0.6, ADR-011, mutation 2026-05-10):** The 4 unscoped foundational relations identified below were governed via the Piece 0.6 mutation transaction. The mutation updated 6 rows total (5 governed + 1 deprecated) under a single `BEGIN/COMMIT`, with backup table `ontology.relations_backup_pre_piece_0_6` (254 rows) preserved:
+>
+> - `HOLDS_POSITION` (PERSON → JOB_TITLE) → `core`
+> - `HOLDS_POSITION` (PERSON → ORGANIZATION) → `core`
+> - `WORKS_AT` (PERSON → ORGANIZATION) → `core`
+> - `REPORTS_TO` (PERSON → PERSON) → `core`
+> - `HAS_COMPENSATION` (PERSON → COMPENSATION) → `finance`
+> - `HAS_COMPENSATION` (PERSON → CONCEPT) → `DEPRECATED` (mis-targeted target type; row preserved, excluded from default ACTIVE-only queries; recoverable via `include_deprecated=True`)
+>
+> Sibling rows (HELD_POSITION, AFFILIATED_WITH, MANAGES, OWNS, etc.) were audited but not mutated. They remain Piece 7 governance scope.
+>
+> Post-mutation repository checks: `get_all_relations(domain_id='core')` = 21 (17 deterministic + 4), `get_all_relations(domain_id='finance')` = 28 (27 deterministic + 1), `get_all_relations()` = 253 (ACTIVE only), `get_all_relations(include_deprecated=True)` = 254. Tests in `tests/ontology/test_repository_domain_filter.py` updated and passing.
+>
+> Gap 6 (HR-domain compensation extraction) remains open — Piece 0.6's disposition of HAS_COMPENSATION as `finance` does not solve the cross-domain HR/compensation extraction question.
 
 > Piece 0 closeout audit identified 4 `ontology.relations` rows previously assigned `domain_id = 'core'` that have no seed-file provenance:
 >
@@ -421,6 +436,8 @@ This gap number is reserved and intentionally unused. During Piece 0 closeout (2
 > **Piece 0.6 must resolve their disposition before Piece 2 (Domain-Aware Extraction) lands**, if domain-aware extraction needs any of these four verbs to appear in scoped prompts. The decision is one of: (a) retroactively bless them into `00_shared_ontology.sql` with their existing UUIDs, (b) re-create them under a governed `PROPOSED → APPROVED → ACTIVE` flow with new UUIDs (requires a corresponding migration to remap referencing rows), or (c) explicitly leave them unscoped and have Piece 2's prompt builder source them by other means.
 >
 > Piece 7 still owns the broader long-term Ontology Foundry governance lifecycle (Gap 2 + Gap 3 + Gap 5 in aggregate). Piece 0.6 is the **near-term, narrowly-scoped** decision for these 4 specific foundational relation candidates.
+>
+> **Resolution (2026-05-10, ADR-011):** Piece 0.6 mutation completed. Disposition: `HOLDS_POSITION` (both PERSON→JOB_TITLE and PERSON→ORGANIZATION), `WORKS_AT` (PERSON→ORGANIZATION), and `REPORTS_TO` (PERSON→PERSON) governed into `core`; `HAS_COMPENSATION` (PERSON→COMPENSATION) governed into `finance`; mis-targeted `HAS_COMPENSATION` (PERSON→CONCEPT) deprecated. Mutation ran in single `BEGIN/COMMIT` transaction with verification block matching expected counts exactly before COMMIT. Backup table preserved. Tests updated and passing. See ADR-011 in `docs/decisions.md` and the Gap 5 RESOLVED block above.
 
 ### Gap 6: HR-domain compensation extraction
 
