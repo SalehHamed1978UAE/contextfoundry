@@ -1,0 +1,222 @@
+Yes. Claude is aligned now. Send the **design-doc patch task**, not Piece 0.6 and not Piece 2 implementation.
+
+The actual Piece 2.0 design file needs patching first because it currently says `audit_records` schema is a Piece 2.1 deliverable while also relying on audit signals in Piece 2, and it also says repository no-filter calls should reject `None`, which conflicts with the Piece 0.5 closeout that intentionally preserved no-filter/full-snapshot repository behavior. 
+
+Send this to Replit.
+
+````markdown
+# Task: Patch Piece 2.0 Design Doc Before Implementation Sign-Off
+
+## Alignment
+
+- **Module touched:** `docs/piece2_domain_scoped_prompting_design_2026-05.md` and `docs/architecture.md` only
+- **Product vs implementation:** design correction before implementation
+- **Architecture-doc consistency:** preserves Piece 2 design direction while correcting repository-scope behavior, audit persistence, calibration plan, and implementation staging
+- **Drift risk:** globally breaking no-filter repository callers; letting governance signals disappear without persistence; replacing real calibration with biased audit-only data; letting HAS_COMPENSATION derail Piece 2; silently replacing MultiModelExtractor prompt behavior
+- **Out of scope:** code edits, DB mutation, prompt edits, `SchemaPromptGenerator` changes, Piece 0.6 mutation, Gardener, v2, Nexus 100, workflow restarts, `replit.md` edits
+
+## Standing Constraints
+
+- Documentation edits only.
+- No code edits.
+- No DB mutations.
+- No prompt changes.
+- No workflow restarts.
+- No `replit.md` edits.
+- Do not start Piece 0.6.
+- Do not start Piece 2 implementation.
+- Stop after the design patch and wait for sign-off.
+
+## Goal
+
+Patch the Piece 2.0 design document so it is implementation-ready but still design-only.
+
+Approved design direction remains:
+
+```text
+scope = core ∪ primary_domain
+low confidence = governance/audit signal
+no full-union fallback in scoped prompt construction
+Piece 0.6 required before Piece 2 implementation
+````
+
+## Patch 1 — Repository vs scoped prompt builder behavior
+
+Correct any language saying or implying:
+
+```text
+OntologyRepository.get_all_types(domain_id=None) should raise
+OntologyRepository.get_all_relations(domain_id=None) should raise
+```
+
+Replace with:
+
+```text
+Scoped prompt construction must reject missing scope.
+Repository no-filter behavior remains unchanged for legacy/full-snapshot callers.
+```
+
+Required final rule:
+
+```text
+- Scoped prompt builder APIs require explicit scope.
+- build_entity_extraction_prompt(domain_id=None) must raise.
+- build_relationship_extraction_prompt(domain_id=None) must raise.
+- Any new scoped prompt API must require explicit domain IDs.
+- OntologyRepository.get_all_types() with no domain filter continues returning the full active set for legacy callers.
+- OntologyRepository.get_all_relations() with no domain filter continues returning the full active set for legacy callers.
+- Piece 2 must not globally break no-filter repository callers.
+```
+
+Also update the test section accordingly:
+
+```text
+Test no-full-union fallback at the prompt-builder / scoped API layer, not by globally breaking repository no-filter calls.
+```
+
+## Patch 2 — `audit_records` is a Piece 2 minimal deliverable
+
+Update the design so minimal `audit_records` persistence lands in Piece 2, not Piece 2.1.
+
+Minimal schema:
+
+```text
+id uuid primary key
+document_id uuid references platform.documents(id)
+signal_type varchar
+severity varchar
+payload jsonb
+created_at timestamptz
+```
+
+Required boundaries:
+
+```text
+- Piece 2 creates the minimal table and writes low-confidence / narrow-margin signals.
+- Piece 2 does not build UI, review queue, routing, notifications, or human workflow.
+- Consumer logic is Piece 2.1 or later.
+```
+
+Update the design’s confidence-policy section, implementation-boundaries section, test plan, and sign-off gates accordingly.
+
+## Patch 3 — Threshold revision plan
+
+Do not replace formal calibration with audit-only review.
+
+Use this policy:
+
+```text
+Initial Piece 2:
+- Use provisional audit sentinels:
+  classification_confidence < 0.30
+  top_two_margin < 0.05
+- These produce audit_records only.
+- They do not change prompt scope.
+
+Piece 2.5 first threshold review:
+- Revisit sentinel thresholds after ≥50 audit_records OR two weeks of real extraction activity, whichever comes first.
+
+Longer-term calibration:
+- A labeled held-out document set remains the gold standard for real threshold calibration because audit_records are biased toward uncertain cases.
+- The earlier ≥240 held-out-doc target may be reduced or staged later, but do not delete the need for labeled calibration entirely.
+```
+
+## Patch 4 — Add Gap 6 in `docs/architecture.md`
+
+Add this recorded implementation gap:
+
+```text
+Gap 6: HR-domain compensation extraction
+
+HAS_COMPENSATION is expected to be governed as a finance relation unless Piece 0.6 proves otherwise. Under Piece 2’s scope formula, core ∪ primary_domain, HR or employee-communication documents whose primary_domain is not finance may not extract compensation facts.
+
+Resolution options:
+(a) secondary_domains support, deferred;
+(b) document_type-driven scope overlays, deferred to Piece 2.5+;
+(c) explicit HR/people domain in canonical registry, requires registry expansion;
+(d) governed cross-domain relation policy.
+
+This finding is recorded, not solved. It must not block Piece 2, but it should be surfaced before any future compensation-specific extraction work.
+```
+
+## Patch 5 — Piece 0.6 wording
+
+Keep the conclusion:
+
+```text
+Piece 0.6 is required before Piece 2 implementation.
+```
+
+But clarify:
+
+```text
+Piece 0.6 is audit and sign-off gated.
+The design recommendation is:
+  HOLDS_POSITION / WORKS_AT / REPORTS_TO likely core
+  HAS_COMPENSATION likely finance
+But no mutation is approved by the Piece 2 design alone.
+```
+
+Do not phrase the relation disposition as an already-approved migration.
+
+## Patch 6 — MultiModelExtractor staging
+
+Clarify that replacing or bypassing `MultiModelExtractor.EXTRACTION_SYSTEM_PROMPT` is a load-bearing change.
+
+Required wording:
+
+```text
+Piece 2 may intentionally change prompt behavior after sign-off.
+
+However, implementation should stage prompt changes:
+
+1. scoped prompt generation in SchemaPromptGenerator / ontology path;
+2. reviewed adapter for MultiModelExtractor;
+3. explicit prompt diff review before replacing or bypassing the hardcoded EXTRACTION_SYSTEM_PROMPT.
+
+Do not silently replace the multi-model prompt without reviewed prompt output.
+```
+
+## Output Required
+
+Report:
+
+* sections changed in `docs/piece2_domain_scoped_prompting_design_2026-05.md`
+* whether `docs/architecture.md` Gap 6 was added
+* confirmation that no code changed
+* confirmation that no DB mutated
+* confirmation that no prompts changed
+* confirmation that Piece 0.6 did not start
+* confirmation that Piece 2 implementation did not start
+
+## Stop Condition
+
+Stop after patching the design docs.
+
+Wait for sign-off.
+
+````
+
+After this lands, the sequence remains:
+
+```text
+1. Review patched Piece 2.0 design.
+2. If accepted, send Piece 0.6 audit-only.
+3. After Piece 0.6 sign-off and resolution, send Piece 2 implementation.
+````
+
+Compact handoff:
+
+```text
+Current piece:
+Piece 2.0 design patch.
+
+Do next:
+Patch the design doc and architecture Gap 6 only.
+
+Do not do:
+No code. No DB. No prompt changes. No Piece 0.6. No Piece 2 implementation. No v2. No Nexus. No workflows. No replit.md.
+
+Stop condition:
+Replit reports patched sections and waits for sign-off.
+```
