@@ -99,7 +99,47 @@ Decisions are listed in chronological order of acceptance. Each ADR is immutable
 
 ---
 
-## ADR-007: Piece 0.6 governed disposition of foundational relations
+## ADR-007 (2026-05): Schema and data changes are sign-off-gated
+
+Decision: All schema changes, data mutations on production tables, and code-file renames require explicit user sign-off before execution. The bar is intentionally low: even additive nullable columns, even rollbacks of the agent's own incorrect work, go through the gate.
+
+Rationale: Established by Piece 0 closeout precedent. The Piece 0.5 strict-filter fix and the Piece 1 migration both demonstrated that schema and data changes have downstream effects (legacy callers, semantic contracts, default values) that aren't visible from the change itself. Gating every mutation, even ones that look safe, prevents silent assumptions from propagating into production data.
+
+Implication: Migrations are pasted before they run. Rollbacks of incorrect work are surfaced and approved before execution. The agent stops at gates without being asked.
+
+---
+
+## ADR-008 (2026-05): Pushback over picking from offered options
+
+Decision: When a question is framed with offered options but the premise is wrong, the answer is to push back on the premise rather than choose from the options. Picking from a flawed premise silently authorizes work that may be out of scope.
+
+Rationale: Established when the agent asked which LLM to use for the parked FactEvaluator (Anthropic, OpenAI, or both) — a question that assumed FactEvaluator work was active when ADR-004 had parked it. Choosing any of the three options would have implicitly unparked v2. The correct response was to push back on the premise and clarify scope before answering.
+
+Implication: Multiple-choice questions from any source (the agent, the reviewer, the user, an auto-injected plan) are evaluated for premise validity first. If the premise is wrong, the response is "this question doesn't apply" with redirect, not a choice from the menu.
+
+---
+
+## ADR-009 (2026-05): The 'unclassified' default for pre-existing rows
+
+Decision: Schema changes adding classification, governance, or status fields default pre-existing rows to an explicit "never attempted" value (unclassified, null, pending, etc.), not to a value implying success (ok, core, approved, etc.).
+
+Rationale: Established by Piece 1 migration on platform.documents. Defaulting unclassified rows to 'ok' would have silently asserted successful classification where none had occurred — the same drift pattern Gaps 2 and 5 demonstrated corrupts the system over time (803 ad-hoc types written outside governance, 4 untraceable relations assigned to core without provenance).
+
+Implication: Every new status or governance column gets three states minimum: a success value, a failure value, and a "never attempted" default for pre-existing rows. CHECK constraints enforce the enum. The "never attempted" state is not the same as failure and not the same as success.
+
+---
+
+## ADR-010 (2026-05): Defer dependency resolution until design proves it required
+
+Decision: When an implementation Piece may have a prerequisite Piece (e.g., Piece 2 may need Piece 0.6 to govern certain relations), the prerequisite is not run until the dependent Piece's design phase confirms it is actually required. Premature governance based on guessed requirements expands scope without justification.
+
+Rationale: Established when the sequencing question for Piece 0.6 was first raised. The reviewer initially recommended running Piece 0.6 before Piece 2.0 design; on reflection, the dependency was conditional — Piece 0.6 was needed only if Piece 2's scoped prompts required HOLDS_POSITION, WORKS_AT, REPORTS_TO, or HAS_COMPENSATION. Running Piece 0.6 first would have made governance decisions about four relations based on a guessed requirement rather than a designed one. The Piece 2.0 design phase confirmed the dependency, which then justified Piece 0.6 with concrete scope.
+
+Implication: Conditional prerequisites stay deferred until the dependent Piece's design surfaces the requirement. Design phases for Pieces with possible prerequisites must explicitly answer "is the prerequisite actually required, and if so, what is its precise scope?"
+
+---
+
+## ADR-011: Piece 0.6 governed disposition of foundational relations
 
 Date: 2026-05
 
