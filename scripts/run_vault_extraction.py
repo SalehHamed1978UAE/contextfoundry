@@ -705,6 +705,20 @@ def run_ontology_extraction(
     
     log(f"Found {len(documents)} documents for ontology extraction")
     
+    # Piece 2 Stage 1B — controlled scoped activation gate.
+    # Reads CF_PIECE2_SCOPED_EXTRACTION env var (default false) and passes
+    # enforce_scoped_prompts to the pipeline. When true, the pipeline takes
+    # the scoped path for any document where classification_metadata is
+    # status=ok + primary_domain present; otherwise falls through legacy.
+    # Per signed-off Stage 1B brief Decision 1a (env-var-only on this one
+    # caller — brain/app.py production paths stay legacy in Stage 1B).
+    _scoped_env = os.environ.get("CF_PIECE2_SCOPED_EXTRACTION", "false").strip().lower()
+    _enforce_scoped = _scoped_env in ("true", "1", "yes", "on")
+    log(
+        f"[Piece2-Stage1B] CF_PIECE2_SCOPED_EXTRACTION={_scoped_env!r} "
+        f"→ enforce_scoped_prompts={_enforce_scoped}"
+    )
+
     pipeline = OntologyCentricPipeline(
         session=session,
         tenant_id=vault_id,
@@ -712,6 +726,7 @@ def run_ontology_extraction(
         enable_canonicalization=True,
         auto_stage=True,
         enable_job_tracking=True,
+        enforce_scoped_prompts=_enforce_scoped,
     )
     
     stats = {

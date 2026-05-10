@@ -263,6 +263,13 @@ class OntologyCentricPipeline:
                 self._emit_classification_failed_audit(
                     classification_metadata, document_id
                 )
+                self._record_scope_decision_telemetry(
+                    document_id=document_id,
+                    document_name=filename,
+                    scope_decision="skip_failed",
+                    primary_domain=(classification_metadata or {}).get("primary_domain"),
+                    classification_metadata=classification_metadata,
+                )
                 logger.warning(
                     f"[OntologyCentricPipeline] enforce_scoped_prompts=True but "
                     f"classification_metadata is missing/invalid for {document_id}; "
@@ -316,6 +323,14 @@ class OntologyCentricPipeline:
                         {**classification_metadata, "_reason": "unknown_primary_domain"},
                         document_id,
                     )
+                    self._record_scope_decision_telemetry(
+                        document_id=document_id,
+                        document_name=filename,
+                        scope_decision="skip_failed",
+                        primary_domain=primary_domain,
+                        classification_metadata=classification_metadata,
+                        unknown_domain=True,
+                    )
                     logger.warning(
                         f"[OntologyCentricPipeline] primary_domain={primary_domain} "
                         f"has 0 types in ontology.types; treating as classification "
@@ -348,6 +363,13 @@ class OntologyCentricPipeline:
                     f"primary_domain={primary_domain}, "
                     f"{len(entity_types)} entity types, "
                     f"{len(relationship_type_defs)} relationship types"
+                )
+                self._record_scope_decision_telemetry(
+                    document_id=document_id,
+                    document_name=filename,
+                    scope_decision="scoped",
+                    primary_domain=primary_domain,
+                    classification_metadata=classification_metadata,
                 )
             else:
                 # Legacy path — OntologyManager per-doc-type prompts.
@@ -1004,6 +1026,97 @@ class OntologyCentricPipeline:
                     f"[OntologyCentricPipeline] low_confidence audit emit failed "
                     f"for {document_id}: {e}; continuing extraction"
                 )
+
+    def _record_scope_decision_telemetry(
+        self,
+        document_id: Optional[str],
+        document_name: Optional[str],
+        scope_decision: str,
+        primary_domain: Optional[str],
+        classification_metadata: Optional[Dict],
+        audit_record_id: Optional[str] = None,
+        unknown_domain: bool = False,
+    ) -> None:
+        """Piece 2 Stage 1B telemetry — record one scope-decision row to
+        platform.extraction_events for post-hoc analysis of the controlled
+        scoped activation pilot.
+
+        Wired ONLY when self.enforce_scoped_prompts is True. Legacy callers
+        produce no telemetry (would be 100% noise — they all return 'legacy'
+        regardless of metadata).
+
+        Wraps the INSERT in a SAVEPOINT so a telemetry failure cannot break
+        extraction (same pattern as AuditRecorder.emit post-architect-fix).
+
+        Per Decision 4a: uses existing platform.extraction_events table
+        (avoids ADR-007 schema-change sign-off gate). Schema:
+          id serial, vault_id uuid NOT NULL, vault_name varchar(255),
+          document_id uuid, document_name varchar(255),
+          event_type varchar(50) NOT NULL, extraction_level varchar(20),
+          details text, created_at timestamptz default now()
+
+        We use:
+          event_type = 'scoped_extraction_decision'
+          details = JSON-encoded {decision, primary_domain, classification_status,
+                                  classification_confidence, audit_record_id,
+                                  unknown_domain}
+        """
+        if not self.enforce_scoped_prompts:
+            return  # No telemetry from legacy callers.
+        if not self.tenant_id:
+            logger.warning(
+                "[Piece2-Stage1B] _record_scope_decision_telemetry skipped: "
+                "no tenant_id on pipeline"
+            )
+            return
+
+        import json as _json
+        details_payload = {
+            "decision": scope_decision,
+            "primary_domain": primary_domain,
+            "classification_status": (classification_metadata or {}).get(
+                "classification_status"
+            ),
+            "classification_confidence": (classification_metadata or {}).get(
+                "classification_confidence"
+            ),
+            "classifier_version": (classification_metadata or {}).get(
+                "classifier_version"
+            ),
+            "audit_record_id": audit_record_id,
+            "unknown_domain": unknown_domain,
+        }
+        savepoint = self.session.begin_nested()
+        try:
+            self.session.execute(
+                sql_text(
+                    "INSERT INTO platform.extraction_events "
+                    "(vault_id, document_id, event_type, extraction_level, details) "
+                    "VALUES (:vault_id, :document_id, :event_type, :extraction_level, :details)"
+                ),
+                {
+                    "vault_id": str(self.tenant_id),
+                    "document_id": str(document_id) if document_id else None,
+                    "event_type": "scoped_extraction_decision",
+                    "extraction_level": scope_decision,
+                    "details": _json.dumps(details_payload, default=str),
+                },
+            )
+            savepoint.commit()
+            logger.info(
+                f"[Piece2-Stage1B] telemetry recorded: doc={document_id} "
+                f"decision={scope_decision} primary_domain={primary_domain} "
+                f"unknown_domain={unknown_domain}"
+            )
+        except Exception as e:
+            logger.error(
+                f"[Piece2-Stage1B] telemetry failed (extraction continues): {e}"
+            )
+            try:
+                savepoint.rollback()
+            except Exception:
+                pass
+            # NEVER re-raise — telemetry failure must not break extraction.
 
     def _emit_classification_failed_audit(
         self,
