@@ -30,41 +30,93 @@ class TenantService:
         name: str,
         slug: str,
         tenant_type: str = "personal_sandbox",
-        settings: Optional[Dict[str, Any]] = None
+        settings: Optional[Dict[str, Any]] = None,
+        tenant_id: Optional[Any] = None,
     ) -> Dict[str, Any]:
         """
         Create a new tenant.
-        
+
         Args:
             name: Display name for the tenant
             slug: URL-safe unique identifier
             tenant_type: One of opco_production, opco_pilot, personal_sandbox, demo, qdata_internal
             settings: Optional JSON settings
-            
+            tenant_id: Optional explicit UUID (str or uuid.UUID) to use as platform.tenants.id.
+                When provided, the tenant row is inserted with this exact id (Stage 1B β
+                requires CLI vault_id == tenants.id). When None, Postgres mints one via
+                the gen_random_uuid() default — preserves prior behavior for existing callers.
+
         Returns:
             Created tenant record
         """
         settings = settings or {}
-        
+
         with self._get_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("""
-                    INSERT INTO platform.tenants (name, slug, type, settings)
-                    VALUES (%s, %s, %s, %s)
-                    RETURNING *
-                """, (name, slug, tenant_type, psycopg2.extras.Json(settings)))
-                
+                if tenant_id is not None:
+                    cur.execute("""
+                        INSERT INTO platform.tenants (id, name, slug, type, settings)
+                        VALUES (%s, %s, %s, %s, %s)
+                        RETURNING *
+                    """, (str(tenant_id), name, slug, tenant_type, psycopg2.extras.Json(settings)))
+                else:
+                    cur.execute("""
+                        INSERT INTO platform.tenants (name, slug, type, settings)
+                        VALUES (%s, %s, %s, %s)
+                        RETURNING *
+                    """, (name, slug, tenant_type, psycopg2.extras.Json(settings)))
+
                 tenant = dict(cur.fetchone())
                 conn.commit()
-                
+
                 cur.execute("""
                     INSERT INTO platform.tenant_quotas (tenant_id)
                     VALUES (%s)
                 """, (tenant['id'],))
                 conn.commit()
-                
-                logger.info(f"Created tenant: {name} ({slug})")
+
+                logger.info(f"Created tenant: {name} ({slug}) id={tenant['id']}")
                 return tenant
+
+    def update_tenant_metadata(
+        self,
+        tenant_id: Any,
+        metadata: Dict[str, Any],
+    ) -> bool:
+        """
+        Merge corpus metadata into platform.tenants.settings under key 'corpus_metadata'
+        without changing tenant identity. If metadata contains 'anchor_organization',
+        also mirror it to primary_organization_name column (which already exists on
+        the tenants table).
+
+        Returns True if a row was updated, False if tenant not found.
+        Does NOT raise on missing tenant — caller already treats this as best-effort.
+        """
+        anchor_org = metadata.get("anchor_organization")
+        with self._get_connection() as conn:
+            with conn.cursor() as cur:
+                if anchor_org:
+                    cur.execute("""
+                        UPDATE platform.tenants
+                        SET settings = COALESCE(settings, '{}'::jsonb)
+                                       || jsonb_build_object('corpus_metadata', %s::jsonb),
+                            primary_organization_name = COALESCE(primary_organization_name, %s),
+                            updated_at = NOW()
+                        WHERE id = %s
+                    """, (psycopg2.extras.Json(metadata), anchor_org, str(tenant_id)))
+                else:
+                    cur.execute("""
+                        UPDATE platform.tenants
+                        SET settings = COALESCE(settings, '{}'::jsonb)
+                                       || jsonb_build_object('corpus_metadata', %s::jsonb),
+                            updated_at = NOW()
+                        WHERE id = %s
+                    """, (psycopg2.extras.Json(metadata), str(tenant_id)))
+                updated = cur.rowcount > 0
+                conn.commit()
+                if updated:
+                    logger.info(f"Updated corpus_metadata for tenant {tenant_id}")
+                return updated
     
     def get_tenant(self, tenant_id: UUID) -> Optional[Dict[str, Any]]:
         """Get tenant by ID."""

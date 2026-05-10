@@ -265,10 +265,14 @@ def get_or_create_tenant(vault_id: str, corpus_name: str) -> Optional[Dict[str, 
             return tenant
         
         slug = slugify(corpus_name) or vault_id
-        
+
+        # Stage 1B β fix: pass CLI-minted vault_id as the explicit tenants.id
+        # so downstream FK writes (tenant_quotas, documents, ...) succeed. Prior
+        # behavior was to let Postgres mint a different uuid → 100% upload fail.
         tenant = ts.create_tenant(
             name=corpus_name,
-            slug=slug
+            slug=slug,
+            tenant_id=vault_id,
         )
         return tenant
         
