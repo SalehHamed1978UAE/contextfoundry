@@ -946,3 +946,214 @@ Of the 1150 S-vault STAGING rels, ~155 reference entities owned by other tenants
 - No code changes to `gardener.py` (perf fix retained)
 - No tests changed; targeted tests from prior turn still pass
 
+
+---
+
+# Stage 1H — Tenant Isolation Root-Cause Audit (2026-05-11)
+
+**Brief:** `docs/inbox/stage_1h_tenant_isolation_audit_2026-05-11.md`
+**Mode:** read-only diagnosis, no DB/code mutations.
+**Vaults:** S = `5df41308-4033-441d-b712-77928b8ea93e`, L = `f38e400f-0bba-47d8-b8cc-b41fbaff059f`, OrigNexus = `176a4fb2-0bb4-4da3-9068-0e26268fca71`. Other endpoint tenants observed: `64115bd5`, `fcc0a076`, `92d837a1`.
+
+## DB diagnosis (sections 1-5)
+
+### Section 1 — full cross-tenant census on S vault relationships
+
+| lifecycle_state | n |
+|---|---|
+| STAGING | 1150 |
+| TRUSTED | 21 |
+| ARCHIVED | 1056 |
+| **total** | **2227** |
+
+Endpoint-tenancy buckets (across all lifecycles):
+
+| bucket | n | distinct src_docs |
+|---|---|---|
+| both_in_S | 509 | 64 |
+| src_in_S, tgt_outside | 837 | 98 |
+| tgt_in_S, src_outside | 466 | 89 |
+| both_outside_S | 415 | 68 |
+| **cross_tenant total** | **1718** | (overlapping) |
+
+Lifecycle × bucket:
+
+| bucket | STAGING | TRUSTED | ARCHIVED |
+|---|---|---|---|
+| both_in_S | 485 | 21 | 3 |
+| cross_tenant | 665 | 0 | 1053 |
+
+**Cross-tenant rels exist in STAGING (665) and ARCHIVED (1053). The both-in-S TRUSTED count (21) is the only fully-clean subset.**
+
+Top endpoint tenants for cross-tenant rels:
+
+| role | tenant | count |
+|---|---|---|
+| src | f38e400f (L) | 507 |
+| src | 176a4fb2 (OrigNexus) | 302 |
+| src | 64115bd5 | 58 |
+| tgt | f38e400f (L) | 696 |
+| tgt | 176a4fb2 (OrigNexus) | 428 |
+| tgt | 64115bd5 | 118 |
+
+### Section 2 — creation-time analysis (smoking gun)
+
+| bucket | n | created window | updated window | modified-after-create |
+|---|---|---|---|---|
+| both_in_S | 509 | 05-11 05:07 → 05:31 | 05-11 05:08 → 16:39 | 46 |
+| cross_tenant | 1718 | 05-11 05:07 → 05:31 | 05-11 05:18 → 05:59 | **1718 (100%)** |
+
+Anchor entity-creation windows:
+
+| set | c_min | c_max | n |
+|---|---|---|---|
+| S entities | 05-11 05:07 | 05-11 05:31 | 2345 |
+| L entities | 05-10 21:34 | 05-10 21:54 | 2258 |
+| OrigNexus entities | **2026-02-08** | 05-08 | 6624 |
+| S relationships | 05-11 05:07 | 05-11 05:31 | 2227 |
+
+Sample 5 cross-tenant rels (timing):
+
+| rid | rtype | r_created | src_t | src_created | tgt_t | tgt_created |
+|---|---|---|---|---|---|---|
+| 03f5492b | LEADS | 05-11 05:07 | S | 05-11 05:07 | 64115bd5 | **2026-01-29 16:09** |
+| 3d96510f | HOLDS_POSITION | 05-11 05:07 | S | 05-11 05:07 | 64115bd5 | **2026-01-29** |
+| d5d1e11b | PART_OF | 05-11 05:07 | L | 2026-05-10 21:34 | S | 05-11 05:07 |
+| 5584ecb4 | USES | 05-11 05:07 | 64115bd5 | 2026-01-29 | S | 05-11 05:07 |
+| 93f07f93 | USES | 05-11 05:07 | 64115bd5 | 2026-01-29 | L | 2026-05-10 21:45 |
+
+**Conclusion:** S extraction (05:07-05:31 on 05-11) created relationships whose endpoints reference entities in other tenants that pre-date the S vault's existence by 3.5 months (64115bd5) or several hours (L). Sample 5 is the most extreme: an S-vault rel whose **neither endpoint is in S** — one is in tenant 64115bd5, the other in L.
+
+### Section 3 — source-document analysis (sample 5)
+
+| rid | rtype | src | src_t | tgt | tgt_t | source_doc_id |
+|---|---|---|---|---|---|---|
+| 03f5492b | LEADS | Robert Kim | 5df41308 (S) | Nexus Industries | 64115bd5 | b078155f… |
+| 3d96510f | HOLDS_POSITION | Robert Kim | S | Nexus Industries | 64115bd5 | b078155f… |
+| d5d1e11b | PART_OF | Security Operations Ce | f38e400f (L) | Nexus Industries | S | b078155f… |
+| 5584ecb4 | USES | Nexus Industries | 64115bd5 | Okta | S | b078155f… |
+| 93f07f93 | USES | Nexus Industries | 64115bd5 | Outlook | f38e400f (L) | b078155f… |
+
+All 5 share `source_document_id = b078155f-094e-48ca-b3fa-b9542e07e05b`. Both-in-S rels also point to that same doc. **The cross-tenant rels originate from S-vault documents.** The earlier `doc_missing=1718` was an artifact of the `documents.id (uuid) = relationships.source_document_id (varchar)` JOIN type mismatch (Section 5 schema-issue note).
+
+### Section 4 — entity-name equivalence (repair feasibility)
+
+Total distinct cross-tenant endpoints: **758**
+
+| class | count | % |
+|---|---|---|
+| unique_S_equiv (one S entity matches by lower(name)+entity_type) | 746 | 98.4% |
+| multi_S_candidate (≥2 S matches; needs disambiguation) | 12 | 1.6% |
+| no_S_equiv | 0 | 0% |
+
+**Remap-to-S-equivalent is feasible for 98% of endpoints by deterministic name+type lookup; 12 endpoints need manual or LLM disambiguation; 0 endpoints would require re-extraction.**
+
+### Section 5 — schema / constraint check
+
+| facet | finding |
+|---|---|
+| FK on `relationships(source_id)` / `(target_id)` | references `entities(id)` with no tenant constraint |
+| trigger on `relationships` | **none** (only `entities` has `enforce_entity_type`) |
+| RLS on `relationships` | filters writes/reads by `tenant_id = app.current_tenant_id`; does NOT prevent FK to other-tenant existing rows |
+| empirical cross-tenant rels DB-wide | **2814** |
+| schema bug | `relationships.source_document_id` is `character varying`, but `documents.id` is `uuid`. JOINs require `::text=::text` cast |
+
+## Code-path audit
+
+| path | tenant_id filter on entity lookup? | tenant_id assigned to new rel? |
+|---|---|---|
+| `staging_loader._find_entity_by_name` (L379-391) | ✅ `Entity.tenant_id == uuid.UUID(self.tenant_id)` | — |
+| `staging_loader._find_entity_by_name_any_type` (L400-407) | ✅ same | — |
+| `staging_loader.load_relation` (L609-679) | ✅ uses `_find_entity_by_name_any_type`; explicit tenant filter on dedup query L620-621 | ✅ L644 `tenant_id=uuid.UUID(self.tenant_id)` |
+| `kg_ingestor._find_entity_by_name` (L400-407) | ✅ `Entity.tenant_id == self.tenant_id` | — |
+| `kg_ingestor._upsert_relationship` (L270-315) | ✅ uses `_find_entity_by_name`; dedup filter L297-303 | ✅ L355 |
+| `ontology_centric_pipeline._resolve_entities_against_existing` (L796-859) | ✅ raw SQL `WHERE tenant_id = :tid` L820-825 | (sets `name_to_existing_id` only) |
+| `ontology_centric_pipeline._stage_results` (L861-917) | uses tenant-scoped `name_to_existing_id` then delegates to `StagingLoader.load_all` | — |
+| `entity_resolver._merge_entities` (L353-398) | operates only on in-memory `ExtractedEntity` objects; no DB lookup | — |
+| `canonicalizer.py` | scoped to `canonical_relations` ontology table; does NOT write `relationships` | — |
+| `aggregation/hooks.merge_entities` | updates mentions index only; no rel insert | — |
+
+**All audited paths are tenant-scoped.** Yet 1718 cross-tenant S relationships exist and were created exactly during the S extraction window. This means **either**:
+
+(a) An unaudited write path exists somewhere in the codebase that bypasses these tenant filters, **OR**
+(b) Some of the audited paths are being invoked with `self.tenant_id` set to `None` or the wrong tenant under specific conditions, **OR**
+(c) A worker / async / scheduled job that runs without correct tenant context creates these rels post-extraction (the `updated_at` for cross-tenant rels is uniformly `~13 minutes after creation` — 05:18-05:59 vs created 05:07-05:31 — suggesting a post-processing pass).
+
+## Root-cause classification
+
+Per brief's class buckets:
+
+- **Class A (extraction-side: missing tenant filter on endpoint resolution)** — *cannot be confirmed from audited paths*. All audited extraction paths filter by tenant_id correctly.
+- **Class B (cross-tenant merge: canonicalizer/dedup merging entities across tenants)** — *not observed*. Canonicalizer touches `canonical_relations` ontology table, not `relationships`. Aggregation hooks only update mention indexes.
+- **Class C (ingest-side: rel created with wrong tenant_id)** — *not observed*. Every audited rel-write path sets `tenant_id` from `self.tenant_id` consistent with the rel's source doc.
+- **Class D (post-processing pass with wrong tenant context)** — **most consistent with timing data.** Cross-tenant rels were modified 13min after creation (uniformly 05:18-05:59 vs created 05:07-05:31), and 100% of cross-tenant rels were `modified_after_create` vs only 9% of both-in-S rels. This suggests a second pass (verification worker? gardener? canonicalizer? a relation post-processor?) that fires after extraction, runs without proper tenant scoping, and either rewrites endpoint FKs or creates new relationships using globally-scoped entity lookups.
+
+**Provisional verdict:** Class D, but **not yet root-caused** — requires audit of the 13-minute post-extraction passes (the unaudited candidates listed below).
+
+## Unaudited code paths (next-iteration suspects)
+
+In rough priority order:
+
+1. **`relation_extractor.py`** — possible direct `relationships` insert
+2. **`agents/relationship_inference.py`** — relationship inference may create rels without tenant scope
+3. **`workers/extraction_worker.py`** — async worker invocation
+4. **`workers/verification_worker.py`** — verification pass; runs ~now in pipeline; could be the 13-min lag source
+5. **`agents/gardener.py`** — promotion + canonicalization; has DB-wide queries
+6. **`extraction/duplicate_detector.py`** — dedup may merge across tenants
+7. **`extraction/multi_extractor.py`** — multi-model extraction orchestration
+8. **`scripts/run_vault_extraction.py` lines 685-825** — `run_ontology_extraction` post-extraction stages (we saw `extraction_level = 'ontology'` SET on docs, suggesting a post-pass)
+9. **Migrations 015 / scaled_synthetic_generator** — possible test/seed code that bulk-loads cross-tenant rels (but timing argues against this)
+
+## Repair plan (NOT executed per brief)
+
+**Phase A — Schema-level prevention** (idempotent, applies to all future writes):
+
+A1. Add a `CHECK`-via-`CONSTRAINT TRIGGER` on `relationships` that asserts:
+```sql
+NEW.tenant_id = (SELECT tenant_id FROM entities WHERE id = NEW.source_id)
+AND NEW.tenant_id = (SELECT tenant_id FROM entities WHERE id = NEW.target_id)
+```
+Implement as a deferrable constraint trigger so bulk loads can defer until end of transaction.
+
+A2. Fix the `relationships.source_document_id` column type: migrate from `character varying` → `uuid`. Add FK to `documents(id)`.
+
+A3. Add per-row tenant assertion to RLS WITH CHECK clause to also validate endpoint tenants on INSERT/UPDATE (RLS supports `WITH CHECK` separately from `USING`).
+
+**Phase B — Backfill repair on existing 1718 S cross-tenant rels** (and 2814 DB-wide):
+
+B1. For each cross-tenant rel, look up the unique-S-equivalent endpoint by `(lower(name), entity_type)` (matches 746/758 = 98%). Update `source_id` / `target_id` to the S-tenant equivalent.
+
+B2. For 12 multi-candidate endpoints, defer to manual review or LLM disambiguation; mark with audit note.
+
+B3. After Phase A constraint trigger is in place, this Phase B repair will reject any remaining no-equiv endpoint, forcing those rels into a `tenant_isolation_quarantine` table for review (zero loss).
+
+**Phase C — Code remediation**:
+
+C1. Audit and fix the unaudited paths above. Likely fix shape: every `WHERE tenant_id = …` filter must come from an explicit pipeline-set tenant_id, never from session.app.current_tenant or implicit RLS.
+
+C2. Add a `TenantSession` invariant: any code path that does `session.query(Entity)` or `session.query(Relationship)` without an explicit `tenant_id` filter must raise (linter rule + runtime assertion in dev).
+
+C3. Add structured telemetry on every rel insert: log `(rel.tenant_id, src_ent.tenant_id, tgt_ent.tenant_id)` and emit a metric counter for any mismatch.
+
+## Test proposals (NOT written per brief)
+
+T1. **DB-level integration test**: After Phase A, attempt to INSERT a relationship with a cross-tenant FK. Expect SQL error from the constraint trigger.
+
+T2. **Pipeline integration test**: Spin up two ephemeral tenants A and B. Pre-populate B with entity "Acme" (entity_type=ORG). Run extraction on a doc in A that mentions "Acme". Assert: A gets its own "Acme" entity (tenant_id=A); no relationships in A reference B's "Acme".
+
+T3. **Regression test for code-path audit**: Mock `session.query(Entity)` to return cross-tenant rows. Assert every code path that uses the result either filters explicitly or raises.
+
+T4. **Section-by-section repair verification queries** (re-runnable):
+   - Section 1: cross_tenant count should be 0 for new extractions
+   - Section 5d: empirical_cross_tenant_rels_globally should monotonically decrease
+
+T5. **Worker isolation test**: Mock the verification worker / gardener / canonicalizer to run with `current_tenant_id=A` and assert they NEVER touch tenant B's rows.
+
+## Stop-and-report decision
+
+Per brief: stop after audit, do not execute Phase A/B/C, do not write T1-T5. Hand back to user for direction on:
+
+1. **Which unaudited path(s) to investigate next** (top suspects: relation_extractor, verification_worker, gardener, multi_extractor)
+2. **Phase A/B/C sequencing** — do constraint trigger first (prevents new poisoning) or backfill first (cleans existing)?
+3. **Whether the 12 multi-candidate endpoints justify manual review or LLM disambiguation**
+
