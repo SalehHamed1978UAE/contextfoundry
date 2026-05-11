@@ -1,0 +1,242 @@
+{
+  "document_id": "ce71ccee-889b-4b5c-8992-51daf99938f2",
+  "document_path": "12_project_cost_summary.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-10T23:12:58.639628",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "12_project_cost_summary.md",
+      "source_excerpt": "Nexus Industries' major capital projects",
+      "aliases": []
+    },
+    {
+      "name": "Orbital Constellation",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$680M",
+        "spent": "$445M",
+        "remaining": "$235M",
+        "status": "On Track"
+      },
+      "confidence": 0.9,
+      "source_document": "12_project_cost_summary.md",
+      "source_excerpt": "Project Detail: Orbital Satellite Constellation",
+      "aliases": []
+    },
+    {
+      "name": "Desert Sun Solar",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$385M",
+        "spent": "$295M",
+        "remaining": "$90M",
+        "status": "On Track"
+      },
+      "confidence": 0.9,
+      "source_document": "12_project_cost_summary.md",
+      "source_excerpt": "Project Detail: Desert Sun Solar Farm",
+      "aliases": []
+    },
+    {
+      "name": "GreenHydrogen",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$225M",
+        "spent": "$52M",
+        "remaining": "$173M",
+        "status": "On Track"
+      },
+      "confidence": 0.9,
+      "source_document": "12_project_cost_summary.md",
+      "source_excerpt": "Project Detail: GreenHydrogen Initiative",
+      "aliases": []
+    },
+    {
+      "name": "CarbonZero DAC",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$185M",
+        "spent": "$28M",
+        "remaining": "$157M",
+        "status": "On Track"
+      },
+      "confidence": 0.9,
+      "source_document": "12_project_cost_summary.md",
+      "source_excerpt": "Project Detail: CarbonZero DAC",
+      "aliases": []
+    },
+    {
+      "name": "Falcon X UAV",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$145M",
+        "spent": "$78M",
+        "remaining": "$67M",
+        "status": "On Track"
+      },
+      "confidence": 0.9,
+      "source_document": "12_project_cost_summary.md",
+      "source_excerpt": "Project Detail: Falcon X UAV Program",
+      "aliases": []
+    },
+    {
+      "name": "BatteryTech",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$156M",
+        "spent": "$45M",
+        "remaining": "$111M",
+        "status": "On Track"
+      },
+      "confidence": 0.9,
+      "source_document": "12_project_cost_summary.md",
+      "source_excerpt": "Project Detail: BatteryTech Solid State",
+      "aliases": []
+    },
+    {
+      "name": "CyberShield",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$58M",
+        "spent": "$48M",
+        "remaining": "$10M",
+        "status": "Ahead"
+      },
+      "confidence": 0.9,
+      "source_document": "12_project_cost_summary.md",
+      "source_excerpt": "Project Detail: CyberShield Security",
+      "aliases": []
+    },
+    {
+      "name": "Total",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Total Investment",
+        "value": "$2.04B",
+        "period": "Current",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "12_project_cost_summary.md",
+      "source_excerpt": "Total investment exceeding $25 million",
+      "aliases": []
+    },
+    {
+      "name": "Corporate FP&A",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Financial Planning and Analysis"
+      },
+      "confidence": 0.85,
+      "source_document": "12_project_cost_summary.md",
+      "source_excerpt": "Report Prepared By: Corporate FP&A",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Orbital Constellation",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_project_cost_summary.md",
+      "evidence": "Nexus Industries' major capital projects"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Desert Sun Solar",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_project_cost_summary.md",
+      "evidence": "Nexus Industries' major capital projects"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "GreenHydrogen",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_project_cost_summary.md",
+      "evidence": "Nexus Industries' major capital projects"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "CarbonZero DAC",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_project_cost_summary.md",
+      "evidence": "Nexus Industries' major capital projects"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Falcon X UAV",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_project_cost_summary.md",
+      "evidence": "Nexus Industries' major capital projects"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "BatteryTech",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_project_cost_summary.md",
+      "evidence": "Nexus Industries' major capital projects"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "CyberShield",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_project_cost_summary.md",
+      "evidence": "Nexus Industries' major capital projects"
+    },
+    {
+      "source_entity": "Corporate FP&A",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "12_project_cost_summary.md",
+      "evidence": "Report Prepared By: Corporate FP&A"
+    }
+  ],
+  "metadata": {
+    "filename": "12_project_cost_summary.md",
+    "raw_entity_count": 10,
+    "raw_relationship_count": 8,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

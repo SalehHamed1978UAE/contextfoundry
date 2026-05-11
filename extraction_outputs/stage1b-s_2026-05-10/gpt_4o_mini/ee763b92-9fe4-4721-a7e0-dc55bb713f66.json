@@ -1,0 +1,274 @@
+{
+  "document_id": "ee763b92-9fe4-4721-a7e0-dc55bb713f66",
+  "document_path": "11_treasury_report.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-10T23:19:16.416668",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Nexus Industries Treasury Report Q4 FY2025",
+      "aliases": []
+    },
+    {
+      "name": "Michael Chang",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO",
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Michael Chang, CFO (Chair)",
+      "aliases": []
+    },
+    {
+      "name": "David Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Treasury",
+        "role": "Vice President of Treasury"
+      },
+      "confidence": 0.95,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "David Chen, VP Treasury",
+      "aliases": []
+    },
+    {
+      "name": "Sarah Johnson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Finance",
+        "role": "Vice President of Finance"
+      },
+      "confidence": 0.95,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Sarah Johnson, VP Finance",
+      "aliases": []
+    },
+    {
+      "name": "JPMorgan Chase",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Bank",
+        "industry": "Financial Services"
+      },
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "JPMorgan Chase | Lead Arranger",
+      "aliases": []
+    },
+    {
+      "name": "Bank of America",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Bank",
+        "industry": "Financial Services"
+      },
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Bank of America | Co-Lead",
+      "aliases": []
+    },
+    {
+      "name": "Citibank",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Bank",
+        "industry": "Financial Services"
+      },
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Citibank | Participant",
+      "aliases": []
+    },
+    {
+      "name": "Wells Fargo",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Bank",
+        "industry": "Financial Services"
+      },
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Wells Fargo | Participant",
+      "aliases": []
+    },
+    {
+      "name": "Goldman Sachs",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Bank",
+        "industry": "Financial Services"
+      },
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Goldman Sachs | Participant",
+      "aliases": []
+    },
+    {
+      "name": "Morgan Stanley",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Bank",
+        "industry": "Financial Services"
+      },
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Morgan Stanley | Participant",
+      "aliases": []
+    },
+    {
+      "name": "Investment Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "N/A",
+        "category": "Board approved"
+      },
+      "confidence": 0.85,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Investment Policy: Board approved",
+      "aliases": []
+    },
+    {
+      "name": "Hedging Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "N/A",
+        "category": "CFO approved"
+      },
+      "confidence": 0.85,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Hedging Policy: CFO approved",
+      "aliases": []
+    },
+    {
+      "name": "Counterparty Limits",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "N/A",
+        "category": "Minimum rating"
+      },
+      "confidence": 0.85,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Counterparty Limits: A- minimum rating",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Michael Chang",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "11_treasury_report.md",
+      "evidence": "Michael Chang, CFO (Chair)"
+    },
+    {
+      "source_entity": "David Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "11_treasury_report.md",
+      "evidence": "David Chen, VP Treasury"
+    },
+    {
+      "source_entity": "Sarah Johnson",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "11_treasury_report.md",
+      "evidence": "Sarah Johnson, VP Finance"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "JPMorgan Chase",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "evidence": "JPMorgan Chase | Lead Arranger"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Bank of America",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "evidence": "Bank of America | Co-Lead"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Citibank",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "evidence": "Citibank | Participant"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Wells Fargo",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "evidence": "Wells Fargo | Participant"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Goldman Sachs",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "evidence": "Goldman Sachs | Participant"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Morgan Stanley",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "evidence": "Morgan Stanley | Participant"
+    }
+  ],
+  "metadata": {
+    "filename": "11_treasury_report.md",
+    "raw_entity_count": 13,
+    "raw_relationship_count": 9,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}
