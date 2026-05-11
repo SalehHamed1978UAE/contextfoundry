@@ -459,3 +459,23 @@ Confidence distributions are **essentially identical across vaults** at every li
 
 Per the resume brief: **β results are presented for sign-off with revisions to Findings 2 and 4 reflected above.** Awaiting user direction. **Stop point unchanged: do NOT begin Stage 2 work.**
 
+
+---
+
+## Stage 1B β — CLOSEOUT (2026-05-11 07:09 UTC)
+
+Per `docs/inbox/piece_2_stage1b_closeout_2026-05-11.md`, sign-off received. Stage 1B β is **closed** pending the dwell re-query, which is **DEFERRED**:
+
+- Current UTC: 2026-05-11 07:09:43
+- Dwell gate (S extraction end + 1h + buffer per closeout doc): 2026-05-11 07:35:13
+- Time remaining: 25m 30s
+- Action: defer dwell re-query per closeout rule ("If current UTC < gate: do not wait, record due time and stop"). Will run as a single SQL query when the user resumes after the gate passes.
+
+**Open item statuses post-closeout:**
+1. **Open item 1** (TRUSTED dwell re-query): DEFERRED. Due 2026-05-11 07:35:13 UTC.
+2. **Open item 2** (relationships.source_document_id observability gap): RECORDED as Stage 2 design input. NOT FIXED.
+3. **Open item 3** (cold-corpus adaptive-ontology test): RECORDED as future task name **"Piece 2X — Adaptive Ontology Cold-Corpus Validation"**. NOT DRAFTED, NOT EXECUTED.
+4. **Open item 4** (full S VerificationWorker run): DEFERRED.
+
+**Adaptive-ontology claim (recorded conclusion):** Defensible as a codebase/design claim — raw ontology write paths (`staging_loader._ensure_entity_type_exists`, `ontology_centric_pipeline._update_reference_ontology`), discovery/candidate paths (`type_discovery_agent`, `candidate_store`), and governed Ontology Foundry infrastructure (`ontology_foundry/{schema_service,schema_version_manager,deprecation_manager,approval_manager}`) all exist. Historical 803 ad-hoc types prove the path executed. **Not validated by Stage 1B β** — Nexus is saturated; both L and S left ontology unchanged at 1037/254. Cold-corpus validation deferred to Piece 2X.
+
