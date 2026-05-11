@@ -479,3 +479,53 @@ Per `docs/inbox/piece_2_stage1b_closeout_2026-05-11.md`, sign-off received. Stag
 
 **Adaptive-ontology claim (recorded conclusion):** Defensible as a codebase/design claim — raw ontology write paths (`staging_loader._ensure_entity_type_exists`, `ontology_centric_pipeline._update_reference_ontology`), discovery/candidate paths (`type_discovery_agent`, `candidate_store`), and governed Ontology Foundry infrastructure (`ontology_foundry/{schema_service,schema_version_manager,deprecation_manager,approval_manager}`) all exist. Historical 803 ad-hoc types prove the path executed. **Not validated by Stage 1B β** — Nexus is saturated; both L and S left ontology unchanged at 1037/254. Cold-corpus validation deferred to Piece 2X.
 
+
+---
+
+## Dwell re-query — 2026-05-11 12:14 UTC (β-Finding 4 status update)
+
+Gate elapsed (4h 39m past `07:35:13` gate). All S facts now past `min_dwell_time_hours=1.0` window.
+
+### Lifecycle state — entities
+
+| vault | STAGING | TRUSTED | ARCHIVED | total |
+|---|---:|---:|---:|---:|
+| L (baseline) | 1543 | 78 | 637 | 2258 |
+| S (β scoped) | 972 | 27 | 1346 | 2345 |
+
+### Lifecycle state — relationships
+
+| vault | STAGING | TRUSTED | ARCHIVED | total |
+|---|---:|---:|---:|---:|
+| L (baseline) | 1789 | 9 | 394 | 2192 |
+| S (β scoped) | 1171 | 0 | 1056 | 2227 |
+
+### Drift in S since first measurement (~7h ago)
+
+| | then | now | Δ |
+|---|---|---|---|
+| Ents STAGING | 1171 | 972 | −199 |
+| Ents TRUSTED | 27 | 27 | **0 (unchanged)** |
+| Ents ARCHIVED | 1147 | 1346 | +199 |
+| Rels STAGING | 1219 | 1171 | −48 |
+| Rels TRUSTED | 0 | 0 | **0 (unchanged)** |
+| Rels ARCHIVED | 1008 | 1056 | +48 |
+
+All 199 entity transitions during the dwell window went STAGING → ARCHIVED, not STAGING → TRUSTED. Same for the 48 relationship transitions.
+
+### β-Finding 4 — STATUS: REMAINS OPEN
+
+**Dwell-time hypothesis falsified.** With dwell satisfied for all S facts, S TRUSTED is still 27 ents / 0 rels vs L's 78 / 9 — a 65% gap on entities and a 100% gap on relationships. The TRUSTED gap is **not a wall-clock artifact**. Something else prevents S fact promotion.
+
+**Updated hypotheses (UNTESTED in this turn per closeout scope):**
+- **H1 — gardener cycle gap.** No gardener promotion cycle may have run against the S tenant. Verifiable via `gardener_logs` filtered by S tenant.
+- **H2 — corroboration threshold.** Gardener may require ≥N corroborating sources; S has only one extraction run to draw from, so there are fewer cross-run cross-references to satisfy the gate.
+- **H3 — verification gate.** `replit.md` records `require_verification_for_promotion=False`, but the actual runtime config in this S run may differ.
+- **H4 — canonicalization eats the candidate pool.** During dwell, identity resolution continues archiving S STAGING facts as merges (199 ents / 48 rels in 7h). This shrinks the promotable pool faster than gardener promotes from it.
+
+H4 is consistent with the observed drift direction (everything in dwell goes to ARCHIVED, not TRUSTED) and is consistent with the original revised β-Finding 2 (archives are merges, not rejections). H4 does not require additional code investigation to be plausible. H1–H3 do.
+
+### Action
+
+Per closeout doc: **Stop after the dwell re-query report.** Not investigating H1–H4 in this turn. β-Finding 4 status carried forward as **OPEN** for the next sign-off-gated decision.
+
