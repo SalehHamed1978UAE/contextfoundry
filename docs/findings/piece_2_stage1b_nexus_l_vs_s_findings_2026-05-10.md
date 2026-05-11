@@ -887,3 +887,62 @@ Cycle 2 would unlock most of the 179 minus ~23 ontology-invalid.
 
 `configureWorkflow` uses a stale internal workflow counter that retains removed entries (ghost names: `v2 Parallel Run`, `Test: ClaudeCode Medsync`, `Run Canonical Bench`). `listWorkflows()` returns truth (8). Workaround: bash foreground for one-shot scripts.
 
+
+---
+
+## Stage 1G Cycle 2 + Follow-up Diagnostic (2026-05-11 ~17:00 UTC)
+
+Per `docs/inbox/Stage 1G Follow-up — Diagnose Endpoint-State Mismatch Before More Cycles.md`.
+
+### Cycle 2 result on S vault
+
+- Runtime: **1.09s** Gardener-reported, 7s wall (vs 57s in Cycle 1 — fast because nothing to promote)
+- Entities promoted: **0**; Relationships promoted: **0**; Errors: **0**
+- Pre-/post-snapshot identical:
+  - ents 314 STAGING / 685 TRUSTED / 1346 ARCHIVED
+  - rels 1150 STAGING / 21 TRUSTED / 1056 ARCHIVED
+- Block reasons character-for-character identical to Cycle 1
+- Ontology baseline preserved (1037/254); L vault unchanged
+
+### Step 1: RLS/session-context endpoint-eligibility comparison
+
+Diagnostic script: `scripts/_diag_endpoint_eligibility.py` (read-only).
+
+| metric | admin (no RLS) | tenant_session(role='user', S) | match? |
+|---|---|---|---|
+| total_staging_rels | 3214 (all tenants) | 1150 (S-only) | RLS correctly filters |
+| src_trusted | 799 | 133 | ✗ |
+| tgt_trusted | 1141 | 264 | ✗ |
+| **both_trusted (endpoint-eligible)** | 369 | **24** | ✗ |
+
+**STEP 1 STOP TRIGGER FIRED.** Per brief: *"If tenant-session count is not 179: Stop and report. The pre-cycle SQL measurement was not comparable to promotion runtime context."*
+
+### Type breakdown of the 24 endpoint-eligible (under correct RLS scope)
+
+- USES: 16 (ontology-invalid)
+- FUNDED_BY: 4 (ontology-invalid)
+- RELATED_TO: 3 (ontology-invalid)
+- LOCATED_AT: 1 (confidence-low)
+
+**ALL 24 are blocked by gates other than endpoints.** Cycle 2 promoting 0 is correct.
+
+### H11 verdict: REJECTED
+
+UUID/key mismatch in the perf-fix dict was the wrong hypothesis. The perf fix is correct. The earlier "179 endpoint-eligible" measurement was inflated by an admin-role SQL with scalar subqueries that did not filter entity tenant_id, finding endpoints across all tenants.
+
+### H12 (new): Cross-tenant endpoint references inflate apparent eligibility
+
+Of the 1150 S-vault STAGING rels, ~155 reference entities owned by other tenants. Under tenant-scoped RLS those endpoints are correctly hidden, so those rels are correctly endpoint-blocked. Possible origins: cross-corpus dedup merge, extraction not tenant-scoping properly, or test-tenant artifacts.
+
+### Implications
+
+- Multi-cycle convergence on S is upper-bounded by S rels with both-S-tenant endpoints + valid ontology + adequate confidence. Current upper bound from this measurement: 24 minus 23 ontology-invalid minus 1 conf-low = **0 additional rels** without ontology backfill.
+- Stage 2 readiness gate ("convergence demonstrated") is **NOT met** for relationships under current data + ontology.
+- The cross-tenant endpoint phenomenon (155 rels, ~13% of S STAGING rels) needs root-cause investigation before scheduler activation. This is data-shape work, not gardener work.
+
+### Files added/changed
+
+- Added: `scripts/_diag_endpoint_eligibility.py` (read-only diagnostic)
+- No code changes to `gardener.py` (perf fix retained)
+- No tests changed; targeted tests from prior turn still pass
+
