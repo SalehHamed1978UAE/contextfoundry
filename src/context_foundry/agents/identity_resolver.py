@@ -242,12 +242,52 @@ class IdentityResolver:
     def __init__(
         self,
         session: Session,
+        tenant_id,
         config: Optional[IdentityResolutionConfig] = None,
     ):
+        """
+        Args:
+            session: SQLAlchemy session.
+            tenant_id: REQUIRED. The tenant scope for this resolver. May be a
+                str UUID or a uuid.UUID. Identity resolution is a tenant-local
+                operation — every entity it loads, every candidate it generates,
+                every merge it performs, and every relationship endpoint it
+                retargets must remain inside this tenant.
+
+                Stage 1H findings (2026-05-11) traced 99.5% of in-window merges
+                (2418 of 2431) to cross-tenant retargets caused by the prior
+                tenant-unscoped implementation. Constructing without tenant_id
+                is now fail-closed.
+            config: Identity resolution configuration. Defaults if omitted.
+
+        Raises:
+            ValueError: if tenant_id is empty/None.
+        """
         self.session = session
+        if not tenant_id:
+            raise ValueError(
+                "IdentityResolver requires tenant_id for tenant isolation. "
+                "Tenant-unscoped identity resolution caused cross-tenant "
+                "relationship contamination (see Stage 1H findings 2026-05-11)."
+            )
+        self.tenant_uuid = uuid.UUID(tenant_id) if isinstance(tenant_id, str) else tenant_id
+        self.tenant_id = str(self.tenant_uuid)
         self.config = config or IdentityResolutionConfig()
         self.candidates: List[DuplicateCandidate] = []
         self.merge_audit: List[MergeAuditRecord] = []
+
+    def _same_tenant(self, *entities) -> bool:
+        """
+        Tenant invariant check.
+
+        Returns True iff every supplied entity is non-None and has
+        ``tenant_id == self.tenant_uuid``. Used as a defense-in-depth guard
+        on every merge / survivor selection / relationship transfer site.
+        """
+        return all(
+            e is not None and e.tenant_id == self.tenant_uuid
+            for e in entities
+        )
     
     def run(self, commit: bool = True, staging_only: bool = True) -> IdentityResolutionResult:
         """
@@ -265,14 +305,16 @@ class IdentityResolver:
         
         try:
             staging_entities = self.session.query(Entity).filter(
-                Entity.lifecycle_state == LifecycleState.STAGING
+                Entity.tenant_id == self.tenant_uuid,
+                Entity.lifecycle_state == LifecycleState.STAGING,
             ).all()
             
             all_entities = self.session.query(Entity).filter(
+                Entity.tenant_id == self.tenant_uuid,
                 Entity.lifecycle_state.in_([
                     LifecycleState.STAGING,
                     LifecycleState.TRUSTED,
-                ])
+                ]),
             ).all()
             
             result.entities_scanned = len(all_entities)
@@ -615,13 +657,29 @@ class IdentityResolver:
         Uses temporal columns to preserve history chain.
         """
         entity_a = self.session.query(Entity).filter(
-            Entity.id == candidate.entity_a_id
+            Entity.id == candidate.entity_a_id,
+            Entity.tenant_id == self.tenant_uuid,
         ).first()
         entity_b = self.session.query(Entity).filter(
-            Entity.id == candidate.entity_b_id
+            Entity.id == candidate.entity_b_id,
+            Entity.tenant_id == self.tenant_uuid,
         ).first()
         
         if not entity_a or not entity_b:
+            logger.warning(
+                f"[IdentityResolver] Skipping merge: entity not in tenant {self.tenant_id} "
+                f"(a_id={candidate.entity_a_id}, found_a={entity_a is not None}; "
+                f"b_id={candidate.entity_b_id}, found_b={entity_b is not None}). "
+                f"Tenant-scoped lookup rejected one or both sides — fail-closed."
+            )
+            return None
+        
+        if not self._same_tenant(entity_a, entity_b):
+            logger.error(
+                f"[IdentityResolver] Refusing cross-tenant merge: "
+                f"a.tenant={entity_a.tenant_id}, b.tenant={entity_b.tenant_id}, "
+                f"resolver.tenant={self.tenant_uuid}. Defense-in-depth check fired."
+            )
             return None
         
         survivor, merged = self._choose_survivor(entity_a, entity_b)
@@ -685,7 +743,19 @@ class IdentityResolver:
         entity_a: Entity,
         entity_b: Entity,
     ) -> Tuple[Entity, Entity]:
-        """Choose which entity survives the merge."""
+        """Choose which entity survives the merge.
+
+        Tenant invariant: entity_a and entity_b must both belong to
+        ``self.tenant_uuid``. Cross-tenant survivor selection is a programming
+        error — _perform_merge should have already rejected the candidate.
+        Raises ValueError if the invariant is violated.
+        """
+        if not self._same_tenant(entity_a, entity_b):
+            raise ValueError(
+                f"_choose_survivor invariant violation: cross-tenant entities "
+                f"(a.tenant={entity_a.tenant_id}, b.tenant={entity_b.tenant_id}, "
+                f"resolver.tenant={self.tenant_uuid})"
+            )
         if entity_a.lifecycle_state == LifecycleState.TRUSTED and entity_b.lifecycle_state != LifecycleState.TRUSTED:
             return entity_a, entity_b
         if entity_b.lifecycle_state == LifecycleState.TRUSTED and entity_a.lifecycle_state != LifecycleState.TRUSTED:
@@ -708,13 +778,66 @@ class IdentityResolver:
         """
         Transfer relationships from merged entity to survivor.
         Uses temporal columns to preserve history on archived relationships.
+
+        Tenant invariants enforced (Stage 1I):
+          1. from_entity, to_entity must both belong to ``self.tenant_uuid``
+             — refused (return 0) otherwise.
+          2. Each candidate relationship must satisfy ``rel.tenant_id ==
+             self.tenant_uuid`` — skipped + logged otherwise (defense in depth
+             against orphaned cross-tenant rels reachable through the ORM
+             collection but not really part of this tenant).
+          3. The dedup query for an "existing" survivor-side relationship is
+             scoped by ``Relationship.tenant_id == self.tenant_uuid`` so a
+             relationship in another tenant cannot suppress or reroute a
+             legitimate retarget here.
+
+        Stage 1H findings (2026-05-11) traced 99.5% of in-window merges to
+        cross-tenant retargets at this exact site. These guards close the
+        writer.
         """
+        if not self._same_tenant(from_entity, to_entity):
+            logger.error(
+                f"[IdentityResolver] Refusing cross-tenant relationship transfer: "
+                f"from.tenant={from_entity.tenant_id}, to.tenant={to_entity.tenant_id}, "
+                f"resolver.tenant={self.tenant_uuid}. No endpoints retargeted."
+            )
+            return 0
+
         transferred = 0
+        skipped_cross_tenant = 0
         now = datetime.utcnow()
         
         for rel in from_entity.outgoing_relationships:
+            if rel.tenant_id != self.tenant_uuid:
+                logger.warning(
+                    f"[IdentityResolver] Skipping outgoing rel {rel.id} during transfer: "
+                    f"rel.tenant_id={rel.tenant_id} != resolver.tenant={self.tenant_uuid}. "
+                    f"Endpoint NOT retargeted."
+                )
+                skipped_cross_tenant += 1
+                continue
+
+            # Defense in depth: opposite endpoint (target) must also be in tenant.
+            # Catches pre-existing corrupt rels where rel.tenant_id matches but
+            # the target entity already lives in a foreign tenant (the prior
+            # cross-tenant pollution). Without this guard, a legitimate-looking
+            # tenant-A merge would still rewrite source_id of a corrupt rel and
+            # continue mutating the cross-tenant edge. (Architect HIGH, Stage 1I.)
+            target_entity = rel.target_entity
+            if target_entity is None or target_entity.tenant_id != self.tenant_uuid:
+                logger.warning(
+                    f"[IdentityResolver] Skipping outgoing rel {rel.id}: "
+                    f"target endpoint {rel.target_id} tenant="
+                    f"{getattr(target_entity, 'tenant_id', 'MISSING')} "
+                    f"!= resolver.tenant={self.tenant_uuid}. "
+                    f"Pre-existing cross-tenant edge — endpoint NOT retargeted."
+                )
+                skipped_cross_tenant += 1
+                continue
+
             existing = self.session.query(Relationship).filter(
                 and_(
+                    Relationship.tenant_id == self.tenant_uuid,
                     Relationship.source_id == to_entity.id,
                     Relationship.target_id == rel.target_id,
                     Relationship.relationship_type == rel.relationship_type,
@@ -733,8 +856,32 @@ class IdentityResolver:
                 rel.change_reason = f"Duplicate relationship archived during entity merge to {to_entity.name}"
         
         for rel in from_entity.incoming_relationships:
+            if rel.tenant_id != self.tenant_uuid:
+                logger.warning(
+                    f"[IdentityResolver] Skipping incoming rel {rel.id} during transfer: "
+                    f"rel.tenant_id={rel.tenant_id} != resolver.tenant={self.tenant_uuid}. "
+                    f"Endpoint NOT retargeted."
+                )
+                skipped_cross_tenant += 1
+                continue
+
+            # Defense in depth: opposite endpoint (source) must also be in tenant.
+            # See outgoing-loop comment above. (Architect HIGH, Stage 1I.)
+            source_entity = rel.source_entity
+            if source_entity is None or source_entity.tenant_id != self.tenant_uuid:
+                logger.warning(
+                    f"[IdentityResolver] Skipping incoming rel {rel.id}: "
+                    f"source endpoint {rel.source_id} tenant="
+                    f"{getattr(source_entity, 'tenant_id', 'MISSING')} "
+                    f"!= resolver.tenant={self.tenant_uuid}. "
+                    f"Pre-existing cross-tenant edge — endpoint NOT retargeted."
+                )
+                skipped_cross_tenant += 1
+                continue
+
             existing = self.session.query(Relationship).filter(
                 and_(
+                    Relationship.tenant_id == self.tenant_uuid,
                     Relationship.source_id == rel.source_id,
                     Relationship.target_id == to_entity.id,
                     Relationship.relationship_type == rel.relationship_type,
@@ -751,6 +898,13 @@ class IdentityResolver:
                 rel.lifecycle_state = LifecycleState.ARCHIVED
                 rel.valid_to = now
                 rel.change_reason = f"Duplicate relationship archived during entity merge to {to_entity.name}"
+        
+        if skipped_cross_tenant > 0:
+            logger.warning(
+                f"[IdentityResolver] Skipped {skipped_cross_tenant} cross-tenant relationships "
+                f"during transfer ({from_entity.id} -> {to_entity.id} in tenant {self.tenant_id}). "
+                f"These rels keep their original (foreign-tenant) source/target."
+            )
         
         return transferred
     

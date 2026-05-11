@@ -173,7 +173,11 @@ ModelRegistry is owned by the MLOps team.
             review_threshold=0.70,
             never_auto_merge_types=["PERSON"]
         )
-        resolver = IdentityResolver(session=session, config=identity_config)
+        resolver = IdentityResolver(
+            session=session,
+            tenant_id=os.environ.get("CF_TEST_TENANT_ID", "00000000-0000-0000-0000-000000000001"),
+            config=identity_config,
+        )
         
         with Progress(
             SpinnerColumn(),

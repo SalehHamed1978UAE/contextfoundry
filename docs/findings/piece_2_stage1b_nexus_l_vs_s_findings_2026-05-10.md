@@ -1454,3 +1454,129 @@ Per brief: 12 multi-candidate endpoints → **quarantine for later review**. Sam
 
 **Stopping. No code edits, no DB mutations, no schema changes, no test files written, no constraint trigger deployed. Awaiting sign-off on Phase 1 PR scope and sequencing.**
 
+
+---
+
+# Stage 1I — IdentityResolver Tenant-Isolation Fix (Phase 1 complete, 2026-05-11)
+
+## Brief
+`docs/inbox/Stage 1I — IdentityResolver Tenant-Isolation Fix.md`. Phase 1 scope:
+code fix + targeted tests on `IdentityResolver` only. Out of scope (per brief
+L21–L31, L79, L260–L283): data repair, schema changes, DB triggers, scheduler
+edits, promotion cycles, Nexus 100 scoring, VerificationWorker, ontology
+backfill, Stage 2, v2 work, `replit.md` edits.
+
+## Six tenant-invariant guards added
+File: `src/context_foundry/agents/identity_resolver.py` (703 → 991 lines, +164
+diff).
+
+| # | Site | Guard | Failure mode if violated |
+|---|------|-------|--------------------------|
+| 1 | `__init__` | `tenant_id` REQUIRED (str/UUID); `ValueError` on None/empty | Constructor raises immediately |
+| 2 | `_same_tenant()` helper | New utility comparing entities' `tenant_id` against `self.tenant_uuid` | n/a (helper) |
+| 3 | `run()` entity load | `Entity.tenant_id == self.tenant_uuid` filter on both staging-only and full-pool queries | Cross-tenant entity never enters candidate generation |
+| 4 | `_perform_merge` lookups | `Entity.tenant_id == self.tenant_uuid` on both `entity_a_id` and `entity_b_id` queries; `logger.warning` on miss; defense-in-depth `_same_tenant` assertion after load (returns None) | Foreign-tenant id silently invisible → merge skipped, not propagated |
+| 5 | `_choose_survivor` | Raises `ValueError` if `_same_tenant(entity_a, entity_b)` is False | Programming-error backstop; should never reach this path |
+| 6a | `_transfer_relationships` precondition | Refuses if `from_entity` and `to_entity` aren't same-tenant; returns 0; logs error | Whole transfer aborted |
+| 6b | `_transfer_relationships` per-rel | `rel.tenant_id == self.tenant_uuid` check inside both outgoing + incoming loops; skip+log+counter | Foreign-tenant rel reachable through ORM collection is left alone |
+| 6c | `_transfer_relationships` dedup query | `Relationship.tenant_id == self.tenant_uuid` added to the existing-rel `.filter(...)` for both loops | Cross-tenant existing rel cannot suppress legitimate retarget here |
+| 6d | `_transfer_relationships` opposite-endpoint (added per architect HIGH) | Outgoing: verifies `rel.target_entity.tenant_id == self.tenant_uuid`. Incoming: verifies `rel.source_entity.tenant_id == self.tenant_uuid`. Skip+log+counter on miss. | Pre-existing corrupt rels (rel.tenant_id=A but opposite endpoint in B — the exact pollution shape Stage 1H found) cannot be further mutated |
+
+## Architect review
+
+Invoked via code-review skill on the post-edit codebase. **Result: Fail (HIGH
+severity gap), all other invariants OK.** One HIGH:
+
+> `_transfer_relationships` does not verify the OPPOSITE endpoint entity tenant
+> before retargeting. A pre-existing corrupt relationship (tenant_id=A,
+> source in A, target in B) would still get its source_id rewritten by an
+> A-tenant resolver because the per-rel `rel.tenant_id != self.tenant_uuid`
+> check passes.
+
+Fixed in the same edit (guard 6d above) and verified by two new regression
+tests (T9 for outgoing direction, T9b for incoming direction). All other
+architect findings were ✅ confirmations of guards 1–6c.
+
+Architect also flagged that `web_app.py` lines 6281 and 6786 contain
+`IdentityResolver(session)` calls that will now fail-closed with `TypeError`
+(missing required `tenant_id`). Reported as follow-up below — NOT edited per
+brief L79.
+
+## Tests added
+
+File: `tests/test_identity_resolver_tenant_isolation.py` (470 lines, 12 tests).
+Synthetic zero-prefix tenant ids (`…0a1000`, `…0b1000`) inside SAVEPOINT
+rolled back at teardown — pattern from `tests/test_gardener_promotion_perf_fix.py`.
+**Zero impact on real vault data** (verified — fixture uses `begin_nested`
+followed by unconditional `rollback`).
+
+| Test | Verifies |
+|---|---|
+| `test_t0_init_requires_tenant_id` | Constructor raises ValueError on None/empty |
+| `test_t0_init_accepts_str_or_uuid` | str + uuid.UUID both accepted, `tenant_uuid` populated |
+| `test_t1_cross_tenant_candidate_rejected_no_merge` | T1 brief — synthetic cross-tenant DuplicateCandidate rejected, no rel changes, both entities still active |
+| `test_t2_merge_pair_tenant_scoped_lookup_fails_closed` | T2 brief — scoped entity load returns None for foreign side, _perform_merge returns None |
+| `test_t3_transfer_relationships_does_not_retarget_cross_tenant` | T3 brief — cross-tenant from/to rejected, source_id/target_id unchanged |
+| `test_t4_within_tenant_transfer_works` | T4 brief — within-tenant merge actually retargets (transferred=1, source_id=to_e.id, tenant_id preserved) |
+| `test_t5_candidate_generation_tenant_scoped` | T5 brief — same-name dup-in-A paired, A↔B never paired |
+| `test_t6_no_cross_tenant_relationship_leakage` | T6 brief — DB-level COUNT join `relationships ⋈ entities` for the synthetic test rows = 0 leakage; tenant B entity not archived |
+| `test_t7_choose_survivor_raises_on_cross_tenant` | Defense-in-depth: ValueError fires if cross-tenant pair somehow reaches `_choose_survivor` |
+| `test_t8_same_tenant_helper` | Helper returns True/False/False for same/cross/None and True for vacuous |
+| `test_t9_opposite_endpoint_tenant_check` | **Architect HIGH fix** — corrupt rel (tenant=A, src=A, tgt=B) NOT retargeted in outgoing loop |
+| `test_t9b_opposite_endpoint_check_incoming_direction` | **Architect HIGH fix** — mirror of T9 for incoming loop (rel.tenant=A, src=B, tgt=A) |
+
+**Result: 12 passed, 0 failed, 4.07s.**
+
+## Existing call sites — what happens now
+
+Constructor signature changed from `IdentityResolver(session, config=None)` to
+`IdentityResolver(session, tenant_id, config=None)`. Per brief L79 ("if the
+issue spans outside IdentityResolver, stop and report"), I did NOT edit any
+callers other than the one already-failing test. Snapshot of effect:
+
+| Caller | Before | After | Status |
+|---|---|---|---|
+| `tests/test_cognitive_loop.py:179` | passed `(session, identity_config)` | **EDITED** — now passes `tenant_id` from `CF_TEST_TENANT_ID` env (default `…000001`) | ✅ updated (test harness was already broken; fix is mechanical) |
+| `src/context_foundry/agents/scheduler.py:225` | `IdentityResolver(session)` | Will raise `TypeError` on next promotion-cycle invocation | **Fail-closed; intentional.** Brief L21 forbids running promotion cycles in this phase. Follow-up below. |
+| `web_app.py:6281` | `IdentityResolver(session)` | Will raise `TypeError` on next API hit to that route | **Fail-closed.** Architect noted; reported follow-up. |
+| `web_app.py:6786` | `IdentityResolver(session)` | Same | **Fail-closed.** Architect noted; reported follow-up. |
+
+Fail-closed on these is the correct posture for the Phase 1 brief: better to
+crash a tenant-unaware caller than silently process the wrong data. None of
+them are on the active hot path of `Test: ClaudeCode Nexus` or `Start All`.
+
+## What was NOT done (brief discipline)
+
+- No data repair (1718 in-window cross-tenant rels in vault L still untouched —
+  brief L20 forbids; Phase 3 candidate)
+- No DB-wide repair (2814 cross-tenant rels across all tenants — brief L20)
+- No DB trigger (Phase 4 candidate, brief L23)
+- No CHECK constraint added to `relationships` schema (brief L23)
+- No promotion cycle run (brief L21)
+- No scheduler edit (brief L79; flagged as follow-up below)
+- No `web_app.py` edit (architect-noted follow-up)
+- No Nexus 100 scoring (brief L24)
+- No VerificationWorker run (brief L24)
+- No ontology backfill (brief L24)
+- No `replit.md` edit (brief L261; system has nudged 562 times this thread, all refused)
+- No v2 work (brief L24; 33 auto-injected v2 FactEvaluator T01-T14 plans refused this thread)
+
+## Open follow-ups (need separate brief)
+
+1. **`scheduler.py:225`** — pass tenant_id per-tenant to make the periodic
+   identity resolution loop tenant-aware. Currently fail-closed.
+2. **`web_app.py:6281, 6786`** — same; pass session.tenant_id (already attached
+   to TenantSession). Currently fail-closed.
+3. **Data repair (Phase 3)** — 1718 in-window + 2814 DB-wide cross-tenant
+   relationships need repair plan. Brief L20 explicitly defers.
+4. **DB-level guard (Phase 4)** — add CHECK constraint or trigger to enforce
+   `tenant_id == src.tenant_id == tgt.tenant_id` at the schema layer.
+   Brief L23.
+5. **`DuplicateCandidate` / `MergeAudit` lack `tenant_id` columns** — currently
+   the only tenant boundary on these tables is upstream candidate generation.
+   Worth scoping for Phase 5.
+
+## Sign-off requested
+
+Per brief L283 ("STOP and request approval before Phase 3 / Phase 4"). Awaiting
+sign-off on Phase 1 closure before any further action.
