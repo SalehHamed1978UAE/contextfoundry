@@ -1,0 +1,39 @@
+Stage 1C diagnostic accepted. Hypothesis verdicts accepted: H1 ✅ primary, H2 ❌, H3 ❌, H4 ✅ secondary, H5 ✅ new finding, H6 ⚠️ open.
+Authorize Options B and C in parallel. Do NOT authorize Option A (scheduler activation) at this time.
+Stage 1D — Promotion Cadence Empirical Test:
+Run two parallel diagnostic tasks. Both are bounded and read-only or one-shot.
+Task C (read remainder of gardener.py):
+Read src/context_foundry/agents/gardener.py from line 731 to end of file, plus any related promotion modules. Specifically answer:
+
+Does promotion_pass() handle relationships, or only entities? If only entities, where (if anywhere) is the relationship promotion code path?
+If relationship promotion exists in a separate function, what calls it? Is it called from promotion_pass(), from a separate cycle, or from somewhere else entirely?
+Does the promotion logic distinguish between entity-only and entity+relationship modes, and if so, what flag controls that?
+Did L's 54-second relationship promotion phase correspond to a specific code path that S's cycle didn't reach?
+
+No code changes. Read-only.
+Task B (manual one-shot promotion re-fire on S):
+Run scripts/run_promotion.py --tenant-id 5df41308-4033-441d-b712-77928b8ea93e (or the equivalent invocation pattern; verify the exact command first). This is a one-shot manual cycle, not a scheduler activation. It runs once and exits.
+Before running, snapshot S's current state:
+
+S entities by lifecycle_state
+S relationships by lifecycle_state
+gardener_logs cycle count for S
+
+After running, capture:
+
+new gardener_logs entries (cycle_id, source, action, n, cycle_time)
+S entities by lifecycle_state (post-run)
+S relationships by lifecycle_state (post-run)
+net STAGING→TRUSTED promotions during this cycle
+
+Report whether a second cycle promotes more facts (confirming the cycle-gap hypothesis) or stays stuck (revealing a deeper blocker).
+Stop conditions:
+
+Task C uncovers a finding requiring a fix → stop and surface, don't fix
+Task B's promotion run errors or hangs → stop and surface
+Either task reveals new architectural surprises → stop and surface
+
+What this answers:
+Together, B and C tell us whether scheduler activation (Option A) would actually fix the TRUSTED gap, or whether there are deeper blockers that need to be addressed first.
+Standing constraints unchanged. No code edits, no scheduler activation, no Manus/Ontology restart, no Start All kill, no v2 work, no Nexus 100 scoring, no Stage 2 implementation, no replit.md edits.
+Stop after both tasks complete. Pause for sign-off on Option A (scheduler activation) based on B+C findings.

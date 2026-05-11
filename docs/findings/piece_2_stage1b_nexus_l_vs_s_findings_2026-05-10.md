@@ -628,3 +628,57 @@ Two potential one-line bugs surfaced:
 - **Option B**: manually re-fire `scripts/run_promotion.py --tenant-id 5df41308-...` for S now and observe second-cycle promotions (empirical H4 test)
 - **Option C**: read `gardener.py:731-1000` to determine if `promotion_pass()` handles relationships at all (close H6)
 
+
+---
+
+## Stage 1D — Promotion Cadence Empirical Test (2026-05-11 12:58 UTC)
+
+Authorized: Task B + Task C in parallel. Option A (scheduler activation) NOT authorized.
+
+### Task C — gardener.py L731-end read — COMPLETE
+
+**Q1: `promotion_pass()` handles both entities and relationships in one function.** Entity loop L750-827, relationship loop L829-904.
+
+**Q2: No separate relationship promotion function.** Single `promotion_pass()` call covers both phases.
+
+**Q3: No entity-only / entity+relationship mode flag.** Both phases always run.
+
+**Q4: Smoking gun — `endpoints_not_trusted` gate at gardener.py L864:**
+```python
+elif not (source_trusted and target_trusted):
+    block_reason = "endpoints_not_trusted"
+```
+A relationship can only promote in cycle N if BOTH endpoints are TRUSTED at cycle-N time. Within one cycle, ents promote first then rels — so the only rels eligible are those whose endpoints are among the entities promoted in the same cycle's earlier phase. This explains S=0 / L=9 deterministically: L's 78 ents made 9 rels promotable; S's 27 ents made 0.
+
+**Bonus finding:** `get_threshold("Relationship")` at L835 falls to `_default` since `promotion_thresholds` has no `Relationship` row.
+
+**Bonus finding:** rel-loop is N+1 per-endpoint lookup (gardener.py L842-847) — 2N round-trips per cycle. L's 54-second rel phase = 1789 × 2 ≈ 3578 SQL round-trips.
+
+### Task B — one-shot promotion on S — STOP-CONDITION TRIGGERED
+
+**Pre-snapshot:** S 972 STAGING ents / 27 TRUSTED / 1346 ARCHIVED; 1171 STAGING rels / 0 TRUSTED / 1056 ARCHIVED. 1 prior cycle.
+
+**Execution:** `PYTHONPATH=. python -u scripts/run_promotion.py --tenant-id 5df41308-...`. Initialization completed in 14s (loaded thresholds, ontology). Then 105s of silence. SIGTERM at 2-min timeout.
+
+**Post-hang state:** identical to pre-snapshot. No new gardener_logs cycle. No `_promoted_at` markers >= 12:54:00. No commit occurred (script commits only after `promotion_pass` returns; SIGTERM killed mid-execution).
+
+**Hang hypothesis:** N+1 endpoint lookup loop (~2342 round-trips for rels alone) plus entity-loop conflict/duplicate checks likely exceeds 2-min budget. L's prior cycle took 4-5 min wall-time end-to-end.
+
+### Combined B+C verdict for Option A
+
+- Would Option A fix TRUSTED gap? **Partially** — ents yes; rels chained structurally to ents via `endpoints_not_trusted`, may need multiple cycles to converge.
+- Are there deeper blockers? **YES** — H6 confirmed at L864.
+- Did Task B confirm cycle-gap? **Inconclusive** — hung before producing data.
+
+### Recommended next actions (surfaced; not executed)
+
+- **B-retry**: re-run with 10-min timeout
+- **B-perf**: surface N+1 endpoint lookup as perf bug
+- **D (new)**: investigate multi-cycle convergence behavior
+
+### What remains unknown
+
+1. Empirical second-cycle promotion counts for S (B-retry needed)
+2. Whether `_get_entity_ids_with_pending_duplicates` blocks ents still queued for canonicalization
+3. Whether rel-endpoint constraint can be relaxed safely
+
