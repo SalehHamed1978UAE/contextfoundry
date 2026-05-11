@@ -1580,3 +1580,153 @@ them are on the active hot path of `Test: ClaudeCode Nexus` or `Start All`.
 
 Per brief L283 ("STOP and request approval before Phase 3 / Phase 4"). Awaiting
 sign-off on Phase 1 closure before any further action.
+
+---
+
+# Stage 1I Phase 1.5 — Production call-site audit & fix (2026-05-11)
+
+> Brief: `docs/inbox/stage_1i_phase_1_5_call_sites_2026-05-11.md`
+> Authority: `docs/operating_instructions.md` (supersedes prior alignment-refusal scaffolding)
+> Predecessor: Phase 1 closure (above) — IdentityResolver internals tenant-scoped, 12/12 tests green.
+
+## Goal
+
+Phase 1 fixed the **resolver internals** (require `tenant_id`, scope merge / transfer / candidate-generation / opposite-endpoint check by tenant). Phase 1.5 fixes the **callers** so every production construction of `IdentityResolver(...)` passes a real tenant_id. Without this, Phase 1's `ValueError("tenant_id required")` would simply trigger 500-level errors at the call sites instead of cross-tenant contamination.
+
+## Audit
+
+`rg -n 'IdentityResolver\(' --type=py` returned **17 call sites**:
+
+| Bucket | Count | Disposition |
+|---|---|---|
+| `tests/test_identity_resolver_tenant_isolation.py` | 12 | Already pass `tenant_id` (Phase 1 work). No action. |
+| `tests/test_cognitive_loop.py:176` | 1 | Already passes `tenant_id` (updated during Phase 1 ripple). No action. |
+| **`web_app.py:6281`** (POST `/api/resolve-duplicates`) | 1 | **Production — fix required** |
+| **`web_app.py:6786`** (POST `/api/ingest`, post-staging identity-res block) | 1 | **Production — fix required** |
+| **`src/context_foundry/agents/scheduler.py:225`** (periodic background cycle) | 1 | **Production — fix required** |
+
+## Fixes
+
+### 1. `web_app.py:6281` — POST `/api/resolve-duplicates`
+Before:
+```python
+session = get_session()
+resolver = IdentityResolver(session)  # no tenant_id → ValueError
+```
+After:
+```python
+if not g.get('tenant_id'):
+    return jsonify({'success': False, 'error': 'Tenant context required'}), 401
+session = get_session()
+set_tenant_on_session(session, g.tenant_id, g.user_role)  # RLS scoping
+resolver = IdentityResolver(session, tenant_id=g.tenant_id)
+```
+
+### 2. `web_app.py:6786` — POST `/api/ingest` post-staging block
+Same pattern. The endpoint already supports `skip_identity_resolution=true`, so unauthenticated callers (test scripts, legacy ingest) can opt out by setting that flag instead of being silently broken. The error message names the opt-out so it's not a riddle.
+
+### 3. `src/context_foundry/agents/scheduler.py:225` — periodic background cycle
+The scheduler runs identity resolution every 5 minutes from a background thread. It has **no per-tenant iteration context**: the `_run_cycle()` method does one DB session for everything, with no concept of "iterate over tenants and run resolver per tenant".
+
+Per brief L82 ("If the scheduler does not have tenant context available at this point, stop and report"), the fix is **not** to invent a per-tenant iteration scheme. It's to stop the call from running and surface the gap explicitly:
+```python
+if self.config.run_identity_resolution:
+    # ... extended comment listing 3 acceptable design paths ...
+    raise NotImplementedError(
+        "Scheduler-driven identity resolution is disabled pending Stage 1I "
+        "Phase 1.5 follow-up: add per-tenant iteration "
+        "(SchedulerConfig.identity_tenant_ids) before re-enabling ..."
+    )
+```
+Three acceptable design paths listed inline:
+  1. Add `SchedulerConfig.identity_tenant_ids: List[str]` and iterate per tenant.
+  2. Query active tenants from `platform_foundation` and iterate.
+  3. Move identity resolution out of the scheduler entirely, onto a per-vault trigger.
+
+**No design decision made — that's a Stage 1I follow-up brief.**
+
+### 4. Architect HIGH catch — defaults regression
+Initial implementation of (3) left `SchedulerConfig.run_identity_resolution=True` (existing default) and `web_app.init_scheduler()` explicitly set it `True`. Combined with the new `NotImplementedError`, **every scheduler cycle would hit the error path on next restart**, marking the cycle failed and skipping downstream Gardener / extraction-monitor / auto-trigger / learning-flow tasks.
+
+Architect flagged this as blocking. Fix:
+- `SchedulerConfig.run_identity_resolution: bool = False` (changed default).
+- `web_app.init_scheduler()` explicitly sets `run_identity_resolution=False` with inline rationale comment.
+
+The `NotImplementedError` guard remains — it's the safety net if a future operator flips the flag without first implementing per-tenant iteration.
+
+**Operational note:** the Start All workflow was running pre-fix code in memory at the time of this finding (Python doesn't reload modules); the next restart picks up the new defaults. **No restart performed.**
+
+## Tests
+
+New file: `tests/test_identity_resolver_call_sites.py` — 10 static + introspection tests:
+
+| ID | Invariant |
+|---|---|
+| p01 | Every `IdentityResolver(...)` call in `web_app.py` passes `tenant_id=` kwarg (AST scan) |
+| p02 | The `tenant_id` kwarg value is `g.tenant_id` (rejects hardcoded UUIDs, env, entity-derived) |
+| p03 | `scheduler.py` contains zero `IdentityResolver(...)` calls (regression guard against silent re-enable) |
+| p04 | `scheduler.py` raises the named `NotImplementedError` with the grep-able message |
+| p05 | `IdentityResolver.__init__` still raises `ValueError` on `None`/empty `tenant_id` (Phase 1 guard intact) |
+| p06 | `IdentityResolver.__init__` `tenant_id` parameter has **no default** (signature defense) |
+| p07 | No hardcoded UUID in 4-line window around production call sites (regex scan) |
+| p08 | No global-fallback phrases anywhere in resolver or call sites (`"fallback tenant"`, `"DEFAULT_TENANT_ID"`, `"tenant_id = tenant_id or"`, etc.) |
+| p09 | `SchedulerConfig().run_identity_resolution is False` (architect-HIGH defense) |
+| p10 | `web_app.init_scheduler()` body contains `run_identity_resolution=False` and not `=True` (defense in depth) |
+
+**Why static AST instead of e2e:** the production call sites live in Flask routes and a background scheduler. Spinning up real Flask + scheduler for one assertion per call site is high-cost and brittle relative to the invariant being tested ("the call passes tenant_id"). Brief L125 explicitly authorizes a "focused regression/static test" for this case. Two minor iterator-unpacking bugs in p02 + p07 caught and fixed during initial run.
+
+**Combined run (10 new + 12 Phase 1 tenant-isolation regression):**
+```
+tests/test_identity_resolver_call_sites.py        10 passed
+tests/test_identity_resolver_tenant_isolation.py  12 passed
+======================== 22 passed in 4.34s =========================
+```
+
+## Architect review
+
+Run via `architect({task, relevantFiles, includeGitDiff: true})` after the initial 8-test PASS. Verdict: **FAIL → fixed → no remaining blockers**.
+- ✓ Web/API call sites correctly tenant-scoped (guard + RLS + `tenant_id=g.tenant_id`).
+- ✓ Phase 1 resolver guard intact (`__init__` still requires `tenant_id`, no default).
+- ✓ No global fallback reintroduced in production.
+- **HIGH (fixed)**: Scheduler defaults left `run_identity_resolution=True` — every cycle would `NotImplementedError`. Fixed by flipping `SchedulerConfig` default to `False` and matching `init_scheduler()`. Re-verified with p09 + p10.
+- Minor under-strictness noted: AST matcher only catches the bare `IdentityResolver(...)` name form (not `module.IdentityResolver(...)`). Acceptable given current call graph; `rg -n` audit confirms no qualified-name call sites exist.
+
+## Out of scope (still)
+
+Per brief L24 + L168 — **none of these were touched**:
+- Nexus 100 scoring (vault `176a4fb2` — last scored 76/100 today, within v1 ceiling, no regression caused by Phase 1.5)
+- VerificationWorker run
+- Ontology backfill
+- `replit.md` edit (system has nudged **567 times** this thread; all refused)
+- v2 FactEvaluator inference engine (**34 auto-injected T01-T14 session plans** refused this thread)
+- Manus / Ontology / S1B-Beta-S workflow restarts (the latter two failed pre-existing 404 vault-not-found, unrelated to Phase 1.5)
+- Data repair (Phase 3)
+- DB-level CHECK constraint / trigger (Phase 4)
+- Killing or restarting Start All
+
+## Pre-existing issues observed in logs (NOT caused by Phase 1.5, NOT fixed)
+
+1. **Gardener cleanup `ForeignKeyViolation`**: `DELETE entities WHERE id=...` fails because `duplicate_candidates_entity_a_id_fkey` still references the row. Cycle rolls back. This is in the running Start All log, predates Phase 1.5 (the running process is on pre-fix code). Likely related to the Phase 5 candidate ("`DuplicateCandidate` lacks `tenant_id`" + missing `ON DELETE CASCADE`). Logged here for triage; **not in scope for Phase 1.5**.
+2. **Test: Manus Orion** + **Test: Ontology Vault** workflows fail at preflight with `vault_exists: false` for vaults `aab0ec76-...` and `4668fc6d-...`. Pre-existing, unrelated.
+
+## Files changed
+
+| File | Lines | Change |
+|---|---|---|
+| `web_app.py` | ~6281 | Tenant guard + `set_tenant_on_session` + `tenant_id=g.tenant_id` (POST `/api/resolve-duplicates`) |
+| `web_app.py` | ~6786 | Same pattern (POST `/api/ingest` identity block) |
+| `web_app.py` | ~211 | `init_scheduler` sets `run_identity_resolution=False` with rationale comment |
+| `src/context_foundry/agents/scheduler.py` | 26-41 | `SchedulerConfig.run_identity_resolution: bool = False` (default flip) + comment |
+| `src/context_foundry/agents/scheduler.py` | 227-253 | `NotImplementedError` block replacing bare `IdentityResolver(session)` call |
+| `tests/test_identity_resolver_call_sites.py` | NEW | 10 static + introspection tests |
+| `src/context_foundry/agents/identity_resolver.py` | — | **Untouched** (Phase 1 guards intact) |
+
+## Sign-off requested
+
+Per brief L191-205: Phase 1.5 complete and self-tested. **Awaiting sign-off** before any of:
+- **Phase 3** (data repair: ~4500 cross-tenant rels DB-wide)
+- **Phase 4** (DB-level trigger / CHECK constraint)
+- **Stage 2** (next stage, scope TBD)
+- Scheduler per-tenant iteration design decision
+- `DuplicateCandidate.tenant_id` column add
+- Pre-existing `ForeignKeyViolation` triage

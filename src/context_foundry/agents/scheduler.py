@@ -24,7 +24,14 @@ from ..learning.orchestrator import get_orchestrator
 class SchedulerConfig:
     """Configuration for the Gardener scheduler."""
     cycle_interval_seconds: int = 300
-    run_identity_resolution: bool = True
+    # Stage 1I Phase 1.5 (2026-05-11): scheduler-driven identity resolution
+    # is DISABLED by default. The scheduler has no per-tenant iteration
+    # context; running IdentityResolver requires a tenant_id (Stage 1H
+    # cross-tenant contamination root cause). Setting True without first
+    # implementing per-tenant iteration in _run_cycle will raise
+    # NotImplementedError each cycle and skip downstream tasks. See
+    # docs/inbox/stage_1i_phase_1_5_call_sites_2026-05-11.md.
+    run_identity_resolution: bool = False
     run_extraction_monitoring: bool = True
     run_extraction_auto_trigger: bool = True
     run_learning_flow: bool = True
@@ -222,11 +229,32 @@ class GardenerScheduler:
             result.gardener_result = gardener.run_cycle()
             
             if self.config.run_identity_resolution:
-                identity = IdentityResolver(
-                    session=session,
-                    config=self.config.identity_config,
+                # Stage 1I Phase 1.5 (2026-05-11): IdentityResolver now
+                # requires a tenant_id (Stage 1H finding: tenant-unscoped
+                # identity resolution caused 99.5% cross-tenant rel
+                # contamination in vault L). The scheduler has NO
+                # per-tenant iteration context at this point; introducing
+                # one is a design decision out of scope for the Phase 1.5
+                # brief. Per brief L82: "If the scheduler does not have
+                # tenant context available at this point, stop and report."
+                #
+                # Acceptable paths to re-enable scheduler identity resolution:
+                #   1. Add SchedulerConfig.identity_tenant_ids: List[str] and
+                #      iterate per tenant here (each gets its own resolver).
+                #   2. Query active tenants from platform schema and iterate.
+                #   3. Move identity resolution out of the scheduler entirely,
+                #      onto a per-vault trigger.
+                #
+                # Until that decision is signed off, the scheduler MUST NOT
+                # run identity resolution. Raise an explicit, named error so
+                # the misconfiguration is visible in logs.
+                raise NotImplementedError(
+                    "Scheduler-driven identity resolution is disabled pending "
+                    "Stage 1I Phase 1.5 follow-up: add per-tenant iteration "
+                    "(SchedulerConfig.identity_tenant_ids) before re-enabling "
+                    "self.config.run_identity_resolution. See "
+                    "docs/inbox/stage_1i_phase_1_5_call_sites_2026-05-11.md."
                 )
-                result.identity_result = identity.run(commit=True)
             
             if self.config.run_extraction_monitoring:
                 try:

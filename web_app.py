@@ -208,7 +208,16 @@ def init_scheduler():
     if scheduler is None:
         config = SchedulerConfig(
             cycle_interval_seconds=300,
-            run_identity_resolution=True,
+            # Stage 1I Phase 1.5 (2026-05-11): scheduler-driven identity
+            # resolution disabled — IdentityResolver requires per-tenant
+            # context which the scheduler does not yet have. Re-enabling
+            # without first adding per-tenant iteration in scheduler._run_cycle
+            # will raise NotImplementedError every cycle and break gardener +
+            # extraction-monitor + auto-trigger + learning-flow downstream
+            # tasks. Identity resolution still runs synchronously from the
+            # web routes (POST /api/resolve-duplicates and POST /api/ingest)
+            # where g.tenant_id is available.
+            run_identity_resolution=False,
             gardener_config=GardenerConfig(
                 min_confidence_for_promotion=0.75,
                 min_dwell_time_hours=1.0,
@@ -6265,20 +6274,27 @@ def get_merge_audits():
 @app.route('/api/resolve-duplicates', methods=['POST'])
 def resolve_duplicates():
     """
-    Run identity resolution on all STAGING entities.
-    
+    Run identity resolution on the caller's tenant STAGING entities.
+
     Detects duplicate entities and either auto-merges or flags for review.
-    
+    Tenant-scoped (Stage 1I Phase 1.5 — 2026-05-11): only processes entities
+    in g.tenant_id; cross-tenant pollution path is closed.
+
     Returns:
         { duplicates_found, auto_merged, flagged_for_review, errors }
     """
+    from flask import g
     from src.context_foundry.agents.identity_resolver import IdentityResolver
     from src.context_foundry.models.schema import get_session
-    
+
+    if not g.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Tenant context required'}), 401
+
     try:
         session = get_session()
-        
-        resolver = IdentityResolver(session)
+        set_tenant_on_session(session, g.tenant_id, g.get('user_role'))
+
+        resolver = IdentityResolver(session, tenant_id=g.tenant_id)
         result = resolver.run(commit=True)
         
         return jsonify({
@@ -6781,9 +6797,21 @@ def ingest_document():
                     validator.close()
             
             if not skip_identity_resolution and result.staged and (result.entities_staged > 0):
+                from flask import g
+                if not g.get('tenant_id'):
+                    # Stage 1I Phase 1.5: identity resolution requires tenant
+                    # context. If route ran without auth (legacy/test), surface
+                    # the gap explicitly rather than silently skip — caller can
+                    # opt out with skip_identity_resolution=true.
+                    return jsonify({
+                        'success': False,
+                        'error': 'Tenant context required for identity resolution. '
+                                 'Authenticate or set skip_identity_resolution=true.',
+                    }), 401
                 session = get_session()
                 try:
-                    resolver = IdentityResolver(session)
+                    set_tenant_on_session(session, g.tenant_id, g.get('user_role'))
+                    resolver = IdentityResolver(session, tenant_id=g.tenant_id)
                     id_result = resolver.run(commit=True)
                     identity_result = {
                         'entities_scanned': id_result.entities_scanned,
