@@ -733,3 +733,75 @@ No existing workflow runs `scripts/run_promotion.py`. Per stop trigger "a workfl
 - N+1 endpoint lookup recorded as Stage 2 perf ticket
 - `endpoints_not_trusted` gate at gardener.py L864 recorded as architectural property (not a bug)
 
+
+---
+
+## Stage 1F — Read-Only Gardener Promotion Audit (2026-05-11 ~13:55 UTC)
+
+Per `docs/inbox/stage_1f_promotion_audit_2026-05-11.md`. Read-only diagnosis only.
+
+### Executive summary
+
+Two distinct issues with separate root causes:
+1. **Runtime (H8)** — `promotion_pass` performs ~2342 per-rel endpoint SQL queries (N+1) + global pending-duplicates fetch (1599 rows). Under RLS-scoped session, expected runtime 35–130s on S. Consistent with 4 consecutive 90s timeouts.
+2. **Rel blocker (H7/H10)** — Of 95 endpoint-eligible rels, 26 are blocked by `invalid_relationship_type_*` (FUNDED_BY=20, RELATED_TO=4, USES=2 NOT_IN_ONTOLOGY); **69 should have promoted in original cycle and did not** for unresolved reasons.
+
+### Runtime bottleneck rank
+
+1. Per-rel N+1 endpoint queries (gardener.py L842-847): 1171 × 2 = 2342 roundtrips
+2. Global `_get_entity_ids_with_pending_duplicates` (gardener.py L1233-1246): no tenant filter, 1599 rows, only PK index on `duplicate_candidates`
+3. STAGING entity/relationship initial load: 972 + 1171 rows under RLS
+4. Auto-flush triggered at start of rel loop
+
+### Relationship blocker rank (95 endpoint-eligible)
+
+| gate | blocks | notes |
+|---|---|---|
+| invalid_relationship_type | **26** | FUNDED_BY=20, RELATED_TO=4, USES=2 NOT in ontology.relations |
+| endpoints_not_trusted | 0 (now) | unknown for original cycle — autoflush/RLS interaction speculation |
+| confidence_too_low | 1 | one LOCATED_AT at 0.50 |
+| validation_not_valid | 0 | all VALID |
+| evidence_not_verified | 0 | require_verification_for_promotion=False (L120) |
+| dwell_time_insufficient | 0 | rel default = 0h dwell |
+| unresolved_conflict | unknown | not probed |
+
+**Would-promote (if endpoints visible): 68 rels** (PART_OF=23, SUPPLIER_OF=14, CUSTOMER_OF=11, PRODUCES=6, PARTNER_OF=6, LOCATED_AT=5, OWNS=3).
+
+### Key code-read findings
+
+- `_get_entity_ids_with_pending_duplicates` is **NOT tenant-scoped** (gardener.py L1233-1246)
+- `duplicate_candidates` has only PK index (no `reviewed`, no `entity_a/b_id` indexes)
+- 308 of 972 S STAGING entities are blocked by pending_duplicate (entity_ids in 1599 unreviewed candidates)
+- `promotion_pass` is wrapped in ONE function-level try/except at L749/L906 — any rel-loop exception aborts entire rel loop silently (only `result.errors` populated, no gardener_logs)
+- BLOCK actions are NOT logged to `gardener_logs` (only PROMOTE actions via `_log_action` at L815/L895). Counters in `result.block_reasons` ARE populated but only visible in `result.to_dict()` printed by `run_promotion.py:25`.
+
+### 95-rel timing analysis
+
+- All 95 created 05:07–05:31 UTC
+- Original cycle ran 05:35:16 UTC (after extraction)
+- 95/95 existed BEFORE cycle → all should have been processed by rel loop
+- 27 endpoint ents promoted at 05:35:16 (in same cycle)
+- 0 rel logs of any kind in original cycle
+
+### Hypothesis verdicts
+
+| hyp | verdict |
+|---|---|
+| H7 (silent exception OR ontology block) | PARTIALLY SUPPORTED — 26 ontology blocks confirmed; 69 unexplained; cannot resolve from code-read |
+| H8 (runtime > 90s) | STRONGLY SUPPORTED — N+1 + global dup fetch + RLS overhead |
+| H9 (global dup fetch / N+1 bottleneck) | SUPPORTED — confirmed by code |
+| H10 (endpoint-eligible fail ontology) | PARTIALLY SUPPORTED — 26/95 only |
+
+### Recommendation
+
+**Option A — workflow-backed long-run** is the only path to settle H7's open half. 10-min budget is more than sufficient (predicted 35–130s). Requires explicit authorization to create one-shot workflow for `scripts/run_promotion.py` (currently forbidden under standing constraints).
+
+**Stage 2 remains blocked.** **Scheduler activation remains blocked** until perf addressed.
+
+### N+1 + global-dup-fetch ticket (recorded, NOT fixed)
+
+- gardener.py L842-847: replace per-rel endpoint queries with single batched IN-clause query before loop
+- gardener.py L1233-1246: add tenant_id filter parameter to `_get_entity_ids_with_pending_duplicates`
+- duplicate_candidates: add index on `(reviewed, entity_a_id, entity_b_id)`
+- Architectural property unchanged: `endpoints_not_trusted` gate at L864 is correct behavior
+
