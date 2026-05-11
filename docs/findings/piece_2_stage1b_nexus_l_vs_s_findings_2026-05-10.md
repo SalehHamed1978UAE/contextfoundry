@@ -529,3 +529,62 @@ H4 is consistent with the observed drift direction (everything in dwell goes to 
 
 Per closeout doc: **Stop after the dwell re-query report.** Not investigating H1–H4 in this turn. β-Finding 4 status carried forward as **OPEN** for the next sign-off-gated decision.
 
+
+---
+
+## β-Finding 4 — CLOSED with new framing (2026-05-11 12:18 UTC, four-check investigation)
+
+Authorized read-only investigation of H1/H2/H3/H4 produced the following verdict:
+
+### Cycle activity — gardener_logs (joined via target_id; no `tenant_id` column on the table)
+
+| vault | cycle_id | source | action | n | cycle_time |
+|---|---|---|---|---|---|
+| S | `post_extraction_20260511T053514Z` | entity | PROMOTE | 27 | 2026-05-11 05:35:16 |
+| L | `post_extraction_20260510T215704Z` | entity | PROMOTE | 78 | 2026-05-10 21:57:07 |
+| L | `post_extraction_20260510T215704Z` | relationship | PROMOTE | 9 | 2026-05-10 21:58:05–21:58:59 |
+
+**Each vault has had exactly ONE gardener cycle**, fired ~2 seconds after extraction completion. No subsequent cycles. No daemon, cron, or recurring promotion scheduler exists.
+
+### Live config (`src/context_foundry/agents/gardener.py:86-128`)
+
+```
+min_confidence_for_promotion: float = 0.75
+min_dwell_time_hours: float = 1.0
+require_verification_for_promotion: bool = False  # disabled 2026-05-08
+validate_against_ontology: bool = True
+use_database_thresholds: bool = True
+```
+
+Per-type thresholds loaded from DB table `promotion_thresholds` (loader at L348). Default fallback `min_corroboration_count=1, min_staging_hours=1`. Sampled S STAGING ents all show `confidence=1.000, validation_status=VALID`, eligible under base config — they simply never got revisited.
+
+### Archive category — full S ARCHIVED breakdown
+
+| category | n |
+|---|---|
+| `identity_resolution_merge` | **1346 (100%)** |
+| `low_confidence_reject` | 0 |
+| `duplicate` | 0 |
+| `ontology_violation` | 0 |
+| `NULL` | 0 |
+| `other` | 0 |
+
+Zero quality rejections. Revised β-Finding 2 confirmed absolutely.
+
+### Hypothesis verdicts
+
+- **H1 — gardener cycle gap: CONFIRMED (primary cause)**
+- **H2 — corroboration threshold: not ruled in or out** (per-type `promotion_thresholds` values not enumerated this turn)
+- **H3 — verification gate: FALSIFIED** (`require_verification_for_promotion=False` confirmed)
+- **H4 — canonicalization eats candidate pool: PARTIALLY CONFIRMED (secondary effect)** — 199 STAGING→ARCHIVED transitions during 7h dwell window were all identity merges; this continuously consumes promotable candidates, but H1 alone is sufficient to explain locked TRUSTED counts.
+
+### β-Finding 4 — CLOSED
+
+The S–L TRUSTED gap (S=27 ents/0 rels vs L=78 ents/9 rels) is **not a quality regression**, **not a dwell-time artifact**, **not a verification-gate artifact**. It is a **single-shot promotion-cycle artifact**: the system fires exactly one gardener cycle per vault at end-of-extraction (`post_extraction_<extraction_end_timestamp>`), then never visits the tenant again. Whatever was promotable at that 2-seconds-post-extraction moment is what TRUSTED contains forever. The S–L difference reflects per-type-threshold satisfaction at that single moment, modulated by how much identity-resolution canonicalization had completed by the cycle time.
+
+This is **not scoped-vs-legacy specific** — L is affected by the same single-shot promotion behavior. This is **not Stage 1B β specific** — every tenant in Context Foundry is subject to it.
+
+### Stage 2 design input — Promotion cadence gap
+
+The Gardener has no recurring promotion cycle. Promotion only fires once per vault, at the moment extraction completes (cycle naming convention: `post_extraction_<timestamp>`). At that 2-seconds-post-extraction moment, most STAGING facts have not yet had a chance to be canonicalized, accumulate corroboration, or satisfy `min_staging_hours`. After that single cycle, TRUSTED counts are frozen. Stage 2 design must decide whether to (a) add a recurring promotion cron, (b) trigger promotion as a post-canonicalization webhook, (c) gate promotion on signals other than wall-clock dwell, or (d) accept single-shot promotion as designed and remove the dwell/corroboration thresholds from blocking it.
+
