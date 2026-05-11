@@ -805,3 +805,85 @@ Two distinct issues with separate root causes:
 - duplicate_candidates: add index on `(reviewed, entity_a_id, entity_b_id)`
 - Architectural property unchanged: `endpoints_not_trusted` gate at L864 is correct behavior
 
+
+---
+
+## Stage 1G — Workflow-Backed Tenant-Scoped Promotion Run (2026-05-11 ~16:39 UTC)
+
+Per `docs/inbox/stage_1g_promotion_run_2026-05-11.md` + Msg 1 constraint relaxation. Successful Case 1.
+
+### Execution
+
+- **Workflow not used** due to platform bug: `configureWorkflow` returned stale 10/10 count with ghost entries after `removeWorkflow('v2 Parallel Run')` succeeded. `listWorkflows()` and `system_reminder` both confirmed 8 workflows. Workaround: bash foreground.
+- **Command**: `PYTHONPATH=. timeout 100 python -u scripts/run_promotion.py --tenant-id 5df41308-4033-441d-b712-77928b8ea93e`
+- **Runtime**: 57.04s Gardener-reported (65s wall) — vs >100s timeouts (5 prior attempts)
+- **Exit**: 0; commit succeeded
+
+### Pre/post lifecycle counts (S vault)
+
+| | pre | post | Δ |
+|---|---|---|---|
+| ents STAGING | 972 | 314 | −658 |
+| ents TRUSTED | 27 | 685 | **+658** |
+| ents ARCHIVED | 1346 | 1346 | 0 |
+| rels STAGING | 1171 | 1150 | −21 |
+| rels TRUSTED | 0 | 21 | **+21** (first non-zero) |
+| rels ARCHIVED | 1056 | 1056 | 0 |
+
+### Block reasons (captured)
+
+```
+pending_duplicate: 307
+endpoints_not_trusted: 1115  (dominant rel blocker)
+invalid_relationship_type_USES: 16
+invalid_relationship_type_FUNDED_BY: 4
+invalid_relationship_type_RELATED_TO: 3
+confidence_too_low_FINANCIAL_METRIC: 6
+confidence_too_low_PERSON: 1
+confidence_too_low (rels): 12
+```
+
+Reconciliation: 658 + 314 = 972 ents ✓; 21 + 1150 = 1171 rels ✓.
+
+### Cross-tenant isolation verified
+
+- L vault: ents 1543/78/637, rels 1789/9/394 — UNCHANGED
+- ontology.types: 1037 / ontology.relations: 254 — UNCHANGED
+
+### Endpoint-eligibility expansion
+
+Pre-cycle: 95 rels with both endpoints TRUSTED → 21 promoted (limited by ontology + per-rel gate ordering).
+Post-cycle: **179 rels** now have both endpoints TRUSTED (95 → 179 because TRUSTED ents grew 27→685).
+Cycle 2 would unlock most of the 179 minus ~23 ontology-invalid.
+
+### Hypothesis verdicts updated
+
+| hyp | verdict |
+|---|---|
+| H7 (silent rel-loop blocker) | **SETTLED** — not silent. Real blockers: endpoints_not_trusted dominant; ontology gaps for 23 rels. Multi-cycle convergence needed. |
+| H8 (runtime > 90s) | **CONFIRMED & FIXED** — 5 prior timeouts; post-fix 57s. |
+| H9 (N+1 + global-dup) | **CONFIRMED & FIXED** by perf changes below. |
+| H10 (endpoint-eligible fail ontology) | **EXACT**: 23 ontology-invalid (USES=16, FUNDED_BY=4, RELATED_TO=3). |
+
+### Code changes (gardener.py)
+
+1. `_get_entity_ids_with_pending_duplicates(entity_ids: Optional[Set[str]] = None)` — added optional filter param to scope dup fetch to staging set. Backward compatible.
+2. `promotion_pass` L757-763 — caller passes `staging_entity_id_set` to scope the dup query.
+3. `promotion_pass` L847-866 — pre-fetch endpoint entity states in one batched `IN(...)` query into a dict; replaces N+1 per-rel queries (was 2342 roundtrips on S). Autoflush preserves visibility of entity-loop's in-session modifications.
+
+### Reversible local cleanup
+
+- Removed workflow `v2 Parallel Run` (disarmed marker, command preserved: `echo 'parallel run completed; workflow disarmed'; sleep 2`).
+
+### Recommendations
+
+- **Scheduler activation**: NOT YET — validate multi-cycle convergence with 2 more manual cycles first.
+- **Stage 2**: partially unblocked. Strong ent promotion (658), weak rel promotion (21 cycle-1; ~150 expected cycle-2). Recommend running 2 more cycles before declaring Stage 2 ready.
+- **Ontology backfill** for USES/FUNDED_BY/RELATED_TO requires sign-off (global change).
+- **Pending duplicates review** for 307 blocked ents needs UI decision.
+- N+1 endpoint ticket: **CLOSED** — fix landed in this cycle.
+
+### Workflow platform bug filed
+
+`configureWorkflow` uses a stale internal workflow counter that retains removed entries (ghost names: `v2 Parallel Run`, `Test: ClaudeCode Medsync`, `Run Canonical Bench`). `listWorkflows()` returns truth (8). Workaround: bash foreground for one-shot scripts.
+

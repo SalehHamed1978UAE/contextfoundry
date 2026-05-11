@@ -752,7 +752,12 @@ class GardenerAgent:
             ).all()
             
             entity_ids_with_conflicts = self._get_entity_ids_with_unresolved_conflicts()
-            entity_ids_with_pending_duplicates = self._get_entity_ids_with_pending_duplicates()
+            # Stage 1G perf fix: scope dup-candidate fetch to staging entity ids
+            # to avoid global table scan (was returning ~1599 rows tenant-agnostic).
+            staging_entity_id_set = {str(e.id) for e in staging_entities}
+            entity_ids_with_pending_duplicates = self._get_entity_ids_with_pending_duplicates(
+                entity_ids=staging_entity_id_set
+            )
             
             for entity in staging_entities:
                 block_reason = None
@@ -836,24 +841,35 @@ class GardenerAgent:
             rel_min_confidence = rel_threshold.min_confidence
             rel_min_age = datetime.utcnow() - timedelta(hours=rel_threshold.min_staging_hours)
             
+            # Stage 1G perf fix: pre-fetch endpoint entity states in one batched
+            # query instead of N+1 per-rel queries (was 2 SQL roundtrips per
+            # staging relationship under tenant-scoped RLS).
+            # Visibility of entity-loop modifications is preserved because this
+            # query triggers SQLAlchemy autoflush of the in-session entity-state
+            # changes before reading.
+            endpoint_ids_needed = set()
+            for rel in staging_relationships:
+                if rel.source_id is not None:
+                    endpoint_ids_needed.add(rel.source_id)
+                if rel.target_id is not None:
+                    endpoint_ids_needed.add(rel.target_id)
+            endpoint_state_by_id: Dict[str, LifecycleState] = {}
+            if endpoint_ids_needed:
+                rows = self.session.query(
+                    Entity.id, Entity.lifecycle_state
+                ).filter(
+                    Entity.id.in_(endpoint_ids_needed)
+                ).all()
+                endpoint_state_by_id = {str(r.id): r.lifecycle_state for r in rows}
+            
             for rel in staging_relationships:
                 block_reason = None
                 
-                source_entity = self.session.query(Entity).filter(
-                    Entity.id == rel.source_id
-                ).first()
-                target_entity = self.session.query(Entity).filter(
-                    Entity.id == rel.target_id
-                ).first()
+                source_state = endpoint_state_by_id.get(str(rel.source_id))
+                target_state = endpoint_state_by_id.get(str(rel.target_id))
                 
-                source_trusted = (
-                    source_entity and 
-                    source_entity.lifecycle_state == LifecycleState.TRUSTED
-                )
-                target_trusted = (
-                    target_entity and 
-                    target_entity.lifecycle_state == LifecycleState.TRUSTED
-                )
+                source_trusted = source_state == LifecycleState.TRUSTED
+                target_trusted = target_state == LifecycleState.TRUSTED
                 
                 if rel.validation_status != ValidationStatus.VALID:
                     block_reason = "validation_not_valid"
@@ -1230,14 +1246,31 @@ class GardenerAgent:
         ).all()
         return {str(c.relationship_id) for c in conflicts if c.relationship_id}
     
-    def _get_entity_ids_with_pending_duplicates(self) -> Set[str]:
-        """Get IDs of entities with pending duplicate candidates."""
-        candidates = self.session.query(
+    def _get_entity_ids_with_pending_duplicates(self, entity_ids: Optional[Set[str]] = None) -> Set[str]:
+        """Get IDs of entities with pending duplicate candidates.
+
+        Args:
+            entity_ids: Optional set of entity IDs to scope the lookup to.
+                When provided, only candidates whose entity_a or entity_b is in
+                the set are fetched. This avoids a global table scan when the
+                caller only cares about a specific subset (e.g. STAGING ents
+                for a single tenant). Backward compatible: omit for prior
+                global behavior.
+        """
+        query = self.session.query(
             DuplicateCandidate.entity_a_id,
             DuplicateCandidate.entity_b_id,
         ).filter(
             DuplicateCandidate.reviewed == False
-        ).all()
+        )
+        if entity_ids:
+            query = query.filter(
+                or_(
+                    DuplicateCandidate.entity_a_id.in_(entity_ids),
+                    DuplicateCandidate.entity_b_id.in_(entity_ids),
+                )
+            )
+        candidates = query.all()
         
         ids = set()
         for c in candidates:
