@@ -1,0 +1,766 @@
+{
+  "document_id": "50a2e99e-1f75-4c09-9830-884709ecc594",
+  "document_path": "08_quality_management.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-05-11T03:46:09.639534",
+  "entities": [
+    {
+      "name": "POL-008",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "POL-008",
+        "category": "Quality Management",
+        "effective_date": "January 1, 2024"
+      },
+      "confidence": 1.0,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Policy Number: POL-008",
+      "aliases": []
+    },
+    {
+      "name": "Chief Quality Officer",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Quality Officer",
+        "role": "Policy Owner"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Owner: Chief Quality Officer",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 1.0,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Nexus Industries is committed to delivering products and services",
+      "aliases": []
+    },
+    {
+      "name": "Aerospace",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "name": "Aerospace",
+        "focus_areas": "Aerospace products"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Division: Aerospace",
+      "aliases": []
+    },
+    {
+      "name": "Energy Systems",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "name": "Energy Systems",
+        "focus_areas": "Energy systems"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Division: Energy Systems",
+      "aliases": []
+    },
+    {
+      "name": "Digital Solutions",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "name": "Digital Solutions",
+        "focus_areas": "Software solutions"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Division: Digital Solutions",
+      "aliases": []
+    },
+    {
+      "name": "Advanced Materials",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "name": "Advanced Materials",
+        "focus_areas": "Materials"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Division: Advanced Materials",
+      "aliases": []
+    },
+    {
+      "name": "Materials division",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "name": "Materials",
+        "focus_areas": "Automotive and medical materials"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Materials division",
+      "aliases": []
+    },
+    {
+      "name": "Digital division",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "name": "Digital",
+        "focus_areas": "Software development"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Digital division",
+      "aliases": []
+    },
+    {
+      "name": "ISO 9001:2015",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "ISO 9001:2015",
+        "category": "Quality Management Standard"
+      },
+      "confidence": 1.0,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "ISO 9001:2015 | All divisions | Certified",
+      "aliases": []
+    },
+    {
+      "name": "AS9100D",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "AS9100D",
+        "category": "Aerospace Quality Standard"
+      },
+      "confidence": 1.0,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "AS9100D | Aerospace | Certified",
+      "aliases": []
+    },
+    {
+      "name": "IATF 16949",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "IATF 16949",
+        "category": "Automotive Quality Standard"
+      },
+      "confidence": 1.0,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "IATF 16949 | Automotive | Materials division",
+      "aliases": []
+    },
+    {
+      "name": "ISO 13485",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "ISO 13485",
+        "category": "Medical Device Quality Standard"
+      },
+      "confidence": 1.0,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "ISO 13485 | Medical devices | Materials (HTS)",
+      "aliases": []
+    },
+    {
+      "name": "CMMI Level 3",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "CMMI Level 3",
+        "category": "Software Development Standard"
+      },
+      "confidence": 1.0,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "CMMI Level 3 | Software | Digital division",
+      "aliases": []
+    },
+    {
+      "name": "Customer Quality (PPM)",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Customer Quality",
+        "value": "125",
+        "period": "FY2025",
+        "type": "COUNT",
+        "target": "<100"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Customer Quality (PPM) | <100 | 125",
+      "aliases": []
+    },
+    {
+      "name": "Internal Defect Rate",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Internal Defect Rate",
+        "value": "1.2%",
+        "period": "FY2025",
+        "type": "PERCENTAGE",
+        "target": "<1%"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Internal Defect Rate | <1% | 1.2%",
+      "aliases": []
+    },
+    {
+      "name": "On-Time Delivery",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "On-Time Delivery",
+        "value": "97.5%",
+        "period": "FY2025",
+        "type": "PERCENTAGE",
+        "target": ">98%"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "On-Time Delivery | >98% | 97.5%",
+      "aliases": []
+    },
+    {
+      "name": "Customer Satisfaction (NPS)",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Customer Satisfaction",
+        "value": "52",
+        "period": "FY2025",
+        "type": "COUNT",
+        "target": ">55"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Customer Satisfaction (NPS) | >55 | 52",
+      "aliases": []
+    },
+    {
+      "name": "Cost of Poor Quality",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Cost of Poor Quality",
+        "value": "2.1%",
+        "period": "FY2025",
+        "type": "PERCENTAGE",
+        "target": "<2% of revenue"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Cost of Poor Quality | <2% of revenue | 2.1%",
+      "aliases": []
+    },
+    {
+      "name": "Supplier Quality (PPM)",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Supplier Quality",
+        "value": "285",
+        "period": "FY2025",
+        "type": "COUNT",
+        "target": "<250"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Supplier Quality (PPM) | <250 | 285",
+      "aliases": []
+    },
+    {
+      "name": "FMEA",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "name": "FMEA",
+        "description": "Failure Mode and Effects Analysis"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "FMEA | Risk identification",
+      "aliases": []
+    },
+    {
+      "name": "SPC",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "name": "SPC",
+        "description": "Statistical Process Control"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "SPC | Process monitoring",
+      "aliases": []
+    },
+    {
+      "name": "8D/Root Cause",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "name": "8D/Root Cause",
+        "description": "Problem solving methodology"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "8D/Root Cause | Problem solving",
+      "aliases": []
+    },
+    {
+      "name": "APQP",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "name": "APQP",
+        "description": "Advanced Product Quality Planning"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "APQP | Product planning",
+      "aliases": []
+    },
+    {
+      "name": "PPAP",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "name": "PPAP",
+        "description": "Production Part Approval Process"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "PPAP | Production approval",
+      "aliases": []
+    },
+    {
+      "name": "Control Plans",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "name": "Control Plans",
+        "description": "Quality planning tool"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Control Plans | Quality planning",
+      "aliases": []
+    },
+    {
+      "name": "MSA",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "name": "MSA",
+        "description": "Measurement Systems Analysis"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "MSA | Measurement validation",
+      "aliases": []
+    },
+    {
+      "name": "Quality Manager",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Quality Manager",
+        "role": "MRB Chair"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Quality Manager | Chair",
+      "aliases": []
+    },
+    {
+      "name": "VP Engineering",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Engineering",
+        "role": "Vice President of Engineering"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "VP Engineering",
+      "aliases": []
+    },
+    {
+      "name": "VP Manufacturing",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Manufacturing",
+        "role": "Vice President of Manufacturing"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "VP Manufacturing",
+      "aliases": []
+    },
+    {
+      "name": "VP Procurement",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Procurement",
+        "role": "Vice President of Procurement"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "VP Procurement",
+      "aliases": []
+    },
+    {
+      "name": "Dr. James Wilson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CTO",
+        "role": "Chief Technology Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Approved by: Dr. James Wilson, CTO",
+      "aliases": []
+    },
+    {
+      "name": "Quality Council",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "name": "Quality Council",
+        "focus_areas": "Quality governance"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Quality Council",
+      "aliases": []
+    },
+    {
+      "name": "Division Quality Directors",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Division Quality Directors",
+        "role": "Quality leadership"
+      },
+      "confidence": 0.85,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Division Quality Directors",
+      "aliases": []
+    },
+    {
+      "name": "Material Review Board",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "name": "Material Review Board",
+        "focus_areas": "Nonconformance disposition"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "source_excerpt": "Material Review Board (MRB)",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "POL-008",
+      "source_type": "POLICY",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "Chief Quality Officer",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "evidence": "Owner: Chief Quality Officer"
+    },
+    {
+      "source_entity": "Aerospace",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "evidence": "All divisions mentioned within Nexus Industries context"
+    },
+    {
+      "source_entity": "Energy Systems",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "evidence": "All divisions mentioned within Nexus Industries context"
+    },
+    {
+      "source_entity": "Digital Solutions",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "evidence": "All divisions mentioned within Nexus Industries context"
+    },
+    {
+      "source_entity": "Advanced Materials",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "evidence": "All divisions mentioned within Nexus Industries context"
+    },
+    {
+      "source_entity": "Materials division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "evidence": "Materials division mentioned within Nexus Industries context"
+    },
+    {
+      "source_entity": "Digital division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "evidence": "Digital division mentioned within Nexus Industries context"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "ISO 9001:2015",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "evidence": "ISO 9001:2015 | All divisions | Certified"
+    },
+    {
+      "source_entity": "Aerospace",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "AS9100D",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "evidence": "AS9100D | Aerospace | Certified"
+    },
+    {
+      "source_entity": "Materials division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "IATF 16949",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "evidence": "IATF 16949 | Automotive | Materials division"
+    },
+    {
+      "source_entity": "Materials division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "ISO 13485",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "evidence": "ISO 13485 | Medical devices | Materials (HTS)"
+    },
+    {
+      "source_entity": "Digital division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "CMMI Level 3",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "evidence": "CMMI Level 3 | Software | Digital division"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "FMEA",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "evidence": "FMEA listed as required tool"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "SPC",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "evidence": "SPC listed as required tool"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "8D/Root Cause",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "evidence": "8D/Root Cause listed as required tool"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "APQP",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "evidence": "APQP listed as required tool"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "PPAP",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "evidence": "PPAP listed as required tool"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Control Plans",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "evidence": "Control Plans listed as required tool"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "MSA",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "evidence": "MSA listed as required tool"
+    },
+    {
+      "source_entity": "Quality Manager",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Material Review Board",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "evidence": "Quality Manager | Chair"
+    },
+    {
+      "source_entity": "Chief Quality Officer",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Quality Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "evidence": "Chief Quality Officer (Chair)"
+    },
+    {
+      "source_entity": "Division Quality Directors",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Quality Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "evidence": "Division Quality Directors listed as Quality Council member"
+    },
+    {
+      "source_entity": "VP Engineering",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Quality Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "evidence": "VP Engineering listed as Quality Council member"
+    },
+    {
+      "source_entity": "VP Manufacturing",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Quality Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "evidence": "VP Manufacturing listed as Quality Council member"
+    },
+    {
+      "source_entity": "VP Procurement",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Quality Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "evidence": "VP Procurement listed as Quality Council member"
+    },
+    {
+      "source_entity": "Dr. James Wilson",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_quality_management.md",
+      "evidence": "Approved by: Dr. James Wilson, CTO"
+    },
+    {
+      "source_entity": "Quality Council",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "evidence": "Quality Council mentioned within Nexus Industries governance structure"
+    },
+    {
+      "source_entity": "Material Review Board",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quality_management.md",
+      "evidence": "Material Review Board mentioned within Nexus Industries quality processes"
+    }
+  ],
+  "metadata": {
+    "filename": "08_quality_management.md",
+    "raw_entity_count": 35,
+    "raw_relationship_count": 28,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

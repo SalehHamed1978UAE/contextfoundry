@@ -1,0 +1,221 @@
+{
+  "document_id": "faba3c1d-7666-44f7-bc92-ed93e28979d2",
+  "document_path": "05_siemens_healthineers_customer.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-11T04:17:27.478725",
+  "entities": [
+    {
+      "name": "Siemens Healthineers AG",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Medical Technology",
+        "region": "Erlangen, Germany"
+      },
+      "confidence": 0.95,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Customer Name: Siemens Healthineers AG",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Advanced Materials",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Advanced materials for medical technology"
+      },
+      "confidence": 0.9,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Primary Division: Nexus Advanced Materials",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Elena Petrova",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Account Manager",
+        "role": "Account Manager"
+      },
+      "confidence": 0.95,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Account Manager: Dr. Elena Petrova",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Christopher Lee",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Project Manager",
+        "role": "Project Manager, HTS"
+      },
+      "confidence": 0.9,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Executive Sponsor: Dr. Christopher Lee (Project Manager, HTS)",
+      "aliases": []
+    },
+    {
+      "name": "Bernd Montag",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "CEO of Siemens Healthineers"
+      },
+      "confidence": 0.9,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Siemens Contact: Bernd Montag",
+      "aliases": []
+    },
+    {
+      "name": "Jochen Schmitz",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO",
+        "role": "CFO of Siemens Healthineers"
+      },
+      "confidence": 0.9,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Siemens Contact: Jochen Schmitz",
+      "aliases": []
+    },
+    {
+      "name": "Dr. William Foster",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Technology",
+        "role": "Technology contact"
+      },
+      "confidence": 0.85,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Siemens Contact: Dr. William Foster",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Peter Winkelmann",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CTO",
+        "role": "CTO of Siemens Healthineers"
+      },
+      "confidence": 0.9,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Siemens Contact: Dr. Peter Winkelmann",
+      "aliases": []
+    },
+    {
+      "name": "HTS Wire",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Wire used for MRI magnets",
+        "category": "Medical Technology"
+      },
+      "confidence": 0.95,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Product: HTS Wire",
+      "aliases": []
+    },
+    {
+      "name": "Specialty Conductors",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Conductors used in medical imaging",
+        "category": "Medical Technology"
+      },
+      "confidence": 0.9,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Product: Specialty Conductors",
+      "aliases": []
+    },
+    {
+      "name": "HTS Wire Supply Agreement",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$180M",
+        "timeline": "2024-2029",
+        "status": "Active"
+      },
+      "confidence": 0.95,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Contract: HTS Wire Supply Agreement",
+      "aliases": []
+    },
+    {
+      "name": "Joint Development Agreement",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$12M",
+        "timeline": "2024-2026",
+        "status": "Active"
+      },
+      "confidence": 0.9,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Contract: Joint Development Agreement",
+      "aliases": []
+    },
+    {
+      "name": "Qualification Program",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$5M",
+        "timeline": "2025",
+        "status": "Complete"
+      },
+      "confidence": 0.9,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Contract: Qualification Program",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Siemens Healthineers AG",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "evidence": "Account Type: Strategic"
+    },
+    {
+      "source_entity": "Dr. Elena Petrova",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "evidence": "Account Owner: Dr. Elena Petrova"
+    },
+    {
+      "source_entity": "Dr. William Foster",
+      "source_type": "PERSON",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "evidence": "Siemens Contact: Dr. William Foster"
+    },
+    {
+      "source_entity": "Dr. Elena Petrova",
+      "source_type": "PERSON",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "evidence": "Account Manager: Dr. Elena Petrova"
+    }
+  ],
+  "metadata": {
+    "filename": "05_siemens_healthineers_customer.md",
+    "raw_entity_count": 13,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 4
+  }
+}

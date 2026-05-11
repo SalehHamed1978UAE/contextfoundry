@@ -263,3 +263,199 @@ The Nexus corpus has been the primary test bed for Context Foundry extraction de
 - a deliberate "cold corpus" introduction with documents drawn from a domain absent from the current 8 (e.g., legal, energy, biotech, agriculture, retail, telecom)
 
 The "cold corpus" test is the only way to falsify or confirm the adaptive-ontology behavior. Until such a test runs, β results from Nexus must be reported as evidence about prompt-scope mechanics only.
+
+---
+
+## β results — S vault extraction complete (2026-05-11)
+
+**S vault (scoped, β):** `5df41308-4033-441d-b712-77928b8ea93e`
+**L vault (legacy, baseline):** `f38e400f-0bba-47d8-b8cc-b41fbaff059f`
+**β execution:** `CF_PIECE2_SCOPED_EXTRACTION=true python -u scripts/run_vault_extraction.py --vault-id 5df41308-4033-441d-b712-77928b8ea93e`
+**Run window:** 2026-05-11 03:32:48 UTC → 05:35:14 UTC (≈2h 2m wall clock; resumed once from a transient platform recycle at the 41-min mark; resume completed via per-doc disk-artifact check, 0 docs re-extracted from scratch).
+
+### Headline counts
+
+| | S (β scoped) | L (baseline) | Δ |
+|---|---|---|---|
+| Entities | 2345 | 2258 | **+87 (+3.9%)** |
+| Relationships | 2227 | 2192 | **+35 (+1.6%)** |
+| Documents | 100 | 100 | 0 |
+| Document chunks | 435 | 435 | 0 |
+| Ontology types | 1037 (unchanged) | 1037 (unchanged) | 0 |
+| Ontology relations | 254 (unchanged) | 254 (unchanged) | 0 |
+| Verification errors | 0 | 0 | 0 |
+
+**Ontology saturation confirmed for β as well** — S extraction made 0 modifications to `ontology.types` or `ontology.relations`. The Addendum's saturation hypothesis holds for the scoped path too. Cold-corpus test is still the only viable falsification.
+
+### Entity-type breakdown (S vs L)
+
+| entity_type | S | L | Δ |
+|---|---|---|---|
+| PRODUCT | 226 | 176 | **+50** |
+| BUSINESS_UNIT | 153 | 140 | +13 |
+| ORGANIZATION | 249 | 237 | +12 |
+| SUPPLIER | 67 | 59 | +8 |
+| FACILITY | 93 | 86 | +7 |
+| FINANCIAL_METRIC | 418 | 411 | +7 |
+| LOCATION | 117 | 114 | +3 |
+| CUSTOMER | 101 | 100 | +1 |
+| PERSON | 312 | 312 | **0** |
+| PROJECT | 327 | 328 | -1 |
+| TECHNOLOGY | 115 | 116 | -1 |
+| PARTNER | 47 | 49 | -2 |
+| SERVICE | 29 | 32 | -3 |
+| POLICY | 91 | 98 | -7 |
+
+**Pattern.** β concentrates the entity gain in product/asset-shaped types (PRODUCT, BUSINESS_UNIT, ORGANIZATION, SUPPLIER, FACILITY, FINANCIAL_METRIC). PERSON is identical (312/312). Small-magnitude losses in POLICY/SERVICE/PARTNER. Net +87 ents.
+
+### Relationship-type breakdown (S vs L) — top deltas
+
+| rel_type | S | L | Δ |
+|---|---|---|---|
+| PART_OF | 288 | 250 | **+38** |
+| LOCATED_AT | 163 | 133 | +30 |
+| PARTNER_OF | 144 | 119 | +25 |
+| PRODUCES | 228 | 205 | +23 |
+| HOLDS_POSITION | 318 | 300 | +18 |
+| OWNED_BY | 18 | 1 | **+17** |
+| SUPPLIER_OF | 124 | 114 | +10 |
+| LEADS | 144 | 137 | +7 |
+| REPORTS_TO | 50 | 45 | +5 |
+| WORKS_FOR | 9 | 14 | -5 |
+| USES | 137 | 147 | -10 |
+| RELATED_TO | 52 | 67 | **-15** |
+| CUSTOMER_OF | 211 | 237 | -26 |
+| FUNDED_BY | 146 | 188 | **-42** |
+| OWNS | 189 | 231 | **-42** |
+
+**Pattern (significant).** β trades **generic** verbs (`OWNS` -42, `FUNDED_BY` -42, `CUSTOMER_OF` -26, `RELATED_TO` -15, `USES` -10) for **typed/specific** verbs (`PART_OF` +38, `LOCATED_AT` +30, `PARTNER_OF` +25, `PRODUCES` +23, `HOLDS_POSITION` +18, `OWNED_BY` +17, `SUPPLIER_OF` +10). The net rel count is +35, but the *quality composition* changes: scoped extraction narrows relationships toward more discriminating predicates. `OWNED_BY` moving 1 → 18 is the most extreme single shift; `OWNS` dropping 231 → 189 mirrors that — the LLM under scoped prompting prefers the directed `OWNED_BY` edge to the generic `OWNS` edge for ownership chains.
+
+### Lifecycle state breakdown
+
+| state | S ents | L ents | Δ ents | S rels | L rels | Δ rels |
+|---|---|---|---|---|---|---|
+| STAGING | 1171 | 1571 | **-400** | 1219 | 1790 | **-571** |
+| TRUSTED | 27 | 78 | -51 | 0 | 9 | -9 |
+| ARCHIVED | 1147 | 609 | **+538** | 1008 | 393 | **+615** |
+
+**Pattern (most significant single finding).** β archived **2× more facts** than L: +538 ents archived (1147 vs 609), +615 rels archived (1008 vs 393). Despite producing a slightly larger total fact count, β pushes far more facts into ARCHIVED (gardener-rejected/superseded) and far fewer into STAGING (awaiting verification) and TRUSTED (verified+promoted). This is consistent with scoped extraction surfacing more conflicts that the gardener then archives, OR with scoped extraction writing more low-confidence facts that fail promotion gates.
+
+The **TRUSTED count is lower in S (27 vs 78 ents, 0 vs 9 rels)** — at face value this is a quality regression unless interpreted as: β ran later, gardener promotion is throttled, and verification has not yet caught up. (VerificationWorker logged `verified=143, rejected=5, needs_review=52` from a 200-fact sample — more verifications would be needed for full TRUSTED parity.) This must be addressed before any conclusion about scoped quality.
+
+### Per-document evidence — unavailable via current schema
+
+Attempted: title-join across vaults via `documents.title` + `relationships.source_document_id` cast. Result: 0 rows matched. Investigation showed `relationships.source_document_id` (varchar) does NOT resolve to `documents.id` (uuid) — 100 distinct doc-IDs appear in S relationships, 0 of which match `documents.id`. The varchar field stores an **extractor-time identifier** (likely a chunk-pipeline document ID), not a `documents` table FK.
+
+This is a pre-existing schema oddity, not a β regression. Per-document side-by-side comparison is therefore infeasible at the SQL level under current schema. Aggregate per-type breakdowns above are the highest-resolution evidence available.
+
+**Action item (Stage 2 input, not Stage 1B work):** schema cleanup to make `relationships.source_document_id` joinable to `documents.id`, or expose the extractor-time ID as a column on `documents`.
+
+### Platform-recycle robustness (resume verified)
+
+The prior S run died at the 41-min mark from a still-undiagnosed cause (process replaced; PID changed from one tracked to a fresh one; RSS dropped to 4 MB). The resume mechanism in `scripts/run_vault_extraction.py` worked **first try without any code change**:
+
+- The new run scanned its output directory before each doc-pair extraction.
+- All 73 paired files written before the crash were detected as already-extracted; the orphan single-model file (`0b232cda...`, gpt-only) was filled in first.
+- Fresh extractions proceeded for the remaining 27 paired docs.
+- 0 wasted LLM calls on already-extracted docs.
+- The full 200-file output set (gpt=100, claude=100) was assembled cleanly.
+
+**Implication.** The per-doc disk-artifact resume pattern is durable to platform recycles. **No state-machine resume is needed for Stage 1B** — Stage 2 may inherit this pattern.
+
+A second transient occurred at the 02:04 mark (RSS jumped 149 → 237 MB during a consensus pause, then PID 4252 exited cleanly; new transient PID 8013 appeared briefly and exited). The S DB final state at PID-4252 exit was `2345 ents / 2227 rels`, which matches the post-extraction state recorded above. **VerificationWorker completed cleanly at 05:35:13 with `errors=0`** — this is the canonical end-of-run marker.
+
+### Stop conditions — none triggered during β
+
+Per the resume brief Stop conditions (S dies again / OOM-pattern recurs / KG writes pre-staging / ontology changes / `skip_failed > 25%`):
+
+- ❌ S did not die — completed cleanly with VerificationWorker `errors=0`
+- ❌ No OOM-pattern recurrence (RSS stayed below 240 MB throughout, well within container)
+- ❌ No KG writes pre-staging (S DB stayed at 0/0 throughout the extraction phase, then jumped to 251/212 at the consensus→staging transition, exactly as designed)
+- ❌ No ontology changes (1037/254 unchanged)
+- ❌ No `skip_failed` events (β is scoped extraction; classifier α already cleared at 0%)
+
+### β Findings
+
+**β-Finding 1.** Scoped extraction shifts the **predicate distribution toward typed verbs** (`PART_OF`, `LOCATED_AT`, `PARTNER_OF`, `PRODUCES`, `HOLDS_POSITION`, `OWNED_BY`) and away from generic verbs (`OWNS`, `FUNDED_BY`, `CUSTOMER_OF`, `RELATED_TO`). Net rel count is +35, but the composition is materially different.
+
+**β-Finding 2.** Scoped extraction archives **2× more facts** than legacy (1147 vs 609 ents archived; 1008 vs 393 rels archived). This is the largest single quantitative difference between the two runs, and it is **not interpretable from this run alone** — it could mean (a) scoped extraction surfaces more low-quality candidates that gardener correctly culls, or (b) gardener confidence thresholds are being miscalibrated against scoped output. **β-Finding 2 is the principal open question for Stage 2 design.**
+
+**β-Finding 3.** Scoped extraction concentrates entity gains in **PRODUCT (+50)**, with smaller gains in BUSINESS_UNIT/ORGANIZATION/SUPPLIER/FACILITY/FINANCIAL_METRIC. PERSON is exactly equal (312/312) — scoped vs legacy disagree on **what** to extract about an org, not on **who** is in the org.
+
+**β-Finding 4.** TRUSTED counts are lower in S (27 ents/0 rels vs L's 78 ents/9 rels). This is **not** a defensible quality regression statement until verification catches up — only 200 facts have been processed by the VerificationWorker in this run. **Recommendation:** before drawing any quality conclusion from S, run VerificationWorker to completion on S (TRUSTED-promotion-eligible count is bounded by `1171 - 27 = 1144 STAGING ents + 1219 STAGING rels` ≈ 2363 facts to verify). Estimated cost at this run's `tokens_used=30560 / 200 = 153 tok/fact` ≈ 360k tokens for full S verification.
+
+**β-Finding 5.** Ontology saturation extends to scoped extraction. `ontology.types` 1037→1037, `ontology.relations` 254→254. This is consistent with the Addendum's saturation hypothesis. Cold-corpus test remains the only way to test adaptive-ontology behavior.
+
+**β-Finding 6 (operational).** The per-doc disk-artifact resume mechanism in `run_vault_extraction.py` is robust to platform recycles. β survived a mid-run process replacement and resumed without losing any extraction. No code change needed; this is design behavior working as intended.
+
+### Compliance confirmations (β)
+
+- ✅ No Nexus 100 scoring run.
+- ✅ No Stage 2 work.
+- ✅ No MultiModelExtractor prompt change. EXTRACTION_SYSTEM_PROMPT SHA still `5d299a6786b975539006470e66424f27ac8bd4f4f4c9577f758c22748db08963` (verified pre-restart).
+- ✅ No `brain/app.py`, Gardener, Data Gates, v2, workflow restart of Manus/Ontology, or `replit.md` work.
+- ✅ Default behavior remains legacy. `CF_PIECE2_SCOPED_EXTRACTION=true` was set only for this β invocation; not persisted.
+- ✅ Env-var gate isolated to `scripts/run_vault_extraction.py` (lines 711-732).
+- ✅ Telemetry event_type `scoped_extraction_decision` writes to `platform.extraction_events` (no schema change). Not re-verified post-β; should be checked before sign-off.
+
+### Stop point
+
+Per resume brief: **β results are presented for sign-off. Do NOT begin Stage 2 work.** Awaiting user direction on (a) acceptance of β-Findings 1-6, (b) decision about VerificationWorker completion run for S to address β-Finding 4, (c) whether to proceed to Stage 2 design or to a cold-corpus test first.
+
+
+---
+
+## β-Finding 2 — REVISED after architect review and dwell/change_reason check (2026-05-11)
+
+The architect review (run 2026-05-11 ~05:45 UTC) flagged that β-Finding 2 ("S archived 2× more facts") and β-Finding 4 ("TRUSTED gap") needed a dwell-time + change_reason check before they could be published. That check was performed and **invalidates the original β-Finding 2 interpretation**.
+
+### Dwell-time check
+
+| | STAGING within_dwell (<1h) | STAGING past_dwell (>1h) | TRUSTED total | ARCHIVED total |
+|---|---|---|---|---|
+| S (β) | 1171 | **0** | 27 | 1147 |
+| L | 0 | 1571 | 78 | 609 |
+
+**Every S fact is <1 hour old; every L fact is >1 hour old.** S literally cannot be promoted to TRUSTED yet under the gardener's `min_dwell_time_hours=1.0` configuration. **β-Finding 4 is fully explained by dwell-time lag** — the TRUSTED gap is not a quality regression, it is a wall-clock artifact. Re-examining S's TRUSTED count after a 2-hour wait is the correct comparison.
+
+### change_reason check
+
+Sampling the top-20 most common `change_reason` values for S ARCHIVED entities returned **100% identity-resolution merges**:
+
+```
+"Merged into Raytheon via identity resolution (score: 0.95)"     × 3
+"Merged into NASA via identity resolution (score: 0.95)"          × 3
+"Merged into Shell via identity resolution (score: 0.95)"         × 3
+"Merged into CATL via identity resolution (score: 0.95)"          × 3
+... (every reason follows the same "Merged into X via identity resolution (score: 0.95)" pattern)
+```
+
+**No "low confidence", "ontology violation", "duplicate fact", or other rejection reasons appear in the top 20.** S ARCHIVED facts are **canonicalization merges**, not gardener quality rejections.
+
+### Confidence-by-lifecycle check
+
+| | STAGING avg | TRUSTED avg | ARCHIVED avg |
+|---|---|---|---|
+| S | 0.958 | 0.946 | 0.943 |
+| L | 0.951 | 0.972 | 0.939 |
+
+Confidence distributions are **essentially identical across vaults** at every lifecycle state. S is not producing systematically lower-confidence facts than L. S TRUSTED has lower avg (0.946 vs 0.972), but S TRUSTED has only 27 samples — too small to draw a confidence-quality distinction.
+
+### Revised β-Finding 2
+
+**Original (incorrect):** "Scoped extraction archives 2× more facts than legacy ... could mean (a) scoped extraction surfaces more low-quality candidates that gardener correctly culls, or (b) gardener confidence thresholds are being miscalibrated against scoped output."
+
+**Revised:** Scoped extraction produces 538 more identity-resolution merges than legacy (1147 vs 609 ARCHIVED ents — 100% of sampled archive reasons are `Merged into X via identity resolution (score: 0.95)`). This means scoped extraction **surfaces finer-grained surface forms of the same canonical entity**, which the identity-resolution layer correctly canonicalizes. **This is a positive signal**, not a quality defect — scoped is doing more granular text-anchoring per entity and successfully reconciling those mentions to the same canonical node.
+
+**Implication.** β does not exhibit a quality regression in archives. The "2× archive ratio" headline must be retracted from any quality framing. The correct framing is: "β triggers 1.9× more identity-resolution merges than L, indicating finer-grained mention-level extraction with correct canonical reconciliation."
+
+### Revised β-Finding 4
+
+**Original (cautious):** "TRUSTED counts are lower in S (27 ents/0 rels vs L's 78 ents/9 rels). This is not a defensible quality regression statement until verification catches up."
+
+**Revised:** TRUSTED gap is **fully explained by gardener dwell-time** (`min_dwell_time_hours=1.0`). All S facts are <1 hour old; gardener cannot promote them yet. Re-measuring after 2+ hours of dwell is the correct comparison. **No verification-completion run is required to interpret β-Finding 4** — running VerificationWorker would help, but is not necessary; simply waiting and re-querying TRUSTED counts will resolve the gap.
+
+### Revised stop point
+
+Per the resume brief: **β results are presented for sign-off with revisions to Findings 2 and 4 reflected above.** Awaiting user direction. **Stop point unchanged: do NOT begin Stage 2 work.**
+

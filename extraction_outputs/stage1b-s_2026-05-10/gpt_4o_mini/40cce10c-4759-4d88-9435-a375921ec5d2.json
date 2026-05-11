@@ -1,0 +1,89 @@
+{
+  "document_id": "40cce10c-4759-4d88-9435-a375921ec5d2",
+  "document_path": "02_information_security.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-11T03:43:36.874548",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "protecting Nexus Industries' information assets",
+      "aliases": []
+    },
+    {
+      "name": "Chief Information Security Officer",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CISO",
+        "role": "Chief Information Security Officer"
+      },
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "Owner: Chief Information Security Officer",
+      "aliases": []
+    },
+    {
+      "name": "Maria Santos",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CISO",
+        "role": "Chief Information Security Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "Approved by: Maria Santos, CISO",
+      "aliases": []
+    },
+    {
+      "name": "Information Security Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "POL-002",
+        "category": "Corporate Policy"
+      },
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "Information Security Policy",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maria Santos",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "evidence": "Approved by: Maria Santos, CISO"
+    },
+    {
+      "source_entity": "Information Security Policy",
+      "source_type": "POLICY",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "02_information_security.md",
+      "evidence": "This policy establishes requirements for protecting Nexus Industries' information assets"
+    }
+  ],
+  "metadata": {
+    "filename": "02_information_security.md",
+    "raw_entity_count": 4,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

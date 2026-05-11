@@ -1,0 +1,195 @@
+{
+  "document_id": "96a82af7-516f-46e9-af85-4a43875907d4",
+  "document_path": "10_first_solar_supplier.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-11T04:38:40.768886",
+  "entities": [
+    {
+      "name": "First Solar, Inc.",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Supplier",
+        "industry": "Solar Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Supplier Name: First Solar, Inc.",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Energy Systems",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Energy Systems"
+      },
+      "confidence": 0.9,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Primary Division: Nexus Energy Systems",
+      "aliases": []
+    },
+    {
+      "name": "Timothy Reynolds",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Commodity Manager",
+        "role": "Manager"
+      },
+      "confidence": 0.95,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Commodity Manager: Timothy Reynolds",
+      "aliases": []
+    },
+    {
+      "name": "Andrew Foster",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Project Manager",
+        "role": "Executive Sponsor"
+      },
+      "confidence": 0.9,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Executive Sponsor: Andrew Foster (PM, Desert Sun)",
+      "aliases": []
+    },
+    {
+      "name": "Mark Widmar",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "First Solar Contact: Mark Widmar",
+      "aliases": []
+    },
+    {
+      "name": "Alex Bradley",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO",
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 0.9,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "First Solar Contact: Alex Bradley",
+      "aliases": []
+    },
+    {
+      "name": "Georges Antoun",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Commercial",
+        "role": "Commercial Lead"
+      },
+      "confidence": 0.9,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "First Solar Contact: Georges Antoun",
+      "aliases": []
+    },
+    {
+      "name": "Mike Koralewski",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "COO",
+        "role": "Chief Operating Officer"
+      },
+      "confidence": 0.9,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "First Solar Contact: Mike Koralewski",
+      "aliases": []
+    },
+    {
+      "name": "Desert Sun Solar",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$145M",
+        "timeline": "2024-2026",
+        "status": "Active"
+      },
+      "confidence": 0.95,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Contract: Desert Sun Solar Panels",
+      "aliases": []
+    },
+    {
+      "name": "Series 7 Panels",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Solar panels used in Desert Sun project",
+        "category": "Solar Technology"
+      },
+      "confidence": 0.9,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Category: Series 7 Panels",
+      "aliases": []
+    },
+    {
+      "name": "Tempe, AZ",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Tempe",
+        "country": "USA"
+      },
+      "confidence": 0.95,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Headquarters: Tempe, AZ",
+      "aliases": []
+    },
+    {
+      "name": "Cadmium Telluride (CdTe)",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Technology used in Series 7 panels"
+      },
+      "confidence": 0.9,
+      "source_document": "10_first_solar_supplier.md",
+      "source_excerpt": "Technology: Cadmium Telluride (CdTe)",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "First Solar, Inc.",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Supplier Profile: First Solar, Inc."
+    },
+    {
+      "source_entity": "Andrew Foster",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Desert Sun Solar",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Executive Sponsor: Andrew Foster (PM, Desert Sun)"
+    },
+    {
+      "source_entity": "Desert Sun Solar",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "First Solar, Inc.",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "10_first_solar_supplier.md",
+      "evidence": "Contract: Desert Sun Solar Panels"
+    }
+  ],
+  "metadata": {
+    "filename": "10_first_solar_supplier.md",
+    "raw_entity_count": 12,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 5
+  }
+}

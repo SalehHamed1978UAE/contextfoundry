@@ -1,0 +1,289 @@
+{
+  "document_id": "046fc5df-c955-4c01-8319-657dc0611ab3",
+  "document_path": "08_pacific_power_utility.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-11T04:18:56.679503",
+  "entities": [
+    {
+      "name": "Pacific Power & Light",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Utility",
+        "region": "OR, WA, CA, UT, WY, ID"
+      },
+      "confidence": 0.95,
+      "source_document": "08_pacific_power_utility.md",
+      "source_excerpt": "Customer Name: Pacific Power & Light (PP&L)",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Energy Systems",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Division",
+        "industry": "Energy"
+      },
+      "confidence": 0.9,
+      "source_document": "08_pacific_power_utility.md",
+      "source_excerpt": "Primary Division: Nexus Energy Systems",
+      "aliases": []
+    },
+    {
+      "name": "Catherine Reynolds",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Account Manager",
+        "role": "Utility Relations"
+      },
+      "confidence": 0.95,
+      "source_document": "08_pacific_power_utility.md",
+      "source_excerpt": "Account Manager: Catherine Reynolds",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Rebecca Martinez",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Project Manager",
+        "role": "SmartGrid"
+      },
+      "confidence": 0.95,
+      "source_document": "08_pacific_power_utility.md",
+      "source_excerpt": "Executive Sponsor: Dr. Rebecca Martinez (PM, SmartGrid)",
+      "aliases": []
+    },
+    {
+      "name": "Stefan Bird",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO"
+      },
+      "confidence": 0.9,
+      "source_document": "08_pacific_power_utility.md",
+      "source_excerpt": "PP&L Contact: Stefan Bird",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Elena Rodriguez",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Nexus Contact"
+      },
+      "confidence": 0.9,
+      "source_document": "08_pacific_power_utility.md",
+      "source_excerpt": "Nexus Contact: Dr. Elena Rodriguez",
+      "aliases": []
+    },
+    {
+      "name": "Berkshire Hathaway Energy",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Parent Company",
+        "industry": "Energy"
+      },
+      "confidence": 0.9,
+      "source_document": "08_pacific_power_utility.md",
+      "source_excerpt": "Parent Company: Berkshire Hathaway Energy",
+      "aliases": []
+    },
+    {
+      "name": "SmartGrid Controller Pilot",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$25M",
+        "timeline": "2025-2027",
+        "status": "Active"
+      },
+      "confidence": 0.95,
+      "source_document": "08_pacific_power_utility.md",
+      "source_excerpt": "SmartGrid Controller Pilot: $25M, 2025-2027, Active",
+      "aliases": []
+    },
+    {
+      "name": "Grid Modernization Phase 1",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$42M",
+        "timeline": "2024-2026",
+        "status": "Active"
+      },
+      "confidence": 0.95,
+      "source_document": "08_pacific_power_utility.md",
+      "source_excerpt": "Grid Modernization Phase 1: $42M, 2024-2026, Active",
+      "aliases": []
+    },
+    {
+      "name": "Consulting Services",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Grid modernization"
+      },
+      "confidence": 0.9,
+      "source_document": "08_pacific_power_utility.md",
+      "source_excerpt": "Consulting Services: $4M, Grid modernization",
+      "aliases": []
+    },
+    {
+      "name": "Demand Response Platform",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$12M",
+        "timeline": "2026-2028",
+        "status": "Signed"
+      },
+      "confidence": 0.9,
+      "source_document": "08_pacific_power_utility.md",
+      "source_excerpt": "Demand Response Platform: $12M, 2026-2028, Signed",
+      "aliases": []
+    },
+    {
+      "name": "SmartGrid Full Deployment",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$85M",
+        "timeline": "Q3 2026",
+        "status": "Active"
+      },
+      "confidence": 0.9,
+      "source_document": "08_pacific_power_utility.md",
+      "source_excerpt": "SmartGrid Full Deployment: $85M, Q3 2026, Active",
+      "aliases": []
+    },
+    {
+      "name": "Grid Modernization Phase 2",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$65M",
+        "timeline": "Q1 2027",
+        "status": "Active"
+      },
+      "confidence": 0.9,
+      "source_document": "08_pacific_power_utility.md",
+      "source_excerpt": "Grid Modernization Phase 2: $65M, Q1 2027, Active",
+      "aliases": []
+    },
+    {
+      "name": "Battery Storage Project",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$35M",
+        "timeline": "Q4 2026",
+        "status": "Active"
+      },
+      "confidence": 0.9,
+      "source_document": "08_pacific_power_utility.md",
+      "source_excerpt": "Battery Storage Project: $35M, Q4 2026, Active",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Rebecca Martinez",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "SmartGrid Controller Pilot",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_pacific_power_utility.md",
+      "evidence": "Executive Sponsor: Dr. Rebecca Martinez (PM, SmartGrid)"
+    },
+    {
+      "source_entity": "Pacific Power & Light",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_pacific_power_utility.md",
+      "evidence": "Account Type: Strategic - Utility"
+    },
+    {
+      "source_entity": "Nexus Energy Systems",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "SmartGrid Controller Pilot",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_pacific_power_utility.md",
+      "evidence": "SmartGrid Controller Pilot: $25M, 2025-2027, Active"
+    },
+    {
+      "source_entity": "Nexus Energy Systems",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Grid Modernization Phase 1",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_pacific_power_utility.md",
+      "evidence": "Grid Modernization Phase 1: $42M, 2024-2026, Active"
+    },
+    {
+      "source_entity": "Nexus Energy Systems",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Consulting Services",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_pacific_power_utility.md",
+      "evidence": "Consulting Services: $4M, Grid modernization"
+    },
+    {
+      "source_entity": "Nexus Energy Systems",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Demand Response Platform",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_pacific_power_utility.md",
+      "evidence": "Demand Response Platform: $12M, 2026-2028, Signed"
+    },
+    {
+      "source_entity": "Nexus Energy Systems",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "SmartGrid Full Deployment",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_pacific_power_utility.md",
+      "evidence": "SmartGrid Full Deployment: $85M, Q3 2026, Active"
+    },
+    {
+      "source_entity": "Nexus Energy Systems",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Grid Modernization Phase 2",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_pacific_power_utility.md",
+      "evidence": "Grid Modernization Phase 2: $65M, Q1 2027, Active"
+    },
+    {
+      "source_entity": "Nexus Energy Systems",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Battery Storage Project",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_pacific_power_utility.md",
+      "evidence": "Battery Storage Project: $35M, Q4 2026, Active"
+    }
+  ],
+  "metadata": {
+    "filename": "08_pacific_power_utility.md",
+    "raw_entity_count": 14,
+    "raw_relationship_count": 9,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 1
+  }
+}

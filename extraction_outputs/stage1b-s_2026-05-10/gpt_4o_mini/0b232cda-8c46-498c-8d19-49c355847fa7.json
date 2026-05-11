@@ -2,7 +2,7 @@
   "document_id": "0b232cda-8c46-498c-8d19-49c355847fa7",
   "document_path": "02_business_divisions.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-05-10T23:40:43.160870",
+  "extracted_at": "2026-05-11T03:34:19.239853",
   "entities": [
     {
       "name": "Nexus Industries",
@@ -161,7 +161,7 @@
       "entity_type": "CUSTOMER",
       "properties": {
         "industry": "Government",
-        "region": "Global"
+        "region": "USA"
       },
       "confidence": 0.9,
       "source_document": "02_business_divisions.md",
@@ -377,55 +377,13 @@
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric name": "Annual Revenue",
-        "value": "$1.1 billion",
+        "value": "$4.2 billion",
         "period": "2025",
         "type": "CURRENCY"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "02_business_divisions.md",
-      "source_excerpt": "Annual Revenue (2025): $1.1 billion",
-      "aliases": []
-    },
-    {
-      "name": "Annual Revenue",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Annual Revenue",
-        "value": "$980 million",
-        "period": "2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.9,
-      "source_document": "02_business_divisions.md",
-      "source_excerpt": "Annual Revenue (2025): $980 million",
-      "aliases": []
-    },
-    {
-      "name": "Annual Revenue",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Annual Revenue",
-        "value": "$1.3 billion",
-        "period": "2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.9,
-      "source_document": "02_business_divisions.md",
-      "source_excerpt": "Annual Revenue (2025): $1.3 billion",
-      "aliases": []
-    },
-    {
-      "name": "Annual Revenue",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Annual Revenue",
-        "value": "$820 million",
-        "period": "2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.9,
-      "source_document": "02_business_divisions.md",
-      "source_excerpt": "Annual Revenue (2025): $820 million",
+      "source_excerpt": "Total Revenue: $4.2B",
       "aliases": []
     }
   ],
@@ -439,7 +397,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_business_divisions.md",
-      "evidence": "Michael Torres is the Division President of Nexus Aerospace"
+      "evidence": "Division President: Michael Torres"
     },
     {
       "source_entity": "Dr. Elena Rodriguez",
@@ -450,7 +408,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_business_divisions.md",
-      "evidence": "Dr. Elena Rodriguez is the Division President of Nexus Energy Systems"
+      "evidence": "Division President: Dr. Elena Rodriguez"
     },
     {
       "source_entity": "Kevin Chang",
@@ -461,7 +419,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_business_divisions.md",
-      "evidence": "Kevin Chang is the Division President of Nexus Digital Solutions"
+      "evidence": "Division President: Kevin Chang"
     },
     {
       "source_entity": "Dr. Yuki Tanaka",
@@ -472,7 +430,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_business_divisions.md",
-      "evidence": "Dr. Yuki Tanaka is the Division President of Nexus Advanced Materials"
+      "evidence": "Division President: Dr. Yuki Tanaka"
     },
     {
       "source_entity": "Nexus Aerospace",
@@ -565,7 +523,7 @@
   ],
   "metadata": {
     "filename": "02_business_divisions.md",
-    "raw_entity_count": 33,
+    "raw_entity_count": 30,
     "raw_relationship_count": 12,
     "used_partial_parse": false,
     "truncated": false,

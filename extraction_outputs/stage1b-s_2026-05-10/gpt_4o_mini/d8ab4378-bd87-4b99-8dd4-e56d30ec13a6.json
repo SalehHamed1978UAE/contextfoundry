@@ -1,0 +1,274 @@
+{
+  "document_id": "d8ab4378-bd87-4b99-8dd4-e56d30ec13a6",
+  "document_path": "06_toyota_partner_profile.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-11T04:31:44.432821",
+  "entities": [
+    {
+      "name": "Toyota Motor Corporation",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Automotive"
+      },
+      "confidence": 0.95,
+      "source_document": "06_toyota_partner_profile.md",
+      "source_excerpt": "Partner Name: Toyota Motor Corporation",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Advanced Materials",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Advanced materials development"
+      },
+      "confidence": 0.9,
+      "source_document": "06_toyota_partner_profile.md",
+      "source_excerpt": "Primary Division: Nexus Advanced Materials",
+      "aliases": []
+    },
+    {
+      "name": "David Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Partnership Manager",
+        "role": "Automotive Liaison"
+      },
+      "confidence": 0.95,
+      "source_document": "06_toyota_partner_profile.md",
+      "source_excerpt": "Partnership Owner: David Kim, Automotive Liaison",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Jennifer Park",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Project Manager",
+        "role": "Project Lead"
+      },
+      "confidence": 0.95,
+      "source_document": "06_toyota_partner_profile.md",
+      "source_excerpt": "Executive Sponsor: Dr. Jennifer Park (Project Manager, BatteryTech)",
+      "aliases": []
+    },
+    {
+      "name": "Toyota City",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Toyota City",
+        "country": "Japan"
+      },
+      "confidence": 0.9,
+      "source_document": "06_toyota_partner_profile.md",
+      "source_excerpt": "Headquarters: Toyota City, Japan",
+      "aliases": []
+    },
+    {
+      "name": "BatteryTech Solid State",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$55M",
+        "timeline": "2022-2029",
+        "status": "Ongoing"
+      },
+      "confidence": 0.9,
+      "source_document": "06_toyota_partner_profile.md",
+      "source_excerpt": "Program: BatteryTech Solid State",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Jennifer Liu",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Co-Chair",
+        "role": "Co-Chair of Joint Steering Committee"
+      },
+      "confidence": 0.9,
+      "source_document": "06_toyota_partner_profile.md",
+      "source_excerpt": "Dr. Jennifer Liu | Nexus | Co-Chair",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Keiji Yamamoto",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Co-Chair",
+        "role": "Co-Chair of Joint Steering Committee"
+      },
+      "confidence": 0.9,
+      "source_document": "06_toyota_partner_profile.md",
+      "source_excerpt": "Dr. Keiji Yamamoto | Toyota | Co-Chair",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Hideki Tanaka",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Battery R&D Director",
+        "role": "Technical Lead"
+      },
+      "confidence": 0.9,
+      "source_document": "06_toyota_partner_profile.md",
+      "source_excerpt": "Dr. Hideki Tanaka | Battery R&D Director",
+      "aliases": []
+    },
+    {
+      "name": "Masahiko Maeda",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CTO",
+        "role": "Technology Lead"
+      },
+      "confidence": 0.9,
+      "source_document": "06_toyota_partner_profile.md",
+      "source_excerpt": "Masahiko Maeda | CTO",
+      "aliases": []
+    },
+    {
+      "name": "Koji Sato",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.9,
+      "source_document": "06_toyota_partner_profile.md",
+      "source_excerpt": "Koji Sato | CEO",
+      "aliases": []
+    },
+    {
+      "name": "Yoichi Miyazaki",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO",
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 0.9,
+      "source_document": "06_toyota_partner_profile.md",
+      "source_excerpt": "Yoichi Miyazaki | CFO",
+      "aliases": []
+    },
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Finance",
+        "role": "Finance Lead"
+      },
+      "confidence": 0.9,
+      "source_document": "06_toyota_partner_profile.md",
+      "source_excerpt": "Robert Kim | Nexus | Finance",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Toyota Motor Corporation",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_toyota_partner_profile.md",
+      "evidence": "Partnership Type: Joint Development"
+    },
+    {
+      "source_entity": "David Kim",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "BatteryTech Solid State",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_toyota_partner_profile.md",
+      "evidence": "Partnership Owner: David Kim, Automotive Liaison"
+    },
+    {
+      "source_entity": "Dr. Jennifer Park",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "BatteryTech Solid State",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_toyota_partner_profile.md",
+      "evidence": "Dr. Jennifer Park | Nexus | Project Lead"
+    },
+    {
+      "source_entity": "Dr. Jennifer Liu",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Joint Steering Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_toyota_partner_profile.md",
+      "evidence": "Dr. Jennifer Liu | Nexus | Co-Chair"
+    },
+    {
+      "source_entity": "Dr. Keiji Yamamoto",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Joint Steering Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_toyota_partner_profile.md",
+      "evidence": "Dr. Keiji Yamamoto | Toyota | Co-Chair"
+    },
+    {
+      "source_entity": "Dr. Hideki Tanaka",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Joint Steering Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_toyota_partner_profile.md",
+      "evidence": "Dr. Hideki Tanaka | Toyota | Technical Lead"
+    },
+    {
+      "source_entity": "Koji Sato",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Toyota Motor Corporation",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_toyota_partner_profile.md",
+      "evidence": "Koji Sato | CEO"
+    },
+    {
+      "source_entity": "Yoichi Miyazaki",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Toyota Motor Corporation",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_toyota_partner_profile.md",
+      "evidence": "Yoichi Miyazaki | CFO"
+    },
+    {
+      "source_entity": "Masahiko Maeda",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Toyota Motor Corporation",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_toyota_partner_profile.md",
+      "evidence": "Masahiko Maeda | CTO"
+    }
+  ],
+  "metadata": {
+    "filename": "06_toyota_partner_profile.md",
+    "raw_entity_count": 13,
+    "raw_relationship_count": 9,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

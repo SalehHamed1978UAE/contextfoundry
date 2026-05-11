@@ -1,0 +1,159 @@
+{
+  "document_id": "0fee95b3-959e-4287-a8a6-160229bc420e",
+  "document_path": "02_greenhydrogen_process_specification.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-11T05:00:37.163046",
+  "entities": [
+    {
+      "name": "Dr. Marcus Thompson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Technical Lead",
+        "role": "Lead Author"
+      },
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Owner: Dr. Marcus Thompson, Technical Lead",
+      "aliases": []
+    },
+    {
+      "name": "Jennifer Walsh",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Project Director",
+        "role": "Approver"
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Approved By: Jennifer Walsh, Project Director",
+      "aliases": []
+    },
+    {
+      "name": "El Paso, Texas",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "El Paso",
+        "country": "USA"
+      },
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Location | El Paso, Texas",
+      "aliases": []
+    },
+    {
+      "name": "Nel Hydrogen",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Electrolyzer Manufacturing",
+        "risk level": "Low"
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Manufacturer | Nel Hydrogen",
+      "aliases": []
+    },
+    {
+      "name": "Atlas Copco",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Compressor Manufacturing",
+        "risk level": "Low"
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Manufacturer | Atlas Copco",
+      "aliases": []
+    },
+    {
+      "name": "Chart Industries",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Storage Solutions",
+        "risk level": "Low"
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Manufacturer | Chart Industries",
+      "aliases": []
+    },
+    {
+      "name": "GreenHydrogen Production Process",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": null,
+        "timeline": "Effective Date: January 1, 2026",
+        "status": "In Development"
+      },
+      "confidence": 0.85,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "GreenHydrogen Production Process Specification",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Marcus Thompson",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "GreenHydrogen Production Process",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Prepared By: Dr. Marcus Thompson, Technical Lead"
+    },
+    {
+      "source_entity": "Jennifer Walsh",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "GreenHydrogen Production Process",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Approved By: Jennifer Walsh, Project Director"
+    },
+    {
+      "source_entity": "GreenHydrogen Production Process",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Nel Hydrogen",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Electrolyzer specifications provided by Nel Hydrogen"
+    },
+    {
+      "source_entity": "GreenHydrogen Production Process",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Atlas Copco",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Compressor specifications provided by Atlas Copco"
+    },
+    {
+      "source_entity": "GreenHydrogen Production Process",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Chart Industries",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Storage specifications provided by Chart Industries"
+    }
+  ],
+  "metadata": {
+    "filename": "02_greenhydrogen_process_specification.md",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

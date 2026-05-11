@@ -1,0 +1,224 @@
+{
+  "document_id": "cf57aa5d-f3c9-4a95-9501-8b39766838d9",
+  "document_path": "04_cybershield_architecture.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-11T05:01:52.655988",
+  "entities": [
+    {
+      "name": "Dr. Sarah Mitchell",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Security Architect",
+        "role": "Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Owner: Dr. Sarah Mitchell, Security Architect",
+      "aliases": []
+    },
+    {
+      "name": "CyberShield",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "An enterprise security platform providing endpoint detection and response (EDR), security information and event management (SIEM), and threat intelligence capabilities.",
+        "category": "Security Platform"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "CyberShield is an enterprise security platform",
+      "aliases": []
+    },
+    {
+      "name": "Apache Kafka",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "A distributed event streaming platform capable of handling trillions of events a day."
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Message Queue | Apache Kafka",
+      "aliases": []
+    },
+    {
+      "name": "Elasticsearch",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "A search and analytics engine."
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Hot | Elasticsearch | Active queries",
+      "aliases": []
+    },
+    {
+      "name": "AWS",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Cloud Service Provider",
+        "industry": "Cloud Computing"
+      },
+      "confidence": 0.95,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Cloud | AWS (primary)",
+      "aliases": []
+    },
+    {
+      "name": "FedRAMP High",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "N/A",
+        "category": "Compliance Certification"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "FedRAMP High | Authorized | Jan 2026",
+      "aliases": []
+    },
+    {
+      "name": "SOC 2 Type II",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "N/A",
+        "category": "Compliance Certification"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "SOC 2 Type II | Certified | Oct 2026",
+      "aliases": []
+    },
+    {
+      "name": "ISO 27001",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "N/A",
+        "category": "Compliance Certification"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "ISO 27001 | Certified | Mar 2027",
+      "aliases": []
+    },
+    {
+      "name": "CyberShield Agent",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "An agent for endpoint protection.",
+        "category": "Security Agent"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Name | CyberShield Agent",
+      "aliases": []
+    },
+    {
+      "name": "AWS KMS",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "A managed service that makes it easy to create and control the encryption keys used to encrypt your data."
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Key Management | AWS KMS",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Sarah Mitchell",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "CyberShield",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Owner: Dr. Sarah Mitchell, Security Architect"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "CyberShield Agent",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Agent for endpoint protection."
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Apache Kafka",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Message Queue | Apache Kafka"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Elasticsearch",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Hot | Elasticsearch | Active queries"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "AWS KMS",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Key Management | AWS KMS"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "FedRAMP High",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "FedRAMP High | Authorized | Jan 2026"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "SOC 2 Type II",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "SOC 2 Type II | Certified | Oct 2026"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "ISO 27001",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "ISO 27001 | Certified | Mar 2027"
+    }
+  ],
+  "metadata": {
+    "filename": "04_cybershield_architecture.md",
+    "raw_entity_count": 10,
+    "raw_relationship_count": 8,
+    "used_partial_parse": false,
+    "truncated": true,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

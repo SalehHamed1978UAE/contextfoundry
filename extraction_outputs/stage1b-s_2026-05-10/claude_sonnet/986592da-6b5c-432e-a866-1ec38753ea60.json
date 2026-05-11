@@ -1,0 +1,528 @@
+{
+  "document_id": "986592da-6b5c-432e-a866-1ec38753ea60",
+  "document_path": "06_solid_state_battery_design.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-05-11T05:03:56.910388",
+  "entities": [
+    {
+      "name": "Dr. Linda Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Dr.",
+        "role": "BatteryTech Technical Lead"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Owner: Dr. Linda Chen, BatteryTech Technical Lead",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Robert Martinez",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Dr.",
+        "role": "BatteryTech Program Director"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Approved By: Dr. Robert Martinez, BatteryTech Program Director",
+      "aliases": []
+    },
+    {
+      "name": "BatteryTech",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Technology Company"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "BatteryTech solid-state battery",
+      "aliases": []
+    },
+    {
+      "name": "Toyota",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "industry": "Automotive"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "EV (Toyota)",
+      "aliases": []
+    },
+    {
+      "name": "Nexus",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Patent Owner"
+      },
+      "confidence": 0.85,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Owner: Nexus",
+      "aliases": []
+    },
+    {
+      "name": "JV",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Joint Venture"
+      },
+      "confidence": 0.8,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Owner: JV",
+      "aliases": []
+    },
+    {
+      "name": "Solid-State Battery",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Battery Technology",
+        "description": "Replaces liquid electrolyte with solid ceramic electrolyte"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "BatteryTech solid-state battery replaces the liquid electrolyte of conventional lithium-ion batteries with a solid ceramic electrolyte",
+      "aliases": []
+    },
+    {
+      "name": "LLZO",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Material",
+        "description": "Li\u2087La\u2083Zr\u2082O\u2081\u2082 solid electrolyte"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Solid Electrolyte (LLZO)",
+      "aliases": []
+    },
+    {
+      "name": "NMC811",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Material",
+        "description": "LiNi\u2080.\u2088Mn\u2080.\u2081Co\u2080.\u2081O\u2082 cathode material"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "LiNi\u2080.\u2088Mn\u2080.\u2081Co\u2080.\u2081O\u2082 (NMC811)",
+      "aliases": []
+    },
+    {
+      "name": "Lithium Metal Anode",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Material",
+        "description": "99.9% lithium metal with protective layer"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Anode (Lithium Metal)",
+      "aliases": []
+    },
+    {
+      "name": "NX-BAT-001",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "NX-BAT-001",
+        "category": "Patent",
+        "name": "LLZO electrolyte composition"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "NX-BAT-001: LLZO electrolyte composition",
+      "aliases": []
+    },
+    {
+      "name": "NX-BAT-002",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "NX-BAT-002",
+        "category": "Patent",
+        "name": "Interface treatment process"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "NX-BAT-002: Interface treatment process",
+      "aliases": []
+    },
+    {
+      "name": "NX-BAT-003",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "NX-BAT-003",
+        "category": "Patent",
+        "name": "Li metal anode protection"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "NX-BAT-003: Li metal anode protection",
+      "aliases": []
+    },
+    {
+      "name": "NX-BAT-004",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "NX-BAT-004",
+        "category": "Patent",
+        "name": "High-speed sintering"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "NX-BAT-004: High-speed sintering",
+      "aliases": []
+    },
+    {
+      "name": "JV-BAT-001",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "JV-BAT-001",
+        "category": "Patent",
+        "name": "Cell assembly process"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "JV-BAT-001: Cell assembly process",
+      "aliases": []
+    },
+    {
+      "name": "Energy Density 400 Wh/kg",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Energy Density",
+        "value": "400",
+        "unit": "Wh/kg",
+        "period": "Gen 1 (2027)",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Energy Density: 400 Wh/kg",
+      "aliases": []
+    },
+    {
+      "name": "Energy Density 500 Wh/kg",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Energy Density",
+        "value": "500",
+        "unit": "Wh/kg",
+        "period": "Gen 2 (2029)",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Energy Density: 500 Wh/kg",
+      "aliases": []
+    },
+    {
+      "name": "Cost $150/kWh",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Cost per kWh",
+        "value": "150",
+        "unit": "$/kWh",
+        "period": "2027",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "2027: $150/kWh",
+      "aliases": []
+    },
+    {
+      "name": "Cost $120/kWh",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Cost per kWh",
+        "value": "120",
+        "unit": "$/kWh",
+        "period": "2028",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "2028: $120/kWh",
+      "aliases": []
+    },
+    {
+      "name": "Cost $100/kWh",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Cost per kWh",
+        "value": "100",
+        "unit": "$/kWh",
+        "period": "2029",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "2029: $100/kWh",
+      "aliases": []
+    },
+    {
+      "name": "Cost $80/kWh",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Cost per kWh",
+        "value": "80",
+        "unit": "$/kWh",
+        "period": "2030",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "2030: $80/kWh",
+      "aliases": []
+    },
+    {
+      "name": "Pilot Line Start",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "Q2 2026",
+        "status": "Planned"
+      },
+      "confidence": 0.85,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Pilot Line Start: Q2 2026",
+      "aliases": []
+    },
+    {
+      "name": "Production Start",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "Q4 2027",
+        "status": "Planned"
+      },
+      "confidence": 0.85,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Production Start: Q4 2027",
+      "aliases": []
+    },
+    {
+      "name": "Full Capacity Production",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "Q4 2028",
+        "budget": "2 GWh capacity",
+        "status": "Planned"
+      },
+      "confidence": 0.85,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Full Capacity (2 GWh): Q4 2028",
+      "aliases": []
+    },
+    {
+      "name": "Dry Room Facility",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Manufacturing",
+        "location": "Not specified"
+      },
+      "confidence": 0.8,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Dry Room: <1% RH, Class 1000",
+      "aliases": []
+    },
+    {
+      "name": "Clean Room Facility",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Manufacturing",
+        "location": "Not specified"
+      },
+      "confidence": 0.8,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Clean Room: Class 100 (electrolyte)",
+      "aliases": []
+    },
+    {
+      "name": "Glovebox Facility",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Manufacturing",
+        "location": "Not specified"
+      },
+      "confidence": 0.8,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Glovebox: <1 ppm O\u2082, H\u2082O",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Linda Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "BatteryTech",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Dr. Linda Chen, BatteryTech Technical Lead"
+    },
+    {
+      "source_entity": "Dr. Robert Martinez",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "BatteryTech",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Dr. Robert Martinez, BatteryTech Program Director"
+    },
+    {
+      "source_entity": "BatteryTech",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Solid-State Battery",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "BatteryTech solid-state battery"
+    },
+    {
+      "source_entity": "Toyota",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "BatteryTech",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "EV (Toyota): Prismatic, 100 kWh, Q4 2027"
+    },
+    {
+      "source_entity": "Nexus",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "NX-BAT-001",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "NX-BAT-001: LLZO electrolyte composition, Owner: Nexus"
+    },
+    {
+      "source_entity": "Nexus",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "NX-BAT-002",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "NX-BAT-002: Interface treatment process, Owner: Nexus"
+    },
+    {
+      "source_entity": "Nexus",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "NX-BAT-003",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "NX-BAT-003: Li metal anode protection, Owner: Nexus"
+    },
+    {
+      "source_entity": "Nexus",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "NX-BAT-004",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "NX-BAT-004: High-speed sintering, Owner: Nexus"
+    },
+    {
+      "source_entity": "JV",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "JV-BAT-001",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "JV-BAT-001: Cell assembly process, Owner: JV"
+    },
+    {
+      "source_entity": "Solid-State Battery",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "LLZO",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Solid Electrolyte (LLZO)"
+    },
+    {
+      "source_entity": "Solid-State Battery",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "NMC811",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Cathode (NMC/LiNi)"
+    },
+    {
+      "source_entity": "Solid-State Battery",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Lithium Metal Anode",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Anode (Li Metal)"
+    },
+    {
+      "source_entity": "BatteryTech",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Pilot Line Start",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Pilot Line Start: Q2 2026"
+    },
+    {
+      "source_entity": "BatteryTech",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Production Start",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Production Start: Q4 2027"
+    },
+    {
+      "source_entity": "BatteryTech",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Full Capacity Production",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Full Capacity (2 GWh): Q4 2028"
+    }
+  ],
+  "metadata": {
+    "filename": "06_solid_state_battery_design.md",
+    "raw_entity_count": 27,
+    "raw_relationship_count": 15,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 2
+  }
+}

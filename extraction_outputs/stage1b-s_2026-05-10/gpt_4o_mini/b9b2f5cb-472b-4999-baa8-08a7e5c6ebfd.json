@@ -1,0 +1,248 @@
+{
+  "document_id": "b9b2f5cb-472b-4999-baa8-08a7e5c6ebfd",
+  "document_path": "03_digital_transformation.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-11T04:49:17.554676",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "03_digital_transformation.md",
+      "source_excerpt": "Nexus Industries Digital Transformation Strategy",
+      "aliases": []
+    },
+    {
+      "name": "Thomas Wright",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Digital Officer",
+        "role": "Overall leadership"
+      },
+      "confidence": 0.95,
+      "source_document": "03_digital_transformation.md",
+      "source_excerpt": "Chief Digital Officer | Thomas Wright | Overall leadership",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Chen Wei",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Data & Analytics",
+        "role": "Data strategy"
+      },
+      "confidence": 0.95,
+      "source_document": "03_digital_transformation.md",
+      "source_excerpt": "VP Data & Analytics | Dr. Chen Wei | Data strategy",
+      "aliases": []
+    },
+    {
+      "name": "Mark Johnson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Engineering Systems",
+        "role": "PLM, digital twin"
+      },
+      "confidence": 0.95,
+      "source_document": "03_digital_transformation.md",
+      "source_excerpt": "VP Engineering Systems | Mark Johnson | PLM, digital twin",
+      "aliases": []
+    },
+    {
+      "name": "Lisa Park",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP IT Infrastructure",
+        "role": "Cloud, security"
+      },
+      "confidence": 0.95,
+      "source_document": "03_digital_transformation.md",
+      "source_excerpt": "VP IT Infrastructure | Lisa Park | Cloud, security",
+      "aliases": []
+    },
+    {
+      "name": "AI/ML Platform",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Scalable model deployment"
+      },
+      "confidence": 0.9,
+      "source_document": "03_digital_transformation.md",
+      "source_excerpt": "AI/ML Platform | $40M | Scalable model deployment",
+      "aliases": []
+    },
+    {
+      "name": "Enterprise Data Lake",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Single source of truth"
+      },
+      "confidence": 0.9,
+      "source_document": "03_digital_transformation.md",
+      "source_excerpt": "Enterprise Data Lake | $45M | Single source of truth",
+      "aliases": []
+    },
+    {
+      "name": "Digital Academy",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$20M",
+        "timeline": "2026",
+        "status": "Training"
+      },
+      "confidence": 0.9,
+      "source_document": "03_digital_transformation.md",
+      "source_excerpt": "Digital Academy | $20M | 10,000 employees trained",
+      "aliases": []
+    },
+    {
+      "name": "Smart Factory",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$85M",
+        "timeline": "2026-2030",
+        "status": "Pilot"
+      },
+      "confidence": 0.9,
+      "source_document": "03_digital_transformation.md",
+      "source_excerpt": "Smart Factory | $85M | 15% productivity gain",
+      "aliases": []
+    },
+    {
+      "name": "Cloud Infrastructure",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "60% migrated"
+      },
+      "confidence": 0.9,
+      "source_document": "03_digital_transformation.md",
+      "source_excerpt": "Cloud Infrastructure | 60% migrated",
+      "aliases": []
+    },
+    {
+      "name": "Digital Transformation Office",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Digital transformation governance"
+      },
+      "confidence": 0.85,
+      "source_document": "03_digital_transformation.md",
+      "source_excerpt": "Digital Transformation Office",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Thomas Wright",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "03_digital_transformation.md",
+      "evidence": "Chief Digital Officer | Thomas Wright"
+    },
+    {
+      "source_entity": "Dr. Chen Wei",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "03_digital_transformation.md",
+      "evidence": "VP Data & Analytics | Dr. Chen Wei"
+    },
+    {
+      "source_entity": "Mark Johnson",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "03_digital_transformation.md",
+      "evidence": "VP Engineering Systems | Mark Johnson"
+    },
+    {
+      "source_entity": "Lisa Park",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "03_digital_transformation.md",
+      "evidence": "VP IT Infrastructure | Lisa Park"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Smart Factory",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_digital_transformation.md",
+      "evidence": "Smart Factory | $85M | 15% productivity gain"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Digital Academy",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_digital_transformation.md",
+      "evidence": "Digital Academy | $20M | 10,000 employees trained"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "AI/ML Platform",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_digital_transformation.md",
+      "evidence": "AI/ML Platform | $40M | Scalable model deployment"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Cloud Infrastructure",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_digital_transformation.md",
+      "evidence": "Cloud Infrastructure | 60% migrated"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PART_OF",
+      "target_entity": "Digital Transformation Office",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "03_digital_transformation.md",
+      "evidence": "Digital Transformation Office"
+    }
+  ],
+  "metadata": {
+    "filename": "03_digital_transformation.md",
+    "raw_entity_count": 11,
+    "raw_relationship_count": 9,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

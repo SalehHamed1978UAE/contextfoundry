@@ -1,0 +1,352 @@
+{
+  "document_id": "a0996caa-072b-4b88-9a99-75f371ba47bb",
+  "document_path": "12_superconductor_wire.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-11T04:10:05.275456",
+  "entities": [
+    {
+      "name": "High-Temperature Superconductor Wire",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$118 million",
+        "timeline": "March 2023 - September 2026",
+        "status": "Approved"
+      },
+      "confidence": 0.95,
+      "source_document": "12_superconductor_wire.md",
+      "source_excerpt": "Project Name: High-Temperature Superconductor Wire",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Advanced Materials",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Division",
+        "industry": "Advanced Materials"
+      },
+      "confidence": 0.95,
+      "source_document": "12_superconductor_wire.md",
+      "source_excerpt": "Owning Division: Nexus Advanced Materials",
+      "aliases": []
+    },
+    {
+      "name": "Advanced Conductors",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Conductors"
+      },
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "source_excerpt": "Business Unit: Advanced Conductors",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Christopher Lee",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Project Manager",
+        "role": "Project Manager"
+      },
+      "confidence": 0.95,
+      "source_document": "12_superconductor_wire.md",
+      "source_excerpt": "Project Manager: Dr. Christopher Lee",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Elena Petrova",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Scientist",
+        "role": "Chief Scientist"
+      },
+      "confidence": 0.95,
+      "source_document": "12_superconductor_wire.md",
+      "source_excerpt": "Chief Scientist: Dr. Elena Petrova",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Takeshi Yamamoto",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Process Lead",
+        "role": "Process Lead"
+      },
+      "confidence": 0.95,
+      "source_document": "12_superconductor_wire.md",
+      "source_excerpt": "Process Lead: Dr. Takeshi Yamamoto",
+      "aliases": []
+    },
+    {
+      "name": "Robert Stevens",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Manufacturing Lead",
+        "role": "Manufacturing Lead"
+      },
+      "confidence": 0.95,
+      "source_document": "12_superconductor_wire.md",
+      "source_excerpt": "Manufacturing Lead: Robert Stevens",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Maria Santos",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Quality Lead",
+        "role": "Quality Lead"
+      },
+      "confidence": 0.95,
+      "source_document": "12_superconductor_wire.md",
+      "source_excerpt": "Quality Lead: Dr. Maria Santos",
+      "aliases": []
+    },
+    {
+      "name": "James Wilson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Customer Engineering",
+        "role": "Customer Engineering"
+      },
+      "confidence": 0.95,
+      "source_document": "12_superconductor_wire.md",
+      "source_excerpt": "Customer Engineering: James Wilson",
+      "aliases": []
+    },
+    {
+      "name": "Siemens Healthineers",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Healthcare",
+        "region": "Global"
+      },
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "source_excerpt": "Key Customers (Pipeline): Siemens Healthineers",
+      "aliases": []
+    },
+    {
+      "name": "General Cable",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Power Transmission",
+        "region": "Global"
+      },
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "source_excerpt": "Key Customers (Pipeline): General Cable",
+      "aliases": []
+    },
+    {
+      "name": "ITER Organization",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Fusion Energy",
+        "region": "Global"
+      },
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "source_excerpt": "Key Customers (Pipeline): ITER Organization",
+      "aliases": []
+    },
+    {
+      "name": "American Superconductor",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Energy",
+        "region": "Global"
+      },
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "source_excerpt": "Key Customers (Pipeline): American Superconductor",
+      "aliases": []
+    },
+    {
+      "name": "DOE Superconductivity Program",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Government Program",
+        "industry": "Energy"
+      },
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "source_excerpt": "Funding Structure: DOE Superconductivity Program",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Christopher Lee",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "High-Temperature Superconductor Wire",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "evidence": "Project Manager: Dr. Christopher Lee"
+    },
+    {
+      "source_entity": "Nexus Advanced Materials",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "High-Temperature Superconductor Wire",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "evidence": "Owning Division: Nexus Advanced Materials"
+    },
+    {
+      "source_entity": "Advanced Conductors",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "evidence": "Business Unit: Advanced Conductors"
+    },
+    {
+      "source_entity": "Dr. Christopher Lee",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "evidence": "Project Manager: Dr. Christopher Lee"
+    },
+    {
+      "source_entity": "Dr. Elena Petrova",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "evidence": "Chief Scientist: Dr. Elena Petrova"
+    },
+    {
+      "source_entity": "Dr. Takeshi Yamamoto",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "evidence": "Process Lead: Dr. Takeshi Yamamoto"
+    },
+    {
+      "source_entity": "Robert Stevens",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "evidence": "Manufacturing Lead: Robert Stevens"
+    },
+    {
+      "source_entity": "Dr. Maria Santos",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "evidence": "Quality Lead: Dr. Maria Santos"
+    },
+    {
+      "source_entity": "James Wilson",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "evidence": "Customer Engineering: James Wilson"
+    },
+    {
+      "source_entity": "High-Temperature Superconductor Wire",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "DOE Superconductivity Program",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "evidence": "Funding Structure: DOE Superconductivity Program"
+    },
+    {
+      "source_entity": "High-Temperature Superconductor Wire",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Nexus Corporate",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "evidence": "Funding Structure: Nexus Corporate"
+    },
+    {
+      "source_entity": "High-Temperature Superconductor Wire",
+      "source_type": "PROJECT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Siemens Healthineers",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "evidence": "Key Customers (Pipeline): Siemens Healthineers"
+    },
+    {
+      "source_entity": "High-Temperature Superconductor Wire",
+      "source_type": "PROJECT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "General Cable",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "evidence": "Key Customers (Pipeline): General Cable"
+    },
+    {
+      "source_entity": "High-Temperature Superconductor Wire",
+      "source_type": "PROJECT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "ITER Organization",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "evidence": "Key Customers (Pipeline): ITER Organization"
+    },
+    {
+      "source_entity": "High-Temperature Superconductor Wire",
+      "source_type": "PROJECT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "American Superconductor",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_superconductor_wire.md",
+      "evidence": "Key Customers (Pipeline): American Superconductor"
+    }
+  ],
+  "metadata": {
+    "filename": "12_superconductor_wire.md",
+    "raw_entity_count": 14,
+    "raw_relationship_count": 15,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

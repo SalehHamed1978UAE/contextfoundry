@@ -1,0 +1,192 @@
+{
+  "document_id": "d0d66dcc-7aa5-4df9-b92b-871e69c355da",
+  "document_path": "01_falcon_x_system_architecture.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-11T05:05:39.244791",
+  "entities": [
+    {
+      "name": "Dr. Elena Rodriguez",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Engineer",
+        "role": "Chief Engineer"
+      },
+      "confidence": 0.95,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "source_excerpt": "Owner: Dr. Elena Rodriguez, Chief Engineer",
+      "aliases": []
+    },
+    {
+      "name": "Thomas Mueller",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Program Director",
+        "role": "Program Director"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "source_excerpt": "Approved By: Thomas Mueller, Program Director",
+      "aliases": []
+    },
+    {
+      "name": "Falcon X",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "medium-altitude, long-endurance unmanned aerial vehicle designed for intelligence, surveillance, and reconnaissance missions",
+        "category": "UAV"
+      },
+      "confidence": 0.95,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "source_excerpt": "The Falcon X is a medium-altitude, long-endurance (MALE) unmanned aerial vehicle designed for intelligence, surveillance, and reconnaissance (ISR) missions.",
+      "aliases": []
+    },
+    {
+      "name": "Pratt & Whitney",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Engine manufacturing",
+        "risk level": "Medium"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "source_excerpt": "Manufacturer: Pratt & Whitney",
+      "aliases": []
+    },
+    {
+      "name": "Honeywell",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Avionics manufacturing",
+        "risk level": "Medium"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "source_excerpt": "Manufacturer: Honeywell",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Digital",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Software development",
+        "risk level": "Medium"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "source_excerpt": "Manufacturer: Nexus Digital",
+      "aliases": []
+    },
+    {
+      "name": "General Atomics",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Sensor manufacturing",
+        "risk level": "Medium"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "source_excerpt": "Manufacturer: General Atomics",
+      "aliases": []
+    },
+    {
+      "name": "Raytheon",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Radar manufacturing",
+        "risk level": "Medium"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "source_excerpt": "Manufacturer: Raytheon",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Elena Rodriguez",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Falcon X",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "evidence": "Prepared By: Dr. Elena Rodriguez, Chief Engineer"
+    },
+    {
+      "source_entity": "Thomas Mueller",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Falcon X",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "evidence": "Approved By: Thomas Mueller, Program Director"
+    },
+    {
+      "source_entity": "Falcon X",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Pratt & Whitney",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "evidence": "Manufacturer: Pratt & Whitney"
+    },
+    {
+      "source_entity": "Falcon X",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Honeywell",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "evidence": "Manufacturer: Honeywell"
+    },
+    {
+      "source_entity": "Falcon X",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nexus Digital",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "evidence": "Manufacturer: Nexus Digital"
+    },
+    {
+      "source_entity": "Falcon X",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "General Atomics",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "evidence": "Manufacturer: General Atomics"
+    },
+    {
+      "source_entity": "Falcon X",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Raytheon",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "evidence": "Manufacturer: Raytheon"
+    }
+  ],
+  "metadata": {
+    "filename": "01_falcon_x_system_architecture.md",
+    "raw_entity_count": 8,
+    "raw_relationship_count": 7,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}
