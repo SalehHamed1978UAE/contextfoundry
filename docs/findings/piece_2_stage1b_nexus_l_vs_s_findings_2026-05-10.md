@@ -588,3 +588,43 @@ This is **not scoped-vs-legacy specific** — L is affected by the same single-s
 
 The Gardener has no recurring promotion cycle. Promotion only fires once per vault, at the moment extraction completes (cycle naming convention: `post_extraction_<timestamp>`). At that 2-seconds-post-extraction moment, most STAGING facts have not yet had a chance to be canonicalized, accumulate corroboration, or satisfy `min_staging_hours`. After that single cycle, TRUSTED counts are frozen. Stage 2 design must decide whether to (a) add a recurring promotion cron, (b) trigger promotion as a post-canonicalization webhook, (c) gate promotion on signals other than wall-clock dwell, or (d) accept single-shot promotion as designed and remove the dwell/corroboration thresholds from blocking it.
 
+
+---
+
+## Stage 1C — Gardener Promotion Gap Diagnosis (2026-05-11 12:25 UTC)
+
+Per `docs/inbox/stage_1c_promotion_gap_diagnosis_2026-05-11.md`. Read-only investigation; no fixes applied.
+
+### Final answers
+
+| Question | Answer |
+|---|---|
+| Stage 2 blocked? | **YES** until promotion cadence fixed |
+| Gardener fix needed before Stage 2? | **YES** — scheduler invocation + possibly relationship-promotion code path |
+| VerificationWorker run needed before Stage 2? | **NO** — `require_verification_for_promotion=False` confirmed |
+| Relationship promotion structurally blocked? | **OPEN** — S has 0 rel promotes; H6 (code read) needed to confirm whether `promotion_pass()` covers rels |
+| Archive behavior: merge vs quality? | **100% identity merge** in both S (1346/1346) and L (637/637). NOT quality rejection. |
+
+### Hypothesis verdicts
+
+- H1 (gardener cycle gap): **SUPPORTED (primary)** — scheduler implemented at `scheduler.py:25-421` (`cycle_interval_seconds=300`), never started by `start.sh`. Only post-extraction single cycle fires.
+- H2 (corroboration threshold): **REJECTED** — `_default.min_corroboration_count=1`, hardcoded fallback to 1 in `gardener.py:778`.
+- H3 (verification gate): **REJECTED** — `require_verification_for_promotion=False` confirmed at `gardener.py:117`.
+- H4 (canonicalization eats pool): **SUPPORTED (secondary)** — 199 STAGING→ARCHIVED transitions during 7h dwell are 100% identity merges.
+- H5 (NEW — promotion_thresholds empty for Nexus vocab): **SUPPORTED** — 32 threshold rows; 0 match Nexus types; all fall to `_default`. Production diverges from documented intent.
+- H6 (NEW — promotion_pass may not handle relationships, or rel phase aborted for S): **OPEN** — S `gardener_logs.target_type='relationship'` count = 0; L = 9. Needs `gardener.py:731-1000` read.
+
+### Stop-condition triggers
+
+Two potential one-line bugs surfaced:
+- **H1 fix candidate**: add `start_scheduler()` call to `start.sh` or `web_app` initialization.
+- **H6 fix candidate**: pending code read; may be a missing relationship loop in `promotion_pass()`.
+
+**No fixes applied.** Surfaced for sign-off only.
+
+### Recommended next actions (NOT executed)
+
+- **Option A**: start scheduler in `start.sh` (smallest fix, but applies to all tenants)
+- **Option B**: manually re-fire `scripts/run_promotion.py --tenant-id 5df41308-...` for S now and observe second-cycle promotions (empirical H4 test)
+- **Option C**: read `gardener.py:731-1000` to determine if `promotion_pass()` handles relationships at all (close H6)
+
