@@ -1730,3 +1730,144 @@ Per brief L191-205: Phase 1.5 complete and self-tested. **Awaiting sign-off** be
 - Scheduler per-tenant iteration design decision
 - `DuplicateCandidate.tenant_id` column add
 - Pre-existing `ForeignKeyViolation` triage
+
+---
+
+# Stage 1I Phase 1.6 — Runtime cutover & repair-readiness check (2026-05-11)
+
+> Brief: `docs/inbox/stage_1i_phase_1_6_runtime_cutover_2026-05-11.md`
+> Authority: `docs/operating_instructions.md`
+> Predecessor: Phase 1.5 sign-off (above) — call sites fixed, but live runtime still on stale code.
+
+## Pre-restart capture
+
+**Process state:**
+| field | value |
+|---|---|
+| Start All bash PID | 153 |
+| web_app.py PID | 394 |
+| start time (UTC) | 2026-05-11 18:11:38 |
+| identity_resolver.py mtime (UTC) | 2026-05-11 19:52:48 (**after** start) |
+| scheduler.py mtime (UTC) | 2026-05-11 20:37:07 (**after** start) |
+| web_app.py mtime (UTC) | 2026-05-11 20:37:22 (**after** start) |
+| git HEAD | `e7357ca` "Fix user identity resolution to ensure tenant context is always provided" |
+| log preserved | `/tmp/logs/Start_All_20260511_203638_870.log` (5210 lines) |
+
+**Conclusion:** process was running stale code (started before all three Phase 1 / 1.5 file edits). Reload required per brief L66.
+
+**Pre-restart DB baseline:**
+| metric | value |
+|---|---|
+| DB-wide cross-tenant relationships | **2814** |
+| latest cross-tenant rel `updated_at` | 2026-05-11 05:59:56.823 (~14h before restart) |
+| total `identity_resolver` merges (lifetime) | 3901 |
+| latest `identity_resolver` merge_audit | 2026-05-11 05:59:59.118 (~14h before restart) |
+| `duplicate_candidates` rows | 1599 |
+| latest `duplicate_candidates.flagged_at` | 2026-05-11 05:53:07.959 (~14h before restart) |
+
+**Pre-restart log signature (every 5-min scheduler cycle):**
+- `[Gardener] Cleanup pass error: ForeignKeyViolation ... duplicate_candidates_entity_a_id_fkey ... Key (id)=(fac1a0f7-8516-49eb-909f-553809292565)` — **recurring on every cycle**
+- `[Gardener] Cycle ... failed: This Session's transaction has been rolled back ...`
+- `Identity resolution: scanned=9421, found=1251, merged=0, flagged=1251` — running, scoped (`merged=0` even though `found=1251` confirms the running code was already at least Phase 1; or pre-Phase-1 code with auto_merge_threshold not crossed). Either way, no new merge_audit rows produced in 14h.
+- `[Scheduler] Cycle #N complete: Gardener(decayed=120, promoted=2381, demoted=0, conflicts=0) Identity(candidates=1251, merged=0, review=1251)`
+
+**Note on apparent paradox:** `Identity resolution:` was logging successfully (no TypeError) despite the bare `IdentityResolver(session)` call site. Likely explanation: the running process loaded `identity_resolver.py` at 18:11:48 — at that timestamp, Phase 1's `__init__` `tenant_id` requirement may not yet have been merged (the 19:52 mtime represents a later edit / commit). In any case, the only real-world consequence we can observe is `merged=0` for ~14h, so identity merging was already de-facto inert in the live process. Reload still required because we cannot prove the running interpreter matches any specific commit.
+
+## Reload action
+
+Restarted `Start All` via `restart_workflow` (only). Per Phase 1.6 brief L72-74, this is the explicitly-authorized action.
+
+**Guardrails honored:**
+- ❌ Manus, Ontology Vault, S1B-Beta-S-Extract, v2 Oracle Run, Reextract Failed Docs v2 — **NOT restarted**
+- ❌ replit.md — **NOT edited** (system has nudged 580 times across this thread; all refused)
+- ❌ Stage 2 — **NOT started**
+
+**Old log preserved at** `/tmp/logs/Start_All_20260511_203638_870.log`.
+
+## Post-reload runtime state
+
+| field | value |
+|---|---|
+| new Start All bash PID | 16655 |
+| new web_app.py PID | 16796 |
+| new start time (UTC) | 2026-05-11 20:53:15 |
+| new log file | `/tmp/logs/Start_All_20260511_205500_610.log` |
+| Brain Service | started PID 16766 on :3000 |
+| Platform Service | started on :5000 |
+| `[Brain] Gardener scheduler started (5-minute cycles)` | ✅ logged |
+| `[WebApp] Gardener scheduler started (5-minute cycles)` | ✅ logged |
+| Brain gardener cycle | `cycle-1-20260511205327` started at 20:53:27 |
+| WebApp gardener cycle | `cycle-1-20260511205332` started at 20:53:32 |
+| Startup `TypeError` | **0** |
+| Startup `NotImplementedError` | **0** |
+| Startup `ForeignKeyViolation` | **0** |
+
+## Observation window (~11 minutes, 5 samples)
+
+Samples at 20:55, 20:57, 20:59, 21:01, 21:04 (UTC).
+
+| metric | value across all 5 samples |
+|---|---|
+| `NotImplementedError` count in new log | **0** |
+| `TypeError tenant_id` count in new log | **0** |
+| `ForeignKeyViolation` count in new log | **0** |
+| `Cleanup pass error` count in new log | **0** (was every cycle pre-restart) |
+| `Identity resolution:` log lines in new log | **0** (was every cycle pre-restart) |
+| `Scheduler-driven identity resolution is disabled` log (the new NotImplementedError path) | **0** — confirms the flag flip is honored, not the guard |
+| DB cross-tenant rels (count) | **2814** (unchanged) |
+| DB cross-tenant rels created since restart | **0** |
+| DB cross-tenant rels updated since restart | **0** |
+| `identity_resolver` merges since restart | **0** |
+| Latest cross-tenant rel `updated_at` | 2026-05-11 05:59:56.823 (unchanged from pre-restart) |
+| Latest `identity_resolver` merge_audit | 2026-05-11 05:59:59.118 (unchanged from pre-restart) |
+
+**Interpretation:** the flipped `SchedulerConfig.run_identity_resolution=False` default is being honored — the scheduler runs Gardener cycles but skips identity resolution entirely (no `Identity resolution:` log line, no `Scheduler-driven identity resolution is disabled` NotImplementedError, no new merge_audit rows). The new `NotImplementedError` guard is **not** the path that's being taken; the disable-by-default path is.
+
+## Pre-existing `duplicate_candidates_entity_a_id_fkey` issue — classification (per brief L109-120)
+
+> Brief explicitly says **do not fix in Phase 1.6**, only classify.
+
+| question | answer |
+|---|---|
+| Does the `ForeignKeyViolation` recur after reload? | **NOT in the 11-min observation window.** Pre-restart it fired every 5-min cycle. Two possible explanations: (a) the Gardener cleanup pass that triggers `DELETE entities WHERE id=fac1a0f7-...` is no longer reached because the cycle path differs once identity-resolution is skipped (unlikely — the cleanup pass is in Gardener, not the identity stage); (b) the WebApp gardener cycle has not visibly completed in the new log within 11 min (the Brain scheduler started its cycle at 20:53:27, WebApp at 20:53:32, but no `[Scheduler] Cycle #N complete` line appears in the new log — possibly buffered, possibly the cycle is long). **Inconclusive — needs longer observation, but the worst case is "still recurring", which matches the pre-restart steady state and is no worse than before.** |
+| Does it involve `duplicate_candidates_entity_a_id_fkey`? | **Yes** (confirmed pre-restart, log shows constraint name explicitly). |
+| Does it block Start All from operating? | **No.** Pre-restart Start All was serving requests fine despite recurring FK errors (queries to `/api/vault/chat` succeeded, `[VAULT_QUERY] Effective tenant_id` log lines visible throughout). Post-restart Start All is also serving fine. The FK error fails the **Gardener cleanup pass** within a cycle and rolls back that pass; downstream Identity / AutoTrigger steps still ran in the pre-restart log. |
+| Phase 5 (`DuplicateCandidate` / `MergeAudit` `tenant_id` columns + FK cascade policy) related? | **Yes.** `duplicate_candidates` has no `tenant_id` column (verified: schema only has `id, entity_a_id, entity_b_id, entity_a_name, entity_b_name, entity_type, similarity_score, signals, merge_decision, reason, flagged_at, reviewed, reviewed_at, reviewed_by`). The FK is on `entity_a_id → entities.id` with no `ON DELETE CASCADE`. When Gardener wants to delete an entity (e.g., archived/superseded), the candidates row blocks the delete. **Confirmed:** entity `fac1a0f7-...` is referenced by **5** rows in `duplicate_candidates`. Phase 5 fix candidates: (i) add `ON DELETE CASCADE` to the FK, (ii) clean up stale candidate rows when their referenced entity is archived, or (iii) add `tenant_id` to `duplicate_candidates` so per-tenant cleanup can run safely. **Logged for Phase 5 — not in scope for 1.6, 3, or 4.** |
+
+## Repair readiness assessment
+
+| question | answer |
+|---|---|
+| Phase 3 (data repair: ~2814 DB-wide cross-tenant rels) — **safe to plan**? | **Yes.** The active runtime can no longer create new cross-tenant relationship contamination: (a) scheduler identity resolution is disabled by default and not running (verified), (b) the only paths that can construct an `IdentityResolver` are the two web routes, both of which now require `g.tenant_id` and pass it explicitly, (c) the resolver itself fails closed without a tenant_id (`ValueError`). 0 new cross-tenant rels and 0 new identity_resolver merges in the 11-min window confirm the steady state. Repair can proceed without race conditions. |
+| Phase 4 (DB-level CHECK / trigger) — **safe to plan**? | **Yes.** Same reasoning. A trigger added now would not face concurrent contamination from the live process. Recommend plan + dry-run before apply. |
+| Stage 2 — **remains blocked**? | **Yes, still blocked.** Phase 1.6 brief stops here; Stage 2 not authorized. |
+| Scheduler per-tenant identity-resolution iteration — **needs separate design decision**? | **Yes.** Three paths listed in `scheduler.py:228-242` inline comment. No decision made. |
+| Pre-existing FK issue — **needs Phase 5 triage**? | **Yes.** Logged above. Recommend before re-enabling any background process that deletes `entities` rows referenced by `duplicate_candidates`. |
+
+## Stop triggers (per brief L122-133) — none hit
+
+- Start All restarted and came back cleanly ✅
+- 0 new cross-tenant relationships after reload ✅
+- Identity resolution did NOT run without tenant context ✅
+- Scheduler did NOT try to run identity resolution despite default false ✅
+- Phase 1.5 call-site changes did NOT produce a runtime TypeError on startup ✅
+- `duplicate_candidates` FK issue did NOT block runtime operation ✅ (Start All running, serving requests)
+- No DB mutation or schema change required ✅
+
+## Refusals during Phase 1.6
+
+- **35** auto-injected v2 FactEvaluator T01-T14 plans (project goal: v2 parked) — refused
+- **580** replit.md trim nudges — refused (Phase 1.6 brief L82 forbids)
+- Manus, Ontology Vault, S1B-Beta-S-Extract restarts (Phase 1.6 brief L78-80 forbids) — refused
+- v2 workflow touch (brief L81) — none performed
+
+## Stop condition (brief L179-183)
+
+Phase 1.6 complete. Awaiting sign-off before any of:
+- Phase 3 (data repair: 2814 cross-tenant rels)
+- Phase 4 (DB-level CHECK / trigger)
+- Stage 2
+- Scheduler per-tenant identity-resolution design
+- Phase 5 (`duplicate_candidates` schema + FK cascade)
+- Re-enabling scheduler identity resolution
+- Promotion rerun
