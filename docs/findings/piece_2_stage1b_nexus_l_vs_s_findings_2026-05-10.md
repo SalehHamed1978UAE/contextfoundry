@@ -682,3 +682,54 @@ A relationship can only promote in cycle N if BOTH endpoints are TRUSTED at cycl
 2. Whether `_get_entity_ids_with_pending_duplicates` blocks ents still queued for canonicalization
 3. Whether rel-endpoint constraint can be relaxed safely
 
+
+---
+
+## Stage 1E — Empirical Multi-Cycle Convergence Test (2026-05-11 13:45 UTC) — CASE 4: Cycle 1 timeout
+
+Per `docs/inbox/stage_1e_convergence_test_2026-05-11.md.md`. Authorized: up to 2 sequential tenant-scoped manual cycles on S only. Option A (scheduler activation) NOT authorized.
+
+### Outcome: Case 4 — Cycle 1 timed out before promoting anything
+
+**Pre-cycle 1 snapshot (13:39:50 UTC):** S 972 STAGING / 27 TRUSTED / 1346 ARCHIVED ents; 1171 STAGING / 0 TRUSTED / 1056 ARCHIVED rels; 1 historical cycle. Ontology baseline: types=1037, relations=254.
+
+**Pre-cycle eligibility (relationship endpoint-trust):**
+- STAGING rels=1171, conf≥0.70=1159, validation=VALID=1171
+- source TRUSTED=173, target TRUSTED=307, **both TRUSTED=95**
+
+**Critical pre-cycle observation:** 95 STAGING rels already have BOTH endpoints in S's 27-entity TRUSTED set, yet 0 rels are TRUSTED. The original `post_extraction_20260511T053514Z` cycle should have promoted these 95 but recorded zero rel actions. Strongly suggests H7: silent rel-loop exception (caught at gardener.py L906) or `validate_against_ontology=True` blocked all 95 via `is_valid_relationship_type`.
+
+**Cycle 1 attempts:**
+1. nohup background, PID 5879 at 13:39:52 — process gone by 13:42:06, log 0 bytes, no state change
+2. foreground `timeout 90` at 13:42:30 — exit 124 at 13:44:00, last log line `[Gardener] Loaded ontology schema: 1026 entity types, 232 relationship types`, no commit, no state change
+
+Both attempts identical: init in ~6s, then 84s+ silence until SIGTERM. **No "Promotion pass" log line ever printed.** Same as Stage 1D's prior failure.
+
+**Post-cycle 1 (timeout) state:** identical to pre-snapshot. Zero deltas. Ontology unchanged (types=1037, relations=254). No cross-tenant impact.
+
+**Bottleneck probe:** S has 688 pending_duplicates (out of 1599 global). `_get_entity_ids_with_pending_duplicates()` (gardener.py L1233) is global-scope, not tenant-scoped — fetches all 1599, iterates. Combined with entity-loop overhead (972 iterations × per-row threshold/conflict/duplicate checks) and rel-loop N+1 endpoint queries (~2342 round-trips), 90s budget is insufficient.
+
+**Cycle 2 gate: FAILED** per directive ("If Cycle 1 times out, errors, or does not commit: stop and report. Do not run Cycle 2.").
+
+### NEW hypotheses
+
+- **H7 (open)**: original cycle's rel loop hit silent exception OR `validate_against_ontology` blocked all 95 endpoint-eligible rels. Cannot resolve without successful cycle execution.
+- **H8 (confirmed)**: promotion runtime exceeds 90s on S. 4 attempts now (Stage 1D + 2 in Stage 1E) all hang past 90s. Likely culprits: global pending_duplicates fetch, entity-loop per-row queries, rel-loop N+1.
+
+### Workflow-slot constraint
+
+No existing workflow runs `scripts/run_promotion.py`. Per stop trigger "a workflow slot must be freed → stop and report" — no workflow modified. Attempted nohup-background as alternative; failed (sandbox killed before flush).
+
+### Recommendations (NOT executed)
+
+1. Read-only audit of `_get_entity_ids_with_pending_duplicates` for tenant-scope fix opportunity
+2. Workflow-backed long-run via new `Manual Promotion S` workflow (requires explicit authorization)
+3. Accept H8 as blocker; defer Stage 1E empirical test pending perf fix
+
+### Verdicts unchanged
+
+- Scheduler activation (Option A): **still NO** — would trigger same hang every 5 min
+- Stage 2 remains **blocked**
+- N+1 endpoint lookup recorded as Stage 2 perf ticket
+- `endpoints_not_trusted` gate at gardener.py L864 recorded as architectural property (not a bug)
+
