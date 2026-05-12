@@ -6,6 +6,7 @@ Queries unverified facts from evidence_records, calls LLM to verify,
 and stores verdicts in fact_verifications table.
 """
 import os
+import time
 import uuid
 import argparse
 from datetime import datetime
@@ -14,6 +15,7 @@ from dataclasses import dataclass
 
 from openai import OpenAI
 from sqlalchemy import and_, or_, select
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
 from ..models.schema import (
@@ -38,6 +40,8 @@ class VerificationConfig:
     model: str = "gpt-4o-mini"
     temperature: float = 0.0
     confidence_threshold: float = 0.7
+    deadlock_max_retries: int = 3
+    deadlock_initial_backoff_s: float = 0.5
 
 
 @dataclass
@@ -115,6 +119,17 @@ class VerificationWorker:
             logger.info("[VerificationWorker] No unverified facts found")
             return stats
         
+        # Stage 1K: deterministic lock order. Sort by (fact_type, fact_id) so any
+        # two concurrent VerificationWorker invocations (or any other writer that
+        # also orders by primary key) acquire row locks in the same sequence and
+        # cannot deadlock against each other on the entities/relationships tables.
+        unverified_facts.sort(
+            key=lambda f: (
+                str(f["evidence_record"].fact_type.value if hasattr(f["evidence_record"].fact_type, "value") else f["evidence_record"].fact_type),
+                str(f["evidence_record"].fact_id),
+            )
+        )
+        
         logger.info(f"[VerificationWorker] Found {len(unverified_facts)} unverified facts to process")
         
         for i in range(0, len(unverified_facts), self.config.batch_size):
@@ -126,29 +141,101 @@ class VerificationWorker:
             
             batch_results = self._process_batch(batch)
             
-            for result in batch_results:
-                self._store_verdict(result)
-                stats["facts_processed"] += 1
-                
-                if result.status == VerificationStatus.VERIFIED:
-                    stats["verified"] += 1
-                elif result.status == VerificationStatus.REJECTED:
-                    stats["rejected"] += 1
-                elif result.status == VerificationStatus.NEEDS_REVIEW:
-                    stats["needs_review"] += 1
-        
-        try:
-            self.session.commit()
-            logger.info(f"[VerificationWorker] Committed {stats['facts_processed']} verification results")
-        except Exception as e:
-            self.session.rollback()
-            logger.error(f"[VerificationWorker] Failed to commit: {e}")
-            stats["errors"] += 1
+            # Stage 1K: per-batch transaction. Bound the lock-holding window so
+            # the worker only holds row locks for one small batch at a time
+            # instead of the entire run. Combined with deterministic ordering
+            # and a bounded deadlock retry, this prevents the multi-process
+            # deadlock seen in Stage 1J (verification autoflushed mid-loop while
+            # web_app/brain workers concurrently UPDATEd the same entity rows).
+            batch_committed = self._commit_batch_with_retry(batch_results, stats)
+            if not batch_committed:
+                # Partial-progress reporting: prior batches already committed.
+                stats["errors"] += 1
+                logger.error(
+                    f"[VerificationWorker] Aborting after batch starting at index {i} "
+                    f"could not be committed; {stats['facts_processed']} facts already persisted."
+                )
+                break
         
         stats["tokens_used"] = self.tokens_used
         
         logger.info(f"[VerificationWorker] Completed: {stats}")
         return stats
+    
+    def _commit_batch_with_retry(
+        self,
+        batch_results: List[VerificationResult],
+        stats: Dict[str, Any],
+    ) -> bool:
+        """
+        Stage 1K: store and commit one batch with bounded deadlock retry.
+        
+        On a deadlock (psycopg2.errors.DeadlockDetected wrapped as
+        sqlalchemy.exc.OperationalError), the entire batch is retried up to
+        ``deadlock_max_retries`` times with exponential backoff. Other
+        exceptions roll back the batch and are reported via stats["errors"].
+        
+        Returns True if the batch committed (possibly after retry); False
+        otherwise. A False return signals the caller to stop processing.
+        """
+        attempt = 0
+        while attempt <= self.config.deadlock_max_retries:
+            staged_count = 0
+            staged_per_status: Dict[VerificationStatus, int] = {}
+            try:
+                # Stage 1K: wrap read-before-write in no_autoflush. The
+                # original deadlock manifested because ``query(FactVerification)
+                # .filter(...).first()`` inside _store_verdict triggered an
+                # autoflush of every dirty Entity/Relationship the loop had
+                # touched so far, in non-deterministic ORM order. With
+                # no_autoflush, the only flush happens at our explicit commit
+                # call, and only on this batch's rows.
+                with self.session.no_autoflush:
+                    for result in batch_results:
+                        self._store_verdict(result)
+                        staged_count += 1
+                        staged_per_status[result.status] = staged_per_status.get(result.status, 0) + 1
+                self.session.commit()
+                stats["facts_processed"] += staged_count
+                stats["verified"] += staged_per_status.get(VerificationStatus.VERIFIED, 0)
+                stats["rejected"] += staged_per_status.get(VerificationStatus.REJECTED, 0)
+                stats["needs_review"] += staged_per_status.get(VerificationStatus.NEEDS_REVIEW, 0)
+                return True
+            except OperationalError as e:
+                self.session.rollback()
+                # psycopg2 deadlock surfaces as OperationalError wrapping
+                # ``psycopg2.errors.DeadlockDetected`` (pgcode 40P01) whose
+                # message is exactly "deadlock detected" (see Postgres errcodes
+                # appendix). We MUST NOT match on bare "deadlock" because
+                # SQLAlchemy's str(OperationalError) embeds the qualified
+                # exception class name (e.g. our own test module path), which
+                # would false-positive any class whose qualname contains
+                # "deadlock". The two-word phrase is unique to the real
+                # postgres message.
+                msg = str(e).lower()
+                orig = getattr(e, "orig", None)
+                is_deadlock = (
+                    getattr(orig, "pgcode", None) == "40P01"
+                    or getattr(orig, "sqlstate", None) == "40P01"
+                    or "deadlock detected" in msg
+                )
+                if is_deadlock and attempt < self.config.deadlock_max_retries:
+                    backoff = self.config.deadlock_initial_backoff_s * (2 ** attempt)
+                    logger.warning(
+                        f"[VerificationWorker] Deadlock on batch commit "
+                        f"(attempt {attempt + 1}/{self.config.deadlock_max_retries + 1}); "
+                        f"retrying after {backoff:.2f}s"
+                    )
+                    time.sleep(backoff)
+                    attempt += 1
+                    continue
+                logger.error(f"[VerificationWorker] OperationalError committing batch (deadlock={is_deadlock}): {e}")
+                return False
+            except Exception as e:
+                self.session.rollback()
+                logger.error(f"[VerificationWorker] Failed to commit batch: {e}")
+                return False
+        return False
     
     def _get_unverified_facts(self, limit: int) -> List[Dict[str, Any]]:
         """Get unverified facts with their evidence records."""

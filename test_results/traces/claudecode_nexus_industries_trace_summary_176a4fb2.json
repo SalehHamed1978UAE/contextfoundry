@@ -1,23 +1,23 @@
 {
-  "run_timestamp": "2026-05-12T03:23:49.969112",
+  "run_timestamp": "2026-05-12T08:51:03.815877",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_176a4fb2.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.36,
-    "avg_semantic_score": 0.062538,
+    "avg_chunks_retrieved": 3.3699999999999997,
+    "avg_semantic_score": 0.083495,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "no_data": 12,
-      "exact_match": 43,
+      "no_data": 10,
+      "exact_match": 45,
       "component_match": 23,
       "number_match": 7,
       "no_match": 13,
       "percentage_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 91
+    "low_score_queries": 88
   },
   "low_score_questions": [
     {
@@ -33,6 +33,11 @@
     {
       "q_id": 3,
       "question": "Who is the President of Nexus Digital Solutions?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 5,
+      "question": "Who is the Empowered Official for ITAR compliance?",
       "avg_score": 0.0
     },
     {
@@ -193,7 +198,7 @@
     {
       "q_id": 40,
       "question": "What is the total company backlog?",
-      "avg_score": 0.3512
+      "avg_score": 0.2896
     },
     {
       "q_id": 41,
@@ -213,11 +218,6 @@
     {
       "q_id": 44,
       "question": "When is the Toyota JV expected to close?",
-      "avg_score": 0.0
-    },
-    {
-      "q_id": 45,
-      "question": "When was Dr. Victoria Chen appointed CEO?",
       "avg_score": 0.0
     },
     {
@@ -291,11 +291,6 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 61,
-      "question": "Who replaced Thomas Anderson as Digital President?",
-      "avg_score": 0.0
-    },
-    {
       "q_id": 62,
       "question": "What FedRAMP level did CyberShield achieve?",
       "avg_score": 0.0
@@ -323,11 +318,6 @@
     {
       "q_id": 67,
       "question": "What operating temperature range does the solid-state battery support?",
-      "avg_score": 0.0
-    },
-    {
-      "q_id": 68,
-      "question": "Who is the Chair of the Export Control Committee?",
       "avg_score": 0.0
     },
     {
@@ -469,11 +459,6 @@
       "q_id": 99,
       "question": "How does Nexus's operating margin compare to target?",
       "avg_score": 0.0
-    },
-    {
-      "q_id": 100,
-      "question": "What is the total value of top 3 customer relationships?",
-      "avg_score": 0.0
     }
   ],
   "failures_by_type": {
@@ -491,10 +476,17 @@
         "expected": "January 2026 (effective January 15, 2026",
         "actual": "The appointment date was not found in th",
         "files_retrieved": [
+          "02_organizational_announcement.md",
           "04_digital_division_quarterly_review.md",
-          "Unknown",
-          "09_competitive_intelligence.md"
+          "Unknown"
         ]
+      },
+      {
+        "q_id": 15,
+        "question": "Who does Michael Chang report to?",
+        "expected": "Dr. Victoria Chen (CEO)",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": []
       },
       {
         "q_id": 18,
@@ -509,9 +501,9 @@
         "expected": "400 Wh/kg",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "06_toyota_partner_profile.md",
-          "Unknown",
-          "11_batterytech_solid_state.md"
+          "06_solid_state_battery_design.md",
+          "04_toyota_partnership_announcement.md",
+          "Unknown"
         ]
       },
       {
@@ -533,29 +525,15 @@
         ]
       },
       {
-        "q_id": 46,
-        "question": "Who supplies solar panels for the Desert Sun project?",
-        "expected": "First Solar",
-        "actual": "The retrieved information does not speci",
-        "files_retrieved": []
-      },
-      {
         "q_id": 60,
         "question": "When was the phishing incident detected?",
         "expected": "December 12, 2025 at 02:47 UTC",
         "actual": "The retrieved information does not provi",
         "files_retrieved": [
-          "10_cybersecurity_incident_response.md",
           "Unknown",
-          "08_cybersecurity_advisory.md"
+          "08_cybersecurity_advisory.md",
+          "10_cybersecurity_incident_response.md"
         ]
-      },
-      {
-        "q_id": 61,
-        "question": "Who replaced Thomas Anderson as Digital President?",
-        "expected": "Robert Kim",
-        "actual": "The information provided does not specif",
-        "files_retrieved": []
       },
       {
         "q_id": 67,
@@ -563,20 +541,9 @@
         "expected": "-30\u00b0C to 60\u00b0C",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "Unknown",
+          "06_solid_state_battery_design.md",
           "01_ceo_all_hands_memo.md",
-          "11_batterytech_solid_state.md"
-        ]
-      },
-      {
-        "q_id": 68,
-        "question": "Who is the Chair of the Export Control Committee?",
-        "expected": "Col. (Ret.) James Foster (Empowered Offi",
-        "actual": "The Chair of the Export Control Committe",
-        "files_retrieved": [
-          "09_export_control.md",
-          "10_aeromaterials_composites.md",
-          "04_procurement_policy.md"
+          "04_toyota_partnership_announcement.md"
         ]
       },
       {
@@ -603,9 +570,9 @@
         "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
         "actual": "The GreenHydrogen facility has a hydroge",
         "files_retrieved": [
+          "02_greenhydrogen_process_specification.md",
           "08_global_locations.md",
-          "04_greenhydrogen_initiative.md",
-          "02_greenhydrogen_process_specification.md"
+          "09_greenhydrogen_milestone.md"
         ]
       },
       {
@@ -614,9 +581,9 @@
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "05_digital_division_structure.md",
-          "08_hr_talent_review.md",
-          "02_business_divisions.md"
+          "05_talent_strategy.md",
+          "03_aerospace_division_structure.md",
+          "03_desert_sun_solar_farm.md"
         ]
       },
       {
@@ -635,20 +602,20 @@
         "expected": "$12.4 billion",
         "actual": "The total company backlog is **$11.5 bil",
         "files_retrieved": [
-          "05_digital_division_budget.md",
-          "11_product_launch_planning.md",
-          "01_annual_report_2025.md"
+          "01_annual_report_2025.md",
+          "03_aerospace_division_budget.md",
+          "06_materials_division_budget.md"
         ]
       },
       {
         "q_id": 45,
         "question": "When was Dr. Victoria Chen appointed CEO?",
         "expected": "2019",
-        "actual": "March 2018. Dr. Victoria Chen was appoin",
+        "actual": "Dr. Victoria Chen was appointed CEO on *",
         "files_retrieved": [
-          "06_market_expansion_asia.md",
+          "02_organizational_announcement.md",
           "01_executive_team.md",
-          "06_quantumleap_computing.md"
+          "08_hr_talent_review.md"
         ]
       },
       {
@@ -668,15 +635,25 @@
         "expected": "$680 million",
         "actual": "The FY2026 capital expenditure plan for ",
         "files_retrieved": [
-          "01_corporate_strategy_2026_2030.md",
-          "07_capital_allocation_plan.md"
+          "07_capital_allocation_plan.md",
+          "01_corporate_strategy_2026_2030.md"
+        ]
+      },
+      {
+        "q_id": 68,
+        "question": "Who is the Chair of the Export Control Committee?",
+        "expected": "Col. (Ret.) James Foster (Empowered Offi",
+        "actual": "The Chair of the Export Control Committe",
+        "files_retrieved": [
+          "01_code_of_ethics.md",
+          "09_export_control.md"
         ]
       },
       {
         "q_id": 71,
         "question": "Who is the mining automation partner?",
         "expected": "Caterpillar",
-        "actual": "The mining automation partner is **Rio T",
+        "actual": "The mining automation partner is **Sieme",
         "files_retrieved": [
           "04_toyota_partnership_announcement.md",
           "09_competitive_intelligence.md"
@@ -688,9 +665,9 @@
         "expected": "$15 billion",
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
-          "01_corporate_strategy_2026_2030.md",
+          "02_aerospace_division_strategy.md",
           "06_market_expansion_asia.md",
-          "02_aerospace_division_strategy.md"
+          "01_corporate_strategy_2026_2030.md"
         ]
       },
       {
@@ -699,9 +676,9 @@
         "expected": "Owns the Export Control Policy (per POL-",
         "actual": "The VP of Trade Compliance is Robert Lee",
         "files_retrieved": [
-          "09_export_control.md",
+          "03_aerospace_division_structure.md",
           "01_code_of_ethics.md",
-          "03_aerospace_division_structure.md"
+          "09_export_control.md"
         ]
       },
       {
@@ -712,18 +689,7 @@
         "files_retrieved": [
           "Unknown",
           "04_toyota_partnership_announcement.md",
-          "06_toyota_jv_negotiation_summary.md"
-        ]
-      },
-      {
-        "q_id": 100,
-        "question": "What is the total value of top 3 customer relationships?",
-        "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
-        "actual": "The total value of the top 3 customer re",
-        "files_retrieved": [
-          "Unknown",
-          "11_microsoft_customer.md",
-          "01_boeing_customer_profile.md"
+          "11_batterytech_solid_state.md"
         ]
       }
     ]
