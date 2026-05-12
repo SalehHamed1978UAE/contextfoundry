@@ -1,0 +1,165 @@
+{
+  "document_id": "9f295b48-264c-4097-af3d-6892bc71b7f4",
+  "document_path": "01_code_of_ethics.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-12T05:03:19.707627",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Nexus Industries Code of Ethics and Business Conduct",
+      "aliases": []
+    },
+    {
+      "name": "General Counsel",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "General Counsel",
+        "role": "Legal Advisor"
+      },
+      "confidence": 0.85,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Owner: General Counsel",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Approved by: Dr. Victoria Chen, CEO",
+      "aliases": []
+    },
+    {
+      "name": "Ethics Committee",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Ethics and Compliance"
+      },
+      "confidence": 0.8,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Ethics Committee: General Counsel (Chair)",
+      "aliases": []
+    },
+    {
+      "name": "Ethics Office",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Ethics Reporting"
+      },
+      "confidence": 0.8,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Ethics Office: ethics@nexus-industries.com",
+      "aliases": []
+    },
+    {
+      "name": "Ethics Hotline",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Anonymous reporting service"
+      },
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Ethics Hotline: 1-800-555-ETHX",
+      "aliases": []
+    },
+    {
+      "name": "POL-001",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Corporate Policy"
+      },
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Policy Number: POL-001",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "Approved by: Dr. Victoria Chen, CEO"
+    },
+    {
+      "source_entity": "General Counsel",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "Owner: General Counsel"
+    },
+    {
+      "source_entity": "Ethics Committee",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "Ethics Committee: General Counsel (Chair)"
+    },
+    {
+      "source_entity": "Ethics Office",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "Ethics Office: ethics@nexus-industries.com"
+    },
+    {
+      "source_entity": "Ethics Hotline",
+      "source_type": "SERVICE",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "Ethics Hotline: 1-800-555-ETHX"
+    },
+    {
+      "source_entity": "POL-001",
+      "source_type": "POLICY",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "Policy Number: POL-001"
+    }
+  ],
+  "metadata": {
+    "filename": "01_code_of_ethics.md",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 6,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

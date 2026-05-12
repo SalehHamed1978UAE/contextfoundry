@@ -1,0 +1,188 @@
+{
+  "document_id": "3fc480d5-a620-49f1-bd55-29598250b79a",
+  "document_path": "09_export_control.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-12T05:04:48.787781",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Nexus Industries' commitment and procedures for complying with U.S. export control laws",
+      "aliases": []
+    },
+    {
+      "name": "Col. (Ret.) James Foster",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Government Programs",
+        "role": "Empowered Official"
+      },
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Col. (Ret.) James Foster, VP Government Programs",
+      "aliases": []
+    },
+    {
+      "name": "VP Trade Compliance",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Program oversight"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "VP Trade Compliance | Program oversight",
+      "aliases": []
+    },
+    {
+      "name": "Export Compliance Manager",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Day-to-day operations"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Export Compliance Manager | Day-to-day operations",
+      "aliases": []
+    },
+    {
+      "name": "Classification Specialists",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Commodity jurisdiction"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Classification Specialists | Commodity jurisdiction",
+      "aliases": []
+    },
+    {
+      "name": "Licensing Specialists",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "License applications"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Licensing Specialists | License applications",
+      "aliases": []
+    },
+    {
+      "name": "Auditors",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Internal reviews"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Auditors | Internal reviews",
+      "aliases": []
+    },
+    {
+      "name": "ITAR",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "POL-009",
+        "category": "Export Control"
+      },
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "U.S. export control laws, including ITAR (International Traffic in Arms Regulations)",
+      "aliases": []
+    },
+    {
+      "name": "EAR",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "POL-009",
+        "category": "Export Control"
+      },
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "U.S. export control laws, including EAR (Export Administration Regulations)",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Col. (Ret.) James Foster",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "evidence": "Col. (Ret.) James Foster, Empowered Official"
+    },
+    {
+      "source_entity": "VP Trade Compliance",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "VP Trade Compliance | Program oversight"
+    },
+    {
+      "source_entity": "Export Compliance Manager",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "Export Compliance Manager | Day-to-day operations"
+    },
+    {
+      "source_entity": "Classification Specialists",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "Classification Specialists | Commodity jurisdiction"
+    },
+    {
+      "source_entity": "Licensing Specialists",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "Licensing Specialists | License applications"
+    },
+    {
+      "source_entity": "Auditors",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "Auditors | Internal reviews"
+    }
+  ],
+  "metadata": {
+    "filename": "09_export_control.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 6,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

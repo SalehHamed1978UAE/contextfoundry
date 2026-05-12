@@ -1,0 +1,257 @@
+{
+  "document_id": "9f295b48-264c-4097-af3d-6892bc71b7f4",
+  "document_path": "01_code_of_ethics.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-05-12T05:03:38.831799",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 1.0,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Nexus Industries Code of Ethics and Business Conduct",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Approved by: Dr. Victoria Chen, CEO",
+      "aliases": []
+    },
+    {
+      "name": "General Counsel",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "General Counsel",
+        "role": "Legal Officer"
+      },
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Owner: General Counsel",
+      "aliases": []
+    },
+    {
+      "name": "CHRO",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CHRO",
+        "role": "Chief Human Resources Officer"
+      },
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Ethics Committee: General Counsel (Chair), CHRO",
+      "aliases": []
+    },
+    {
+      "name": "Chief Compliance Officer",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Compliance Officer",
+        "role": "Compliance Officer"
+      },
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Ethics Committee: Chief Compliance Officer",
+      "aliases": []
+    },
+    {
+      "name": "Division Ethics Officers",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Ethics Officers"
+      },
+      "confidence": 0.8,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Ethics Committee: Division Ethics Officers",
+      "aliases": []
+    },
+    {
+      "name": "Code of Ethics and Business Conduct",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "POL-001",
+        "category": "Corporate Policy",
+        "classification": "Public"
+      },
+      "confidence": 1.0,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Policy Number: POL-001, Document Type: Corporate Policy",
+      "aliases": []
+    },
+    {
+      "name": "Ethics Committee",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Ethics governance and policy oversight"
+      },
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Ethics Committee: General Counsel (Chair), CHRO, Chief Compliance Officer, Division Ethics Officers",
+      "aliases": []
+    },
+    {
+      "name": "Ethics Office",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Ethics compliance and reporting"
+      },
+      "confidence": 0.8,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Ethics Office: ethics@nexus-industries.com",
+      "aliases": []
+    },
+    {
+      "name": "ITAR",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Export Control Regulation"
+      },
+      "confidence": 1.0,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Full ITAR and EAR compliance",
+      "aliases": []
+    },
+    {
+      "name": "EAR",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Export Administration Regulations"
+      },
+      "confidence": 1.0,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Full ITAR and EAR compliance",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "Dr. Victoria Chen, CEO"
+    },
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "Dr. Victoria Chen, CEO"
+    },
+    {
+      "source_entity": "General Counsel",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Code of Ethics and Business Conduct",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "Owner: General Counsel"
+    },
+    {
+      "source_entity": "General Counsel",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Ethics Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "General Counsel (Chair)"
+    },
+    {
+      "source_entity": "CHRO",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Ethics Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "Ethics Committee: General Counsel (Chair), CHRO"
+    },
+    {
+      "source_entity": "Chief Compliance Officer",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Ethics Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "Ethics Committee: Chief Compliance Officer"
+    },
+    {
+      "source_entity": "Division Ethics Officers",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Ethics Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "Ethics Committee: Division Ethics Officers"
+    },
+    {
+      "source_entity": "Ethics Committee",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "Ethics Committee governance structure"
+    },
+    {
+      "source_entity": "Ethics Office",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "Ethics Office: ethics@nexus-industries.com"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Code of Ethics and Business Conduct",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "Nexus Industries Code of Ethics and Business Conduct"
+    }
+  ],
+  "metadata": {
+    "filename": "01_code_of_ethics.md",
+    "raw_entity_count": 11,
+    "raw_relationship_count": 10,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

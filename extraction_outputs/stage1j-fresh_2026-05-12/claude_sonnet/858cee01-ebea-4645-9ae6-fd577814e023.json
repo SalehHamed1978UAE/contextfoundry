@@ -1,0 +1,465 @@
+{
+  "document_id": "858cee01-ebea-4645-9ae6-fd577814e023",
+  "document_path": "07_environmental_health_safety.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-05-12T05:06:33.686687",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "corporation",
+        "industry": "industrial"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Nexus Industries is committed to providing a safe and healthy workplace",
+      "aliases": []
+    },
+    {
+      "name": "Environmental, Health, and Safety Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "POL-007",
+        "category": "EHS",
+        "effective_date": "January 1, 2024"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Policy Number: POL-007, Effective Date: January 1, 2024",
+      "aliases": []
+    },
+    {
+      "name": "VP Environmental, Health & Safety",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Environmental, Health & Safety",
+        "role": "Policy Owner"
+      },
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Owner: VP Environmental, Health & Safety",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Approved by: Dr. Victoria Chen, CEO",
+      "aliases": []
+    },
+    {
+      "name": "TRIR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Recordable Incident Rate",
+        "value": "0.82",
+        "target": "<0.80",
+        "period": "FY2025",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "TRIR (Total Recordable) | <0.80 | 0.82",
+      "aliases": []
+    },
+    {
+      "name": "LTIR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Lost Time Incident Rate",
+        "value": "0.18",
+        "target": "<0.20",
+        "period": "FY2025",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "LTIR (Lost Time) | <0.20 | 0.18",
+      "aliases": []
+    },
+    {
+      "name": "Fatalities",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Fatalities",
+        "value": "0",
+        "target": "0",
+        "period": "FY2025",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Fatalities | 0 | 0",
+      "aliases": []
+    },
+    {
+      "name": "Near Misses Reported",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Near Misses Reported",
+        "value": "2,450",
+        "target": ">2,000",
+        "period": "FY2025",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Near Misses Reported | >2,000 | 2,450",
+      "aliases": []
+    },
+    {
+      "name": "Safety Training Hours",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Safety Training Hours",
+        "value": "52,000",
+        "target": ">50,000",
+        "period": "FY2025",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Safety Training Hours | >50,000 | 52,000",
+      "aliases": []
+    },
+    {
+      "name": "GHG Reduction",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Greenhouse Gas Reduction",
+        "value": "-26%",
+        "target": "-50% by 2030",
+        "period": "vs 2020",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "GHG Reduction | -50% by 2030 (vs 2020) | -26% achieved",
+      "aliases": []
+    },
+    {
+      "name": "Renewable Energy",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Renewable Energy",
+        "value": "65%",
+        "target": "100% by 2028",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Renewable Energy | 100% by 2028 | 65% achieved",
+      "aliases": []
+    },
+    {
+      "name": "Zero Waste to Landfill",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Zero Waste to Landfill",
+        "value": "28% to landfill",
+        "target": "2028",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Zero Waste to Landfill | 2028 | 28% to landfill",
+      "aliases": []
+    },
+    {
+      "name": "Water Reduction",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Water Reduction",
+        "value": "-12%",
+        "target": "-25% by 2030",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Water Reduction | -25% by 2030 | -12% achieved",
+      "aliases": []
+    },
+    {
+      "name": "OSHA Standards",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "workplace safety",
+        "scope": "Workplace safety"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "OSHA Standards | Workplace safety | Compliant",
+      "aliases": []
+    },
+    {
+      "name": "EPA Clean Air Act",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "environmental",
+        "scope": "Air emissions"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "EPA Clean Air Act | Air emissions | Compliant",
+      "aliases": []
+    },
+    {
+      "name": "EPA Clean Water Act",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "environmental",
+        "scope": "Water discharge"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "EPA Clean Water Act | Water discharge | Compliant",
+      "aliases": []
+    },
+    {
+      "name": "RCRA",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "environmental",
+        "scope": "Hazardous waste"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "RCRA | Hazardous waste | Compliant",
+      "aliases": []
+    },
+    {
+      "name": "DOT",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "transportation",
+        "scope": "Hazmat transport"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "DOT | Hazmat transport | Compliant",
+      "aliases": []
+    },
+    {
+      "name": "EHS Council",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Environmental Health Safety governance"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "EHS Council: VP EHS (Chair), Division EHS Directors, Site EHS Managers, Employee Representatives",
+      "aliases": []
+    },
+    {
+      "name": "Division EHS Directors",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "EHS Director",
+        "department": "Environmental Health Safety"
+      },
+      "confidence": 0.8,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "EHS Council: VP EHS (Chair), Division EHS Directors",
+      "aliases": []
+    },
+    {
+      "name": "Site EHS Managers",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "EHS Manager",
+        "department": "Environmental Health Safety"
+      },
+      "confidence": 0.8,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "EHS Council: VP EHS (Chair), Division EHS Directors, Site EHS Managers",
+      "aliases": []
+    },
+    {
+      "name": "Employee Representatives",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Employee Representative"
+      },
+      "confidence": 0.8,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "EHS Council: VP EHS (Chair), Division EHS Directors, Site EHS Managers, Employee Representatives",
+      "aliases": []
+    },
+    {
+      "name": "CEO",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "CEO | Overall accountability",
+      "aliases": []
+    },
+    {
+      "name": "Division Presidents",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Division President",
+        "role": "Division management"
+      },
+      "confidence": 0.8,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Division Presidents | Division performance",
+      "aliases": []
+    },
+    {
+      "name": "Site Managers",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Site Manager",
+        "role": "Site management"
+      },
+      "confidence": 0.8,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Site Managers | Site-level implementation",
+      "aliases": []
+    },
+    {
+      "name": "Supervisors",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Supervisor",
+        "role": "Daily safety management"
+      },
+      "confidence": 0.8,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Supervisors | Daily safety management",
+      "aliases": []
+    },
+    {
+      "name": "OSHA",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "regulatory agency",
+        "industry": "workplace safety"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Fatality | CEO + OSHA | Immediately (8 hrs OSHA)",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Approved by: Dr. Victoria Chen, CEO"
+    },
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Dr. Victoria Chen, CEO"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Environmental, Health, and Safety Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Policy applies to All Nexus facilities and operations"
+    },
+    {
+      "source_entity": "VP Environmental, Health & Safety",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "EHS Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "VP EHS (Chair)"
+    },
+    {
+      "source_entity": "EHS Council",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "EHS Council governance structure within Nexus Industries"
+    },
+    {
+      "source_entity": "Division EHS Directors",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "EHS Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "EHS Council: VP EHS (Chair), Division EHS Directors"
+    },
+    {
+      "source_entity": "Site EHS Managers",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "EHS Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "EHS Council: VP EHS (Chair), Division EHS Directors, Site EHS Managers"
+    },
+    {
+      "source_entity": "Employee Representatives",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "EHS Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "EHS Council: VP EHS (Chair), Division EHS Directors, Site EHS Managers, Employee Representatives"
+    },
+    {
+      "source_entity": "CEO",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "CEO | Overall accountability"
+    }
+  ],
+  "metadata": {
+    "filename": "07_environmental_health_safety.md",
+    "raw_entity_count": 27,
+    "raw_relationship_count": 9,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 6
+  }
+}

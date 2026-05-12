@@ -1,0 +1,239 @@
+{
+  "document_id": "bff09ffc-ec71-4b5a-bc55-80c99850ca4d",
+  "document_path": "01_corporate_strategy_2026_2030.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-12T06:31:44.419361",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Diversified Industrial"
+      },
+      "confidence": 0.95,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "source_excerpt": "Nexus Industries Corporate Strategy 2026-2030",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "source_excerpt": "CEO | Dr. Victoria Chen | Jan 15, 2026",
+      "aliases": []
+    },
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO",
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "source_excerpt": "CFO | Robert Kim | Jan 14, 2026",
+      "aliases": []
+    },
+    {
+      "name": "Richard Blackstone",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Board Chair",
+        "role": "Chairman of the Board"
+      },
+      "confidence": 0.95,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "source_excerpt": "Board Chair | Richard Blackstone | Jan 20, 2026",
+      "aliases": []
+    },
+    {
+      "name": "Sarah Martinez",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Strategy Officer",
+        "role": "Strategy Executive"
+      },
+      "confidence": 0.95,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "source_excerpt": "Document Owner: Sarah Martinez, Chief Strategy Officer",
+      "aliases": []
+    },
+    {
+      "name": "2026-2030 Strategic Plan",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$7.5B",
+        "timeline": "2026-2030",
+        "status": "Ongoing"
+      },
+      "confidence": 0.9,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "source_excerpt": "This document outlines Nexus Industries' five-year strategic plan",
+      "aliases": []
+    },
+    {
+      "name": "Carbon Neutral Operations",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "2030",
+        "status": "On Track"
+      },
+      "confidence": 0.85,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "source_excerpt": "Carbon Neutral Operations | 2030 | On Track",
+      "aliases": []
+    },
+    {
+      "name": "100% Renewable Energy",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "2028",
+        "status": "65% achieved"
+      },
+      "confidence": 0.85,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "source_excerpt": "100% Renewable Energy | 2028 | 65% achieved",
+      "aliases": []
+    },
+    {
+      "name": "Zero Waste to Landfill",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "2028",
+        "status": "40% achieved"
+      },
+      "confidence": 0.85,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "source_excerpt": "Zero Waste to Landfill | 2028 | 40% achieved",
+      "aliases": []
+    },
+    {
+      "name": "Sustainable Products",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "Tracking",
+        "status": "Ongoing"
+      },
+      "confidence": 0.85,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "source_excerpt": "Sustainable Products | 50% revenue | Tracking",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "CEO | Dr. Victoria Chen | Jan 15, 2026"
+    },
+    {
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "CFO | Robert Kim | Jan 14, 2026"
+    },
+    {
+      "source_entity": "Richard Blackstone",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "Board Chair | Richard Blackstone | Jan 20, 2026"
+    },
+    {
+      "source_entity": "Sarah Martinez",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "Document Owner: Sarah Martinez, Chief Strategy Officer"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "2026-2030 Strategic Plan",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "This document outlines Nexus Industries' five-year strategic plan"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Carbon Neutral Operations",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "Carbon Neutral Operations | 2030 | On Track"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "100% Renewable Energy",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "100% Renewable Energy | 2028 | 65% achieved"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Zero Waste to Landfill",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "Zero Waste to Landfill | 2028 | 40% achieved"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Sustainable Products",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "Sustainable Products | 50% revenue | Tracking"
+    }
+  ],
+  "metadata": {
+    "filename": "01_corporate_strategy_2026_2030.md",
+    "raw_entity_count": 10,
+    "raw_relationship_count": 9,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

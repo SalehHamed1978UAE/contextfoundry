@@ -1,0 +1,319 @@
+{
+  "document_id": "85d6a029-0fad-4f13-b469-cbf49a573882",
+  "document_path": "05_hts_wire_manufacturing_spec.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-12T06:04:45.693381",
+  "entities": [
+    {
+      "name": "Dr. Robert Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Materials R&D Director",
+        "role": "Director"
+      },
+      "confidence": 0.95,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "source_excerpt": "Owner: Dr. Robert Chen, Materials R&D Director",
+      "aliases": []
+    },
+    {
+      "name": "Nexus HTS Wire",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "second-generation (2G) high-temperature superconducting wire based on REBCO coated conductor technology",
+        "category": "Superconducting Wire"
+      },
+      "confidence": 0.9,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "source_excerpt": "Nexus HTS Wire is a second-generation (2G) high-temperature superconducting wire",
+      "aliases": []
+    },
+    {
+      "name": "Siemens Healthineers",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Healthcare",
+        "region": "Global"
+      },
+      "confidence": 0.85,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "source_excerpt": "Customers | Siemens Healthineers",
+      "aliases": []
+    },
+    {
+      "name": "Government labs",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Government",
+        "region": "Global"
+      },
+      "confidence": 0.8,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "source_excerpt": "Customers | Government labs",
+      "aliases": []
+    },
+    {
+      "name": "Utilities",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Energy",
+        "region": "Global"
+      },
+      "confidence": 0.8,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "source_excerpt": "Customers | Utilities",
+      "aliases": []
+    },
+    {
+      "name": "Transportation",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Transportation",
+        "region": "Global"
+      },
+      "confidence": 0.8,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "source_excerpt": "Customers | Transportation",
+      "aliases": []
+    },
+    {
+      "name": "Universities",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Education",
+        "region": "Global"
+      },
+      "confidence": 0.8,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "source_excerpt": "Customers | Universities",
+      "aliases": []
+    },
+    {
+      "name": "Haynes",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Supplier of Hastelloy C276",
+        "risk level": "Medium"
+      },
+      "confidence": 0.85,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "source_excerpt": "Supplier | Haynes",
+      "aliases": []
+    },
+    {
+      "name": "Alfa Aesar",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Supplier of REBCO precursors",
+        "risk level": "Medium"
+      },
+      "confidence": 0.85,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "source_excerpt": "Supplier | Alfa Aesar",
+      "aliases": []
+    },
+    {
+      "name": "ESPI",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Supplier of Silver",
+        "risk level": "Medium"
+      },
+      "confidence": 0.85,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "source_excerpt": "Supplier | ESPI",
+      "aliases": []
+    },
+    {
+      "name": "Linde",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Supplier of process gases",
+        "risk level": "Medium"
+      },
+      "confidence": 0.85,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "source_excerpt": "Supplier | Linde",
+      "aliases": []
+    },
+    {
+      "name": "Kurt Lesker",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Supplier of MgO target",
+        "risk level": "Medium"
+      },
+      "confidence": 0.85,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "source_excerpt": "Supplier | Kurt Lesker",
+      "aliases": []
+    },
+    {
+      "name": "TEC-MAT-001",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "TEC-MAT-001",
+        "category": "Manufacturing Specification"
+      },
+      "confidence": 0.9,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "source_excerpt": "Document Number: TEC-MAT-001",
+      "aliases": []
+    },
+    {
+      "name": "John Williams",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Materials Division President",
+        "role": "President"
+      },
+      "confidence": 0.95,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "source_excerpt": "Approved By: John Williams, Materials Division President",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Robert Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus HTS Wire",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "evidence": "Owner: Dr. Robert Chen, Materials R&D Director"
+    },
+    {
+      "source_entity": "Nexus HTS Wire",
+      "source_type": "PRODUCT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Siemens Healthineers",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "evidence": "Customers | Siemens Healthineers"
+    },
+    {
+      "source_entity": "Nexus HTS Wire",
+      "source_type": "PRODUCT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Government labs",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "evidence": "Customers | Government labs"
+    },
+    {
+      "source_entity": "Nexus HTS Wire",
+      "source_type": "PRODUCT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Utilities",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "evidence": "Customers | Utilities"
+    },
+    {
+      "source_entity": "Nexus HTS Wire",
+      "source_type": "PRODUCT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Transportation",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "evidence": "Customers | Transportation"
+    },
+    {
+      "source_entity": "Nexus HTS Wire",
+      "source_type": "PRODUCT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Universities",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "evidence": "Customers | Universities"
+    },
+    {
+      "source_entity": "Haynes",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus HTS Wire",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "evidence": "Supplier | Haynes"
+    },
+    {
+      "source_entity": "Alfa Aesar",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus HTS Wire",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "evidence": "Supplier | Alfa Aesar"
+    },
+    {
+      "source_entity": "ESPI",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus HTS Wire",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "evidence": "Supplier | ESPI"
+    },
+    {
+      "source_entity": "Linde",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus HTS Wire",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "evidence": "Supplier | Linde"
+    },
+    {
+      "source_entity": "Kurt Lesker",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus HTS Wire",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "evidence": "Supplier | Kurt Lesker"
+    },
+    {
+      "source_entity": "John Williams",
+      "source_type": "PERSON",
+      "relationship_type": "REPORTS_TO",
+      "target_entity": "Dr. Robert Chen",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "evidence": "Approved By: John Williams, Materials Division President"
+    }
+  ],
+  "metadata": {
+    "filename": "05_hts_wire_manufacturing_spec.md",
+    "raw_entity_count": 14,
+    "raw_relationship_count": 12,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 1
+  }
+}

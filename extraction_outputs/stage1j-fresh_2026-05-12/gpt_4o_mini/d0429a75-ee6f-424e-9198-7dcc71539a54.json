@@ -1,0 +1,132 @@
+{
+  "document_id": "d0429a75-ee6f-424e-9198-7dcc71539a54",
+  "document_path": "05_intellectual_property.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-12T05:06:50.593855",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "05_intellectual_property.md",
+      "source_excerpt": "All IP created in scope of employment belongs to Nexus Industries.",
+      "aliases": []
+    },
+    {
+      "name": "General Counsel",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "General Counsel",
+        "role": "Legal"
+      },
+      "confidence": 0.9,
+      "source_document": "05_intellectual_property.md",
+      "source_excerpt": "Owner: General Counsel",
+      "aliases": []
+    },
+    {
+      "name": "Lisa Thompson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "General Counsel",
+        "role": "Legal"
+      },
+      "confidence": 0.9,
+      "source_document": "05_intellectual_property.md",
+      "source_excerpt": "Approved by: Lisa Thompson, General Counsel",
+      "aliases": []
+    },
+    {
+      "name": "IP Department",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Intellectual Property Management"
+      },
+      "confidence": 0.85,
+      "source_document": "05_intellectual_property.md",
+      "source_excerpt": "Submit to IP Department",
+      "aliases": []
+    },
+    {
+      "name": "IP Committee",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Intellectual Property Governance"
+      },
+      "confidence": 0.85,
+      "source_document": "05_intellectual_property.md",
+      "source_excerpt": "IP Committee: General Counsel (Chair)",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "General Counsel",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_intellectual_property.md",
+      "evidence": "Owner: General Counsel"
+    },
+    {
+      "source_entity": "Lisa Thompson",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_intellectual_property.md",
+      "evidence": "Approved by: Lisa Thompson, General Counsel"
+    },
+    {
+      "source_entity": "General Counsel",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "IP Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "05_intellectual_property.md",
+      "evidence": "IP Committee: General Counsel (Chair)"
+    },
+    {
+      "source_entity": "IP Department",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "05_intellectual_property.md",
+      "evidence": "Submit to IP Department"
+    },
+    {
+      "source_entity": "IP Committee",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "05_intellectual_property.md",
+      "evidence": "IP Committee: General Counsel (Chair)"
+    }
+  ],
+  "metadata": {
+    "filename": "05_intellectual_property.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

@@ -1,0 +1,478 @@
+{
+  "document_id": "014817c2-e055-4930-863d-200047a80b48",
+  "document_path": "02_greenhydrogen_process_specification.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-05-12T06:06:27.656169",
+  "entities": [
+    {
+      "name": "Dr. Marcus Thompson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Technical Lead",
+        "role": "Document Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Owner: Dr. Marcus Thompson, Technical Lead",
+      "aliases": []
+    },
+    {
+      "name": "Jennifer Walsh",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Project Director",
+        "role": "Approver"
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Approved By: Jennifer Walsh, Project Director",
+      "aliases": []
+    },
+    {
+      "name": "GreenHydrogen Production Process",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Commissioning",
+        "budget": "Not specified",
+        "timeline": "Jan 2026"
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "GreenHydrogen Production Process Specification",
+      "aliases": []
+    },
+    {
+      "name": "El Paso",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "El Paso",
+        "country": "United States"
+      },
+      "confidence": 1.0,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Location | El Paso, Texas",
+      "aliases": []
+    },
+    {
+      "name": "Texas",
+      "entity_type": "LOCATION",
+      "properties": {
+        "state": "Texas",
+        "country": "United States"
+      },
+      "confidence": 1.0,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Location | El Paso, Texas",
+      "aliases": []
+    },
+    {
+      "name": "GreenHydrogen Production Facility",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Hydrogen Production Plant",
+        "area": "85 acres",
+        "building_area": "125,000 sq ft"
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Site Area | 85 acres | Building Area | 125,000 sq ft",
+      "aliases": []
+    },
+    {
+      "name": "Shell",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Energy Company",
+        "industry": "Oil & Gas"
+      },
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Product Delivery | Pipeline to Shell facility",
+      "aliases": []
+    },
+    {
+      "name": "Nel Hydrogen",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Equipment Manufacturer",
+        "industry": "Hydrogen Technology"
+      },
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Manufacturer | Nel Hydrogen",
+      "aliases": []
+    },
+    {
+      "name": "M5000 PEM Electrolyzer",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Electrolyzer",
+        "manufacturer": "Nel Hydrogen",
+        "capacity": "85 kg H\u2082/hr"
+      },
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Model | M5000 PEM | Capacity per Unit | 85 kg H\u2082/hr",
+      "aliases": []
+    },
+    {
+      "name": "Atlas Copco",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Equipment Manufacturer",
+        "industry": "Industrial Equipment"
+      },
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Manufacturer | Atlas Copco",
+      "aliases": []
+    },
+    {
+      "name": "HX-350 Compressor",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Compressor",
+        "manufacturer": "Atlas Copco",
+        "type": "Reciprocating, oil-free"
+      },
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Model | HX-350 | Type | Reciprocating, oil-free",
+      "aliases": []
+    },
+    {
+      "name": "Chart Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Equipment Manufacturer",
+        "industry": "Industrial Equipment"
+      },
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Manufacturer | Chart Industries",
+      "aliases": []
+    },
+    {
+      "name": "Emerson",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Technology Company",
+        "industry": "Industrial Automation"
+      },
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "DCS | Emerson | DeltaV",
+      "aliases": []
+    },
+    {
+      "name": "DeltaV Control System",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "manufacturer": "Emerson",
+        "type": "DCS"
+      },
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "DCS | Emerson | DeltaV",
+      "aliases": []
+    },
+    {
+      "name": "OSIsoft",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Software Company",
+        "industry": "Industrial Software"
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Historian | OSIsoft | PI",
+      "aliases": []
+    },
+    {
+      "name": "PI Historian",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "manufacturer": "OSIsoft",
+        "type": "Data Historian"
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Historian | OSIsoft | PI",
+      "aliases": []
+    },
+    {
+      "name": "TCEQ",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Regulatory Agency",
+        "name": "Texas Commission on Environmental Quality"
+      },
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Air | TCEQ | Approved | Water | TCEQ | Approved",
+      "aliases": []
+    },
+    {
+      "name": "El Paso County",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Local Government",
+        "jurisdiction": "El Paso County"
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Building | El Paso County | Approved",
+      "aliases": []
+    },
+    {
+      "name": "Texas RRC",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Regulatory Agency",
+        "name": "Texas Railroad Commission"
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Pipeline | Texas RRC | Approved",
+      "aliases": []
+    },
+    {
+      "name": "Hydrogen Production Rate",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Hydrogen Output",
+        "value": "425 kg/hr Phase 1, 850 kg/hr Full",
+        "type": "PRODUCTION"
+      },
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Hydrogen Output | 425 kg/hr | 850 kg/hr",
+      "aliases": []
+    },
+    {
+      "name": "Annual Production Capacity",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Annual Production",
+        "value": "3.5M kg Phase 1, 7.0M kg Full",
+        "type": "PRODUCTION"
+      },
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Annual Production | 3.5M kg | 7.0M kg",
+      "aliases": []
+    },
+    {
+      "name": "Power Consumption",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Power",
+        "value": "27.0 MW",
+        "type": "CONSUMPTION"
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Total | 27.0 | 100%",
+      "aliases": []
+    },
+    {
+      "name": "TEC-ENR-001",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "TEC-ENR-001",
+        "category": "Process Specification"
+      },
+      "confidence": 1.0,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Document Number: TEC-ENR-001",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "GreenHydrogen Production Facility",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "El Paso",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Location | El Paso, Texas"
+    },
+    {
+      "source_entity": "Jennifer Walsh",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "GreenHydrogen Production Process",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Approved By: Jennifer Walsh, Project Director"
+    },
+    {
+      "source_entity": "GreenHydrogen Production Facility",
+      "source_type": "FACILITY",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Shell",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Product Delivery | Pipeline to Shell facility"
+    },
+    {
+      "source_entity": "Nel Hydrogen",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "GreenHydrogen Production Facility",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Manufacturer | Nel Hydrogen | Model | M5000 PEM"
+    },
+    {
+      "source_entity": "Atlas Copco",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "GreenHydrogen Production Facility",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Manufacturer | Atlas Copco | Model | HX-350"
+    },
+    {
+      "source_entity": "Chart Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "GreenHydrogen Production Facility",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Manufacturer | Chart Industries"
+    },
+    {
+      "source_entity": "Emerson",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "GreenHydrogen Production Facility",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "DCS | Emerson | DeltaV"
+    },
+    {
+      "source_entity": "OSIsoft",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "GreenHydrogen Production Facility",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Historian | OSIsoft | PI"
+    },
+    {
+      "source_entity": "Nel Hydrogen",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "M5000 PEM Electrolyzer",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Manufacturer | Nel Hydrogen | Model | M5000 PEM"
+    },
+    {
+      "source_entity": "Atlas Copco",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "HX-350 Compressor",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Manufacturer | Atlas Copco | Model | HX-350"
+    },
+    {
+      "source_entity": "Emerson",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "DeltaV Control System",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "DCS | Emerson | DeltaV"
+    },
+    {
+      "source_entity": "OSIsoft",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "PI Historian",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Historian | OSIsoft | PI"
+    },
+    {
+      "source_entity": "GreenHydrogen Production Facility",
+      "source_type": "FACILITY",
+      "relationship_type": "USES",
+      "target_entity": "M5000 PEM Electrolyzer",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Manufacturer | Nel Hydrogen | Model | M5000 PEM | Units Installed | 5"
+    },
+    {
+      "source_entity": "GreenHydrogen Production Facility",
+      "source_type": "FACILITY",
+      "relationship_type": "USES",
+      "target_entity": "HX-350 Compressor",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Manufacturer | Atlas Copco | Model | HX-350 | Units | 3"
+    },
+    {
+      "source_entity": "GreenHydrogen Production Facility",
+      "source_type": "FACILITY",
+      "relationship_type": "USES",
+      "target_entity": "DeltaV Control System",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "DCS | Emerson | DeltaV"
+    },
+    {
+      "source_entity": "GreenHydrogen Production Facility",
+      "source_type": "FACILITY",
+      "relationship_type": "USES",
+      "target_entity": "PI Historian",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Historian | OSIsoft | PI"
+    }
+  ],
+  "metadata": {
+    "filename": "02_greenhydrogen_process_specification.md",
+    "raw_entity_count": 23,
+    "raw_relationship_count": 16,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 1
+  }
+}

@@ -1,0 +1,263 @@
+{
+  "document_id": "ca87d602-61fb-469c-a968-9d22d45325ae",
+  "document_path": "05_digital_division_structure.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-12T04:00:39.677805",
+  "entities": [
+    {
+      "name": "Kevin Chang",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Division President",
+        "role": "President of Nexus Digital Solutions"
+      },
+      "confidence": 0.95,
+      "source_document": "05_digital_division_structure.md",
+      "source_excerpt": "Division President: Kevin Chang",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "05_digital_division_structure.md",
+      "source_excerpt": "Reports To: CEO Dr. Victoria Chen",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Amanda Foster",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP of Product Development",
+        "role": "Vice President"
+      },
+      "confidence": 0.95,
+      "source_document": "05_digital_division_structure.md",
+      "source_excerpt": "VP of Product Development: Dr. Amanda Foster",
+      "aliases": []
+    },
+    {
+      "name": "Brian McCarthy",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP of Professional Services",
+        "role": "Vice President"
+      },
+      "confidence": 0.95,
+      "source_document": "05_digital_division_structure.md",
+      "source_excerpt": "VP of Professional Services: Brian McCarthy",
+      "aliases": []
+    },
+    {
+      "name": "Diana Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP of Customer Success",
+        "role": "Vice President"
+      },
+      "confidence": 0.95,
+      "source_document": "05_digital_division_structure.md",
+      "source_excerpt": "VP of Customer Success: Diana Chen",
+      "aliases": []
+    },
+    {
+      "name": "Patrick O'Brien",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP of Sales",
+        "role": "Vice President"
+      },
+      "confidence": 0.95,
+      "source_document": "05_digital_division_structure.md",
+      "source_excerpt": "VP of Sales: Patrick O'Brien",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Raj Krishnamurthy",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP of Cybersecurity",
+        "role": "Vice President"
+      },
+      "confidence": 0.95,
+      "source_document": "05_digital_division_structure.md",
+      "source_excerpt": "VP of Cybersecurity: Dr. Raj Krishnamurthy",
+      "aliases": []
+    },
+    {
+      "name": "Laura Anderson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Division CFO",
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "05_digital_division_structure.md",
+      "source_excerpt": "Division CFO: Laura Anderson",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Digital Solutions",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Division",
+        "industry": "Digital Solutions"
+      },
+      "confidence": 0.95,
+      "source_document": "05_digital_division_structure.md",
+      "source_excerpt": "Nexus Digital Solutions Division Structure",
+      "aliases": []
+    },
+    {
+      "name": "San Francisco HQ",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "San Francisco, CA",
+        "type": "Corporate, Product"
+      },
+      "confidence": 0.9,
+      "source_document": "05_digital_division_structure.md",
+      "source_excerpt": "San Francisco HQ | San Francisco, CA | Corporate, Product",
+      "aliases": []
+    },
+    {
+      "name": "Austin Tech Center",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Austin, TX",
+        "type": "Engineering"
+      },
+      "confidence": 0.9,
+      "source_document": "05_digital_division_structure.md",
+      "source_excerpt": "Austin Tech Center | Austin, TX | Engineering",
+      "aliases": []
+    },
+    {
+      "name": "Boston Innovation",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Boston, MA",
+        "type": "AI/ML Research"
+      },
+      "confidence": 0.9,
+      "source_document": "05_digital_division_structure.md",
+      "source_excerpt": "Boston Innovation | Boston, MA | AI/ML Research",
+      "aliases": []
+    },
+    {
+      "name": "Remote Workforce",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Distributed",
+        "type": "Various"
+      },
+      "confidence": 0.9,
+      "source_document": "05_digital_division_structure.md",
+      "source_excerpt": "Remote Workforce | Distributed | Various",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Kevin Chang",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Digital Solutions",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_digital_division_structure.md",
+      "evidence": "Kevin Chang (Division President)"
+    },
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "REPORTS_TO",
+      "target_entity": "Kevin Chang",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_digital_division_structure.md",
+      "evidence": "Reports To: CEO Dr. Victoria Chen"
+    },
+    {
+      "source_entity": "Dr. Amanda Foster",
+      "source_type": "PERSON",
+      "relationship_type": "REPORTS_TO",
+      "target_entity": "Kevin Chang",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_digital_division_structure.md",
+      "evidence": "Reports To: Kevin Chang"
+    },
+    {
+      "source_entity": "Brian McCarthy",
+      "source_type": "PERSON",
+      "relationship_type": "REPORTS_TO",
+      "target_entity": "Kevin Chang",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_digital_division_structure.md",
+      "evidence": "Reports To: Kevin Chang"
+    },
+    {
+      "source_entity": "Diana Chen",
+      "source_type": "PERSON",
+      "relationship_type": "REPORTS_TO",
+      "target_entity": "Kevin Chang",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_digital_division_structure.md",
+      "evidence": "Reports To: Kevin Chang"
+    },
+    {
+      "source_entity": "Patrick O'Brien",
+      "source_type": "PERSON",
+      "relationship_type": "REPORTS_TO",
+      "target_entity": "Kevin Chang",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_digital_division_structure.md",
+      "evidence": "Reports To: Kevin Chang"
+    },
+    {
+      "source_entity": "Dr. Raj Krishnamurthy",
+      "source_type": "PERSON",
+      "relationship_type": "REPORTS_TO",
+      "target_entity": "Kevin Chang",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_digital_division_structure.md",
+      "evidence": "Reports To: Kevin Chang"
+    },
+    {
+      "source_entity": "Laura Anderson",
+      "source_type": "PERSON",
+      "relationship_type": "REPORTS_TO",
+      "target_entity": "Kevin Chang",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_digital_division_structure.md",
+      "evidence": "Reports To: Kevin Chang (dotted line to Corporate CFO)"
+    }
+  ],
+  "metadata": {
+    "filename": "05_digital_division_structure.md",
+    "raw_entity_count": 13,
+    "raw_relationship_count": 8,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "document_id": "fe9a89c9-cc98-4489-80af-aad1507eec5b",
+  "document_path": "02_information_security.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-12T04:59:22.545546",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "protecting Nexus Industries' information assets",
+      "aliases": []
+    },
+    {
+      "name": "Maria Santos",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CISO",
+        "role": "Chief Information Security Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "Approved by: Maria Santos, CISO",
+      "aliases": []
+    },
+    {
+      "name": "Information Security Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "POL-002",
+        "category": "Corporate Policy"
+      },
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "Information Security Policy",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maria Santos",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "evidence": "Approved by: Maria Santos, CISO"
+    },
+    {
+      "source_entity": "Information Security Policy",
+      "source_type": "POLICY",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "02_information_security.md",
+      "evidence": "This policy establishes requirements for protecting Nexus Industries' information assets"
+    }
+  ],
+  "metadata": {
+    "filename": "02_information_security.md",
+    "raw_entity_count": 3,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

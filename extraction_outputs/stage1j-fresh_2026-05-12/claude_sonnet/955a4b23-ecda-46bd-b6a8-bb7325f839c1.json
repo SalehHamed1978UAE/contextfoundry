@@ -1,0 +1,332 @@
+{
+  "document_id": "955a4b23-ecda-46bd-b6a8-bb7325f839c1",
+  "document_path": "07_smartgrid_controller_specification.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-05-12T06:10:01.437933",
+  "entities": [
+    {
+      "name": "David Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "SmartGrid Product Manager",
+        "role": "Product Manager"
+      },
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Owner: David Kim, SmartGrid Product Manager",
+      "aliases": []
+    },
+    {
+      "name": "SmartGrid Controller",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "advanced distribution grid management system",
+        "category": "grid management"
+      },
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "The SmartGrid Controller is an advanced distribution grid management system",
+      "aliases": []
+    },
+    {
+      "name": "SmartGrid Controller Platform",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "platform for grid management"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "SmartGrid Controller Platform",
+      "aliases": []
+    },
+    {
+      "name": "SG-5000",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Controller Unit",
+        "category": "hardware"
+      },
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Controller Unit (SG-5000)",
+      "aliases": []
+    },
+    {
+      "name": "SG-1000",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Edge Gateway",
+        "category": "hardware"
+      },
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Edge Gateway (SG-1000)",
+      "aliases": []
+    },
+    {
+      "name": "Intel Xeon D-2183IT",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "16-core processor"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Processor: Intel Xeon D-2183IT (16-core)",
+      "aliases": []
+    },
+    {
+      "name": "InfluxDB",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Time-series database"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Time-series DB: InfluxDB",
+      "aliases": []
+    },
+    {
+      "name": "Apache Kafka",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Event bus messaging"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Event bus: Apache Kafka",
+      "aliases": []
+    },
+    {
+      "name": "TensorFlow Lite",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "AI/ML inference engine"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Inference engine: TensorFlow Lite",
+      "aliases": []
+    },
+    {
+      "name": "IEC 61850",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "IEC 61850",
+        "category": "communication protocol standard"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "IEC 61850: MMS, GOOSE, SV",
+      "aliases": []
+    },
+    {
+      "name": "DNP3",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "IEEE 1815",
+        "category": "SCADA communication protocol"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "DNP3: IEEE 1815",
+      "aliases": []
+    },
+    {
+      "name": "IEC 62351",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "IEC 62351",
+        "category": "cybersecurity standard"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Authentication: IEC 62351, certificates",
+      "aliases": []
+    },
+    {
+      "name": "UL 61010",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "UL 61010",
+        "category": "safety certification"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Certifications: UL 61010, IEC 61850, IEEE 1686",
+      "aliases": []
+    },
+    {
+      "name": "500,000 data points",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "concurrent data points",
+        "value": "500000",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Data Points: 500,000 concurrent",
+      "aliases": []
+    },
+    {
+      "name": "99.999% availability",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "system availability",
+        "value": "99.999",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "System Availability: 99.999%",
+      "aliases": []
+    },
+    {
+      "name": "500 MW demand response",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "total DR capacity",
+        "value": "500",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Total DR: 500 MW",
+      "aliases": []
+    },
+    {
+      "name": "3,000+ US utilities",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "utility market size",
+        "value": "3000",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Utilities: 3,000+ US utilities",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "David Kim",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "SmartGrid Controller",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "Owner: David Kim, SmartGrid Product Manager"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "SmartGrid Controller Platform",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "SmartGrid Controller Platform architecture diagram"
+    },
+    {
+      "source_entity": "SG-5000",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Intel Xeon D-2183IT",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "Processor: Intel Xeon D-2183IT (16-core)"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "InfluxDB",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "Time-series DB: InfluxDB"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Apache Kafka",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "Event bus: Apache Kafka"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "TensorFlow Lite",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "Inference engine: TensorFlow Lite"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "IEC 61850",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "IEC 61850: MMS, GOOSE, SV - Substation automation protocol support"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "DNP3",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "DNP3: IEEE 1815 - SCADA communication protocol compliance"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "IEC 62351",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "Authentication: IEC 62351, certificates - cybersecurity compliance"
+    },
+    {
+      "source_entity": "SG-5000",
+      "source_type": "PRODUCT",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "UL 61010",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "Certifications: UL 61010, IEC 61850, IEEE 1686"
+    }
+  ],
+  "metadata": {
+    "filename": "07_smartgrid_controller_specification.md",
+    "raw_entity_count": 17,
+    "raw_relationship_count": 10,
+    "used_partial_parse": false,
+    "truncated": true,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

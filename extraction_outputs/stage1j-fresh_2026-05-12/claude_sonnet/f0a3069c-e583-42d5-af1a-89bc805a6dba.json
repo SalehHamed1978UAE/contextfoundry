@@ -1,0 +1,792 @@
+{
+  "document_id": "f0a3069c-e583-42d5-af1a-89bc805a6dba",
+  "document_path": "12_supplier_performance_review.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-05-12T05:50:01.803361",
+  "entities": [
+    {
+      "name": "Patricia Williams",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Procurement",
+        "role": "Chair"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Patricia Williams | VP Procurement (Chair)",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Elena Rodriguez",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Engineer, Aerospace"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Dr. Elena Rodriguez | Chief Engineer, Aerospace",
+      "aliases": []
+    },
+    {
+      "name": "James Park",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "James Park | VP Manufacturing",
+      "aliases": []
+    },
+    {
+      "name": "Jennifer Walsh",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Quality Director"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Jennifer Walsh | Quality Director",
+      "aliases": []
+    },
+    {
+      "name": "Robert Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Supply Chain Director"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Robert Chen | Supply Chain Director",
+      "aliases": []
+    },
+    {
+      "name": "David Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Strategic Sourcing Manager"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "David Kim | Strategic Sourcing Manager",
+      "aliases": []
+    },
+    {
+      "name": "James Foster",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Account Director"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Nel Hydrogen (James Foster, Account Director)",
+      "aliases": []
+    },
+    {
+      "name": "Maria Garcia",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Sales"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "First Solar (Maria Garcia, VP Sales)",
+      "aliases": []
+    },
+    {
+      "name": "Thomas Mitchell",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Program Manager"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Honeywell (Thomas Mitchell, Program Manager)",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "industry": "aerospace and energy"
+      },
+      "confidence": 1.0,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Nexus Industries",
+      "aliases": []
+    },
+    {
+      "name": "Nel Hydrogen",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Electrolyzer Systems",
+        "risk_level": "Yellow"
+      },
+      "confidence": 1.0,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Nel Hydrogen (Electrolyzer Systems)",
+      "aliases": []
+    },
+    {
+      "name": "First Solar",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Solar Panel Modules",
+        "risk_level": "Green"
+      },
+      "confidence": 1.0,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "First Solar (Solar Panel Modules)",
+      "aliases": []
+    },
+    {
+      "name": "Honeywell",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Avionics Systems",
+        "risk_level": "Green"
+      },
+      "confidence": 1.0,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Honeywell (Avionics Systems)",
+      "aliases": []
+    },
+    {
+      "name": "General Atomics",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Sensor Systems",
+        "risk_level": "Red"
+      },
+      "confidence": 1.0,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "General Atomics (Sensor Systems)",
+      "aliases": []
+    },
+    {
+      "name": "Boeing",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Composite Structures",
+        "risk_level": "Yellow"
+      },
+      "confidence": 1.0,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Boeing (Composite Structures)",
+      "aliases": []
+    },
+    {
+      "name": "L3Harris",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "sensor systems backup"
+      },
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "L3Harris qualification as backup sensor supplier",
+      "aliases": []
+    },
+    {
+      "name": "Plug Power",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "electrolyzer systems"
+      },
+      "confidence": 0.8,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Evaluating Plug Power",
+      "aliases": []
+    },
+    {
+      "name": "Collins",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "flight computers"
+      },
+      "confidence": 0.8,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Collins as backup",
+      "aliases": []
+    },
+    {
+      "name": "JinkoSolar",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "solar panels"
+      },
+      "confidence": 0.8,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "JinkoSolar qualified",
+      "aliases": []
+    },
+    {
+      "name": "Phoenix Headquarters",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "headquarters"
+      },
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Location: Phoenix Headquarters + Virtual",
+      "aliases": []
+    },
+    {
+      "name": "GreenHydrogen Project",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "active",
+        "supplier": "Nel Hydrogen"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "GreenHydrogen Project Status",
+      "aliases": []
+    },
+    {
+      "name": "Desert Sun Project",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "active",
+        "supplier": "First Solar"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Desert Sun Project Status",
+      "aliases": []
+    },
+    {
+      "name": "Falcon X Program",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "active",
+        "supplier": "Honeywell"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Falcon X Program Support",
+      "aliases": []
+    },
+    {
+      "name": "Starliner Satellite Bus",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "planned",
+        "value": "$12M"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Starliner Satellite Bus",
+      "aliases": []
+    },
+    {
+      "name": "New Mexico Project",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "planned",
+        "value": "$42M"
+      },
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "New Mexico Project | 450,000 | $42M",
+      "aliases": []
+    },
+    {
+      "name": "Arizona Expansion",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "planned",
+        "value": "$35M"
+      },
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Arizona Expansion | 350,000 | $35M",
+      "aliases": []
+    },
+    {
+      "name": "Critical Supplier Spend",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Critical Supplier Spend",
+        "value": "$1.425B",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Total Critical: 95, $1.425B",
+      "aliases": []
+    },
+    {
+      "name": "Nel Hydrogen Spend",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "FY2025 Spend",
+        "value": "$92M",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "FY2025 Spend | $95M | $92M",
+      "aliases": []
+    },
+    {
+      "name": "First Solar Spend",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "FY2025 Spend",
+        "value": "$152M",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "FY2025 Spend | $148M | $152M",
+      "aliases": []
+    },
+    {
+      "name": "Honeywell Spend",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "FY2025 Spend",
+        "value": "$82M",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "FY2025 Spend | $85M | $82M",
+      "aliases": []
+    },
+    {
+      "name": "Boeing Spend",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "FY2025 Spend",
+        "value": "$115M",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "FY2025 Spend | $120M | $115M",
+      "aliases": []
+    },
+    {
+      "name": "Strategic Inventory Value",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Strategic Inventory",
+        "value": "$285M",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Total: $285M",
+      "aliases": []
+    },
+    {
+      "name": "FY2026 Forecast",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Spend Forecast",
+        "value": "$1.63B",
+        "period": "FY2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Total: $1.425B, $1.63B",
+      "aliases": []
+    },
+    {
+      "name": "Overall On-Time Delivery",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "On-Time Delivery",
+        "value": "92.4%",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Total Critical: 92.4%",
+      "aliases": []
+    },
+    {
+      "name": "Overall Quality",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Quality",
+        "value": "99.3%",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Total Critical: 99.3%",
+      "aliases": []
+    },
+    {
+      "name": "Electrolyzer Units",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Electrolyzer systems with 85 kg H2/hour performance guarantee"
+      },
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Performance guarantee: 85 kg H2/hour per unit",
+      "aliases": []
+    },
+    {
+      "name": "Series 7 Panels",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Solar panels with 20% higher energy density"
+      },
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Series 7 panels offer 20% higher energy density",
+      "aliases": []
+    },
+    {
+      "name": "Flight Computers",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Avionics flight computers for Falcon X"
+      },
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Flight computers delivered and integrated",
+      "aliases": []
+    },
+    {
+      "name": "Attitude Control System",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Attitude control system for Starliner"
+      },
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Attitude control system quote received",
+      "aliases": []
+    },
+    {
+      "name": "Sensor Suite",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Sensor systems for Falcon X"
+      },
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Falcon X sensor suite 3 weeks behind schedule",
+      "aliases": []
+    },
+    {
+      "name": "Composite Panels",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Composite panel structures"
+      },
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Composite panel deliveries 2 weeks behind",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Patricia Williams",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Patricia Williams | VP Procurement (Chair)"
+    },
+    {
+      "source_entity": "Dr. Elena Rodriguez",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Dr. Elena Rodriguez | Chief Engineer, Aerospace"
+    },
+    {
+      "source_entity": "James Park",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "James Park | VP Manufacturing"
+    },
+    {
+      "source_entity": "Jennifer Walsh",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Jennifer Walsh | Quality Director"
+    },
+    {
+      "source_entity": "Robert Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Robert Chen | Supply Chain Director"
+    },
+    {
+      "source_entity": "David Kim",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "David Kim | Strategic Sourcing Manager"
+    },
+    {
+      "source_entity": "Nel Hydrogen",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Nel Hydrogen (Electrolyzer Systems) supplier performance review"
+    },
+    {
+      "source_entity": "First Solar",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "First Solar (Solar Panel Modules) supplier performance review"
+    },
+    {
+      "source_entity": "Honeywell",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Honeywell (Avionics Systems) supplier performance review"
+    },
+    {
+      "source_entity": "General Atomics",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "General Atomics (Sensor Systems) supplier performance review"
+    },
+    {
+      "source_entity": "Boeing",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Boeing (Composite Structures) supplier performance review"
+    },
+    {
+      "source_entity": "L3Harris",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "L3Harris qualification as backup sensor supplier"
+    },
+    {
+      "source_entity": "Nel Hydrogen",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "GreenHydrogen Project",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Nel Hydrogen (Electrolyzer Systems) GreenHydrogen Project Status"
+    },
+    {
+      "source_entity": "First Solar",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Desert Sun Project",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "First Solar Desert Sun Project Status"
+    },
+    {
+      "source_entity": "Honeywell",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Falcon X Program",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Honeywell Falcon X Program Support"
+    },
+    {
+      "source_entity": "General Atomics",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Falcon X Program",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Falcon X sensor suite from General Atomics"
+    },
+    {
+      "source_entity": "GreenHydrogen Project",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Nexus GreenHydrogen Project"
+    },
+    {
+      "source_entity": "Desert Sun Project",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Nexus Desert Sun Project"
+    },
+    {
+      "source_entity": "Falcon X Program",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Nexus Falcon X Program"
+    },
+    {
+      "source_entity": "Starliner Satellite Bus",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Nexus Starliner Satellite Bus project"
+    },
+    {
+      "source_entity": "Nel Hydrogen",
+      "source_type": "SUPPLIER",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Electrolyzer Units",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Nel Hydrogen electrolyzer units with performance guarantee"
+    },
+    {
+      "source_entity": "First Solar",
+      "source_type": "SUPPLIER",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Series 7 Panels",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "First Solar Series 7 panels for Phase 2"
+    },
+    {
+      "source_entity": "Honeywell",
+      "source_type": "SUPPLIER",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Flight Computers",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Honeywell flight computers delivered and integrated"
+    },
+    {
+      "source_entity": "Honeywell",
+      "source_type": "SUPPLIER",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Attitude Control System",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Honeywell attitude control system quote"
+    },
+    {
+      "source_entity": "General Atomics",
+      "source_type": "SUPPLIER",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Sensor Suite",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "General Atomics Falcon X sensor suite"
+    },
+    {
+      "source_entity": "Boeing",
+      "source_type": "SUPPLIER",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Composite Panels",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Boeing composite panel deliveries"
+    }
+  ],
+  "metadata": {
+    "filename": "12_supplier_performance_review.md",
+    "raw_entity_count": 41,
+    "raw_relationship_count": 26,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 3
+  }
+}

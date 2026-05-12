@@ -1,0 +1,137 @@
+{
+  "document_id": "014817c2-e055-4930-863d-200047a80b48",
+  "document_path": "02_greenhydrogen_process_specification.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-12T06:05:49.413179",
+  "entities": [
+    {
+      "name": "Dr. Marcus Thompson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Technical Lead",
+        "role": "Technical Lead"
+      },
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Owner: Dr. Marcus Thompson, Technical Lead",
+      "aliases": []
+    },
+    {
+      "name": "Jennifer Walsh",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Project Director",
+        "role": "Project Director"
+      },
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Approved By: Jennifer Walsh, Project Director",
+      "aliases": []
+    },
+    {
+      "name": "Nel Hydrogen",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Manufacturer",
+        "industry": "Hydrogen Production"
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Manufacturer: Nel Hydrogen",
+      "aliases": []
+    },
+    {
+      "name": "Atlas Copco",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Manufacturer",
+        "industry": "Compressor Systems"
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Manufacturer: Atlas Copco",
+      "aliases": []
+    },
+    {
+      "name": "Chart Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Manufacturer",
+        "industry": "Storage Solutions"
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Manufacturer: Chart Industries",
+      "aliases": []
+    },
+    {
+      "name": "El Paso, Texas",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "El Paso",
+        "country": "USA"
+      },
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Location: El Paso, Texas",
+      "aliases": []
+    },
+    {
+      "name": "GreenHydrogen Production Process Specification",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": null,
+        "timeline": "Effective Date: January 1, 2026",
+        "status": "Internal"
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "GreenHydrogen Production Process Specification",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Marcus Thompson",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nel Hydrogen",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Owner: Dr. Marcus Thompson, Technical Lead"
+    },
+    {
+      "source_entity": "Jennifer Walsh",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "GreenHydrogen Production Process Specification",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Approved By: Jennifer Walsh, Project Director"
+    },
+    {
+      "source_entity": "GreenHydrogen Production Process Specification",
+      "source_type": "PROJECT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "El Paso, Texas",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Location: El Paso, Texas"
+    }
+  ],
+  "metadata": {
+    "filename": "02_greenhydrogen_process_specification.md",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

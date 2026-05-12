@@ -1,0 +1,236 @@
+{
+  "document_id": "77dca683-70df-4bd6-9f23-e67f0405a82e",
+  "document_path": "08_innovation_strategy.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-12T06:38:34.508595",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "Nexus Industries Innovation Strategy 2026-2030",
+      "aliases": []
+    },
+    {
+      "name": "Dr. James Wilson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CTO",
+        "role": "Chief Technology Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "Document Owner: Dr. James Wilson, CTO",
+      "aliases": []
+    },
+    {
+      "name": "R&D Investment",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "value": 966000000,
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "| R&D Investment | $966M (11.4% of revenue) |",
+      "aliases": []
+    },
+    {
+      "name": "New Product Revenue (5-yr)",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "value": 1800000000,
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "| New Product Revenue (5-yr) | $1.8B (21%) |",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Ventures I",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": 50000000,
+        "timeline": "5 years",
+        "status": "Active"
+      },
+      "confidence": 0.85,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "| Fund | Size | Focus | Nexus Ventures I | $50M | Strategic investments |",
+      "aliases": []
+    },
+    {
+      "name": "MIT",
+      "entity_type": "PARTNER",
+      "properties": {
+        "focus_area": "Materials, quantum"
+      },
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "| MIT | Materials, quantum | $5M |",
+      "aliases": []
+    },
+    {
+      "name": "Stanford",
+      "entity_type": "PARTNER",
+      "properties": {
+        "focus_area": "AI/ML, energy"
+      },
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "| Stanford | AI/ML, energy | $4M |",
+      "aliases": []
+    },
+    {
+      "name": "Caltech",
+      "entity_type": "PARTNER",
+      "properties": {
+        "focus_area": "Aerospace, physics"
+      },
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "| Caltech | Aerospace, physics | $3M |",
+      "aliases": []
+    },
+    {
+      "name": "Georgia Tech",
+      "entity_type": "PARTNER",
+      "properties": {
+        "focus_area": "Manufacturing"
+      },
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "| Georgia Tech | Manufacturing | $3M |",
+      "aliases": []
+    },
+    {
+      "name": "UC Berkeley",
+      "entity_type": "PARTNER",
+      "properties": {
+        "focus_area": "Energy, materials"
+      },
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "| UC Berkeley | Energy, materials | $3M |",
+      "aliases": []
+    },
+    {
+      "name": "Carnegie Mellon",
+      "entity_type": "PARTNER",
+      "properties": {
+        "focus_area": "Robotics, AI"
+      },
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "source_excerpt": "| Carnegie Mellon | Robotics, AI | $2M |",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. James Wilson",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_innovation_strategy.md",
+      "evidence": "Document Owner: Dr. James Wilson, CTO"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Nexus Ventures I",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "08_innovation_strategy.md",
+      "evidence": "Nexus Ventures I | $50M | Strategic investments"
+    },
+    {
+      "source_entity": "MIT",
+      "source_type": "PARTNER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "evidence": "University Partners: MIT | Materials, quantum | $5M"
+    },
+    {
+      "source_entity": "Stanford",
+      "source_type": "PARTNER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "evidence": "University Partners: Stanford | AI/ML, energy | $4M"
+    },
+    {
+      "source_entity": "Caltech",
+      "source_type": "PARTNER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "evidence": "University Partners: Caltech | Aerospace, physics | $3M"
+    },
+    {
+      "source_entity": "Georgia Tech",
+      "source_type": "PARTNER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "evidence": "University Partners: Georgia Tech | Manufacturing | $3M"
+    },
+    {
+      "source_entity": "UC Berkeley",
+      "source_type": "PARTNER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "evidence": "University Partners: UC Berkeley | Energy, materials | $3M"
+    },
+    {
+      "source_entity": "Carnegie Mellon",
+      "source_type": "PARTNER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_innovation_strategy.md",
+      "evidence": "University Partners: Carnegie Mellon | Robotics, AI | $2M"
+    }
+  ],
+  "metadata": {
+    "filename": "08_innovation_strategy.md",
+    "raw_entity_count": 11,
+    "raw_relationship_count": 8,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

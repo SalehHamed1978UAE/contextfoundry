@@ -1,0 +1,546 @@
+{
+  "document_id": "3fc480d5-a620-49f1-bd55-29598250b79a",
+  "document_path": "09_export_control.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-05-12T05:05:36.066367",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation"
+      },
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "This policy establishes Nexus Industries' commitment and procedures",
+      "aliases": []
+    },
+    {
+      "name": "VP Trade Compliance",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Vice President Trade Compliance",
+        "role": "Policy Owner"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Owner: VP Trade Compliance",
+      "aliases": []
+    },
+    {
+      "name": "Col. (Ret.) James Foster",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Government Programs",
+        "role": "Empowered Official"
+      },
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Name: Col. (Ret.) James Foster, VP Government Programs",
+      "aliases": []
+    },
+    {
+      "name": "Lisa Thompson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "General Counsel",
+        "role": "Legal Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Approved by: Lisa Thompson, General Counsel",
+      "aliases": []
+    },
+    {
+      "name": "Export Control and ITAR Compliance Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "POL-009",
+        "category": "Trade Compliance",
+        "classification": "Internal"
+      },
+      "confidence": 1.0,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Policy Number: POL-009",
+      "aliases": []
+    },
+    {
+      "name": "Aerospace",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "UAV, Hypersonic Propulsion, Defense Components"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Division | Programs/Products | USML Category | Aerospace | Falcon X UAV | Category VIII",
+      "aliases": []
+    },
+    {
+      "name": "Digital",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "CyberShield Defense"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Digital | CyberShield (Defense) | Category XI",
+      "aliases": []
+    },
+    {
+      "name": "Materials",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Composites"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Materials | Composites | 1C010",
+      "aliases": []
+    },
+    {
+      "name": "Energy",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Nuclear-related items"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Energy | Nuclear-related | 0A001",
+      "aliases": []
+    },
+    {
+      "name": "Falcon X UAV",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Unmanned Aerial Vehicle",
+        "category": "Defense"
+      },
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Aerospace | Falcon X UAV | Category VIII",
+      "aliases": []
+    },
+    {
+      "name": "Hypersonic Propulsion",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Propulsion system",
+        "category": "Defense"
+      },
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Aerospace | Hypersonic Propulsion | Category IV",
+      "aliases": []
+    },
+    {
+      "name": "CyberShield",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Defense cybersecurity product",
+        "category": "Defense"
+      },
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Digital | CyberShield (Defense) | Category XI",
+      "aliases": []
+    },
+    {
+      "name": "Trade Compliance Office",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Export control compliance"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Trade Compliance Office | Role | Responsibility",
+      "aliases": []
+    },
+    {
+      "name": "Export Compliance Manager",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Day-to-day operations"
+      },
+      "confidence": 0.85,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Export Compliance Manager | Day-to-day operations",
+      "aliases": []
+    },
+    {
+      "name": "Classification Specialists",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Commodity jurisdiction"
+      },
+      "confidence": 0.85,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Classification Specialists | Commodity jurisdiction",
+      "aliases": []
+    },
+    {
+      "name": "Licensing Specialists",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "License applications"
+      },
+      "confidence": 0.85,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Licensing Specialists | License applications",
+      "aliases": []
+    },
+    {
+      "name": "Auditors",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Internal reviews"
+      },
+      "confidence": 0.85,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Auditors | Internal reviews",
+      "aliases": []
+    },
+    {
+      "name": "ITAR",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "22 CFR 120-130",
+        "category": "Export Control"
+      },
+      "confidence": 1.0,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "ITAR (22 CFR 120-130) | State Department/DDTC | Defense articles, services",
+      "aliases": []
+    },
+    {
+      "name": "EAR",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "15 CFR 730-774",
+        "category": "Export Control"
+      },
+      "confidence": 1.0,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "EAR (15 CFR 730-774) | Commerce/BIS | Dual-use items",
+      "aliases": []
+    },
+    {
+      "name": "OFAC Sanctions",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Financial Sanctions"
+      },
+      "confidence": 1.0,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "OFAC Sanctions | Treasury | Restricted parties/countries",
+      "aliases": []
+    },
+    {
+      "name": "AECA",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Arms Export Control"
+      },
+      "confidence": 1.0,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "AECA | Congress | Arms Export Control Act",
+      "aliases": []
+    },
+    {
+      "name": "State Department",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Government Agency"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "State Department/DDTC",
+      "aliases": []
+    },
+    {
+      "name": "DDTC",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Government Agency"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "State Department/DDTC",
+      "aliases": []
+    },
+    {
+      "name": "Commerce Department",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Government Agency"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Commerce/BIS",
+      "aliases": []
+    },
+    {
+      "name": "BIS",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Government Agency"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Commerce/BIS",
+      "aliases": []
+    },
+    {
+      "name": "Treasury",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Government Agency"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "OFAC Sanctions | Treasury",
+      "aliases": []
+    },
+    {
+      "name": "Congress",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Government Body"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "AECA | Congress",
+      "aliases": []
+    },
+    {
+      "name": "Export Control Committee",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Export control governance"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Export Control Committee: - Empowered Official (Chair)",
+      "aliases": []
+    },
+    {
+      "name": "Security Officer",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Security management"
+      },
+      "confidence": 0.85,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "- Security Officer",
+      "aliases": []
+    },
+    {
+      "name": "Division Representatives",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Division liaison"
+      },
+      "confidence": 0.8,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "- Division Representatives",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "VP Trade Compliance",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Export Control and ITAR Compliance Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "Owner: VP Trade Compliance"
+    },
+    {
+      "source_entity": "Col. (Ret.) James Foster",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "evidence": "Col. (Ret.) James Foster, VP Government Programs"
+    },
+    {
+      "source_entity": "Lisa Thompson",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "evidence": "Lisa Thompson, General Counsel"
+    },
+    {
+      "source_entity": "Aerospace",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "evidence": "Division listing shows Aerospace as part of Nexus Industries"
+    },
+    {
+      "source_entity": "Digital",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "evidence": "Division listing shows Digital as part of Nexus Industries"
+    },
+    {
+      "source_entity": "Materials",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "evidence": "Division listing shows Materials as part of Nexus Industries"
+    },
+    {
+      "source_entity": "Energy",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "evidence": "Division listing shows Energy as part of Nexus Industries"
+    },
+    {
+      "source_entity": "Aerospace",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Falcon X UAV",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "Aerospace | Falcon X UAV | Category VIII"
+    },
+    {
+      "source_entity": "Aerospace",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Hypersonic Propulsion",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "Aerospace | Hypersonic Propulsion | Category IV"
+    },
+    {
+      "source_entity": "Digital",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "CyberShield",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "Digital | CyberShield (Defense) | Category XI"
+    },
+    {
+      "source_entity": "Trade Compliance Office",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "Trade Compliance Office is organizational unit within Nexus"
+    },
+    {
+      "source_entity": "Col. (Ret.) James Foster",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Export Control Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "Empowered Official (Chair)"
+    },
+    {
+      "source_entity": "VP Trade Compliance",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Export Control Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "VP Trade Compliance member of Export Control Committee"
+    },
+    {
+      "source_entity": "Lisa Thompson",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Export Control Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "General Counsel member of Export Control Committee"
+    },
+    {
+      "source_entity": "Division Representatives",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Export Control Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "Division Representatives member of Export Control Committee"
+    },
+    {
+      "source_entity": "Security Officer",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Export Control Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "Security Officer member of Export Control Committee"
+    },
+    {
+      "source_entity": "Export Control Committee",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "Export Control Committee is governance body within Nexus Industries"
+    }
+  ],
+  "metadata": {
+    "filename": "09_export_control.md",
+    "raw_entity_count": 30,
+    "raw_relationship_count": 17,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 6
+  }
+}

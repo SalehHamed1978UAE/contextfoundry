@@ -1,0 +1,659 @@
+{
+  "document_id": "58b9f436-ac65-4b65-b5b6-48e01dd5bb8d",
+  "document_path": "11_microsoft_customer.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-05-12T05:17:19.660663",
+  "entities": [
+    {
+      "name": "Microsoft Corporation",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "customer_id": "CUST-008",
+        "account_type": "Strategic - Multi-Division",
+        "relationship_since": "2015",
+        "industry": "Technology",
+        "stock_ticker": "MSFT (NASDAQ)"
+      },
+      "confidence": 1.0,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Customer Name: Microsoft Corporation, Customer ID: CUST-008",
+      "aliases": []
+    },
+    {
+      "name": "Amanda Torres",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Account Manager",
+        "role": "Business Development"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Account Manager: Amanda Torres, Account Owner: Amanda Torres, Business Development",
+      "aliases": []
+    },
+    {
+      "name": "Kevin Chang",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Division President",
+        "role": "Executive Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Executive Sponsor: Kevin Chang (Division President)",
+      "aliases": []
+    },
+    {
+      "name": "Digital Solutions",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "NexusConnect IoT, Cloud"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Primary Divisions: Digital Solutions, Energy Systems",
+      "aliases": []
+    },
+    {
+      "name": "Energy Systems",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Carbon credits, consulting"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Primary Divisions: Digital Solutions, Energy Systems",
+      "aliases": []
+    },
+    {
+      "name": "NexusConnect",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "IoT platform",
+        "category": "Enterprise IoT"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "NexusConnect Enterprise License, NexusConnect IoT",
+      "aliases": []
+    },
+    {
+      "name": "CarbonZero",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Carbon credits",
+        "category": "Carbon offset credits"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "CarbonZero Credit Offtake, CarbonZero credits",
+      "aliases": []
+    },
+    {
+      "name": "CyberShield",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Security solution",
+        "category": "Security"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "CyberShield Security, CyberShield security contract",
+      "aliases": []
+    },
+    {
+      "name": "QuantumLeap",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Research solution",
+        "category": "Research"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "QuantumLeap Research",
+      "aliases": []
+    },
+    {
+      "name": "Redmond, WA",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Redmond",
+        "country": "USA"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Headquarters: Redmond, WA",
+      "aliases": []
+    },
+    {
+      "name": "Redmond Campus",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Redmond",
+        "type": "Campus"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Redmond Campus: 15,000 devices",
+      "aliases": []
+    },
+    {
+      "name": "Dublin Data Center",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Dublin",
+        "type": "Data Center"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Dublin Data Center: 8,500 devices",
+      "aliases": []
+    },
+    {
+      "name": "Phoenix Data Center",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Phoenix",
+        "type": "Data Center"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Phoenix Data Center: 12,000 devices",
+      "aliases": []
+    },
+    {
+      "name": "Singapore Office",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Singapore",
+        "type": "Office"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Singapore Office: 3,500 devices",
+      "aliases": []
+    },
+    {
+      "name": "$245B Annual Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Annual Revenue",
+        "value": "245",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Annual Revenue: $245B (FY2025)",
+      "aliases": []
+    },
+    {
+      "name": "$43M Total Revenue FY2025",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Customer Revenue",
+        "value": "43",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Total: $43M",
+      "aliases": []
+    },
+    {
+      "name": "$52.5M CarbonZero Contract",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "CarbonZero Contract Value",
+        "value": "52.5",
+        "period": "2028-2038",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "CarbonZero Credit Offtake: $52.5M, Total Contract Value: $52.5M",
+      "aliases": []
+    },
+    {
+      "name": "Satya Nadella",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Satya Nadella: CEO",
+      "aliases": []
+    },
+    {
+      "name": "Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Executive contact"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Satya Nadella CEO Victoria Chen Executive",
+      "aliases": []
+    },
+    {
+      "name": "Amy Hood",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Amy Hood: CFO",
+      "aliases": []
+    },
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Finance contact"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Amy Hood CFO Robert Kim Finance",
+      "aliases": []
+    },
+    {
+      "name": "Judson Althoff",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "EVP Chief Commercial"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Judson Althoff: EVP Chief Commercial",
+      "aliases": []
+    },
+    {
+      "name": "Melanie Nakagawa",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Sustainability"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Melanie Nakagawa: Chief Sustainability",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Elena Rodriguez",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Sustainability contact"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Melanie Nakagawa Chief Sustainability Dr. Elena Rodriguez Sustainability",
+      "aliases": []
+    },
+    {
+      "name": "Jennifer Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Director, Sustainability"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Jennifer Chen: Director, Sustainability",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Katherine Brooks",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Nexus contact"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Jennifer Chen Director, Sustainability Dr. Katherine Brooks",
+      "aliases": []
+    },
+    {
+      "name": "Michael Park",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Azure IoT Director"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Michael Park: Azure IoT Director",
+      "aliases": []
+    },
+    {
+      "name": "Ryan Mitchell",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Nexus contact"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Michael Park Azure IoT Director Ryan Mitchell",
+      "aliases": []
+    },
+    {
+      "name": "Sarah Williams",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Procurement"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Sarah Williams: Procurement",
+      "aliases": []
+    },
+    {
+      "name": "David Lee",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Enterprise Architecture"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "David Lee: Enterprise Architecture",
+      "aliases": []
+    },
+    {
+      "name": "Diana Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Nexus contact"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "David Lee Enterprise Architecture Diana Chen",
+      "aliases": []
+    },
+    {
+      "name": "Marcus Thompson",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "CyberShield demo owner"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "CyberShield demo Marcus Thompson Q2 2026",
+      "aliases": []
+    },
+    {
+      "name": "Azure IoT Hub",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "IoT platform integration"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Azure IoT Hub: Complete",
+      "aliases": []
+    },
+    {
+      "name": "Power BI",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Analytics platform"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Power BI: Complete",
+      "aliases": []
+    },
+    {
+      "name": "Dynamics 365",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Asset management platform"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Dynamics 365: In Progress",
+      "aliases": []
+    },
+    {
+      "name": "Microsoft Fabric",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Advanced analytics platform"
+      },
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Microsoft Fabric: Planning",
+      "aliases": []
+    },
+    {
+      "name": "Verra",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Certification body"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Certification: Verified by Verra",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Microsoft Corporation",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Microsoft Corporation customer profile with Digital Solutions division revenue"
+    },
+    {
+      "source_entity": "Microsoft Corporation",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Energy Systems",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Microsoft Corporation customer profile with Energy Systems division revenue"
+    },
+    {
+      "source_entity": "Satya Nadella",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Microsoft Corporation",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Satya Nadella: CEO"
+    },
+    {
+      "source_entity": "Amy Hood",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Microsoft Corporation",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Amy Hood: CFO"
+    },
+    {
+      "source_entity": "Judson Althoff",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Microsoft Corporation",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Judson Althoff: EVP Chief Commercial"
+    },
+    {
+      "source_entity": "Melanie Nakagawa",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Microsoft Corporation",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Melanie Nakagawa: Chief Sustainability"
+    },
+    {
+      "source_entity": "Jennifer Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Microsoft Corporation",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Jennifer Chen: Director, Sustainability"
+    },
+    {
+      "source_entity": "Michael Park",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Microsoft Corporation",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Michael Park: Azure IoT Director"
+    },
+    {
+      "source_entity": "Sarah Williams",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Microsoft Corporation",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Sarah Williams: Procurement"
+    },
+    {
+      "source_entity": "David Lee",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Microsoft Corporation",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "David Lee: Enterprise Architecture"
+    },
+    {
+      "source_entity": "Microsoft Corporation",
+      "source_type": "CUSTOMER",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Redmond, WA",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Headquarters: Redmond, WA"
+    },
+    {
+      "source_entity": "Redmond Campus",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Redmond, WA",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Redmond Campus facility deployment"
+    },
+    {
+      "source_entity": "Microsoft Corporation",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "NexusConnect",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "NexusConnect Enterprise License, NexusConnect deployment"
+    },
+    {
+      "source_entity": "Microsoft Corporation",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "CarbonZero",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "CarbonZero Credit Offtake contract"
+    },
+    {
+      "source_entity": "Microsoft Corporation",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "Azure IoT Hub",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Azure IoT Hub: Complete integration"
+    },
+    {
+      "source_entity": "Microsoft Corporation",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "Power BI",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Power BI: Complete analytics integration"
+    },
+    {
+      "source_entity": "Microsoft Corporation",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "Dynamics 365",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Dynamics 365: In Progress asset management"
+    },
+    {
+      "source_entity": "Digital Solutions",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "NexusConnect",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Digital Solutions division revenue from NexusConnect IoT"
+    },
+    {
+      "source_entity": "Energy Systems",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "CarbonZero",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Energy Systems division revenue from Carbon credits"
+    }
+  ],
+  "metadata": {
+    "filename": "11_microsoft_customer.md",
+    "raw_entity_count": 37,
+    "raw_relationship_count": 19,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 2
+  }
+}

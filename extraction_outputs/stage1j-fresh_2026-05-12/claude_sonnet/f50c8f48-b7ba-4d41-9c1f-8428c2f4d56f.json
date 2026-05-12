@@ -1,0 +1,222 @@
+{
+  "document_id": "f50c8f48-b7ba-4d41-9c1f-8428c2f4d56f",
+  "document_path": "08_cybersecurity_advisory.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-05-12T06:12:51.695459",
+  "entities": [
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Information Security Officer",
+        "role": "CISO"
+      },
+      "confidence": 0.98,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Robert Kim, Chief Information Security Officer",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company"
+      },
+      "confidence": 0.98,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "sophisticated phishing attacks targeting Nexus Industries",
+      "aliases": []
+    },
+    {
+      "name": "CSA-2025-018",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "CSA-2025-018",
+        "category": "Security Advisory"
+      },
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Advisory Number: CSA-2025-018",
+      "aliases": []
+    },
+    {
+      "name": "Credential Harvesting Phishing Campaign",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Active",
+        "timeline": "December 11-12, 2025"
+      },
+      "confidence": 0.92,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "On December 11, 2025, a sophisticated phishing campaign targeted Nexus employees",
+      "aliases": []
+    },
+    {
+      "name": "IT Department",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Information Technology"
+      },
+      "confidence": 0.85,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Appears to be from IT Department or Nexus IT Support",
+      "aliases": []
+    },
+    {
+      "name": "Okta Portal",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Password management platform"
+      },
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "All legitimate password changes go through Okta portal",
+      "aliases": []
+    },
+    {
+      "name": "Security Operations Center",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "24/7 security monitoring"
+      },
+      "confidence": 0.88,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Security Operations Center 24/7",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Learning Portal",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Training platform"
+      },
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Location: Nexus Learning Portal",
+      "aliases": []
+    },
+    {
+      "name": "Identifying Phishing Attacks",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "Deadline: December 31, 2025",
+        "status": "Mandatory"
+      },
+      "confidence": 0.88,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Module: Identifying Phishing Attacks",
+      "aliases": []
+    },
+    {
+      "name": "Post-Incident Review",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "December 18, 2025",
+        "status": "Scheduled"
+      },
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "see the Post-Incident Review scheduled for December 18, 2025",
+      "aliases": []
+    },
+    {
+      "name": "Multi-Factor Authentication (MFA)",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Authentication security control"
+      },
+      "confidence": 0.85,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "MFA enforcement: Active for all users",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.98,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Robert Kim, Chief Information Security Officer"
+    },
+    {
+      "source_entity": "IT Department",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Appears to be from IT Department or Nexus IT Support"
+    },
+    {
+      "source_entity": "Security Operations Center",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.88,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Security Operations Center 24/7"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Okta Portal",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "All legitimate password changes go through Okta portal"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Nexus Learning Portal",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Location: Nexus Learning Portal"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Multi-Factor Authentication (MFA)",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "MFA enforcement: Active for all users"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "CSA-2025-018",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Advisory Number: CSA-2025-018 from Nexus Industries"
+    }
+  ],
+  "metadata": {
+    "filename": "08_cybersecurity_advisory.md",
+    "raw_entity_count": 11,
+    "raw_relationship_count": 7,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 1
+  }
+}

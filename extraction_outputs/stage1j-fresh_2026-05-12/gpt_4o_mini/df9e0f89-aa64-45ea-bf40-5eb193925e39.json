@@ -1,0 +1,146 @@
+{
+  "document_id": "df9e0f89-aa64-45ea-bf40-5eb193925e39",
+  "document_path": "06_solid_state_battery_design.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-12T06:08:30.939065",
+  "entities": [
+    {
+      "name": "Dr. Linda Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Technical Lead",
+        "role": "BatteryTech Technical Lead"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Owner: Dr. Linda Chen, BatteryTech Technical Lead",
+      "aliases": []
+    },
+    {
+      "name": "BatteryTech",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Battery Technology"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "BatteryTech Solid-State Battery Design Specification",
+      "aliases": []
+    },
+    {
+      "name": "Toyota",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Automotive",
+        "region": "Global"
+      },
+      "confidence": 0.85,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "EV (Toyota)",
+      "aliases": []
+    },
+    {
+      "name": "Nexus",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Battery Technology"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "NX-BAT-001 | LLZO electrolyte composition | Nexus",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Robert Martinez",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Program Director",
+        "role": "BatteryTech Program Director"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Approved By: Dr. Robert Martinez, BatteryTech Program Director",
+      "aliases": []
+    },
+    {
+      "name": "JV",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Joint Venture",
+        "industry": "Battery Technology"
+      },
+      "confidence": 0.8,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "JV-BAT-001 | Cell assembly process | JV",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Linda Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "BatteryTech",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Owner: Dr. Linda Chen, BatteryTech Technical Lead"
+    },
+    {
+      "source_entity": "Dr. Linda Chen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "BatteryTech",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Dr. Linda Chen, BatteryTech Technical Lead"
+    },
+    {
+      "source_entity": "Dr. Robert Martinez",
+      "source_type": "PERSON",
+      "relationship_type": "REPORTS_TO",
+      "target_entity": "Dr. Linda Chen",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Approved By: Dr. Robert Martinez, BatteryTech Program Director"
+    },
+    {
+      "source_entity": "BatteryTech",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Toyota",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "EV (Toyota)"
+    },
+    {
+      "source_entity": "Nexus",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "JV",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "JV-BAT-001 | Cell assembly process | JV"
+    }
+  ],
+  "metadata": {
+    "filename": "06_solid_state_battery_design.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

@@ -1,0 +1,192 @@
+{
+  "document_id": "955a4b23-ecda-46bd-b6a8-bb7325f839c1",
+  "document_path": "07_smartgrid_controller_specification.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-05-12T06:09:35.117501",
+  "entities": [
+    {
+      "name": "David Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "SmartGrid Product Manager",
+        "role": "Product Manager"
+      },
+      "confidence": 0.95,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Owner: David Kim, SmartGrid Product Manager",
+      "aliases": []
+    },
+    {
+      "name": "SmartGrid Controller",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "An advanced distribution grid management system that integrates renewable energy sources, battery storage, and demand response to optimize grid stability, efficiency, and reliability.",
+        "category": "Grid Management System"
+      },
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "The SmartGrid Controller is an advanced distribution grid management system",
+      "aliases": []
+    },
+    {
+      "name": "SmartGrid Controller Platform",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "A platform for managing distribution grids."
+      },
+      "confidence": 0.85,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "SmartGrid Controller Platform",
+      "aliases": []
+    },
+    {
+      "name": "Edge Gateway (SG-1000)",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "A gateway for edge computing in grid management.",
+        "category": "Edge Computing Device"
+      },
+      "confidence": 0.85,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Edge Gateway (SG-1000)",
+      "aliases": []
+    },
+    {
+      "name": "Controller Unit (SG-5000)",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "A controller unit for grid management.",
+        "category": "Controller"
+      },
+      "confidence": 0.85,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Controller Unit (SG-5000)",
+      "aliases": []
+    },
+    {
+      "name": "Utilities",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Energy",
+        "region": "US"
+      },
+      "confidence": 0.8,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "3,000+ US utilities",
+      "aliases": []
+    },
+    {
+      "name": "Industrial",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Manufacturing",
+        "region": "Global"
+      },
+      "confidence": 0.8,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Large manufacturers",
+      "aliases": []
+    },
+    {
+      "name": "Microgrids",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Energy",
+        "region": "Various"
+      },
+      "confidence": 0.8,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Campuses, military",
+      "aliases": []
+    },
+    {
+      "name": "Islands",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Energy",
+        "region": "Remote Communities"
+      },
+      "confidence": 0.8,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "source_excerpt": "Remote communities",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "David Kim",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "SmartGrid Controller",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "Owner: David Kim, SmartGrid Product Manager"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "SmartGrid Controller Platform",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "SmartGrid Controller Platform"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Utilities",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "3,000+ US utilities"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Industrial",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "Large manufacturers"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Microgrids",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "Campuses, military"
+    },
+    {
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Islands",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "07_smartgrid_controller_specification.md",
+      "evidence": "Remote communities"
+    }
+  ],
+  "metadata": {
+    "filename": "07_smartgrid_controller_specification.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 6,
+    "used_partial_parse": false,
+    "truncated": true,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 0
+  }
+}

@@ -1,0 +1,792 @@
+{
+  "document_id": "3d373b26-3793-4563-aa47-5b7ba3f2efb1",
+  "document_path": "06_materials_division_budget.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-05-12T04:20:03.128478",
+  "entities": [
+    {
+      "name": "Nexus Advanced Materials Division",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "type": "Division",
+        "classification": "Internal - Confidential"
+      },
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Nexus Advanced Materials Division Budget FY2026",
+      "aliases": []
+    },
+    {
+      "name": "Dr. William Foster",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Division President",
+        "role": "Division President"
+      },
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Division President | Dr. William Foster | Jan 10, 2026",
+      "aliases": []
+    },
+    {
+      "name": "Andrew Stevens",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Division CFO",
+        "role": "Division CFO"
+      },
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Division CFO | Andrew Stevens | Jan 8, 2026",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Jennifer Liu",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP R&D",
+        "role": "VP R&D"
+      },
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "VP R&D | Dr. Jennifer Liu | Jan 7, 2026",
+      "aliases": []
+    },
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Corporate CFO",
+        "role": "Corporate CFO"
+      },
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Corporate CFO | Robert Kim | Jan 15, 2026",
+      "aliases": []
+    },
+    {
+      "name": "Aerospace Composites",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "Carbon fiber structures",
+          "Interior components",
+          "Military composites"
+        ]
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Aerospace Composites | $0.60B | $0.58B | +3.4%",
+      "aliases": []
+    },
+    {
+      "name": "Specialty Alloys",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "Nickel superalloys",
+          "Titanium alloys",
+          "High-temp steel"
+        ]
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Specialty Alloys | $0.47B | $0.45B | +4.4%",
+      "aliases": []
+    },
+    {
+      "name": "Advanced Conductors",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "HTS wire",
+          "Copper products",
+          "Specialty conductors"
+        ]
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Advanced Conductors | $0.35B | $0.33B | +6.1%",
+      "aliases": []
+    },
+    {
+      "name": "Boeing",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Aerospace"
+      },
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Boeing | $245M | 17%",
+      "aliases": []
+    },
+    {
+      "name": "Airbus",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Aerospace"
+      },
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Airbus | $185M | 13%",
+      "aliases": []
+    },
+    {
+      "name": "GE Aerospace",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Aerospace"
+      },
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "GE Aerospace | $125M | 9%",
+      "aliases": []
+    },
+    {
+      "name": "Siemens Healthineers",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Healthcare"
+      },
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Siemens Healthineers | $65M | 5%",
+      "aliases": []
+    },
+    {
+      "name": "Carbon Fiber Structures",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Aerospace Composites",
+        "description": "Carbon fiber structures"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Carbon Fiber Structures | $285M | Boeing, Airbus",
+      "aliases": []
+    },
+    {
+      "name": "Interior Components",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Aerospace Composites",
+        "description": "Interior components"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Interior Components | $145M | Airlines, OEMs",
+      "aliases": []
+    },
+    {
+      "name": "Military Composites",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Aerospace Composites",
+        "description": "Military composites"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Military Composites | $95M | DoD suppliers",
+      "aliases": []
+    },
+    {
+      "name": "AeroMaterials",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Aerospace Composites",
+        "description": "New aerospace materials"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "AeroMaterials (New) | $25M | Boeing pilot",
+      "aliases": []
+    },
+    {
+      "name": "Nickel Superalloys",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Specialty Alloys",
+        "description": "Nickel superalloys"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Nickel Superalloys | $185M | Jet engines",
+      "aliases": []
+    },
+    {
+      "name": "Titanium Alloys",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Specialty Alloys",
+        "description": "Titanium alloys"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Titanium Alloys | $145M | Aerospace structures",
+      "aliases": []
+    },
+    {
+      "name": "High-Temp Steel",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Specialty Alloys",
+        "description": "High-temperature steel"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "High-Temp Steel | $85M | Industrial",
+      "aliases": []
+    },
+    {
+      "name": "HTS Wire",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Advanced Conductors",
+        "description": "High-temperature superconducting wire"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "HTS Wire | $85M | MRI, fusion",
+      "aliases": []
+    },
+    {
+      "name": "Copper Products",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Advanced Conductors",
+        "description": "Copper products"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Copper Products | $145M | Electrical",
+      "aliases": []
+    },
+    {
+      "name": "BatteryTech Materials",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Advanced Conductors",
+        "description": "Battery technology materials"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "BatteryTech Materials | $45M | EV development",
+      "aliases": []
+    },
+    {
+      "name": "AeroMaterials Advanced Composites",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$60M",
+        "timeline": "FY2026",
+        "status": "Active"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "AeroMaterials Advanced Composites | Total | $60M",
+      "aliases": []
+    },
+    {
+      "name": "BatteryTech Solid State",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$71M",
+        "timeline": "FY2026",
+        "status": "Active"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "BatteryTech Solid State | Total | $71M",
+      "aliases": []
+    },
+    {
+      "name": "HTS Wire Program",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$48M",
+        "timeline": "FY2026",
+        "status": "Active"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "HTS Wire Program | Total | $48M",
+      "aliases": []
+    },
+    {
+      "name": "Composite Center",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Manufacturing facility",
+        "products": "Carbon fiber"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Composite Center | Seattle, WA | Carbon fiber | $18M",
+      "aliases": []
+    },
+    {
+      "name": "Alloy Plant",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Manufacturing facility",
+        "products": "Superalloys"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Alloy Plant | Pittsburgh, PA | Superalloys | $12M",
+      "aliases": []
+    },
+    {
+      "name": "Wire Facility",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Manufacturing facility",
+        "products": "HTS wire"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Wire Facility | Austin, TX | HTS wire | $35M",
+      "aliases": []
+    },
+    {
+      "name": "Battery Lab",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Research facility",
+        "products": "Solid state batteries"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Battery Lab | Austin, TX | Solid state | $28M",
+      "aliases": []
+    },
+    {
+      "name": "Seattle",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Seattle",
+        "state": "WA",
+        "country": "USA"
+      },
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Composite Center | Seattle, WA | Carbon fiber | $18M",
+      "aliases": []
+    },
+    {
+      "name": "Pittsburgh",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Pittsburgh",
+        "state": "PA",
+        "country": "USA"
+      },
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Alloy Plant | Pittsburgh, PA | Superalloys | $12M",
+      "aliases": []
+    },
+    {
+      "name": "Austin",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Austin",
+        "state": "TX",
+        "country": "USA"
+      },
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Wire Facility | Austin, TX | HTS wire | $35M",
+      "aliases": []
+    },
+    {
+      "name": "Total Revenue FY2026",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Revenue",
+        "value": "$1.42B",
+        "period": "FY2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Total Revenue | $1.42B | $1.36B | +4.4%",
+      "aliases": []
+    },
+    {
+      "name": "Gross Profit FY2026",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Gross Profit",
+        "value": "$320M",
+        "period": "FY2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Gross Profit | $320M | $300M | +6.7%",
+      "aliases": []
+    },
+    {
+      "name": "Operating Income FY2026",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Operating Income",
+        "value": "$164M",
+        "period": "FY2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Operating Income | $164M | $150M | +9.3%",
+      "aliases": []
+    },
+    {
+      "name": "R&D Budget FY2026",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "R&D",
+        "value": "$85M",
+        "period": "FY2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "R&D | $85M | $82M | +3.7%",
+      "aliases": []
+    },
+    {
+      "name": "Total CapEx FY2026",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total CapEx",
+        "value": "$135M",
+        "period": "FY2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Total CapEx | $135M | -",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. William Foster",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Advanced Materials Division",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Division President | Dr. William Foster"
+    },
+    {
+      "source_entity": "Aerospace Composites",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Advanced Materials Division",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Revenue Budget by Business Unit | Aerospace Composites"
+    },
+    {
+      "source_entity": "Specialty Alloys",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Advanced Materials Division",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Revenue Budget by Business Unit | Specialty Alloys"
+    },
+    {
+      "source_entity": "Advanced Conductors",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Advanced Materials Division",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Revenue Budget by Business Unit | Advanced Conductors"
+    },
+    {
+      "source_entity": "Boeing",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Advanced Materials Division",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Key Customers | Boeing, Airbus"
+    },
+    {
+      "source_entity": "Airbus",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Advanced Materials Division",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Key Customers | Boeing, Airbus"
+    },
+    {
+      "source_entity": "GE Aerospace",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Advanced Materials Division",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Customer Concentration | GE Aerospace"
+    },
+    {
+      "source_entity": "Siemens Healthineers",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Advanced Materials Division",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Customer Concentration | Siemens Healthineers"
+    },
+    {
+      "source_entity": "Aerospace Composites",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Carbon Fiber Structures",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Aerospace Composites | Carbon Fiber Structures"
+    },
+    {
+      "source_entity": "Aerospace Composites",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Interior Components",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Aerospace Composites | Interior Components"
+    },
+    {
+      "source_entity": "Aerospace Composites",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Military Composites",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Aerospace Composites | Military Composites"
+    },
+    {
+      "source_entity": "Aerospace Composites",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "AeroMaterials",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Aerospace Composites | AeroMaterials (New)"
+    },
+    {
+      "source_entity": "Specialty Alloys",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nickel Superalloys",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Specialty Alloys | Nickel Superalloys"
+    },
+    {
+      "source_entity": "Specialty Alloys",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Titanium Alloys",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Specialty Alloys | Titanium Alloys"
+    },
+    {
+      "source_entity": "Specialty Alloys",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "High-Temp Steel",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Specialty Alloys | High-Temp Steel"
+    },
+    {
+      "source_entity": "Advanced Conductors",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "HTS Wire",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Advanced Conductors | HTS Wire"
+    },
+    {
+      "source_entity": "Advanced Conductors",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Copper Products",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Advanced Conductors | Copper Products"
+    },
+    {
+      "source_entity": "Advanced Conductors",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "BatteryTech Materials",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Advanced Conductors | BatteryTech Materials"
+    },
+    {
+      "source_entity": "Nexus Advanced Materials Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "AeroMaterials Advanced Composites",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Major Investment Programs | AeroMaterials Advanced Composites"
+    },
+    {
+      "source_entity": "Nexus Advanced Materials Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "BatteryTech Solid State",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Major Investment Programs | BatteryTech Solid State"
+    },
+    {
+      "source_entity": "Nexus Advanced Materials Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "HTS Wire Program",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Major Investment Programs | HTS Wire Program"
+    },
+    {
+      "source_entity": "Composite Center",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Seattle",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Composite Center | Seattle, WA"
+    },
+    {
+      "source_entity": "Alloy Plant",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Pittsburgh",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Alloy Plant | Pittsburgh, PA"
+    },
+    {
+      "source_entity": "Wire Facility",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Austin",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Wire Facility | Austin, TX"
+    },
+    {
+      "source_entity": "Battery Lab",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Austin",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Battery Lab | Austin, TX"
+    },
+    {
+      "source_entity": "Composite Center",
+      "source_type": "FACILITY",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Carbon Fiber Structures",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Composite Center | Carbon fiber"
+    },
+    {
+      "source_entity": "Alloy Plant",
+      "source_type": "FACILITY",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nickel Superalloys",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Alloy Plant | Superalloys"
+    },
+    {
+      "source_entity": "Wire Facility",
+      "source_type": "FACILITY",
+      "relationship_type": "PRODUCES",
+      "target_entity": "HTS Wire",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Wire Facility | HTS wire"
+    }
+  ],
+  "metadata": {
+    "filename": "06_materials_division_budget.md",
+    "raw_entity_count": 37,
+    "raw_relationship_count": 28,
+    "used_partial_parse": false,
+    "truncated": false,
+    "entity_type_coercions": 0,
+    "filtered_relationships": 2
+  }
+}
