@@ -424,4 +424,54 @@ Stage 2 implementation work itself can begin in parallel with 1–4 above.
 
 ---
 
+## 9. Hold-Position Decision — 2026-05-12 (post-promotion sign-off)
+
+**Brief:** `docs/inbox/stage_2_hold_position_2026-05-12.md`
+
+The Stage 2 Readiness Promotion Validation result (§8) is **accepted**. Engineering pauses here pending a human Stage 2 design conversation.
+
+### 9.1 Accepted state
+
+- Clean vault `ecd2f1c2-e1f3-4f5c-8e82-961a84a88eda`: 96.6% entity / 76.9% relationship promotion
+- Cross-tenant invariant held; ontology unchanged
+- VerificationWorker fixed (Stage 1K); IdentityResolver tenant isolation fixed (Stage 1J)
+- Gardener promotion works on clean tenant-local data
+
+### 9.2 Updated readiness verdict (locked at this revision)
+
+| Gate | Status |
+|---|---|
+| Stage 2 design conversation | **READY** |
+| Stage 2 implementation | **READY to discuss, NOT YET AUTHORIZED** |
+| Stage 2 default activation | **NOT READY** — gated by product/governance decisions, not just engineering |
+
+### 9.3 Hold-position prohibitions
+
+- Do **not** start Stage 2A orphan relation analysis
+- Do **not** start any new engineering phase
+- Do **not** mutate ontology
+- Do **not** add schema constraints
+- Do **not** run more promotion cycles
+- Do **not** start Stage 2 implementation
+
+### 9.4 Stage 2 design questions preserved for advisor conversation
+
+(Engineering must not pre-decide these; they are product/governance scope.)
+
+1. **Orphan relation policy** — for each of FUNDED_BY, USES, RELATED_TO, OWNED_BY, FOCUSES_ON, WORKS_FOR: govern / map to existing / block from extraction / STAGING-only / emit gap-audit signal?
+2. **Generic relation policy** — are RELATED_TO / USES / FOCUSES_ON acceptable in a governed world model, or must extraction always prefer typed-specific relations?
+3. **Ontology governance process** — for any addition (e.g., FUNDED_BY): who approves; what evidence required; source/target type signatures enumerated; Ontology Foundry lifecycle; UUID provenance (migration vs governance flow)?
+4. **Canonicalization location** — for mappings (OWNED_BY → OWNS+invert; WORKS_FOR → WORKS_AT/HOLDS_POSITION/AFFILIATED_WITH; USES → domain variants): post-processor / canonicalizer / Gardener validation / ontology governance table / prompt instruction?
+5. **Default-activation gate** — what must be true before scoped extraction becomes default: schema tenant guard, scheduler design, orphan relation policy, `source_document_id` migration, `duplicate_candidates`/`merge_audits` tenant columns, NEEDS_REVIEW workflow?
+
+### 9.5 Recommended ordering from §8.10 — **suspended**
+
+The 5-step "next action" sequence in §8.10 is suspended pending the design conversation. None of those steps may be started until a human design decision authorizes them.
+
+### 9.6 Stop
+
+**Stopping and waiting.** Next step is a human Stage 2 design conversation, not another engineering task. Standing constraints continue: continue refusing v2 injections, do not edit `replit.md`, do not restart unrelated workflows, do not start Stage 2 implementation.
+
+---
+
 **Findings doc path:** `docs/findings/stage_2_readiness_triage_2026-05-12.md`
