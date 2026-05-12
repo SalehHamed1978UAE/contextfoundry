@@ -1,0 +1,41 @@
+{
+  "status": "running",
+  "vault_id": "7c55c45e-8cce-41a6-9031-867357aa810b",
+  "question_set_id": "01c9fcc7-f2e1-406b-8e34-2205fea3da79",
+  "test_run_id": "ed6304b9-011f-46cc-9d13-53ddffdbb5ed",
+  "mode": "fresh",
+  "run_extraction": false,
+  "tree_based_retrieval": false,
+  "parallel_workers": 4,
+  "corpus_folder": "ClaudeCode_Nexus_Industries 2",
+  "started_at": "2026-05-12T14:31:02.982704",
+  "pid": 20307,
+  "stages": {
+    "delete": {
+      "status": "complete"
+    },
+    "create": {
+      "status": "complete",
+      "vault_id": "ea177f8d-9b78-4b37-8101-d3bcb58a03da"
+    },
+    "upload": {
+      "status": "complete",
+      "file_count": 100
+    },
+    "extract": {
+      "status": "running"
+    },
+    "qa": {
+      "status": "pending"
+    }
+  },
+  "qa_progress": {
+    "total": 0,
+    "answered": 0,
+    "passed": 0,
+    "failed": 0,
+    "accuracy_percent": 0
+  },
+  "current_question": null,
+  "updated_at": "2026-05-12T14:31:55.664257"
+}
