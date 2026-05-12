@@ -293,3 +293,135 @@ Per operating_instructions.md "Historical contaminated vaults are forensic/adver
 ---
 
 **Findings doc path:** `docs/findings/stage_2_readiness_triage_2026-05-12.md`
+
+---
+
+## 8. Bounded Gardener Promotion Result — 2026-05-12 (added post-triage)
+
+**Brief:** `docs/inbox/stage_2_readiness_promotion_validation_2026-05-12.md` — authorized one bounded tenant-scoped Gardener promotion cycle on `ecd2f1c2-...` to validate STAGING→TRUSTED end-to-end on the clean Stage 1J vault.
+
+### 8.1 Run
+
+- **Command:** `PYTHONPATH=. python -u scripts/run_promotion.py --tenant-id ecd2f1c2-e1f3-4f5c-8e82-961a84a88eda`
+- **Execution:** Foreground bash launch died at t=20s (sandbox killed detached child, same Stage 1K pattern). Authorized one-shot workflow `Stage2-Promo-ecd2f1c2` (autoStart, console outputType, 1 free slot in 9/10) per brief allowance — no slot removal needed.
+- **Cycle ID:** `manual-ecd2f1c2`
+- **Runtime:** 373.45s
+- **Exit status:** 0 (workflow `finished` cleanly)
+- **Commit:** confirmed via `ts._session.commit()` in script + post-snapshot deltas
+- **Errors:** `[]` (none)
+
+### 8.2 Outcome — **Case 1: Meaningful TRUSTED promotion**
+
+| Metric | Pre | Post | Delta |
+|---|---|---|---|
+| Entities STAGING | 2146 | 73 | **−2073** |
+| Entities TRUSTED | 0 | 2073 | **+2073 (96.6% conversion)** |
+| Entities ARCHIVED | 0 | 0 | 0 |
+| Relationships STAGING | 2099 | 484 | **−1615** |
+| Relationships TRUSTED | 0 | 1615 | **+1615 (76.9% conversion)** |
+| Relationships ARCHIVED | 0 | 0 | 0 |
+| `gardener_logs` PROMOTE actions for cycle | 0 | 3688 | +3688 (= 2073 + 1615) ✓ |
+
+### 8.3 Block reasons (entities: 73 blocked)
+
+| Type | Blocked | Reason |
+|---|---|---|
+| FACILITY | 25 | confidence_too_low |
+| PRODUCT | 18 | confidence_too_low |
+| PROJECT | 12 | confidence_too_low |
+| FINANCIAL_METRIC | 11 | confidence_too_low |
+| LOCATION | 3 | confidence_too_low |
+| ORGANIZATION | 2 | confidence_too_low |
+| BUSINESS_UNIT | 1 | confidence_too_low |
+| PERSON | 1 | confidence_too_low |
+
+All entity blocks are confidence-threshold misses. **Zero entities blocked by `invalid_entity_type_*`** — the ontology validation passed for every type present, including `PROJECT`.
+
+### 8.4 Block reasons (relationships: 484 blocked)
+
+| Type | Blocked | Reason |
+|---|---|---|
+| FUNDED_BY | 188 | invalid_relationship_type (not in ontology.relations) |
+| USES | 119 | invalid_relationship_type |
+| RELATED_TO | 76 | invalid_relationship_type |
+| OWNED_BY | 17 | invalid_relationship_type |
+| FOCUSES_ON | 8 | invalid_relationship_type |
+| WORKS_FOR | 1 | invalid_relationship_type |
+| (mixed) | 75 | confidence_too_low |
+| **Total** | **484** | |
+
+The 6 governed-orphan relation types account for 409/484 (84.5%) of relationship blocks; threshold-confidence misses are the remaining 75.
+
+### 8.5 Cross-tenant + ontology invariants — held
+
+| Invariant | Pre | Post | Delta |
+|---|---|---|---|
+| Latest cross-tenant `relationships.updated_at` | `2026-05-11 05:59:56.823` | `2026-05-11 05:59:56.823` | **unchanged ✓** |
+| Cross-tenant rels rooted at this vault | 0 | 0 | unchanged ✓ |
+| `merge_audits` row count | 3901 | 3901 | unchanged ✓ |
+| `ontology.types` count | 1037 | 1037 | unchanged ✓ |
+| `ontology.relations` count | 254 | 254 | unchanged ✓ |
+
+Promotion did **not** mutate ontology, did **not** create cross-tenant relations, did **not** trigger merge.
+
+### 8.6 Orphan relation impact + recommended disposition
+
+(Updated from §2.3 with measured promotion behavior. Existing governed alternatives confirmed by direct query of `ontology.relations.relation_type`.)
+
+| relation | STAGING (pre) | promoted | blocked | recommended disposition | rationale |
+|---|---|---|---|---|---|
+| `FUNDED_BY` | 188 | 0 | 188 | **add through governance later** | high-frequency, semantically meaningful, no governed equivalent |
+| `USES` | 119 | 0 | 119 | **map to existing governed relation** (split by target type → `DEVICE_USED_IN`, `FLIGHT_USES_RUNWAY`, etc., or add generic `USES` to governance) | overloaded; ontology has 3 type-specific `*USES*` variants |
+| `RELATED_TO` | 76 | 0 | 76 | **block from extraction** | semantically void; dilutes precision |
+| `OWNED_BY` | 17 | 0 | 17 | **map to existing governed relation `OWNS`** (inverse) | `OWNS` is governed (4 variants in ontology); `OWNED_BY` = inverse direction redundancy |
+| `FOCUSES_ON` | 8 | 0 | 8 | **add through governance later** OR accept as known limitation | low-frequency; defer |
+| `WORKS_FOR` | 7 | 0 (1 blocked invalid + 6 blocked confidence-or-missing) | 7 still STAGING | **map to existing governed `HOLDS_POSITION` / `AFFILIATED_WITH` / `WORKS_AT`** | duplicate-by-synonym; all three governed equivalents exist in ontology |
+
+Ontology query confirmed: `HOLDS_POSITION`, `AFFILIATED_WITH`, `OWNS`, `PART_OF`, `WORKS_AT`, `MEMBER_OF` all governed and available as mapping targets.
+
+### 8.7 PROJECT casing impact — **not a blocker after all**
+
+- Pre: 279 PROJECT entities, all STAGING. Triage §2.4 hypothesized this was an `invalid_entity_type` blocker requiring Stage 1L fix.
+- Post: **267 promoted, 12 blocked** — and the 12 are blocked **for `confidence_too_low_PROJECT`, NOT for `invalid_entity_type_PROJECT`**.
+- Ontology contains `Project` (PascalCase, Layer-2 ACTIVE). The Gardener's `validate_against_ontology` check is evidently case-insensitive (or some normalization layer normalizes `PROJECT` → `Project` on validation). Either way, **promotion-path validation does not block on casing**.
+- **Revised classification:** PROJECT casing fix is **NOT a Stage 2 implementation prerequisite**. It remains a **cosmetic Stage 1L candidate** for ontology hygiene (one canonical case across both layers) but does not gate Stage 2.
+
+### 8.8 Updated Stage 2 readiness verdict
+
+**Verdict upgrade: B → B+ (Stage 2 implementation cleared; default activation still gated).**
+
+| Gate | Pre-promotion (§4) | Post-promotion |
+|---|---|---|
+| Stage 2 design conversation | READY | READY (unchanged) |
+| Stage 2 implementation | NEEDS one bounded fix first | **READY** — STAGING→TRUSTED end-to-end demonstrated on clean vault, 96.6% / 76.9% promotion rate, zero errors, all invariants held |
+| Stage 2 default activation | NEEDS items 3, 4, 5, 6 | NEEDS items 3, 4, **revised-5**, 6 (see 8.9) |
+
+### 8.9 Revised "must-fix-before-default-activation" item 5
+
+Item 5 (orphan relations) gets **specific, measurable mapping decisions** based on §8.6:
+- `OWNED_BY` (17) → map to inverse of `OWNS` — small change in extraction or post-extraction normalization
+- `WORKS_FOR` (7) → map to `HOLDS_POSITION`/`AFFILIATED_WITH`/`WORKS_AT` — small change
+- `RELATED_TO` (76) → block in extraction prompt — small change
+- `FUNDED_BY` (188), `USES` (119), `FOCUSES_ON` (8) → governance addition (3 new ontology rows) — single small migration
+
+Worst-case impact if all 6 are addressed: **+409 promoted relationships → ~2024/2099 = 96.4% relationship promotion rate** (matching the entity rate).
+
+### 8.10 Recommended next action
+
+Per stop condition, **stop and await sign-off**. Recommended next-step ordering once authorized:
+
+1. (small) Decide & implement the 6 orphan-relation mappings/blocks (item 5 / §8.9). Re-run promotion to confirm ~96% relationship promotion.
+2. (small) Phase 4 trigger — DB-level relationship endpoint tenant-alignment guard (item 3).
+3. (small) `relationships.source_document_id` varchar→uuid migration (item 6).
+4. (medium) Phase 5 — `duplicate_candidates` / `merge_audits` `tenant_id` columns (item 4).
+5. (design) NEEDS_REVIEW workflow design (item 2).
+
+Stage 2 implementation work itself can begin in parallel with 1–4 above.
+
+### 8.11 Stop
+
+**Stopping here per brief stop condition.** No scheduler activation, no Stage 2 implementation, no ontology mutation, no orphan repair, no PROJECT normalizer fix, no schema/trigger work, no contaminated-vault repair, no Nexus 100, no v2, no replit.md edits, no further promotion cycles. Awaiting sign-off.
+
+---
+
+**Findings doc path:** `docs/findings/stage_2_readiness_triage_2026-05-12.md`
