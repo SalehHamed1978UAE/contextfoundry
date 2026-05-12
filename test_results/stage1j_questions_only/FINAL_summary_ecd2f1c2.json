@@ -1,0 +1,416 @@
+{
+  "vault_id": "ecd2f1c2-e1f3-4f5c-8e82-961a84a88eda",
+  "questions_file": "test_questions/nexus_100q.json",
+  "tree_based_retrieval": true,
+  "score": {
+    "passed": 50,
+    "failed": 50,
+    "total": 100,
+    "pct": 50.0
+  },
+  "failure_categories": {
+    "null": 50
+  },
+  "failures": [
+    {
+      "q": 3,
+      "category": null,
+      "match_type": "no_data",
+      "question": "Who is the President of Nexus Digital Solutions?",
+      "expected": "Robert Kim",
+      "actual": "The retrieved information does not specify who the President of Nexus Digital Solutions is. It provides details about the organization, its focus areas, and its relationships with other entities, but it does not include any information regarding specific individuals or their roles within the company. Therefore, I cannot provide the name of the President of Nexus Digital Solutions based on the available data."
+    },
+    {
+      "q": 4,
+      "category": null,
+      "match_type": "no_match",
+      "question": "Who is the Chief Engineer for the Falcon X program?",
+      "expected": "Dr. Elena Rodriguez",
+      "actual": "The Chief Engineer for the Falcon X program is not specified in the available documents. Further information may be needed to identify the individual in that role."
+    },
+    {
+      "q": 6,
+      "category": null,
+      "match_type": "no_match",
+      "question": "What was Nexus Industries' revenue in FY2025?",
+      "expected": "$8.45 billion",
+      "actual": "Nexus Industries' revenue in FY2025 was as follows for its various divisions: - **Nexus Aerospace:** $1.1 billion\n- **Nexus Energy Systems:** $980 million\n- **Nexus Digital Solutions:** $1.3 billion\n- **Nexus Advanced Materials:** $820 million The total revenue for Nexus Industries across all divisions in FY2025 is not explicitly stated in the retrieved information, but you can calculate it by summing the revenues of the individual divisions: Total Revenue = $1.1 billion + $980 million + $1.3 billion + $820 million = $4.2 billion Therefore, Nexus Industries' total revenue in FY2025 was approximately **$4.2 billion**.\n\n---\n**Confidence: Medium (80%)**\n\n**Why:** Multiple currency values found in source: ['$1.1 billion', '$980 million', '$820 million', '$1.3 billion']\n\n**Please verify this information against source documents.**"
+    },
+    {
+      "q": 8,
+      "category": null,
+      "match_type": "no_match",
+      "question": "What is the budget for the Falcon X UAV program?",
+      "expected": "$145 million",
+      "actual": "The retrieved information does not specify a budget for the Falcon X UAV program directly. However, it does provide details about the overall research and development budget for Nexus Industries, which includes a budget allocation for the Aerospace division. For FY2026, the Aerospace division has a budget of **$285 million**. While this budget encompasses various projects and initiatives within the division, it is not explicitly broken down to indicate how much of that is allocated specifically to the Falcon X UAV program. Therefore, while we know the Aerospace division's budget, we do not have the exact budget for the Falcon X UAV program itself.\n\n---\n**Confidence: Medium (80%)**\n\n**Why:** Multiple currency values found in source: ['$195M', '$28M', '$48M', '$75M', '$980 million', '$8M', '$50M', '$1.1 billion', '$55M', '$65M', '$25M', '$966M', '$285M', '$19M', '$180M', '$35M', '$725M', '$95M', '$4M', '$5M', '$3M', '$85M', '$42M', '$2.5M', '$2M', '$120M', '$45M', '$1.5M', '$52M']\n\n**Please verify this information against source documents.**"
+    },
+    {
+      "q": 10,
+      "category": null,
+      "match_type": "no_data",
+      "question": "What is the value of the Shell hydrogen offtake agreement?",
+      "expected": "$450 million over 10 years",
+      "actual": "The retrieved information does not specify the value of the Shell hydrogen offtake agreement. While it mentions Shell's partnerships with the GreenHydrogen Initiative and Nexus Industries, it does not provide any financial details regarding the hydrogen offtake agreement itself. Therefore, the specific value of that agreement is not available in the provided data."
+    },
+    {
+      "q": 14,
+      "category": null,
+      "match_type": "no_data",
+      "question": "When was Robert Kim appointed President of Digital Solutions?",
+      "expected": "January 2026 (effective January 15, 2026)",
+      "actual": "The appointment date was not found in the available documents."
+    },
+    {
+      "q": 15,
+      "category": null,
+      "match_type": "no_data",
+      "question": "Who does Michael Chang report to?",
+      "expected": "Dr. Victoria Chen (CEO)",
+      "actual": "I don't have enough information to answer this."
+    },
+    {
+      "q": 20,
+      "category": null,
+      "match_type": "no_match",
+      "question": "Which supplier is rated Red and at risk?",
+      "expected": "General Atomics",
+      "actual": "The search did not return specific information about a supplier rated Red and at risk. Please check the relevant documents or provide additional context for further assistance."
+    },
+    {
+      "q": 21,
+      "category": null,
+      "match_type": "no_match",
+      "question": "Where is Nexus Industries headquartered?",
+      "expected": "Phoenix, Arizona",
+      "actual": "Nexus Industries is headquartered in San Francisco, CA."
+    },
+    {
+      "q": 23,
+      "category": null,
+      "match_type": "no_match",
+      "question": "How many qubits does the QuantumLeap system have?",
+      "expected": "127 qubits",
+      "actual": "The retrieved information does not specify the exact number of qubits in the QuantumLeap system. However, it does mention a **256-Qubit System** that is in development with a planned launch in **2026**. Additionally, there is a reference to a **512-Qubit System** that is expected to be developed by **2027**. To summarize: 1. **256-Qubit System** - Development stage, expected launch in 2026.\n2. **512-Qubit System** - Planned for development in 2027. No other specific details about the QuantumLeap system or its qubit count are provided in the retrieved information.\n\n---\n**Confidence: Medium (80%)**\n\n**Why:** Multiple number values found in source: ['13.3', '2,412', '14.9', '1,200', '370', '3', '2', '1.3', '250', '16.0', '150', '50', '512', '11.0', '9.8', '1,200,000', '645', '32', '45', '1,400', '1', '350', '2.1', '12.0', '12,000', '425', '22', '2,900', '10,850', '380', '20', '24', '15.7', '485', '70', '680', '180', '1.1', '15.6', '3,000', '5', '256', '60', '620', '2.0', '820', '40.0', '2,800', '142', '220,000', '480', '4', '345', '11.4', '80.0', '2,500', '750', '0.5', '520', '320', '20.0', '650,000', '185', '650', '1,050', '100', '85,000', '3,200', '10.0', '8.6', '48', '18', '25', '18.6', '6', '25.6', '14.0', '280', '420', '1,395', '800', '3,500', '1,100', '20.9', '19.0', '40', '850', '12,500', '155', '1,150', '35', '450', '85', '920', '7', '14.4', '0', '9.7', '120', '92', '15', '0.2', '980', '8']\n\n**Please verify this information against source documents.**"
+    },
+    {
+      "q": 24,
+      "category": null,
+      "match_type": "no_data",
+      "question": "What is the hydrogen production capacity of the GreenHydrogen facility?",
+      "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
+      "actual": "The retrieved information does not specify the exact hydrogen production capacity of the GreenHydrogen facility located in El Paso, Texas. It is noted that the facility is a green hydrogen production facility and is nearing completion, but no specific figures regarding its production capacity are provided. If you need more detailed information about the facility's capacity, it may be necessary to consult additional sources or official announcements from Nexus Industries or related entities."
+    },
+    {
+      "q": 29,
+      "category": null,
+      "match_type": "no_match",
+      "question": "Who are the members of the Executive Leadership Team?",
+      "expected": "Dr. Victoria Chen (CEO), Michael Chang (CFO), Dr. James Wilson (CTO), Lisa Thompson (GC), Maria Santos (CHRO), Robert Harrison, Dr. Sarah Park, Robert Kim, John Williams",
+      "actual": "The members of the Executive Leadership Team at Nexus Industries are: 1. **Dr. Victoria Chen** - Chief Executive Officer (CEO)\n2. **Michael Chang** - Chief Financial Officer (CFO)\n3. **Dr. Aisha Patel** - Chief Technology Officer (CTO)\n4. **James Wilson** - Chief Operating Officer (COO)\n5. **Maria Santos** - Chief Human Resources Officer (CHRO)\n6. **David Park** - General Counsel and Chief Legal Officer\n7. **Dr. Samuel Okonkwo** - Chief Information Officer (CIO)\n8. **Jennifer Lee** - Chief Marketing Officer (CMO) This team is responsible for the strategic direction and operational management of the company."
+    },
+    {
+      "q": 32,
+      "category": null,
+      "match_type": "no_match",
+      "question": "Who will be the CEO of the Toyota JV (NextGen Battery Technologies)?",
+      "expected": "Dr. Robert Martinez",
+      "actual": "The CEO of the Toyota joint venture, NextGen Battery Technologies, has not yet been determined (TBD). The position is still under consideration as of the latest updates."
+    },
+    {
+      "q": 33,
+      "category": null,
+      "match_type": "no_data",
+      "question": "How much hydrogen will Shell purchase annually under the offtake agreement?",
+      "expected": "Minimum 300,000 kg/year initially, ramping to 2.5M kg/year by Year 3",
+      "actual": "The retrieved information does not specify the exact amount of hydrogen that Shell will purchase annually under the offtake agreement. It mentions Shell's partnership with the GreenHydrogen Initiative and Nexus Industries, which are involved in hydrogen production, but does not provide specific figures regarding the annual hydrogen purchase. Therefore, the exact annual quantity of hydrogen Shell will purchase remains unknown based on the provided information."
+    },
+    {
+      "q": 34,
+      "category": null,
+      "match_type": "no_match",
+      "question": "Which project has the largest budget?",
+      "expected": "Orbital Satellite Constellation ($680 million)",
+      "actual": "The project with the largest budget is the **Solar EPC Projects**, which has a budget of **$625 million**. This is the highest individual project budget mentioned in the retrieved information. For context, here are some other relevant budget figures from the information provided:\n- **Total Project Budget**: $225 million\n- **Project Alpha**: $85 million\n- **San Antonio Battery Plant**: $85 million However, none of these exceed the budget of the Solar EPC Projects.\n\n---\n**Confidence: Medium (80%)**\n\n**Why:** Multiple currency values found in source: ['$195M', '$48M', '$75M', '$8M', '$50M', '$55M', '$65M', '$966M', '$285M', '$19M', '$180M', '$725M', '$12M', '$95M', '$85M', '$42M', '$45M', '$120M', '$52M']\n\n**Please verify this information against source documents.**"
+    },
+    {
+      "q": 36,
+      "category": null,
+      "match_type": "no_data",
+      "question": "Which division has the highest safety incident rate (TRIR)?",
+      "expected": "Nexus Advanced Materials (1.24 TRIR)",
+      "actual": "The information regarding the Total Recordable Incident Rate (TRIR) for each division is not explicitly available in the retrieved documents. Therefore, I cannot determine which division has the highest safety incident rate (TRIR) based on the current data. Please check the relevant safety reports or documents for specific TRIR values for each division."
+    },
+    {
+      "q": 37,
+      "category": null,
+      "match_type": "no_match",
+      "question": "Who is the Project Director for the GreenHydrogen Initiative?",
+      "expected": "Jennifer Walsh",
+      "actual": "The Project Director for the GreenHydrogen Initiative is Dr. Victoria Chen."
+    },
+    {
+      "q": 38,
+      "category": null,
+      "match_type": "no_match",
+      "question": "Who is the CISO of Nexus Industries?",
+      "expected": "Jennifer Walsh (appointed January 2026, formerly Robert Kim)",
+      "actual": "The Chief Information Security Officer (CISO) of Nexus Industries is **Dr. Raj Krishnamurthy**."
+    },
+    {
+      "q": 40,
+      "category": null,
+      "match_type": "no_match",
+      "question": "What is the total company backlog?",
+      "expected": "$12.4 billion",
+      "actual": "The total company backlog is $966 million. This figure represents the total budget allocated across various divisions for the fiscal year 2026."
+    },
+    {
+      "q": 41,
+      "category": null,
+      "match_type": "no_data",
+      "question": "How many endpoints does CyberShield protect?",
+      "expected": "Over 2 million (2.1 million)",
+      "actual": "The retrieved information does not specify the exact number of endpoints that CyberShield protects. However, it does mention that the CyberShield Agent is an enterprise security platform that provides endpoint detection and response (EDR), security information and event management (SIEM), and threat intelligence capabilities. Unfortunately, the specific number of endpoints protected by CyberShield is not provided in the information. Therefore, we cannot enumerate the exact count of endpoints. If you have any further questions or need additional information, feel free to ask!"
+    },
+    {
+      "q": 42,
+      "category": null,
+      "match_type": "no_data",
+      "question": "What is the annual HTS wire production capacity?",
+      "expected": "1,000 km/year",
+      "actual": "The retrieved information does not specify the annual production capacity for HTS (High-Temperature Superconductors) wire. While there is detailed information about the organizational structure, key facilities, and various business divisions of Nexus Industries, there is no mention of specific production capacities for HTS wire or any related products. If you need precise figures regarding HTS wire production capacity, it may be necessary to consult additional resources or contact the relevant division directly."
+    },
+    {
+      "q": 43,
+      "category": null,
+      "match_type": "no_data",
+      "question": "When did CyberShield achieve FedRAMP High authorization?",
+      "expected": "January 15, 2026",
+      "actual": "The retrieved information does not specify the exact date when CyberShield achieved FedRAMP High authorization. It only indicates that CyberShield is related to FedRAMP High. Therefore, I cannot provide a specific date for the authorization. If you need further details or have other questions, feel free to ask!"
+    },
+    {
+      "q": 45,
+      "category": null,
+      "match_type": "no_match",
+      "question": "When was Dr. Victoria Chen appointed CEO?",
+      "expected": "2019",
+      "actual": "Dr. Victoria Chen was appointed CEO on January 1, 2026. This date marks her official start in the role, as indicated in the organizational structure documents."
+    },
+    {
+      "q": 48,
+      "category": null,
+      "match_type": "no_match",
+      "question": "Who is the primary customer for HTS superconducting wire?",
+      "expected": "Siemens Healthineers ($65 million)",
+      "actual": "The primary customer for HTS superconducting wire is The Boeing Company."
+    },
+    {
+      "q": 49,
+      "category": null,
+      "match_type": "no_data",
+      "question": "What is the endurance of the Falcon X UAV?",
+      "expected": "28 hours",
+      "actual": "The retrieved information does not specify the endurance of the Falcon X UAV. While it provides details about the UAV's development status, budget, and associated programs, there is no mention of its operational endurance or flight duration capabilities. Therefore, I cannot provide a specific answer regarding the endurance of the Falcon X UAV based on the available data."
+    },
+    {
+      "q": 51,
+      "category": null,
+      "match_type": "no_data",
+      "question": "How many satellites are in the Orbital Constellation project?",
+      "expected": "48 satellites",
+      "actual": "The retrieved information does not specify the exact number of satellites in the Orbital Constellation project. It mentions the \"Orbital Satellite Constellation\" as an active program managed by Dr. Amara Osei, but no details regarding the number of satellites are provided. Therefore, the answer is that the specific number of satellites in the Orbital Constellation project is not available in the retrieved information."
+    },
+    {
+      "q": 55,
+      "category": null,
+      "match_type": "no_data",
+      "question": "What is the total cost savings from the cybersecurity incident avoidance?",
+      "expected": "Avoided $5-10M ransom, $2-5M/day downtime, up to $10M fines",
+      "actual": "The total cost savings from cybersecurity incident avoidance is not explicitly stated in the available documents. Please check specific financial reports or detailed analyses for this information."
+    },
+    {
+      "q": 58,
+      "category": null,
+      "match_type": "no_match",
+      "question": "What is the Falcon X program's budget variance?",
+      "expected": "$3.2 million under budget",
+      "actual": "The retrieved information does not provide specific details about the budget variance for the Falcon X program. It states that the budget for the Falcon X program is $85 million, but there is no mention of the original budget or any actual expenditures to calculate a variance. To determine the budget variance, we would need the following information:\n1. The original budget or planned budget for the Falcon X program.\n2. The actual expenditures to date. Without this information, we cannot calculate the budget variance. Therefore, while we know the current budget is $85 million, we cannot provide the variance without additional data.\n\n---\n**Confidence: Medium (80%)**\n\n**Why:** Multiple currency values found in source: ['$195M', '$28M', '$48M', '$75M', '$8M', '$50M', '$55M', '$65M', '$25M', '$966M', '$285M', '$19M', '$180M', '$35M', '$725M', '$95M', '$4M', '$5M', '$3M', '$85M', '$42M', '$2.5M', '$2M', '$120M', '$45M', '$1.5M', '$52M']\n\n**Please verify this information against source documents.**"
+    },
+    {
+      "q": 60,
+      "category": null,
+      "match_type": "no_data",
+      "question": "When was the phishing incident detected?",
+      "expected": "December 12, 2025 at 02:47 UTC",
+      "actual": "The retrieved information does not provide any details regarding a phishing incident, including when it was detected. Therefore, I cannot answer your question about the timing of the phishing incident based on the available information. If you have any other questions or need information on a different topic, feel free to ask!"
+    },
+    {
+      "q": 61,
+      "category": null,
+      "match_type": "no_match",
+      "question": "Who replaced Thomas Anderson as Digital President?",
+      "expected": "Robert Kim",
+      "actual": "Thomas Anderson was replaced as Digital President by **Kevin Chang**."
+    },
+    {
+      "q": 62,
+      "category": null,
+      "match_type": "no_data",
+      "question": "What FedRAMP level did CyberShield achieve?",
+      "expected": "FedRAMP High",
+      "actual": "The retrieved information does not specify the FedRAMP level achieved by CyberShield. It provides details about the CyberShield Security Platform and its properties, but there is no mention of any FedRAMP certification or level. Therefore, I cannot provide a definitive answer regarding the FedRAMP level for CyberShield."
+    },
+    {
+      "q": 63,
+      "category": null,
+      "match_type": "no_data",
+      "question": "Which executive has a PhD from MIT?",
+      "expected": "Dr. Victoria Chen",
+      "actual": "Based on the retrieved information, there is no explicit mention of any executive having a PhD from MIT. However, Dr. Amanda Foster, who is the VP of Product Development, is noted as having a doctorate, but her educational background is not specified in the provided information. Therefore, while we know that Dr. Amanda Foster holds a PhD, we cannot confirm if it is from MIT or any other institution. If you need more specific information about the educational backgrounds of other executives or further details, please let me know!"
+    },
+    {
+      "q": 67,
+      "category": null,
+      "match_type": "no_data",
+      "question": "What operating temperature range does the solid-state battery support?",
+      "expected": "-30\u00b0C to 60\u00b0C",
+      "actual": "The retrieved information does not specify the operating temperature range supported by solid-state batteries. It primarily discusses the technology, manufacturing processes, and commercial agreements related to solid-state batteries but lacks detailed specifications such as temperature ranges. Therefore, I cannot provide a definitive answer regarding the operating temperature range for solid-state batteries based on the available information."
+    },
+    {
+      "q": 68,
+      "category": null,
+      "match_type": "no_match",
+      "question": "Who is the Chair of the Export Control Committee?",
+      "expected": "Col. (Ret.) James Foster (Empowered Official)",
+      "actual": "The Chair of the Export Control Committee is Michael Torres, who is also the Division President [Graph: relationship] and [Source: 14_hypersonic_propulsion.md]."
+    },
+    {
+      "q": 70,
+      "category": null,
+      "match_type": "no_data",
+      "question": "When is the NexusConnect Edge AI product launching?",
+      "expected": "March 15, 2026",
+      "actual": "The retrieved information does not specify a launch date for the NexusConnect Edge AI product. It provides details about the organizational structure and focus areas of Nexus Digital Solutions, including their emphasis on artificial intelligence and machine learning, but there is no mention of specific product launch timelines. Therefore, I cannot provide a definitive answer regarding when the NexusConnect Edge AI product will be launching."
+    },
+    {
+      "q": 71,
+      "category": null,
+      "match_type": "no_match",
+      "question": "Who is the mining automation partner?",
+      "expected": "Caterpillar",
+      "actual": "The mining automation partner is Toyota Motor Corporation. Nexus Industries has formed a joint venture with Toyota to develop and manufacture solid-state batteries, which includes collaboration in various technological advancements."
+    },
+    {
+      "q": 75,
+      "category": null,
+      "match_type": "no_data",
+      "question": "Who is the VP of Engineering for Nexus Digital Solutions?",
+      "expected": "Dr. Alan Chen",
+      "actual": "The retrieved information does not provide any details about the Vice President of Engineering for Nexus Digital Solutions. There are no specific relationships or roles mentioned that indicate who holds that position. Therefore, I cannot provide the name of the VP of Engineering for Nexus Digital Solutions based on the available data."
+    },
+    {
+      "q": 79,
+      "category": null,
+      "match_type": "no_match",
+      "question": "What is the 2030 revenue target in the corporate strategy?",
+      "expected": "$15 billion",
+      "actual": "The retrieved information does not specify a 2030 revenue target for Nexus Industries or any of its divisions. However, it does provide the annual revenue figures for 2025 for each division, which are as follows: - Nexus Aerospace: $1.1 billion\n- Nexus Energy Systems: $980 million\n- Nexus Digital Solutions: $1.3 billion\n- Nexus Advanced Materials: $820 million While the strategic priorities for each division are outlined, including goals for market expansion and product development, there is no mention of a specific revenue target for 2030. Therefore, the information regarding the 2030 revenue target is incomplete or not available in the provided documents.\n\n---\n**Confidence: Medium (80%)**\n\n**Why:** Multiple currency values found in source: ['$1.1 billion', '$980 million', '$820 million', '$1.3 billion']\n\n**Please verify this information against source documents.**"
+    },
+    {
+      "q": 81,
+      "category": null,
+      "match_type": "no_match",
+      "question": "What is Nexus's sustainability goal for carbon neutrality?",
+      "expected": "2030",
+      "actual": "Nexus's sustainability goal for carbon neutrality is to achieve carbon-neutral manufacturing by the year 2028. This goal is part of the strategic priorities outlined for the Nexus Aerospace Division, which focuses on various advanced technologies and products in the aerospace sector."
+    },
+    {
+      "q": 84,
+      "category": null,
+      "match_type": "no_match",
+      "question": "What is the cybersecurity incident response investment?",
+      "expected": "$5.3 million",
+      "actual": "The retrieved information does not provide specific details about the investment in cybersecurity incident response. However, it does mention that the Nexus Digital Solutions division, which includes cybersecurity solutions, has a strategic priority to grow its cybersecurity practice by 60%. Additionally, the overall budget for research and development (R&D) for the Digital Solutions division is $195 million for FY2026, but it does not specify how much of that budget is allocated specifically to cybersecurity or incident response. In summary, while there is a focus on expanding cybersecurity capabilities, specific investment figures for cybersecurity incident response are not provided in the retrieved documents.\n\n---\n**Confidence: Medium (80%)**\n\n**Why:** Multiple percentage values found in source: ['50%', '100%', '60%', '0.5%', '15%', '11.4%', '8.6%', '0.2%', '2.1%']\n\n**Please verify this information against source documents.**"
+    },
+    {
+      "q": 87,
+      "category": null,
+      "match_type": "no_match",
+      "question": "What is the combined cybersecurity and security certification status?",
+      "expected": "SOC 2 Type II, ISO 27001, FedRAMP High, DoD IL5, HIPAA compliant",
+      "actual": "The combined cybersecurity and security certification status for Nexus Industries is as follows: 1. **Cybersecurity Division**: The cybersecurity efforts are led by Dr. Raj Krishnamurthy, who oversees a team of 280 employees. The division focuses on various cybersecurity solutions, including managed security services and threat intelligence. 2. **Security Products**: The company offers a range of security products, including the \"SecureShield Cybersecurity\" product, which is part of their key offerings in the Nexus Digital Solutions division. 3. **Strategic Priorities**: One of the strategic priorities for the Nexus Digital Solutions division is to grow the cybersecurity practice by 60%. This indicates a strong commitment to enhancing their cybersecurity capabilities and services. 4. **Security Operations Center (SOC)**: Nexus Industries has a dedicated Security Operations Center located in Austin, Texas, which operates 24/7 and is equipped with a Tier IV data center. This facility is crucial for monitoring and responding to security threats. 5. **Compliance Solutions**: The company also provides compliance solutions, which are essential for meeting various regulatory requirements in cybersecurity. While the information highlights the focus and resources dedicated to cybersecurity, specific details regarding certifications (such as ISO certifications, compliance with specific standards, etc.) are not provided in the retrieved documents. Therefore, while the commitment to cybersecurity is evident, the exact certification status is not explicitly mentioned.\n\n---\n**Confidence: Medium (80%)**\n\n**Why:** Multiple percentage values found in source: ['50%', '15%', '100%', '60%']\n\n**Please verify this information against source documents.**"
+    },
+    {
+      "q": 89,
+      "category": null,
+      "match_type": "no_match",
+      "question": "What is the FY2026 total benefits investment?",
+      "expected": "$6.0 million",
+      "actual": "The total benefits investment for FY2026 is $966 million. This figure includes various categories such as division R&D, corporate research, innovation labs, and external research."
+    },
+    {
+      "q": 91,
+      "category": null,
+      "match_type": "no_match",
+      "question": "Who is the VP Trade Compliance?",
+      "expected": "Owns the Export Control Policy (per POL-009)",
+      "actual": "I found multiple people with the VP role:\n\n- Dr. Robert Martinez (VP Engineering of Nexus Industries)\n- Robert Kim (Vice President of Supply Chain of Nexus Industries)\n- Lisa Tan (Vice President of Nexus Industries)\n- Dr. Alan Chen (Vice President of Engineering of Nexus Industries)\n- Lisa Park (Cloud, security of Nexus Industries)\n- David Chen (Vice President of Treasury of Nexus Industries)\n- Takeshi Suzuki (Vice President of Nexus Industries)\n- Dr. Patricia Martinez (Vice President of Environmental Health and Safety of Nexus Industries)\n- Sarah Johnson (Vice President of Finance of Nexus Industries)\n- Mark Johnson (PLM, digital twin of Nexus Industries)\n- Kenji Yamamoto (President of Nexus Industries)\n- Dr. Hassan Ahmed (Vice President of Nexus Industries)\n- Dr. Rachel Kim (Vice President of Engineering of Nexus Industries)\n- Raj Patel (Vice President of Nexus Industries)\n- Jennifer Mitchell (Talent Acquisition of Nexus Industries)\n- Dr. Jennifer Liu (Vice President of Research and Development of Nexus Industries)\n- Col. (Ret.) James Foster (Empowered Official of Nexus Industries)\n- Dr. Amanda Foster (Vice President of Product Development of Nexus Industries)\n- Dr. Sarah Park (President of Nexus Industries)\n- Jennifer Walsh (VP Investor Relations of Nexus Industries)\n- Wei Chen (Vice President of Nexus Industries)\n\nWhich one would you like to know more about? Please specify by name."
+    },
+    {
+      "q": 92,
+      "category": null,
+      "match_type": "no_match",
+      "question": "What is the Quantum Volume of the QL-127 system?",
+      "expected": "256",
+      "actual": "The retrieved information does not provide any specific details regarding the Quantum Volume of the QL-127 system. It primarily focuses on the organizational structure, business divisions, and operational details of Nexus Industries, including their various divisions such as Aerospace, Energy Systems, Digital Solutions, and Advanced Materials. If you need information about the Quantum Volume of the QL-127 system, it may be necessary to consult additional resources or documents that specifically address quantum computing technologies or the specifications of the QL-127 system.\n\n---\n**Confidence: Medium (80%)**\n\n**Why:** Multiple number values found in source: ['180', '800', '45,000', '1,200', '3,500', '75,000', '65,000', '650,000', '1.1', '3', '2', '40', '1.3', '850', '100', '50', '12,500', '85,000', '2,200', '3,000', '3,200', '60', '1,200,000', '32', '820', '300', '45', '35', '10,200', '1', '350', '450', '2,800', '85', '500', '25', '12,000', '7', '22', '220,000', '6', '120', '10,850', '4', '24', '2,500', '380,000', '15', '980']\n\n**Please verify this information against source documents.**"
+    },
+    {
+      "q": 94,
+      "category": null,
+      "match_type": "no_match",
+      "question": "When is the 256-qubit quantum system planned?",
+      "expected": "Q2 2026",
+      "actual": "The retrieved information does not specify a planned date for the 256-qubit quantum system. It primarily discusses the organizational structure and strategic priorities of Nexus Industries' various divisions, including Nexus Digital Solutions, which has a focus on artificial intelligence, machine learning, and cloud computing, as well as a quantum lab. However, there is no mention of specific timelines or plans regarding the development or deployment of a 256-qubit quantum system. Therefore, it is unclear when this system is planned.\n\n---\n**Confidence: Medium (80%)**\n\n**Why:** Multiple number values found in source: ['180', '800', '45,000', '1,200', '3,500', '75,000', '65,000', '650,000', '1.1', '3', '2', '40', '1.3', '850', '100', '50', '12,500', '85,000', '2,200', '3,000', '3,200', '60', '1,200,000', '32', '820', '300', '45', '35', '10,200', '1', '350', '450', '2,800', '85', '500', '25', '12,000', '7', '22', '220,000', '6', '120', '10,850', '4', '24', '2,500', '380,000', '15', '980']\n\n**Please verify this information against source documents.**"
+    },
+    {
+      "q": 96,
+      "category": null,
+      "match_type": "no_match",
+      "question": "What is the APAC revenue target for 2030?",
+      "expected": "$3.5 billion",
+      "actual": "The retrieved information does not specify a revenue target for the Asia-Pacific (APAC) region for the year 2030. It provides details about the overall revenue for various divisions of Nexus Industries as of 2025, but there is no mention of specific revenue targets for APAC or any other region for 2030. Therefore, I cannot provide the APAC revenue target for 2030 based on the available information."
+    },
+    {
+      "q": 97,
+      "category": null,
+      "match_type": "no_data",
+      "question": "What is the M&A budget capacity?",
+      "expected": "$500 million",
+      "actual": "The retrieved information does not explicitly mention the M&A (Mergers and Acquisitions) budget capacity for Nexus Industries. The documents focus on the organizational structure, business divisions, strategic priorities, and global locations of the company, but they do not provide financial details related to M&A activities. If you are looking for specific figures or guidelines regarding the M&A budget capacity, that information is not available in the provided documents. You may need to consult additional internal financial records or reports that specifically address M&A strategies and budgets."
+    },
+    {
+      "q": 98,
+      "category": null,
+      "match_type": "no_match",
+      "question": "What is the renewable energy achievement percentage?",
+      "expected": "65% achieved toward 100% by 2028",
+      "actual": "The retrieved information does not provide a specific percentage for the renewable energy achievement. However, it does mention a strategic priority for the Nexus Energy Systems division to \"double renewable energy capacity by 2027.\" This indicates a commitment to increasing renewable energy efforts, but without specific metrics or current achievement percentages, we cannot determine an exact figure for the renewable energy achievement percentage at this time."
+    },
+    {
+      "q": 99,
+      "category": null,
+      "match_type": "no_match",
+      "question": "How does Nexus's operating margin compare to target?",
+      "expected": "11.2% actual vs 11.5-12.0% target for FY2026",
+      "actual": "The retrieved information does not provide specific details about Nexus's operating margin or any target figures for comparison. It includes financial metrics such as corporate funding of $85 million and annual revenues for various divisions, but it does not specify operating margins or targets for Nexus as a whole or for its divisions. To answer your question accurately, I would need additional information regarding Nexus's operating margin and its target. If you have access to that data, please provide it, and I can help you analyze the comparison.\n\n---\n**Confidence: Medium (80%)**\n\n**Why:** Multiple currency values found in source: ['$1.1 billion', '$980 million', '$820 million', '$1.3 billion']\n\n**Please verify this information against source documents.**"
+    },
+    {
+      "q": 100,
+      "category": null,
+      "match_type": "no_match",
+      "question": "What is the total value of top 3 customer relationships?",
+      "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($565M) = $1.975 billion",
+      "actual": "The total value of the top 3 customer relationships is $400 million. This includes the following contracts: $220 million for the 777X component contract with Boeing, $95 million for Structures in Aerospace, and $85 million for Titanium Alloy Supply in Materials."
+    }
+  ]
+}
