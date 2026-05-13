@@ -1,0 +1,109 @@
+{
+  "plane_counts": {
+    "RELATIONAL": 23,
+    "IDENTITY": 1,
+    "PROPERTY": 35,
+    "TEMPORAL": 16,
+    "SEMANTIC": 21,
+    "AGGREGATE": 4
+  },
+  "plane_pass_rates": {
+    "RELATIONAL": {
+      "total": 23,
+      "s1j": "12/23",
+      "s2c": "14/23",
+      "s2d": "14/23",
+      "s2e1": "14/23",
+      "legacy": "7/12"
+    },
+    "IDENTITY": {
+      "total": 1,
+      "s1j": "1/1",
+      "s2c": "1/1",
+      "s2d": "1/1",
+      "s2e1": "1/1",
+      "legacy": "1/1"
+    },
+    "PROPERTY": {
+      "total": 35,
+      "s1j": "14/35",
+      "s2c": "16/35",
+      "s2d": "20/35",
+      "s2e1": "19/35",
+      "legacy": "20/24"
+    },
+    "TEMPORAL": {
+      "total": 16,
+      "s1j": "7/16",
+      "s2c": "7/16",
+      "s2d": "8/16",
+      "s2e1": "8/16",
+      "legacy": "6/9"
+    },
+    "SEMANTIC": {
+      "total": 21,
+      "s1j": "15/21",
+      "s2c": "15/21",
+      "s2d": "15/21",
+      "s2e1": "15/21",
+      "legacy": "9/10"
+    },
+    "AGGREGATE": {
+      "total": 4,
+      "s1j": "1/4",
+      "s2c": "2/4",
+      "s2d": "2/4",
+      "s2e1": "2/4",
+      "legacy": "1/2"
+    }
+  },
+  "pair_counts": {
+    "RELATIONAL+None": 23,
+    "IDENTITY+None": 1,
+    "PROPERTY+TEMPORAL": 2,
+    "PROPERTY+None": 21,
+    "PROPERTY+AGGREGATE": 9,
+    "TEMPORAL+None": 13,
+    "SEMANTIC+None": 21,
+    "AGGREGATE+None": 3,
+    "TEMPORAL+AGGREGATE": 1,
+    "TEMPORAL+RELATIONAL": 2,
+    "PROPERTY+RELATIONAL": 2,
+    "PROPERTY+SEMANTIC": 1,
+    "AGGREGATE+PROCEDURAL": 1
+  },
+  "specific_answers": {
+    "fundamentally_property_spec_metric_value": 35,
+    "including_secondary_property": 35,
+    "temporal_primary": 16,
+    "temporal_anywhere": 18,
+    "relational_primary": 23,
+    "semantic_primary": 21,
+    "aggregate_primary": 4,
+    "procedural_primary": 0,
+    "identity_primary": 1,
+    "doc_evidence_solved_s2e1": 7,
+    "doc_evidence_attempted_s2e1": 9
+  },
+  "s1j_failures_by_plane": {
+    "RELATIONAL": 11,
+    "PROPERTY": 21,
+    "TEMPORAL": 9,
+    "SEMANTIC": 6,
+    "AGGREGATE": 3
+  },
+  "s2e1_failures_by_plane": {
+    "RELATIONAL": 9,
+    "PROPERTY": 16,
+    "SEMANTIC": 6,
+    "TEMPORAL": 8,
+    "AGGREGATE": 2
+  },
+  "inputs": {
+    "s1j_n": 100,
+    "s2c_n": 100,
+    "s2d_n": 100,
+    "s2e1_n": 100,
+    "legacy_n": 58
+  }
+}

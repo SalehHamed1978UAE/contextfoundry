@@ -1,0 +1,101 @@
+q,question,gold,s1j,s2c,s2d,s2e1,s2e1_src,legacy,primary,secondary,why,current_repr,suggested_repr
+1,Who is the CEO of Nexus Industries?,Dr. Victoria Chen,True,True,True,True,TRUSTED_GRAPH_FACT,False,RELATIONAL,,typed-relationship,TRUSTED relational graph,relational graph
+2,What is the name of the CFO?,Michael Chang,True,True,True,True,TRUSTED_GRAPH_FACT,True,IDENTITY,,entity-lookup,TRUSTED relational graph,identity layer
+3,Who is the President of Nexus Digital Solutions?,Robert Kim,False,False,False,False,TRUSTED_GRAPH_FACT,True,RELATIONAL,,typed-relationship,TRUSTED relational graph,relational graph
+4,Who is the Chief Engineer for the Falcon X program?,Dr. Elena Rodriguez,False,False,False,False,TRUSTED_GRAPH_FACT,True,RELATIONAL,,typed-relationship,TRUSTED relational graph,relational graph
+5,Who is the Empowered Official for ITAR compliance?,Col. (Ret.) James Foster,True,True,True,True,TRUSTED_GRAPH_FACT,True,RELATIONAL,,typed-relationship,TRUSTED relational graph,relational graph
+6,What was Nexus Industries' revenue in FY2025?,$8.45 billion,False,False,False,False,TRUSTED_GRAPH_FACT,True,PROPERTY,TEMPORAL,scalar/spec/metric+numeric; +date/year/timeline language,TRUSTED relational graph,property graph
+7,How many employees does Nexus Industries have?,"12,500",True,True,True,True,TRUSTED_GRAPH_FACT,True,PROPERTY,,scalar/spec/metric+numeric,TRUSTED relational graph,property graph
+8,What is the budget for the Falcon X UAV program?,$145 million,False,False,False,False,TRUSTED_GRAPH_FACT,True,PROPERTY,,scalar/spec/metric+numeric,TRUSTED relational graph,property graph
+9,What is the total investment in the Toyota joint venture?,$312 million,True,True,True,True,TRUSTED_GRAPH_FACT,True,PROPERTY,AGGREGATE,scalar/spec/metric+numeric; +ranking/total/comparison,TRUSTED relational graph,property graph
+10,What is the value of the Shell hydrogen offtake agreement?,$450 million over 10 years,False,False,False,False,GAP,True,PROPERTY,,scalar/spec/metric+numeric,TRUSTED relational graph,property graph
+11,When is the first flight of the Falcon X UAV expected?,May 2026 (or Q2 2026),True,True,True,True,TRUSTED_GRAPH_FACT,True,TEMPORAL,,date/year/timeline language,TRUSTED relational graph,temporal graph
+12,When did the GreenHydrogen facility produce its first hydrogen?,"March 20, 2026",True,True,True,True,DOCUMENT_EVIDENCE,True,TEMPORAL,,date/year/timeline language,document chunks only,temporal graph
+13,When is BatteryTech solid-state battery commercial production expected?,Q4 2027,True,True,True,True,TRUSTED_GRAPH_FACT,True,TEMPORAL,,date/year/timeline language,TRUSTED relational graph,temporal graph
+14,When was Robert Kim appointed President of Digital Solutions?,"January 2026 (effective January 15, 2026)",False,False,True,True,DOCUMENT_EVIDENCE,False,TEMPORAL,,date/year/timeline language,document chunks only,temporal graph
+15,Who does Michael Chang report to?,Dr. Victoria Chen (CEO),False,True,True,True,TRUSTED_GRAPH_FACT,True,RELATIONAL,,typed-relationship,TRUSTED relational graph,relational graph
+16,What company is Nexus partnering with for solid-state batteries?,Toyota Motor Corporation,True,True,True,True,TRUSTED_GRAPH_FACT,True,SEMANTIC,,fallback: no signal,TRUSTED relational graph,semantic evidence
+17,Who supplied the electrolyzers for the GreenHydrogen facility?,Nel Hydrogen,True,True,True,True,TRUSTED_GRAPH_FACT,False,RELATIONAL,,fallback: 'who',TRUSTED relational graph,relational graph
+18,Which company has a green hydrogen offtake agreement with Nexus?,Shell,True,True,True,True,TRUSTED_GRAPH_FACT,False,SEMANTIC,,fallback: no signal,TRUSTED relational graph,semantic evidence
+19,Who is the largest aerospace customer of Nexus by relationship value?,Boeing ($730 million),True,True,True,True,TRUSTED_GRAPH_FACT,True,PROPERTY,AGGREGATE,scalar/spec/metric+numeric; +ranking/total/comparison,TRUSTED relational graph,property graph
+20,Which supplier is rated Red and at risk?,General Atomics,False,False,False,False,TRUSTED_GRAPH_FACT,True,SEMANTIC,,qualitative/strategic,TRUSTED relational graph,semantic evidence
+21,Where is Nexus Industries headquartered?,"Phoenix, Arizona",False,False,False,False,TRUSTED_GRAPH_FACT,True,SEMANTIC,,fallback: no signal,TRUSTED relational graph,semantic evidence
+22,What is the capacity of the Desert Sun Solar Farm?,450 MW (full buildout),True,True,True,True,TRUSTED_GRAPH_FACT,True,PROPERTY,,scalar/spec/metric+numeric,TRUSTED relational graph,property graph
+23,How many qubits does the QuantumLeap system have?,127 qubits,False,False,False,False,TRUSTED_GRAPH_FACT,True,PROPERTY,,scalar/spec/metric+numeric,TRUSTED relational graph,property graph
+24,What is the hydrogen production capacity of the GreenHydrogen facility?,"425 kg/hour (Phase 1) or 10,200 kg/day",False,False,False,False,TRUSTED_GRAPH_FACT,False,PROPERTY,,scalar/spec/metric+numeric,missing,property graph
+25,What is the target energy density for the solid-state battery?,400 Wh/kg,True,True,False,False,TRUSTED_GRAPH_FACT,False,PROPERTY,,scalar/spec/metric+numeric,TRUSTED relational graph,property graph
+26,How many business divisions does Nexus Industries have?,"4 (Aerospace, Energy, Digital, Materials)",True,True,True,True,TRUSTED_GRAPH_FACT,True,PROPERTY,,scalar/spec/metric+numeric,TRUSTED relational graph,property graph
+27,Which division has the most employees?,"Nexus Digital Solutions (3,500 employees)",True,True,True,True,TRUSTED_GRAPH_FACT,True,AGGREGATE,,ranking/total/comparison,TRUSTED relational graph,aggregate/composite handler
+28,Which division has the highest revenue?,Nexus Aerospace ($2.78 billion),True,True,True,True,TRUSTED_GRAPH_FACT,True,PROPERTY,AGGREGATE,scalar/spec/metric+numeric; +ranking/total/comparison,TRUSTED relational graph,property graph
+29,Who are the members of the Executive Leadership Team?,"Dr. Victoria Chen (CEO), Michael Chang (CFO), Dr. James Wilson (CTO), Lisa Thomp",False,False,False,False,TRUSTED_GRAPH_FACT,False,RELATIONAL,,fallback: 'who',missing,relational graph
+30,What is the R&D investment as a percentage of revenue for FY2026?,11.4% ($966 million of ~$9.5-9.8 billion),True,True,True,True,TRUSTED_GRAPH_FACT,True,PROPERTY,,scalar/spec/metric+numeric,TRUSTED relational graph,property graph
+31,What is Nexus's ownership percentage in the Toyota battery joint venture?,51%,True,True,True,True,TRUSTED_GRAPH_FACT,True,RELATIONAL,,typed-relationship,TRUSTED relational graph,relational graph
+32,Who will be the CEO of the Toyota JV (NextGen Battery Technologies)?,Dr. Robert Martinez,False,False,True,True,TRUSTED_GRAPH_FACT,True,RELATIONAL,,typed-relationship,TRUSTED relational graph,relational graph
+33,How much hydrogen will Shell purchase annually under the offtake agreement?,"Minimum 300,000 kg/year initially, ramping to 2.5M kg/year by Year 3",False,False,False,False,DOCUMENT_EVIDENCE,True,PROPERTY,,scalar/spec/metric+numeric,document chunks only,property graph
+34,Which project has the largest budget?,Orbital Satellite Constellation ($680 million),False,False,True,True,DOCUMENT_EVIDENCE,True,PROPERTY,AGGREGATE,scalar/spec/metric+numeric; +ranking/total/comparison,document chunks only,property graph
+35,Which division had the highest revenue growth in FY2025?,Nexus Energy Systems (22.1% growth),True,True,True,True,TRUSTED_GRAPH_FACT,True,TEMPORAL,AGGREGATE,date/year/timeline language; +ranking/total/comparison,TRUSTED relational graph,temporal graph
+36,Which division has the highest safety incident rate (TRIR)?,Nexus Advanced Materials (1.24 TRIR),False,True,True,True,TRUSTED_GRAPH_FACT,False,AGGREGATE,,ranking/total/comparison,TRUSTED relational graph,aggregate/composite handler
+37,Who is the Project Director for the GreenHydrogen Initiative?,Jennifer Walsh,False,False,False,False,TRUSTED_GRAPH_FACT,False,RELATIONAL,,typed-relationship,missing,relational graph
+38,Who is the CISO of Nexus Industries?,"Jennifer Walsh (appointed January 2026, formerly Robert Kim)",False,False,False,False,TRUSTED_GRAPH_FACT,False,TEMPORAL,RELATIONAL,date/year/timeline language; +typed-relationship,missing,temporal graph
+39,What is the annual dividend per share?,$1.80,True,True,True,True,GAP,True,SEMANTIC,,fallback: no signal,TRUSTED relational graph,semantic evidence
+40,What is the total company backlog?,$12.4 billion,False,True,False,False,TRUSTED_GRAPH_FACT,False,PROPERTY,AGGREGATE,scalar/spec/metric+numeric; +ranking/total/comparison,TRUSTED relational graph,property graph
+41,How many endpoints does CyberShield protect?,Over 2 million (2.1 million),False,False,True,True,DOCUMENT_EVIDENCE,True,PROPERTY,,scalar/spec/metric+numeric,document chunks only,property graph
+42,What is the annual HTS wire production capacity?,"1,000 km/year",False,False,False,False,TRUSTED_GRAPH_FACT,True,PROPERTY,,scalar/spec/metric+numeric,TRUSTED relational graph,property graph
+43,When did CyberShield achieve FedRAMP High authorization?,"January 15, 2026",False,False,False,False,TRUSTED_GRAPH_FACT,True,TEMPORAL,,date/year/timeline language,TRUSTED relational graph,temporal graph
+44,When is the Toyota JV expected to close?,"March 1, 2026",True,True,True,True,TRUSTED_GRAPH_FACT,True,TEMPORAL,RELATIONAL,date/year/timeline language; +typed-relationship,TRUSTED relational graph,temporal graph
+45,When was Dr. Victoria Chen appointed CEO?,2019,False,False,False,False,TRUSTED_GRAPH_FACT,False,TEMPORAL,,date/year/timeline language,missing,temporal graph
+46,Who supplies solar panels for the Desert Sun project?,First Solar,True,True,True,True,TRUSTED_GRAPH_FACT,False,RELATIONAL,,fallback: 'who',TRUSTED relational graph,relational graph
+47,Which university is a research partner for quantum computing?,MIT,True,True,True,True,TRUSTED_GRAPH_FACT,True,SEMANTIC,,fallback: no signal,TRUSTED relational graph,semantic evidence
+48,Who is the primary customer for HTS superconducting wire?,Siemens Healthineers ($65 million),False,False,False,False,TRUSTED_GRAPH_FACT,False,PROPERTY,RELATIONAL,scalar/spec/metric+numeric; +typed-relationship,missing,property graph
+49,What is the endurance of the Falcon X UAV?,28 hours,False,False,False,False,TRUSTED_GRAPH_FACT,True,SEMANTIC,,fallback: no signal,TRUSTED relational graph,semantic evidence
+50,What is the service ceiling of the Falcon X?,"45,000 feet",True,True,True,True,TRUSTED_GRAPH_FACT,True,SEMANTIC,,fallback: no signal,TRUSTED relational graph,semantic evidence
+51,How many satellites are in the Orbital Constellation project?,48 satellites,False,False,True,True,DOCUMENT_EVIDENCE,True,PROPERTY,,scalar/spec/metric+numeric,document chunks only,property graph
+52,What is the detection rate of CyberShield?,99.7%,True,True,True,True,DOCUMENT_EVIDENCE,True,SEMANTIC,,fallback: no signal,document chunks only,semantic evidence
+53,What percentage of the Toyota JV production will Toyota purchase?,Minimum 60% for the first 5 years,True,True,True,True,TRUSTED_GRAPH_FACT,True,RELATIONAL,,typed-relationship,TRUSTED relational graph,relational graph
+54,How much is Nexus investing in cash in the Toyota JV?,$80 million (plus $79 million in IP),True,True,True,True,TRUSTED_GRAPH_FACT,True,PROPERTY,RELATIONAL,scalar/spec/metric+numeric; +typed-relationship,TRUSTED relational graph,property graph
+55,What is the total cost savings from the cybersecurity incident avoidance?,"Avoided $5-10M ransom, $2-5M/day downtime, up to $10M fines",False,False,False,False,TRUSTED_GRAPH_FACT,True,PROPERTY,AGGREGATE,scalar/spec/metric+numeric; +ranking/total/comparison,TRUSTED relational graph,property graph
+56,Which Boeing or Airbus has the larger contract value with Nexus?,Boeing ($730 million vs Airbus $565 million),True,True,True,True,GAP,True,PROPERTY,,scalar/spec/metric+numeric,TRUSTED relational graph,property graph
+57,What are the four divisions of Nexus Industries?,"Aerospace, Energy Systems, Digital Solutions, Advanced Materials",True,True,True,True,TRUSTED_GRAPH_FACT,True,SEMANTIC,,fallback: no signal,TRUSTED relational graph,semantic evidence
+58,What is the Falcon X program's budget variance?,$3.2 million under budget,False,False,True,True,TRUSTED_GRAPH_FACT,True,PROPERTY,,scalar/spec/metric+numeric,TRUSTED relational graph,property graph
+59,How many global locations does Nexus have?,32 locations,True,True,True,True,TRUSTED_GRAPH_FACT,,PROPERTY,,scalar/spec/metric+numeric,TRUSTED relational graph,property graph
+60,When was the phishing incident detected?,"December 12, 2025 at 02:47 UTC",False,False,False,False,TRUSTED_GRAPH_FACT,,TEMPORAL,,date/year/timeline language,missing,temporal graph
+61,Who replaced Thomas Anderson as Digital President?,Robert Kim,False,False,False,False,TRUSTED_GRAPH_FACT,,RELATIONAL,,fallback: 'who',missing,relational graph
+62,What FedRAMP level did CyberShield achieve?,FedRAMP High,False,False,False,False,TRUSTED_GRAPH_FACT,,SEMANTIC,,fallback: no signal,missing,semantic evidence
+63,Which executive has a PhD from MIT?,Dr. Victoria Chen,False,False,False,False,GAP,,SEMANTIC,,fallback: no signal,missing,semantic evidence
+64,What is the name of the Toyota JV company?,NextGen Battery Technologies LLC,True,True,True,True,TRUSTED_GRAPH_FACT,,RELATIONAL,,typed-relationship,TRUSTED relational graph,relational graph
+65,Is Nexus Digital growing faster or slower than Nexus Aerospace?,Faster (18.2% vs 12.3%),True,True,True,True,TRUSTED_GRAPH_FACT,,SEMANTIC,,fallback: no signal,TRUSTED relational graph,semantic evidence
+66,What is the FY2026 capital expenditure plan?,$680 million,True,True,True,True,TRUSTED_GRAPH_FACT,,PROPERTY,,scalar/spec/metric+numeric,TRUSTED relational graph,property graph
+67,What operating temperature range does the solid-state battery support?,-30°C to 60°C,False,False,False,False,TRUSTED_GRAPH_FACT,,PROPERTY,,scalar/spec/metric+numeric,missing,property graph
+68,Who is the Chair of the Export Control Committee?,Col. (Ret.) James Foster (Empowered Official),False,True,True,True,TRUSTED_GRAPH_FACT,,RELATIONAL,,typed-relationship,TRUSTED relational graph,relational graph
+69,What is the TRIR safety target for FY2026?,<0.75,True,True,True,True,TRUSTED_GRAPH_FACT,,SEMANTIC,,fallback: no signal,TRUSTED relational graph,semantic evidence
+70,When is the NexusConnect Edge AI product launching?,"March 15, 2026",False,False,False,False,TRUSTED_GRAPH_FACT,,TEMPORAL,,date/year/timeline language,missing,temporal graph
+71,Who is the mining automation partner?,Caterpillar,False,False,False,False,TRUSTED_GRAPH_FACT,,RELATIONAL,,typed-relationship,missing,relational graph
+72,What is the fast charge time for the solid-state battery (10-80%)?,15 minutes,True,True,True,True,TRUSTED_GRAPH_FACT,,SEMANTIC,,fallback: no signal,TRUSTED relational graph,semantic evidence
+73,How many new employees will Nexus hire in FY2026?,"1,200 net new positions",True,True,True,True,TRUSTED_GRAPH_FACT,,PROPERTY,TEMPORAL,scalar/spec/metric+numeric; +date/year/timeline language,TRUSTED relational graph,property graph
+74,Which project started first: Falcon X or GreenHydrogen?,"GreenHydrogen (groundbreaking Q1 2024, Falcon X CDR Dec 2024)",True,True,True,True,TRUSTED_GRAPH_FACT,,TEMPORAL,,date/year/timeline language,TRUSTED relational graph,temporal graph
+75,Who is the VP of Engineering for Nexus Digital Solutions?,Dr. Alan Chen,False,False,False,False,TRUSTED_GRAPH_FACT,,RELATIONAL,,typed-relationship,missing,relational graph
+76,What is the total patent portfolio size?,"2,412 patents",True,True,True,True,TRUSTED_GRAPH_FACT,,PROPERTY,AGGREGATE,scalar/spec/metric+numeric; +ranking/total/comparison,TRUSTED relational graph,property graph
+77,What is the location of the BatteryTech JV facility?,"San Antonio, Texas",True,True,True,True,TRUSTED_GRAPH_FACT,,RELATIONAL,,typed-relationship,TRUSTED relational graph,relational graph
+78,Who provides flight computers for Falcon X?,Honeywell,True,True,True,True,TRUSTED_GRAPH_FACT,,RELATIONAL,,fallback: 'who',TRUSTED relational graph,relational graph
+79,What is the 2030 revenue target in the corporate strategy?,$15 billion,False,False,False,False,DOCUMENT_EVIDENCE,,PROPERTY,SEMANTIC,scalar/spec/metric+numeric; +qualitative/strategic,document chunks only,property graph
+80,What is the operating margin for FY2025?,11.2%,True,True,True,True,TRUSTED_GRAPH_FACT,,SEMANTIC,,fallback: no signal,TRUSTED relational graph,semantic evidence
+81,What is Nexus's sustainability goal for carbon neutrality?,2030,False,False,False,False,TRUSTED_GRAPH_FACT,,TEMPORAL,,date/year/timeline language,missing,temporal graph
+82,When was Nexus Industries founded?,1985,True,True,True,True,TRUSTED_GRAPH_FACT,,TEMPORAL,,date/year/timeline language,TRUSTED relational graph,temporal graph
+83,Who is the primary customer for the SmartGrid Controller?,Pacific Power (pilot customer),True,True,True,True,TRUSTED_GRAPH_FACT,,RELATIONAL,,typed-relationship,TRUSTED relational graph,relational graph
+84,What is the cybersecurity incident response investment?,$5.3 million,False,False,True,True,DOCUMENT_EVIDENCE,,PROPERTY,,scalar/spec/metric+numeric,document chunks only,property graph
+85,Who is the Chair of the Quality Council?,Chief Quality Officer,True,True,False,False,TRUSTED_GRAPH_FACT,,RELATIONAL,,typed-relationship,TRUSTED relational graph,relational graph
+86,What is the mean time to detect for CyberShield?,Less than 15 seconds,True,True,True,True,TRUSTED_GRAPH_FACT,,SEMANTIC,,fallback: no signal,TRUSTED relational graph,semantic evidence
+87,What is the combined cybersecurity and security certification status?,"SOC 2 Type II, ISO 27001, FedRAMP High, DoD IL5, HIPAA compliant",False,False,False,False,TRUSTED_GRAPH_FACT,,AGGREGATE,,ranking/total/comparison,missing,aggregate/composite handler
+88,Which has higher energy density: solid-state or current li-ion batteries?,"Solid-state (400 Wh/kg vs 260 Wh/kg, 54% improvement)",True,True,True,True,TRUSTED_GRAPH_FACT,,SEMANTIC,,fallback: no signal,TRUSTED relational graph,semantic evidence
+89,What is the FY2026 total benefits investment?,$6.0 million,False,False,False,False,TRUSTED_GRAPH_FACT,,PROPERTY,AGGREGATE,scalar/spec/metric+numeric; +ranking/total/comparison,missing,property graph
+90,What is the minimum internet speed for remote work?,50 Mbps,True,True,True,True,TRUSTED_GRAPH_FACT,,SEMANTIC,,fallback: no signal,TRUSTED relational graph,semantic evidence
+91,Who is the VP Trade Compliance?,Owns the Export Control Policy (per POL-009),False,False,False,False,TRUSTED_GRAPH_FACT,,RELATIONAL,,typed-relationship,missing,relational graph
+92,What is the Quantum Volume of the QL-127 system?,256,False,False,False,False,TRUSTED_GRAPH_FACT,,SEMANTIC,,fallback: no signal,missing,semantic evidence
+93,What electrolyte material is used in the solid-state battery?,"LLZO (Li7La3Zr2O12, Al-doped)",True,True,True,True,TRUSTED_GRAPH_FACT,,SEMANTIC,,fallback: no signal,TRUSTED relational graph,semantic evidence
+94,When is the 256-qubit quantum system planned?,Q2 2026,False,False,False,False,TRUSTED_GRAPH_FACT,,TEMPORAL,,date/year/timeline language,missing,temporal graph
+95,Who provides the SAR radar for Falcon X?,Raytheon (APY-8),True,True,True,True,TRUSTED_GRAPH_FACT,,RELATIONAL,,fallback: 'who',TRUSTED relational graph,relational graph
+96,What is the APAC revenue target for 2030?,$3.5 billion,False,False,True,False,TRUSTED_GRAPH_FACT,,PROPERTY,,scalar/spec/metric+numeric,TRUSTED relational graph,property graph
+97,What is the M&A budget capacity?,$500 million,False,False,False,False,GAP,,PROPERTY,,scalar/spec/metric+numeric,missing,property graph
+98,What is the renewable energy achievement percentage?,65% achieved toward 100% by 2028,False,False,False,False,TRUSTED_GRAPH_FACT,,TEMPORAL,,date/year/timeline language,missing,temporal graph
+99,How does Nexus's operating margin compare to target?,11.2% actual vs 11.5-12.0% target for FY2026,False,False,False,False,TRUSTED_GRAPH_FACT,,AGGREGATE,PROCEDURAL,ranking/total/comparison; +process/policy/steps,missing,aggregate/composite handler
+100,What is the total value of top 3 customer relationships?,Boeing ($730M) + DoD ($680M) + Airbus ($565M) = $1.975 billion,False,True,True,True,TRUSTED_GRAPH_FACT,,PROPERTY,AGGREGATE,scalar/spec/metric+numeric; +ranking/total/comparison,TRUSTED relational graph,property graph
