@@ -1,0 +1,66 @@
+{
+  "vault_id": "ecd2f1c2-e1f3-4f5c-8e82-961a84a88eda",
+  "questions_file": "test_questions/nexus_100q.json",
+  "total": 100,
+  "passed": 59,
+  "tree_based_retrieval": false,
+  "document_evidence_fallback": true,
+  "answer_source_breakdown": {
+    "TRUSTED_GRAPH_FACT": 86,
+    "GAP": 5,
+    "DOCUMENT_EVIDENCE": 9
+  },
+  "gate_block_reason_breakdown": {
+    "trusted_kg_answer": 86,
+    "not_attribute_query": 2,
+    "null": 9,
+    "no_grounded_answer": 3
+  },
+  "fallback_attempted": 12,
+  "fallback_used": 9,
+  "document_evidence_passed": 7,
+  "document_evidence_failed": 2,
+  "baselines": {
+    "stage1J_tree_on": 50,
+    "stage2C_tree_off": 55,
+    "stage2D_direct": 60
+  },
+  "transfer_2d_recoveries": {
+    "14": true,
+    "32": true,
+    "34": true,
+    "41": true,
+    "51": true,
+    "58": true,
+    "84": true,
+    "96": false
+  },
+  "transfer_2c_recoveries": {
+    "15": true,
+    "36": true,
+    "40": false,
+    "68": true,
+    "100": true
+  },
+  "attribute_failure_outcome": {
+    "6": false,
+    "20": false,
+    "23": false,
+    "24": false,
+    "25": false,
+    "33": false,
+    "42": false,
+    "43": false,
+    "45": false,
+    "60": false
+  },
+  "direct_vs_http_pass_diffs": [
+    {
+      "q": 96,
+      "direct_pass": true,
+      "http_pass": false,
+      "direct_src": "DOCUMENT_EVIDENCE",
+      "http_src": "TRUSTED_GRAPH_FACT"
+    }
+  ]
+}

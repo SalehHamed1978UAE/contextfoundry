@@ -344,6 +344,214 @@ def test_tree_default_is_false_in_test_runner():
     assert "export CF_TREE_BASED_RETRIEVAL=true" not in body
 
 
+# ---------------------------------------------------------------------------
+# Stage 2E-1 — production-route helper tests
+# ---------------------------------------------------------------------------
+
+from src.context_foundry.retrieval.document_evidence_fallback import (  # noqa: E402
+    ANSWER_SOURCE_GAP,
+    ANSWER_SOURCE_TRUSTED_GRAPH,
+    apply_to_agent_result,
+    classify_agent_kg_source,
+    is_fallback_enabled,
+)
+
+
+def test_e1_flag_off_default_no_fallback_behavior():
+    """Plan test E1.1: feature flag absent/off → no fallback behavior."""
+    os.environ.pop("CF_DOCUMENT_EVIDENCE_FALLBACK", None)
+    session = _stub_session([_row(chunk_id="c1", text="backlog $12.4 billion")])
+    client = _stub_openai("anything")
+    agent_result = {"answer": "I don't know.", "extra": {}}
+    out = apply_to_agent_result(
+        agent_result, session=session, tenant_id="t-1",
+        query="What is the total company backlog?",
+        request_payload_value=None, qa_verdict=None,
+        openai_client=client,
+    )
+    assert out["answer"] == "I don't know."
+    assert out.get("answer_source") != ANSWER_SOURCE_DOCUMENT_EVIDENCE
+    diag = out["document_evidence_diagnostics"]
+    assert diag["flag_enabled"] is False
+    assert diag["gate_block_reason"] == "flag_off"
+    assert diag["fallback_attempted"] is False
+    session.execute.assert_not_called()
+
+
+def test_e1_flag_on_no_data_with_chunk_returns_document_evidence():
+    """Plan test E1.2: flag on + KG no_data + supporting chunk → DOCUMENT_EVIDENCE."""
+    session = _stub_session([_row(chunk_id="c1", document_id="d1",
+                                  title="Backlog Report", chunk_index=2,
+                                  char_start=10, char_end=80,
+                                  text="The total backlog is $12.4 billion.")])
+    client = _stub_openai("$12.4 billion")
+    agent_result = {"answer": "I don't have that information.", "extra": {}}
+    out = apply_to_agent_result(
+        agent_result, session=session, tenant_id="t-1",
+        query="What is the total company backlog?",
+        request_payload_value=True, qa_verdict=None,
+        openai_client=client,
+    )
+    assert out["answer"] == "$12.4 billion"
+    assert out["answer_source"] == ANSWER_SOURCE_DOCUMENT_EVIDENCE
+    cits = out["document_evidence"]
+    assert len(cits) >= 1
+    assert cits[0]["chunk_id"] == "c1"
+    assert cits[0]["document_id"] == "d1"
+    assert cits[0]["document_title"] == "Backlog Report"
+    diag = out["document_evidence_diagnostics"]
+    assert diag["flag_enabled"] is True
+    assert diag["fallback_attempted"] is True
+    assert diag["fallback_used"] is True
+    assert diag["attribute_category"] == "money"
+    assert diag["kg_source"] == "GAP"
+
+
+def test_e1_flag_on_trusted_kg_answer_preserved():
+    """Plan test E1.3: flag on + TRUSTED graph answer → preserved, fallback not used."""
+    session = _stub_session([_row(chunk_id="c1", text="backlog $999")])
+    client = _stub_openai("WRONG")
+    agent_result = {"answer": "The total backlog is $12.4 billion.", "extra": {}}
+    out = apply_to_agent_result(
+        agent_result, session=session, tenant_id="t-1",
+        query="What is the total company backlog?",
+        request_payload_value=True, qa_verdict={"status": "SUPPORTED"},
+        openai_client=client,
+    )
+    assert out["answer"] == "The total backlog is $12.4 billion."
+    assert out.get("answer_source") != ANSWER_SOURCE_DOCUMENT_EVIDENCE
+    diag = out["document_evidence_diagnostics"]
+    assert diag["flag_enabled"] is True
+    assert diag["fallback_attempted"] is False
+    assert diag["fallback_used"] is False
+    assert diag["gate_block_reason"] == "trusted_kg_answer"
+    assert diag["kg_source"] == ANSWER_SOURCE_TRUSTED_GRAPH
+
+
+def test_e1_flag_on_no_supporting_chunk_returns_gap():
+    """Plan test E1.4: flag on + no supporting chunk → GAP/no_data."""
+    session = _stub_session([])
+    client = _stub_openai("anything")
+    agent_result = {"answer": "I don't know.", "extra": {}}
+    out = apply_to_agent_result(
+        agent_result, session=session, tenant_id="t-1",
+        query="What is the total company backlog?",
+        request_payload_value=True, qa_verdict=None,
+        openai_client=client,
+    )
+    assert out["answer"] == "I don't know."
+    assert out.get("answer_source") != ANSWER_SOURCE_DOCUMENT_EVIDENCE
+    diag = out["document_evidence_diagnostics"]
+    assert diag["flag_enabled"] is True
+    assert diag["fallback_attempted"] is True
+    assert diag["fallback_used"] is False
+    assert diag["gate_block_reason"] == "no_grounded_answer"
+
+
+def test_e1_qa_verdict_off_topic_treated_as_gap():
+    """Plan test E1.5: QA-verifier-replaced answers are eligible for fallback.
+
+    Models the web_app.py flow where the underlying agent answered something
+    confident-sounding but the QA verifier overrode it to an OFF_TOPIC stub —
+    Stage 2E-1 must still treat the result as GAP and try the fallback.
+    """
+    session = _stub_session([_row(chunk_id="c1", document_id="d1",
+                                  title="Backlog Report", chunk_index=2,
+                                  char_start=10, char_end=80,
+                                  text="The total backlog is $12.4 billion.")])
+    client = _stub_openai("$12.4 billion")
+    agent_result = {
+        "answer": "I found related information but it doesn't directly answer your question.",
+        "extra": {},
+    }
+    out = apply_to_agent_result(
+        agent_result, session=session, tenant_id="t-1",
+        query="What is the total company backlog?",
+        request_payload_value=True,
+        qa_verdict={"status": "OFF_TOPIC"},
+        openai_client=client,
+    )
+    assert out["answer_source"] == ANSWER_SOURCE_DOCUMENT_EVIDENCE
+    diag = out["document_evidence_diagnostics"]
+    assert diag["kg_source"] == "GAP"
+    assert diag["fallback_used"] is True
+
+
+def test_e1_tenant_scoped_in_route_helper():
+    """Plan test E1.6: fallback remains tenant-scoped end-to-end."""
+    session = _stub_session([_row(chunk_id="c1", text="backlog $12.4 billion")])
+    client = _stub_openai("$12.4 billion")
+    agent_result = {"answer": "I don't know.", "extra": {}}
+    apply_to_agent_result(
+        agent_result, session=session, tenant_id="tenant-XYZ-789",
+        query="What is the total company backlog?",
+        request_payload_value=True, qa_verdict=None,
+        openai_client=client,
+    )
+    bound = session.execute.call_args.args[1] if len(session.execute.call_args.args) > 1 \
+        else session.execute.call_args.kwargs
+    assert bound["tid"] == "tenant-XYZ-789"
+
+
+def test_e1_route_helper_does_not_mutate_session():
+    """Plan test E1.7: no mutation of entities/relationships/etc through helper."""
+    session = _stub_session([_row(chunk_id="c1", text="backlog $12.4 billion")])
+    client = _stub_openai("$12.4 billion")
+    agent_result = {"answer": "I don't know.", "extra": {}}
+    apply_to_agent_result(
+        agent_result, session=session, tenant_id="t-1",
+        query="What is the total company backlog?",
+        request_payload_value=True, qa_verdict=None,
+        openai_client=client,
+    )
+    for method in ("add", "add_all", "commit", "delete", "merge", "flush"):
+        assert not getattr(session, method).called, f"session.{method}() must not be called by helper"
+
+
+def test_e1_payload_overrides_env():
+    """Per-request payload `document_evidence_fallback` takes priority over env."""
+    os.environ["CF_DOCUMENT_EVIDENCE_FALLBACK"] = "true"
+    try:
+        # payload=False overrides env=true → flag stays off
+        assert is_fallback_enabled(False) is False
+        assert is_fallback_enabled("false") is False
+        # payload=None falls through to env
+        assert is_fallback_enabled(None) is True
+        # payload=True works regardless
+        assert is_fallback_enabled(True) is True
+    finally:
+        os.environ.pop("CF_DOCUMENT_EVIDENCE_FALLBACK", None)
+    # No payload, no env → default OFF
+    assert is_fallback_enabled(None) is False
+
+
+def test_e1_classify_kg_source_branches():
+    """classify_agent_kg_source covers all GAP triggers."""
+    assert classify_agent_kg_source(None) == ANSWER_SOURCE_GAP
+    assert classify_agent_kg_source({}) == ANSWER_SOURCE_GAP
+    assert classify_agent_kg_source({"answer": ""}) == ANSWER_SOURCE_GAP
+    assert classify_agent_kg_source({"answer": "I don't know."}) == ANSWER_SOURCE_GAP
+    assert classify_agent_kg_source(
+        {"answer": "real answer", "extra": {"not_found_response": True}}
+    ) == ANSWER_SOURCE_GAP
+    assert classify_agent_kg_source(
+        {"answer": "real answer"}, qa_verdict={"status": "OFF_TOPIC"}
+    ) == ANSWER_SOURCE_GAP
+    assert classify_agent_kg_source(
+        {"answer": "real answer"}, qa_verdict={"status": "SUPPORTED"}
+    ) == ANSWER_SOURCE_TRUSTED_GRAPH
+
+
+def test_e1_route_wiring_present_in_web_app():
+    """Plan test E1.5 (provenance survives shaping): the wiring must call our helper."""
+    web_app_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "web_app.py")
+    with open(web_app_path) as f:
+        body = f.read()
+    assert "apply_to_agent_result" in body, "web_app.py must invoke the route helper"
+    assert "document_evidence_fallback" in body, "web_app.py must read the per-request flag"
+    assert "STAGE 2E-1" in body, "web_app.py wiring must be tagged STAGE 2E-1"
+
+
 def test_per_request_override_still_works_for_true():
     """Plan test 6: explicit override paths are unchanged."""
     # ToolAgent.query accepts tree_based_retrieval=Optional[bool] — a True value

@@ -400,3 +400,149 @@ def attempt_document_evidence_fallback(
         chunks=chunks,
         citations=citations,
     )
+
+
+# ---------------------------------------------------------------------------
+# Stage 2E-1: production-route helper
+# ---------------------------------------------------------------------------
+
+# QA-verifier statuses that web_app.py replaces with no-data text
+_QA_NO_DATA_STATUSES = {"OFF_TOPIC", "INSUFFICIENT", "UNSUPPORTED", "SUSPICIOUS"}
+
+
+def classify_agent_kg_source(
+    agent_result: Optional[Dict[str, Any]],
+    qa_verdict: Optional[Dict[str, Any]] = None,
+) -> str:
+    """Classify the agent's KG-side answer_source for fallback gating.
+
+    Returns ANSWER_SOURCE_GAP if any of:
+      - agent_result is None
+      - agent_result.extra.not_found_response is truthy
+      - qa_verdict.status is in {OFF_TOPIC, INSUFFICIENT, UNSUPPORTED, SUSPICIOUS}
+      - the answer text looks like a no-data response
+
+    Otherwise returns ANSWER_SOURCE_TRUSTED_GRAPH_FACT — which the orchestrator
+    treats as a hard block (Stage 2E-1 must NOT override confident KG answers).
+    """
+    if not agent_result:
+        return ANSWER_SOURCE_GAP
+    extra = agent_result.get("extra") or {}
+    if extra.get("not_found_response"):
+        return ANSWER_SOURCE_GAP
+    if qa_verdict and qa_verdict.get("status") in _QA_NO_DATA_STATUSES:
+        return ANSWER_SOURCE_GAP
+    answer = agent_result.get("answer") or ""
+    if not answer or looks_like_no_data(answer):
+        return ANSWER_SOURCE_GAP
+    return ANSWER_SOURCE_TRUSTED_GRAPH
+
+
+def is_fallback_enabled(
+    request_payload_value: Any = None,
+    env_var_name: str = "CF_DOCUMENT_EVIDENCE_FALLBACK",
+) -> bool:
+    """Stage 2E-1 feature-flag check — default OFF.
+
+    Per-request payload (`document_evidence_fallback`) takes priority over env.
+    Accepts True/False/"true"/"false"/None. Anything else falsy.
+    """
+    if request_payload_value is not None:
+        if isinstance(request_payload_value, bool):
+            return request_payload_value
+        if isinstance(request_payload_value, str):
+            return request_payload_value.strip().lower() == "true"
+        return False
+    env_val = os.environ.get(env_var_name, "false")
+    return str(env_val).strip().lower() == "true"
+
+
+def apply_to_agent_result(
+    agent_result: Dict[str, Any],
+    *,
+    session,
+    tenant_id: str,
+    query: str,
+    request_payload_value: Any = None,
+    qa_verdict: Optional[Dict[str, Any]] = None,
+    openai_client=None,
+    model: str = "gpt-4o-mini",
+    top_k: int = 5,
+    env_var_name: str = "CF_DOCUMENT_EVIDENCE_FALLBACK",
+) -> Dict[str, Any]:
+    """Stage 2E-1 production-route helper.
+
+    Mutates `agent_result` in place to add Stage 2D fallback diagnostics and,
+    if the fallback fires, to replace the answer with DOCUMENT_EVIDENCE.
+
+    Always sets `agent_result['document_evidence_diagnostics']` so the route
+    can surface diagnostics regardless of whether the fallback fired.
+
+    Honours the standing read-only contract: never writes to KG/ontology/
+    documents/document_chunks/extraction_requests.
+
+    Returns the same `agent_result` dict for ergonomic chaining.
+    """
+    diagnostics: Dict[str, Any] = {
+        "flag_enabled": False,
+        "fallback_attempted": False,
+        "fallback_used": False,
+        "gate_block_reason": None,
+        "kg_source": None,
+        "attribute_category": None,
+        "chunks_considered": 0,
+    }
+    agent_result["document_evidence_diagnostics"] = diagnostics
+
+    if not is_fallback_enabled(request_payload_value, env_var_name):
+        diagnostics["gate_block_reason"] = "flag_off"
+        return agent_result
+
+    diagnostics["flag_enabled"] = True
+
+    kg_source = classify_agent_kg_source(agent_result, qa_verdict)
+    diagnostics["kg_source"] = kg_source
+
+    if kg_source == ANSWER_SOURCE_TRUSTED_GRAPH:
+        # Stage 2E-1: never override confident KG answers — diagnostic only.
+        diagnostics["gate_block_reason"] = "trusted_kg_answer"
+        return agent_result
+
+    category = is_attribute_query(query)
+    if not category:
+        diagnostics["gate_block_reason"] = "not_attribute_query"
+        return agent_result
+    diagnostics["attribute_category"] = category
+
+    diagnostics["fallback_attempted"] = True
+    try:
+        # The route helper has already authoritatively classified the result
+        # as GAP. Pass kg_answer=None so the inner function's defensive
+        # looks_like_no_data check (which doesn't recognize QA-verifier stubs
+        # like the OFF_TOPIC text) cannot block the fallback.
+        fb = attempt_document_evidence_fallback(
+            session=session,
+            tenant_id=tenant_id,
+            query=query,
+            kg_answer=None,
+            kg_answer_source=kg_source,
+            openai_client=openai_client,
+            model=model,
+            top_k=top_k,
+        )
+    except Exception as e:
+        logger.warning(f"[DOC_EV] route helper failure: {e}")
+        diagnostics["gate_block_reason"] = f"exception:{type(e).__name__}"
+        return agent_result
+
+    if fb is None:
+        diagnostics["gate_block_reason"] = "no_grounded_answer"
+        return agent_result
+
+    # Fallback fired and grounded — replace the answer.
+    diagnostics["fallback_used"] = True
+    diagnostics["chunks_considered"] = len(fb.chunks)
+    agent_result["answer"] = fb.answer
+    agent_result["answer_source"] = ANSWER_SOURCE_DOCUMENT_EVIDENCE
+    agent_result["document_evidence"] = fb.citations
+    return agent_result

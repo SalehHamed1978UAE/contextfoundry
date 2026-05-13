@@ -4449,7 +4449,38 @@ def vault_chat():
                 except Exception as e:
                     logger.warning(f"[QA_VERIFIER] Verification failed, proceeding with original answer: {e}")
             # === END QA VERIFIER ===
-            
+
+            # === STAGE 2E-1: DOCUMENT_EVIDENCE FALLBACK (default OFF) ===
+            # Feature flag: payload `document_evidence_fallback` (per-request) takes
+            # priority over env CF_DOCUMENT_EVIDENCE_FALLBACK. Both default false.
+            # When enabled and the KG path returned no_data on an attribute query,
+            # synthesize an answer from tenant-scoped chunks with citations.
+            # Never overrides confident KG answers (Stage 2E-1 invariant).
+            try:
+                from src.context_foundry.retrieval.document_evidence_fallback import apply_to_agent_result as _apply_doc_ev_fallback
+                _apply_doc_ev_fallback(
+                    agent_result,
+                    session=db_session,
+                    tenant_id=tenant_id,
+                    query=resolved_query,
+                    request_payload_value=data.get('document_evidence_fallback'),
+                    qa_verdict=qa_verdict_dict,
+                )
+                _de_diag = agent_result.get('document_evidence_diagnostics') or {}
+                if _de_diag.get('fallback_used'):
+                    logger.info(
+                        f"[DOC_EV] Fallback REPLACED answer (cat={_de_diag.get('attribute_category')}, "
+                        f"chunks={_de_diag.get('chunks_considered')})"
+                    )
+                elif _de_diag.get('flag_enabled'):
+                    logger.info(
+                        f"[DOC_EV] Fallback considered but skipped: {_de_diag.get('gate_block_reason')} "
+                        f"(kg_source={_de_diag.get('kg_source')})"
+                    )
+            except Exception as e:
+                logger.warning(f"[DOC_EV] Hook failed (non-blocking): {e}")
+            # === END STAGE 2E-1 ===
+
             conv_store.add_message("assistant", agent_result['answer'], entities=mentioned_entities)
             
             db_session.close()
