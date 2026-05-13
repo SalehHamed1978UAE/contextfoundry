@@ -7,8 +7,8 @@ echo "============================================"
 CF_RUN_MODE="${CF_RUN_MODE:-serve}"
 echo "[Config] CF_RUN_MODE: $CF_RUN_MODE"
 
-export CF_TREE_BASED_RETRIEVAL=true
-echo "[Config] Tree-based retrieval: $CF_TREE_BASED_RETRIEVAL (HYBRID 2026-05-08 third iteration: B1 SQL merge of ARCHIVED Nexus dup → canonical anchor, plus B2 chunk-fallback 'high' band at top_sim>=0.70. Hybrid gating still: legacy primary, tree only on _is_graph_hopping_query()+'high' confidence. Expected ~82/100 vs legacy baseline 74/100.)"
+export CF_TREE_BASED_RETRIEVAL=false
+echo "[Config] Tree-based retrieval: $CF_TREE_BASED_RETRIEVAL (Stage 2D 2026-05-12: tree retrieval default OFF after measured -5 to +5 swing on Stage 1J 100Q (tree=true 50/100 vs tree=false 55/100, 0 regressions). Per-request override preserved via ToolAgent.process(tree_based_retrieval=...). NOTE: running Start All process will not pick up this change until next safe runtime cutover.)"
 
 if [ "$CF_RUN_MODE" = "extract" ]; then
     if [ -z "$CF_EXTRACT_VAULT" ]; then

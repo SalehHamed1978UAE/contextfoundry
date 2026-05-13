@@ -1,18 +1,18 @@
 {
-  "run_timestamp": "2026-05-13T04:43:49.636440",
+  "run_timestamp": "2026-05-13T06:06:03.563057",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_176a4fb2.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.2799999999999994,
-    "avg_semantic_score": 0.07244100000000002,
+    "avg_chunks_retrieved": 3.3499999999999996,
+    "avg_semantic_score": 0.07719599999999997,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "no_data": 14,
-      "exact_match": 43,
-      "component_match": 22,
-      "number_match": 7,
+      "no_data": 10,
+      "exact_match": 44,
+      "component_match": 24,
+      "number_match": 8,
       "no_match": 12,
       "percentage_match": 1,
       "semantic_match": 1
@@ -198,7 +198,7 @@
     {
       "q_id": 40,
       "question": "What is the total company backlog?",
-      "avg_score": 0.2665
+      "avg_score": 0.2896
     },
     {
       "q_id": 41,
@@ -218,6 +218,11 @@
     {
       "q_id": 44,
       "question": "When is the Toyota JV expected to close?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 45,
+      "question": "When was Dr. Victoria Chen appointed CEO?",
       "avg_score": 0.0
     },
     {
@@ -346,8 +351,8 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 76,
-      "question": "What is the total patent portfolio size?",
+      "q_id": 75,
+      "question": "Who is the VP of Engineering for Nexus Digital Solutions?",
       "avg_score": 0.0
     },
     {
@@ -459,11 +464,6 @@
       "q_id": 99,
       "question": "How does Nexus's operating margin compare to target?",
       "avg_score": 0.0
-    },
-    {
-      "q_id": 100,
-      "question": "What is the total value of top 3 customer relationships?",
-      "avg_score": 0.0
     }
   ],
   "failures_by_type": {
@@ -481,17 +481,10 @@
         "expected": "January 2026 (effective January 15, 2026",
         "actual": "The appointment date was not found in th",
         "files_retrieved": [
-          "04_digital_division_quarterly_review.md",
-          "10_quarterly_newsletter.md",
-          "02_organizational_announcement.md"
+          "02_organizational_announcement.md",
+          "Unknown",
+          "09_competitive_intelligence.md"
         ]
-      },
-      {
-        "q_id": 15,
-        "question": "Who does Michael Chang report to?",
-        "expected": "Dr. Victoria Chen (CEO)",
-        "actual": "The retrieved information does not speci",
-        "files_retrieved": []
       },
       {
         "q_id": 18,
@@ -507,8 +500,8 @@
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
           "11_batterytech_solid_state.md",
-          "04_toyota_partnership_announcement.md",
-          "06_solid_state_battery_design.md"
+          "Unknown",
+          "04_toyota_partnership_announcement.md"
         ]
       },
       {
@@ -530,22 +523,21 @@
         ]
       },
       {
+        "q_id": 45,
+        "question": "When was Dr. Victoria Chen appointed CEO?",
+        "expected": "2019",
+        "actual": "The appointment date was not found in th",
+        "files_retrieved": [
+          "13_shell_partner.md",
+          "14_lockheed_martin_customer.md"
+        ]
+      },
+      {
         "q_id": 46,
         "question": "Who supplies solar panels for the Desert Sun project?",
         "expected": "First Solar",
         "actual": "The retrieved information does not speci",
         "files_retrieved": []
-      },
-      {
-        "q_id": 60,
-        "question": "When was the phishing incident detected?",
-        "expected": "December 12, 2025 at 02:47 UTC",
-        "actual": "The retrieved information does not menti",
-        "files_retrieved": [
-          "Unknown",
-          "10_cybersecurity_incident_response.md",
-          "08_cybersecurity_advisory.md"
-        ]
       },
       {
         "q_id": 67,
@@ -554,16 +546,9 @@
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
           "11_batterytech_solid_state.md",
-          "01_ceo_all_hands_memo.md",
+          "Unknown",
           "04_toyota_partnership_announcement.md"
         ]
-      },
-      {
-        "q_id": 76,
-        "question": "What is the total patent portfolio size?",
-        "expected": "2,412 patents",
-        "actual": "The total patent portfolio size for Nexu",
-        "files_retrieved": []
       },
       {
         "q_id": 83,
@@ -572,26 +557,6 @@
         "actual": "The primary customer for the SmartGrid C",
         "files_retrieved": [
           "Unknown"
-        ]
-      },
-      {
-        "q_id": 91,
-        "question": "Who is the VP Trade Compliance?",
-        "expected": "Owns the Export Control Policy (per POL-",
-        "actual": "The VP Trade Compliance is not explicitl",
-        "files_retrieved": [
-          "09_export_control.md"
-        ]
-      },
-      {
-        "q_id": 93,
-        "question": "What electrolyte material is used in the solid-state battery",
-        "expected": "LLZO (Li7La3Zr2O12, Al-doped)",
-        "actual": "The electrolyte material used in the sol",
-        "files_retrieved": [
-          "Unknown",
-          "11_batterytech_solid_state.md",
-          "06_toyota_jv_negotiation_summary.md"
         ]
       }
     ],
@@ -609,9 +574,9 @@
         "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
         "actual": "The GreenHydrogen facility has a hydroge",
         "files_retrieved": [
+          "02_greenhydrogen_process_specification.md",
           "04_greenhydrogen_initiative.md",
-          "09_greenhydrogen_milestone.md",
-          "02_greenhydrogen_process_specification.md"
+          "09_greenhydrogen_milestone.md"
         ]
       },
       {
@@ -620,19 +585,9 @@
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "08_hr_talent_review.md",
-          "03_desert_sun_solar_farm.md",
-          "01_corporate_strategy_2026_2030.md"
-        ]
-      },
-      {
-        "q_id": 36,
-        "question": "Which division has the highest safety incident rate (TRIR)?",
-        "expected": "Nexus Advanced Materials (1.24 TRIR)",
-        "actual": "The division with the highest safety inc",
-        "files_retrieved": [
-          "07_environmental_health_safety.md",
-          "05_safety_committee_meeting.md"
+          "02_organizational_announcement.md",
+          "05_digital_division_structure.md",
+          "03_desert_sun_solar_farm.md"
         ]
       },
       {
@@ -641,20 +596,9 @@
         "expected": "$12.4 billion",
         "actual": "The total company backlog is **$11.5 bil",
         "files_retrieved": [
-          "03_aerospace_division_budget.md",
-          "11_product_launch_planning.md",
-          "06_materials_division_budget.md"
-        ]
-      },
-      {
-        "q_id": 45,
-        "question": "When was Dr. Victoria Chen appointed CEO?",
-        "expected": "2019",
-        "actual": "Dr. Victoria Chen was appointed CEO of N",
-        "files_retrieved": [
-          "02_organizational_announcement.md",
-          "08_hr_talent_review.md",
-          "01_executive_team.md"
+          "07_ma_strategy.md",
+          "01_annual_report_2025.md",
+          "03_aerospace_division_budget.md"
         ]
       },
       {
@@ -663,9 +607,20 @@
         "expected": "Siemens Healthineers ($65 million)",
         "actual": "The primary customer for HTS superconduc",
         "files_retrieved": [
-          "Unknown",
           "05_siemens_healthineers_customer.md",
+          "Unknown",
           "01_boeing_customer_profile.md"
+        ]
+      },
+      {
+        "q_id": 60,
+        "question": "When was the phishing incident detected?",
+        "expected": "December 12, 2025 at 02:47 UTC",
+        "actual": "The retrieved information does not menti",
+        "files_retrieved": [
+          "Unknown",
+          "10_cybersecurity_incident_response.md",
+          "08_cybersecurity_advisory.md"
         ]
       },
       {
@@ -674,8 +629,8 @@
         "expected": "$680 million",
         "actual": "The FY2026 capital expenditure plan for ",
         "files_retrieved": [
-          "07_capital_allocation_plan.md",
-          "01_corporate_strategy_2026_2030.md"
+          "01_corporate_strategy_2026_2030.md",
+          "07_capital_allocation_plan.md"
         ]
       },
       {
@@ -684,8 +639,8 @@
         "expected": "Col. (Ret.) James Foster (Empowered Offi",
         "actual": "The Chair of the Export Control Committe",
         "files_retrieved": [
-          "01_code_of_ethics.md",
-          "09_export_control.md"
+          "09_export_control.md",
+          "01_code_of_ethics.md"
         ]
       },
       {
@@ -694,8 +649,8 @@
         "expected": "Caterpillar",
         "actual": "The mining automation partner is **Sieme",
         "files_retrieved": [
-          "09_competitive_intelligence.md",
-          "04_toyota_partnership_announcement.md"
+          "04_toyota_partnership_announcement.md",
+          "09_competitive_intelligence.md"
         ]
       },
       {
@@ -705,19 +660,30 @@
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
           "02_aerospace_division_strategy.md",
-          "06_market_expansion_asia.md",
-          "01_corporate_strategy_2026_2030.md"
+          "01_corporate_strategy_2026_2030.md",
+          "06_market_expansion_asia.md"
         ]
       },
       {
-        "q_id": 100,
-        "question": "What is the total value of top 3 customer relationships?",
-        "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
-        "actual": "The total value of the top 3 customer re",
+        "q_id": 91,
+        "question": "Who is the VP Trade Compliance?",
+        "expected": "Owns the Export Control Policy (per POL-",
+        "actual": "The VP of Trade Compliance is Robert Lee",
         "files_retrieved": [
-          "05_siemens_healthineers_customer.md",
-          "11_microsoft_customer.md",
-          "02_airbus_customer_profile.md"
+          "09_export_control.md",
+          "03_aerospace_division_structure.md",
+          "01_code_of_ethics.md"
+        ]
+      },
+      {
+        "q_id": 93,
+        "question": "What electrolyte material is used in the solid-state battery",
+        "expected": "LLZO (Li7La3Zr2O12, Al-doped)",
+        "actual": "The electrolyte material used in the sol",
+        "files_retrieved": [
+          "06_toyota_jv_negotiation_summary.md",
+          "Unknown",
+          "04_toyota_partnership_announcement.md"
         ]
       }
     ]

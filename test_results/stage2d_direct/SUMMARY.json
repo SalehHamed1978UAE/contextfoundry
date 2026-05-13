@@ -1,0 +1,40 @@
+{
+  "vault_id": "ecd2f1c2-e1f3-4f5c-8e82-961a84a88eda",
+  "questions_file": "test_questions/nexus_100q.json",
+  "total": 100,
+  "passed": 60,
+  "tree_based_retrieval": false,
+  "fallback_enabled": true,
+  "answer_source_breakdown": {
+    "TRUSTED_GRAPH_FACT": 82,
+    "GAP": 6,
+    "DOCUMENT_EVIDENCE": 12
+  },
+  "fallback_fired": 12,
+  "fallback_passed": 8,
+  "fallback_categories": {
+    "date": 1,
+    "metric": 4,
+    "money": 6,
+    "certification": 1
+  },
+  "vs_stage2c_baseline": {
+    "baseline_passed": 55,
+    "delta": 5,
+    "recovered_qids": [
+      14,
+      32,
+      34,
+      41,
+      51,
+      58,
+      84,
+      96
+    ],
+    "regressed_qids": [
+      25,
+      40,
+      85
+    ]
+  }
+}
