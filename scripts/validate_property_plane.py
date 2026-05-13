@@ -39,12 +39,18 @@ logger = logging.getLogger(__name__)
 
 # ── Question subsets ────────────────────────────────────────────────────────
 
-# The 35 PROPERTY-plane questions from Stage 2F analysis
-PROPERTY_SUBSET_IDS = list(range(1, 36))  # Q1-Q35
+# The 35 PROPERTY-plane questions from Stage 2F evidence-plane audit
+# Source: test_results/stage2f_evidence_plane/per_question.csv (primary='PROPERTY')
+PROPERTY_SUBSET_IDS = [
+    6, 7, 8, 9, 10, 19, 22, 23, 24, 25, 26, 28, 30, 33, 34,
+    40, 41, 42, 48, 51, 54, 55, 56, 58, 59, 66, 67, 73, 76, 79,
+    84, 89, 96, 97, 100,
+]
 
-# The 16 currently-failing PROPERTY questions
+# The 16 PROPERTY questions failing at s2e1 baseline (recovery candidates)
+# Source: test_results/stage2f_evidence_plane/per_question.csv (primary='PROPERTY' AND s2e1='False')
 FAILING_PROPERTY_IDS = [
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+    6, 8, 10, 23, 24, 25, 33, 40, 42, 48, 55, 67, 79, 89, 96, 97,
 ]
 
 
@@ -57,6 +63,7 @@ def load_questions(subset: Optional[str] = None) -> List[Dict[str, Any]]:
     """
     # Try to load from the test data file
     question_paths = [
+        "test_questions/nexus_100q.json",
         "data/nexus_industries_100q.json",
         "data/test-runner/nexus_industries_100q.json",
         "src/test_runner/data/nexus_industries_100q.json",
@@ -78,6 +85,11 @@ def load_questions(subset: Optional[str] = None) -> List[Dict[str, Any]]:
 
     if isinstance(questions, dict) and "questions" in questions:
         questions = questions["questions"]
+
+    # Synthesize 1-based id if file shape is a flat list without ids
+    for i, q in enumerate(questions):
+        if "id" not in q:
+            q["id"] = i + 1
 
     if subset == "property":
         return [q for q in questions if q.get("id", 0) in PROPERTY_SUBSET_IDS]
