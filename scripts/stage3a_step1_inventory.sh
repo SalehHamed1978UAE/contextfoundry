@@ -2,7 +2,7 @@
 # Stage 3A Step 1 — Property Inventory (read-only, safe)
 # Run this on Replit: bash scripts/stage3a_step1_inventory.sh
 set -e
-cd /home/runner/ContextFoundry
+cd "$(dirname "$0")/.."
 git fetch origin stage3a-property-plane-mvp
 git checkout stage3a-property-plane-mvp
 python scripts/property_inventory.py \

@@ -2,7 +2,7 @@
 # Stage 3A Step 2 — Migrate, adapt, validate (requires Step 1 coverage >= 12/16)
 # Run this on Replit: bash scripts/stage3a_step2_migrate_and_validate.sh
 set -e
-cd /home/runner/ContextFoundry
+cd "$(dirname "$0")/.."
 TENANT_ID="ecd2f1c2-e1f3-4f5c-8e82-961a84a88eda"
 
 echo "=== 2a: Applying migration ==="

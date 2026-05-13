@@ -1,0 +1,1747 @@
+{
+  "tenant_id": "ecd2f1c2-e1f3-4f5c-8e82-961a84a88eda",
+  "entity_type_counts": {
+    "BUSINESS_UNIT": 150,
+    "CUSTOMER": 98,
+    "FACILITY": 96,
+    "FINANCIAL_METRIC": 384,
+    "LOCATION": 122,
+    "ORGANIZATION": 200,
+    "PARTNER": 50,
+    "PERSON": 304,
+    "POLICY": 96,
+    "PRODUCT": 160,
+    "PROJECT": 279,
+    "SERVICE": 36,
+    "SUPPLIER": 65,
+    "TECHNOLOGY": 106
+  },
+  "total_entities": 2146,
+  "failing_questions_total": 16,
+  "covered_by_properties": 15,
+  "uncovered_questions": [
+    "Q14"
+  ],
+  "coverage_ratio": "15/16",
+  "question_coverage": [
+    {
+      "question_id": "Q1",
+      "query": "What is Nexus Industries' total revenue?",
+      "attribute": "revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "covered": true,
+      "match_count": 366,
+      "matches": [
+        {
+          "entity_id": "6ab6d189-ee6c-4187-b925-ae9c4adb982b",
+          "entity_name": "$1,000 bonus",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "1000",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "5f4f8556-2103-48a5-8f15-26ceda742b35",
+          "entity_name": "$1.52B FY2025 revenue",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$1.52B",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "period",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "8499984d-d327-474e-815d-b7ac64250605",
+          "entity_name": "$1.5B revenue target 2030",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "1500000000",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "type",
+            "period",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "42e8fd83-0508-4518-9d1c-8270958283ca",
+          "entity_name": "$10,000 spending threshold",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "25000000",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "0078a9a5-b736-4e10-817a-7dfdad7b409b",
+          "entity_name": "$118 million",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "118",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "currency",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        }
+      ]
+    },
+    {
+      "question_id": "Q2",
+      "query": "What is the total company backlog?",
+      "attribute": "backlog",
+      "entity_type": "FINANCIAL_METRIC",
+      "covered": true,
+      "match_count": 366,
+      "matches": [
+        {
+          "entity_id": "6ab6d189-ee6c-4187-b925-ae9c4adb982b",
+          "entity_name": "$1,000 bonus",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "1000",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "5f4f8556-2103-48a5-8f15-26ceda742b35",
+          "entity_name": "$1.52B FY2025 revenue",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$1.52B",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "period",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "8499984d-d327-474e-815d-b7ac64250605",
+          "entity_name": "$1.5B revenue target 2030",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "1500000000",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "type",
+            "period",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "42e8fd83-0508-4518-9d1c-8270958283ca",
+          "entity_name": "$10,000 spending threshold",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "25000000",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "0078a9a5-b736-4e10-817a-7dfdad7b409b",
+          "entity_name": "$118 million",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "118",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "currency",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        }
+      ]
+    },
+    {
+      "question_id": "Q3",
+      "query": "What is the EBITDA margin?",
+      "attribute": "ebitda_margin",
+      "entity_type": "FINANCIAL_METRIC",
+      "covered": true,
+      "match_count": 366,
+      "matches": [
+        {
+          "entity_id": "6ab6d189-ee6c-4187-b925-ae9c4adb982b",
+          "entity_name": "$1,000 bonus",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "1000",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "5f4f8556-2103-48a5-8f15-26ceda742b35",
+          "entity_name": "$1.52B FY2025 revenue",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$1.52B",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "period",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "8499984d-d327-474e-815d-b7ac64250605",
+          "entity_name": "$1.5B revenue target 2030",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "1500000000",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "type",
+            "period",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "42e8fd83-0508-4518-9d1c-8270958283ca",
+          "entity_name": "$10,000 spending threshold",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "25000000",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "0078a9a5-b736-4e10-817a-7dfdad7b409b",
+          "entity_name": "$118 million",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "118",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "currency",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        }
+      ]
+    },
+    {
+      "question_id": "Q4",
+      "query": "What is the Quantum Shield budget?",
+      "attribute": "budget",
+      "entity_type": "PROJECT",
+      "covered": true,
+      "match_count": 211,
+      "matches": [
+        {
+          "entity_id": "e50966d2-e1a7-45c0-9878-f6168796b9d3",
+          "entity_name": "100% Renewable Energy Initiative",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$85M",
+          "property_keys": [
+            "budget",
+            "timeline",
+            "status",
+            "target",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "daa6d7a6-14a9-4dde-bd75-4fcf6ecc39d1",
+          "entity_name": "2026-2030 Strategic Plan",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$7.5B",
+          "property_keys": [
+            "budget",
+            "timeline",
+            "status",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "9f99c415-ce3c-49fd-92c8-83b0da6b06df",
+          "entity_name": "737 MAX Components Contract",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$145M",
+          "property_keys": [
+            "budget",
+            "timeline",
+            "status",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "339455d2-cf72-4cb2-ab45-692fcfac4667",
+          "entity_name": "737 MAX Parts Program",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$285M",
+          "property_keys": [
+            "budget",
+            "timeline",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "3b6cebae-012d-43ef-befd-0d81d8a57afd",
+          "entity_name": "777X Components Opportunity",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$220M",
+          "property_keys": [
+            "budget",
+            "timeline",
+            "status",
+            "probability",
+            "expected_close",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        }
+      ]
+    },
+    {
+      "question_id": "Q5",
+      "query": "What is Project Titan's budget?",
+      "attribute": "budget",
+      "entity_type": "PROJECT",
+      "covered": true,
+      "match_count": 211,
+      "matches": [
+        {
+          "entity_id": "e50966d2-e1a7-45c0-9878-f6168796b9d3",
+          "entity_name": "100% Renewable Energy Initiative",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$85M",
+          "property_keys": [
+            "budget",
+            "timeline",
+            "status",
+            "target",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "daa6d7a6-14a9-4dde-bd75-4fcf6ecc39d1",
+          "entity_name": "2026-2030 Strategic Plan",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$7.5B",
+          "property_keys": [
+            "budget",
+            "timeline",
+            "status",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "9f99c415-ce3c-49fd-92c8-83b0da6b06df",
+          "entity_name": "737 MAX Components Contract",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$145M",
+          "property_keys": [
+            "budget",
+            "timeline",
+            "status",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "339455d2-cf72-4cb2-ab45-692fcfac4667",
+          "entity_name": "737 MAX Parts Program",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$285M",
+          "property_keys": [
+            "budget",
+            "timeline",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "3b6cebae-012d-43ef-befd-0d81d8a57afd",
+          "entity_name": "777X Components Opportunity",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$220M",
+          "property_keys": [
+            "budget",
+            "timeline",
+            "status",
+            "probability",
+            "expected_close",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        }
+      ]
+    },
+    {
+      "question_id": "Q6",
+      "query": "What is the Green Horizon Initiative budget?",
+      "attribute": "budget",
+      "entity_type": "PROJECT",
+      "covered": true,
+      "match_count": 211,
+      "matches": [
+        {
+          "entity_id": "e50966d2-e1a7-45c0-9878-f6168796b9d3",
+          "entity_name": "100% Renewable Energy Initiative",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$85M",
+          "property_keys": [
+            "budget",
+            "timeline",
+            "status",
+            "target",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "daa6d7a6-14a9-4dde-bd75-4fcf6ecc39d1",
+          "entity_name": "2026-2030 Strategic Plan",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$7.5B",
+          "property_keys": [
+            "budget",
+            "timeline",
+            "status",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "9f99c415-ce3c-49fd-92c8-83b0da6b06df",
+          "entity_name": "737 MAX Components Contract",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$145M",
+          "property_keys": [
+            "budget",
+            "timeline",
+            "status",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "339455d2-cf72-4cb2-ab45-692fcfac4667",
+          "entity_name": "737 MAX Parts Program",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$285M",
+          "property_keys": [
+            "budget",
+            "timeline",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "3b6cebae-012d-43ef-befd-0d81d8a57afd",
+          "entity_name": "777X Components Opportunity",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$220M",
+          "property_keys": [
+            "budget",
+            "timeline",
+            "status",
+            "probability",
+            "expected_close",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        }
+      ]
+    },
+    {
+      "question_id": "Q7",
+      "query": "How many qubits does the quantum computing platform have?",
+      "attribute": "qubits",
+      "entity_type": "PRODUCT",
+      "covered": true,
+      "match_count": 5,
+      "matches": [
+        {
+          "entity_id": "242afb9f-4043-4f24-8687-5eb276a2b45a",
+          "entity_name": "M5000 PEM Electrolyzer",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "85 kg H\u2082/hr",
+          "property_keys": [
+            "category",
+            "manufacturer",
+            "capacity",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "9bea81b2-7f1f-485c-801b-777dcff82f30",
+          "entity_name": "Nel M5000",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "100 MW total (20 x 5 MW)",
+          "property_keys": [
+            "description",
+            "capacity",
+            "hydrogen_output",
+            "purity",
+            "efficiency",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "abf03cbf-5bf6-4185-9499-bcae03ab2c67",
+          "entity_name": "QL-127",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "127",
+          "property_keys": [
+            "description",
+            "category",
+            "qubits",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "0eb5df56-b53e-4878-b666-1e0deabeaa6a",
+          "entity_name": "QL-27",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "27",
+          "property_keys": [
+            "description",
+            "category",
+            "qubits",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "9b04f164-13d9-4f83-bba7-c5b8f58c1fd7",
+          "entity_name": "QL-65",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "65",
+          "property_keys": [
+            "description",
+            "category",
+            "qubits",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        }
+      ]
+    },
+    {
+      "question_id": "Q8",
+      "query": "What is the energy density of the solid-state batteries?",
+      "attribute": "energy_density",
+      "entity_type": "PRODUCT",
+      "covered": true,
+      "match_count": 1,
+      "matches": [
+        {
+          "entity_id": "e2c1be1e-dd28-4cdb-a563-3cee27523898",
+          "entity_name": "solid-state batteries",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "400 Wh/kg",
+          "property_keys": [
+            "description",
+            "energy_density",
+            "fast_charge",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        }
+      ]
+    },
+    {
+      "question_id": "Q9",
+      "query": "What is the throughput of the advanced manufacturing line?",
+      "attribute": "throughput",
+      "entity_type": "FACILITY",
+      "covered": true,
+      "match_count": 5,
+      "matches": [
+        {
+          "entity_id": "44d1a5b5-dca3-479d-85d8-4338bac2d34b",
+          "entity_name": "100 MW electrolyzer facility",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "100 MW",
+          "property_keys": [
+            "type",
+            "capacity",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "62976465-1aa9-46ff-a78a-91e1f155fe51",
+          "entity_name": "Desert Sun Solar Farm",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "350 MW",
+          "property_keys": [
+            "type",
+            "capacity",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "fe0a95d2-b23b-4051-bb43-47d17f76d88e",
+          "entity_name": "Line 1",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "200 km/year",
+          "property_keys": [
+            "location",
+            "type",
+            "capacity",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "328c2142-408b-4814-9a1b-af7ca5d885f9",
+          "entity_name": "Line 2",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "300 km/year",
+          "property_keys": [
+            "location",
+            "type",
+            "capacity",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "71e25817-1a1d-40e5-b9e8-8a2423046a4f",
+          "entity_name": "Line 3",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "500 km/year",
+          "property_keys": [
+            "location",
+            "type",
+            "capacity",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        }
+      ]
+    },
+    {
+      "question_id": "Q10",
+      "query": "What is the Austin facility capacity?",
+      "attribute": "capacity",
+      "entity_type": "FACILITY",
+      "covered": true,
+      "match_count": 5,
+      "matches": [
+        {
+          "entity_id": "44d1a5b5-dca3-479d-85d8-4338bac2d34b",
+          "entity_name": "100 MW electrolyzer facility",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "100 MW",
+          "property_keys": [
+            "type",
+            "capacity",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "62976465-1aa9-46ff-a78a-91e1f155fe51",
+          "entity_name": "Desert Sun Solar Farm",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "350 MW",
+          "property_keys": [
+            "type",
+            "capacity",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "fe0a95d2-b23b-4051-bb43-47d17f76d88e",
+          "entity_name": "Line 1",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "200 km/year",
+          "property_keys": [
+            "location",
+            "type",
+            "capacity",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "328c2142-408b-4814-9a1b-af7ca5d885f9",
+          "entity_name": "Line 2",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "300 km/year",
+          "property_keys": [
+            "location",
+            "type",
+            "capacity",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "71e25817-1a1d-40e5-b9e8-8a2423046a4f",
+          "entity_name": "Line 3",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "500 km/year",
+          "property_keys": [
+            "location",
+            "type",
+            "capacity",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        }
+      ]
+    },
+    {
+      "question_id": "Q11",
+      "query": "What is the contract value for the DOD partnership?",
+      "attribute": "contract_value",
+      "entity_type": "CUSTOMER",
+      "covered": true,
+      "match_count": 4,
+      "matches": [
+        {
+          "entity_id": "33d0a659-0882-4264-9b11-b93a616b5c24",
+          "entity_name": "AgriTech Partners",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$65M",
+          "property_keys": [
+            "industry",
+            "region",
+            "units",
+            "value",
+            "delivery",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "08f7a195-fa0e-43a9-a01a-8539e8439c60",
+          "entity_name": "Border Security Agency",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$48M",
+          "property_keys": [
+            "industry",
+            "region",
+            "units",
+            "value",
+            "delivery",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "d02684f2-6191-4656-aafe-ab947a6cec89",
+          "entity_name": "National Weather Service",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$28M",
+          "property_keys": [
+            "industry",
+            "region",
+            "units",
+            "value",
+            "delivery",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "4601eabb-975d-4280-862b-8f98a8944515",
+          "entity_name": "US Department of Defense",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$125M",
+          "property_keys": [
+            "industry",
+            "region",
+            "units",
+            "value",
+            "delivery",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        }
+      ]
+    },
+    {
+      "question_id": "Q12",
+      "query": "What is the annual revenue growth rate?",
+      "attribute": "growth_rate",
+      "entity_type": "FINANCIAL_METRIC",
+      "covered": true,
+      "match_count": 366,
+      "matches": [
+        {
+          "entity_id": "6ab6d189-ee6c-4187-b925-ae9c4adb982b",
+          "entity_name": "$1,000 bonus",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "1000",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "5f4f8556-2103-48a5-8f15-26ceda742b35",
+          "entity_name": "$1.52B FY2025 revenue",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$1.52B",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "period",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "8499984d-d327-474e-815d-b7ac64250605",
+          "entity_name": "$1.5B revenue target 2030",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "1500000000",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "type",
+            "period",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "42e8fd83-0508-4518-9d1c-8270958283ca",
+          "entity_name": "$10,000 spending threshold",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "25000000",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "0078a9a5-b736-4e10-817a-7dfdad7b409b",
+          "entity_name": "$118 million",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "118",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "currency",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        }
+      ]
+    },
+    {
+      "question_id": "Q13",
+      "query": "What is the R&D spending as a percentage of revenue?",
+      "attribute": "rd_percentage",
+      "entity_type": "FINANCIAL_METRIC",
+      "covered": true,
+      "match_count": 366,
+      "matches": [
+        {
+          "entity_id": "6ab6d189-ee6c-4187-b925-ae9c4adb982b",
+          "entity_name": "$1,000 bonus",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "1000",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "5f4f8556-2103-48a5-8f15-26ceda742b35",
+          "entity_name": "$1.52B FY2025 revenue",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$1.52B",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "period",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "8499984d-d327-474e-815d-b7ac64250605",
+          "entity_name": "$1.5B revenue target 2030",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "1500000000",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "type",
+            "period",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "42e8fd83-0508-4518-9d1c-8270958283ca",
+          "entity_name": "$10,000 spending threshold",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "25000000",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "0078a9a5-b736-4e10-817a-7dfdad7b409b",
+          "entity_name": "$118 million",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "118",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "currency",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        }
+      ]
+    },
+    {
+      "question_id": "Q14",
+      "query": "What is the market share for quantum computing?",
+      "attribute": "market_share",
+      "entity_type": "PRODUCT",
+      "covered": false,
+      "match_count": 0,
+      "matches": []
+    },
+    {
+      "question_id": "Q15",
+      "query": "What is the headcount for Nexus Industries?",
+      "attribute": "headcount",
+      "entity_type": "FINANCIAL_METRIC",
+      "covered": true,
+      "match_count": 366,
+      "matches": [
+        {
+          "entity_id": "6ab6d189-ee6c-4187-b925-ae9c4adb982b",
+          "entity_name": "$1,000 bonus",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "1000",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "5f4f8556-2103-48a5-8f15-26ceda742b35",
+          "entity_name": "$1.52B FY2025 revenue",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$1.52B",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "period",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "8499984d-d327-474e-815d-b7ac64250605",
+          "entity_name": "$1.5B revenue target 2030",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "1500000000",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "type",
+            "period",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "42e8fd83-0508-4518-9d1c-8270958283ca",
+          "entity_name": "$10,000 spending threshold",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "25000000",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "0078a9a5-b736-4e10-817a-7dfdad7b409b",
+          "entity_name": "$118 million",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "118",
+          "property_keys": [
+            "metric_name",
+            "value",
+            "currency",
+            "type",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        }
+      ]
+    },
+    {
+      "question_id": "Q16",
+      "query": "What is the target completion date for Project Titan?",
+      "attribute": "target_date",
+      "entity_type": "PROJECT",
+      "covered": true,
+      "match_count": 12,
+      "matches": [
+        {
+          "entity_id": "5dbc1b10-15fd-471c-8a8e-cac05f40cdcf",
+          "entity_name": "787 Floor Beam Contract",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$185M",
+          "property_keys": [
+            "value",
+            "status",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "384f9cb4-d3e5-4e4a-bec5-2a193b811685",
+          "entity_name": "A320neo Structures",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$95M",
+          "property_keys": [
+            "value",
+            "term",
+            "status",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "d8c3205d-8834-4511-87af-02ea4ae9d9bf",
+          "entity_name": "A330neo Parts",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$62M",
+          "property_keys": [
+            "value",
+            "term",
+            "status",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "9649ef3f-2818-4495-ad54-8b8b437d9d2b",
+          "entity_name": "A350 Freighter",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$125M",
+          "property_keys": [
+            "value",
+            "probability",
+            "expected_close",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        },
+        {
+          "entity_id": "609ed1bd-2b91-49f3-960a-2c150eb3a019",
+          "entity_name": "A350 Wing Components",
+          "lifecycle_state": "TRUSTED",
+          "matched_value": "$145M",
+          "property_keys": [
+            "value",
+            "term",
+            "status",
+            "_source_models",
+            "_name_variants",
+            "_consensus_metadata",
+            "_promoted_at",
+            "_promoted_from",
+            "_promoted_threshold"
+          ]
+        }
+      ]
+    }
+  ],
+  "property_key_inventory": {
+    "BUSINESS_UNIT": {
+      "_source_models": 150,
+      "_name_variants": 150,
+      "_consensus_metadata": 150,
+      "_promoted_at": 149,
+      "_promoted_from": 149,
+      "_promoted_threshold": 149,
+      "focus_areas": 101,
+      "focus areas": 37,
+      "type": 19,
+      "focus": 10,
+      "budget": 6,
+      "headcount": 6,
+      "employee_count": 6,
+      "name": 5,
+      "employees": 4,
+      "region": 3,
+      "default_arrangement": 1,
+      "location": 1,
+      "focus_area": 1,
+      "responsibility": 1,
+      "cadence": 1
+    },
+    "CUSTOMER": {
+      "industry": 98,
+      "_source_models": 98,
+      "_name_variants": 98,
+      "_consensus_metadata": 98,
+      "_promoted_at": 98,
+      "_promoted_from": 98,
+      "_promoted_threshold": 98,
+      "region": 90,
+      "volume": 11,
+      "customer_id": 9,
+      "account_type": 8,
+      "term": 8,
+      "application": 7,
+      "count": 5,
+      "use_case": 5,
+      "mission": 5,
+      "units": 4,
+      "value": 4,
+      "delivery": 4,
+      "relationship_since": 4,
+      "stock_ticker": 4,
+      "users": 4,
+      "price": 4,
+      "status": 3,
+      "meters": 3,
+      "headquarters": 2,
+      "employees": 2,
+      "annual_revenue": 1,
+      "cage_code": 1
+    },
+    "FACILITY": {
+      "_source_models": 96,
+      "_name_variants": 96,
+      "_consensus_metadata": 96,
+      "_promoted_at": 71,
+      "_promoted_from": 71,
+      "_promoted_threshold": 71,
+      "type": 67,
+      "location": 54,
+      "function": 15,
+      "status": 6,
+      "capacity": 5,
+      "completion": 5,
+      "vehicles": 5,
+      "go_live": 5,
+      "products": 4,
+      "capability": 4,
+      "employees": 4,
+      "focus": 3,
+      "staff": 3,
+      "employee_count": 3,
+      "size": 2,
+      "land_area": 1,
+      "area": 1,
+      "building_area": 1,
+      "name": 1,
+      "hydrogen_usage": 1
+    },
+    "FINANCIAL_METRIC": {
+      "_source_models": 384,
+      "_name_variants": 384,
+      "_consensus_metadata": 384,
+      "_promoted_at": 373,
+      "_promoted_from": 373,
+      "_promoted_threshold": 373,
+      "type": 372,
+      "value": 366,
+      "metric_name": 332,
+      "period": 250,
+      "metric name": 38,
+      "status": 10,
+      "target": 9,
+      "currency": 8,
+      "unit": 7,
+      "entity": 6,
+      "fy2026_target": 6,
+      "fy2025_actual": 6,
+      "growth": 3,
+      "contract": 2,
+      "timeline": 2,
+      "terms": 2,
+      "source": 1,
+      "actual": 1,
+      "variance": 1,
+      "percentage": 1
+    },
+    "LOCATION": {
+      "_source_models": 122,
+      "_name_variants": 122,
+      "_consensus_metadata": 122,
+      "_promoted_at": 119,
+      "_promoted_from": 119,
+      "_promoted_threshold": 119,
+      "country": 99,
+      "city": 86,
+      "state": 14,
+      "name": 5,
+      "region": 5,
+      "type": 3,
+      "location_type": 2,
+      "address": 2,
+      "land_area": 1
+    },
+    "ORGANIZATION": {
+      "_source_models": 200,
+      "_name_variants": 200,
+      "_consensus_metadata": 200,
+      "_promoted_at": 198,
+      "_promoted_from": 198,
+      "_promoted_threshold": 198,
+      "type": 171,
+      "industry": 136,
+      "ownership": 6,
+      "role": 4,
+      "name": 3,
+      "service": 3,
+      "headquarters": 3,
+      "employees": 3,
+      "stock_ticker": 3,
+      "capability": 2,
+      "annual_revenue": 2,
+      "specialization": 1,
+      "supplier_id": 1,
+      "supplier_type": 1,
+      "founded": 1,
+      "stock_symbol": 1,
+      "partner_id": 1
+    },
+    "PARTNER": {
+      "_source_models": 50,
+      "_name_variants": 50,
+      "_consensus_metadata": 50,
+      "_promoted_at": 50,
+      "_promoted_from": 50,
+      "_promoted_threshold": 50,
+      "partnership type": 32,
+      "partnership_type": 9,
+      "role": 8,
+      "value": 6,
+      "access level": 4,
+      "focus": 4,
+      "investment": 4,
+      "program": 4,
+      "strategic value": 3,
+      "capability": 3,
+      "contribution": 3,
+      "focus_area": 2,
+      "name": 2,
+      "contract value": 2
+    },
+    "PERSON": {
+      "_source_models": 304,
+      "_name_variants": 304,
+      "_consensus_metadata": 304,
+      "_promoted_at": 303,
+      "_promoted_from": 303,
+      "_promoted_threshold": 303,
+      "title": 289,
+      "role": 274,
+      "allocation": 32,
+      "department": 9,
+      "start_date": 7,
+      "clearance": 5,
+      "project": 4,
+      "experience": 3,
+      "education": 2,
+      "affiliation": 1,
+      "credentials": 1
+    },
+    "POLICY": {
+      "category": 96,
+      "_source_models": 96,
+      "_name_variants": 96,
+      "_consensus_metadata": 96,
+      "_promoted_at": 96,
+      "_promoted_from": 96,
+      "_promoted_threshold": 96,
+      "policy ID": 29,
+      "policy_id": 23,
+      "policy_ID": 13,
+      "name": 8,
+      "classification": 6,
+      "effective_date": 6,
+      "status": 5,
+      "policy_name": 5,
+      "scope": 5,
+      "applicability": 4,
+      "target_date": 4,
+      "expiry": 3,
+      "authority_level": 3,
+      "description": 2,
+      "last_reviewed": 2,
+      "retention": 1
+    },
+    "PRODUCT": {
+      "_source_models": 160,
+      "_name_variants": 160,
+      "_consensus_metadata": 160,
+      "_promoted_at": 142,
+      "_promoted_from": 142,
+      "_promoted_threshold": 142,
+      "description": 118,
+      "category": 118,
+      "quantity": 4,
+      "domain": 3,
+      "qubits": 3,
+      "name": 2,
+      "timeline": 2,
+      "manufacturer": 2,
+      "capacity": 2,
+      "version": 1,
+      "performance": 1,
+      "type": 1,
+      "mass": 1,
+      "design_life": 1,
+      "hydrogen_output": 1,
+      "purity": 1,
+      "efficiency": 1,
+      "mass_range": 1,
+      "energy_density": 1,
+      "fast_charge": 1
+    },
+    "PROJECT": {
+      "_source_models": 279,
+      "_name_variants": 279,
+      "_consensus_metadata": 279,
+      "_promoted_at": 267,
+      "_promoted_from": 267,
+      "_promoted_threshold": 267,
+      "status": 232,
+      "timeline": 204,
+      "budget": 200,
+      "description": 17,
+      "value": 12,
+      "type": 12,
+      "name": 12,
+      "probability": 9,
+      "expected_close": 9,
+      "project_code": 7,
+      "term": 6,
+      "total_investment": 6,
+      "investment": 6,
+      "start_date": 5,
+      "target": 4,
+      "scope": 4,
+      "revenue_target": 4,
+      "division": 4,
+      "risk_level": 3,
+      "completion": 3,
+      "supplier": 3,
+      "launch_date": 2,
+      "milestone": 2,
+      "funding": 2,
+      "volume": 1,
+      "annual_volume": 1,
+      "total_contract_value": 1,
+      "commercial_production": 1,
+      "program_code": 1,
+      "classification": 1,
+      "document_number": 1,
+      "location": 1,
+      "vehicles": 1,
+      "coverage": 1,
+      "phase": 1,
+      "duration": 1,
+      "success_criteria": 1,
+      "target_launch": 1,
+      "first_flight": 1
+    },
+    "SERVICE": {
+      "description": 36,
+      "_source_models": 36,
+      "_name_variants": 36,
+      "_consensus_metadata": 36,
+      "_promoted_at": 36,
+      "_promoted_from": 36,
+      "_promoted_threshold": 36,
+      "name": 2,
+      "category": 1,
+      "launch_date": 1
+    },
+    "SUPPLIER": {
+      "_source_models": 65,
+      "_name_variants": 65,
+      "_consensus_metadata": 65,
+      "_promoted_at": 65,
+      "_promoted_from": 65,
+      "_promoted_threshold": 65,
+      "capability": 64,
+      "risk level": 44,
+      "contract_value": 10,
+      "service": 7,
+      "risk_level": 4,
+      "type": 4,
+      "contract value": 3,
+      "value": 2,
+      "industry": 1,
+      "name": 1
+    },
+    "TECHNOLOGY": {
+      "_source_models": 106,
+      "_name_variants": 106,
+      "_consensus_metadata": 106,
+      "_promoted_at": 106,
+      "_promoted_from": 106,
+      "_promoted_threshold": 106,
+      "description": 104,
+      "name": 9,
+      "current_trl": 4,
+      "target_trl": 4,
+      "type": 3,
+      "manufacturer": 2,
+      "capture_efficiency": 1,
+      "purity": 1
+    }
+  }
+}
