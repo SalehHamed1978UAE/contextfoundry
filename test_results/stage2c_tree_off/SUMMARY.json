@@ -1,0 +1,30 @@
+{
+  "experiment": "stage2c_tree_off_vs_tree_on",
+  "vault_id": "ecd2f1c2-e1f3-4f5c-8e82-961a84a88eda",
+  "questions_file": "test_questions/nexus_100q.json",
+  "tree_off": {
+    "total": 100,
+    "passed": 55,
+    "failed": 45,
+    "no_data": 17,
+    "no_match": 28
+  },
+  "tree_on": {
+    "total": 100,
+    "passed": 50,
+    "failed": 50,
+    "no_data": 20,
+    "no_match": 30
+  },
+  "net_delta": 5,
+  "recovered": [
+    15,
+    36,
+    40,
+    68,
+    100
+  ],
+  "lost": [],
+  "concurrent_workflow_during_run": "Test: ClaudeCode Nexus (against 176a4fb2)",
+  "mutation_check_post_run": "none \u2014 entities=2146 rels=2099 docs=100 chunks=435 (matches pre-run)"
+}
