@@ -4450,6 +4450,31 @@ def vault_chat():
                     logger.warning(f"[QA_VERIFIER] Verification failed, proceeding with original answer: {e}")
             # === END QA VERIFIER ===
 
+            # === STAGE 3A: PROPERTY PLANE HOOK ===
+            # For attribute questions (revenue, budget, capacity, etc.), query
+            # the property_facts table for structured answers. Unlike DocEv,
+            # this REPLACES KG answers when a matching property fact exists.
+            # No LLM call — template-based formatting from structured facts.
+            try:
+                from src.context_foundry.retrieval.property_plane import apply_to_agent_result as _apply_prop_plane
+                _apply_prop_plane(
+                    agent_result,
+                    session=db_session,
+                    tenant_id=tenant_id,
+                    query=resolved_query,
+                )
+                _pp_diag = agent_result.get('property_plane_diagnostics') or {}
+                if _pp_diag.get('hit'):
+                    logger.info(
+                        f"[PROP_PLANE] Property answer REPLACED KG answer "
+                        f"(attr={_pp_diag.get('attribute_name')}, "
+                        f"entity={_pp_diag.get('entity_name')}, "
+                        f"source={_pp_diag.get('answer_source')})"
+                    )
+            except Exception as e:
+                logger.warning(f"[PROP_PLANE] Hook failed (non-blocking): {e}")
+            # === END STAGE 3A ===
+
             # === STAGE 2E-1: DOCUMENT_EVIDENCE FALLBACK (default OFF) ===
             # Feature flag: payload `document_evidence_fallback` (per-request) takes
             # priority over env CF_DOCUMENT_EVIDENCE_FALLBACK. Both default false.

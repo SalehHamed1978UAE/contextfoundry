@@ -44,6 +44,10 @@ ANSWER_SOURCE_STAGING_GRAPH = "STAGING_GRAPH_FACT"
 ANSWER_SOURCE_DOCUMENT_EVIDENCE = "DOCUMENT_EVIDENCE"
 ANSWER_SOURCE_GAP = "GAP"
 
+# Stage 3A: Property plane sources — DocEv should not override these
+ANSWER_SOURCE_TRUSTED_PROPERTY = "TRUSTED_PROPERTY"
+ANSWER_SOURCE_STAGING_PROPERTY = "STAGING_PROPERTY"
+
 
 _ATTRIBUTE_TRIGGERS: Dict[str, List[str]] = {
     "money": [
@@ -432,6 +436,11 @@ def classify_agent_kg_source(
         return ANSWER_SOURCE_GAP
     if qa_verdict and qa_verdict.get("status") in _QA_NO_DATA_STATUSES:
         return ANSWER_SOURCE_GAP
+    # Stage 3A: property plane answers are authoritative — treat as trusted
+    answer_source = agent_result.get("answer_source") or ""
+    if answer_source in (ANSWER_SOURCE_TRUSTED_PROPERTY, ANSWER_SOURCE_STAGING_PROPERTY):
+        return ANSWER_SOURCE_TRUSTED_GRAPH
+
     answer = agent_result.get("answer") or ""
     if not answer or looks_like_no_data(answer):
         return ANSWER_SOURCE_GAP
