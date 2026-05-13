@@ -177,10 +177,10 @@ class PropertyStore:
                 source_document_id, source_entity_properties, confidence,
                 created_at, updated_at
             ) VALUES (
-                :id::uuid, :tid::uuid, :eid::uuid, :ename, :etype,
+                CAST(:id AS uuid), CAST(:tid AS uuid), CAST(:eid AS uuid), :ename, :etype,
                 :lstate, :attr, :aval,
                 :nval, :unit, :vtype, :period, :fy,
-                :sdoc, :sprops::jsonb, :conf,
+                :sdoc, CAST(:sprops AS jsonb), :conf,
                 now(), now()
             )
             ON CONFLICT (id) DO UPDATE SET
@@ -193,7 +193,7 @@ class PropertyStore:
                 lifecycle_state = EXCLUDED.lifecycle_state,
                 confidence = EXCLUDED.confidence,
                 updated_at = now()
-            RETURNING id::text
+            RETURNING CAST(id AS text) AS id
         """
         import json as _json
 
