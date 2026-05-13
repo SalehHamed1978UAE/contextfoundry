@@ -32,13 +32,43 @@ WHERE tenant_id = '${TENANT_ID}'::uuid;
 
 echo ""
 echo "=== 2e: PROPERTY subset validation (35 questions) ==="
-python scripts/validate_property_plane.py \
-  --tenant-id "$TENANT_ID" \
-  --subset property \
-  --output test_results/stage3a_property_subset_results.json
+echo "Using run_qonly_http_parity.py with --qids for PROPERTY-35 subset"
+echo "This uses the in-process harness (same code path as /api/vault/chat)"
+
+# PROPERTY-35 question IDs from Stage 2F analysis
+PROPERTY_QIDS="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35"
+
+# Find the questions file
+QUESTIONS_FILE=""
+for f in data/nexus_industries_100q.json \
+         data/test-runner/nexus_industries_100q.json \
+         src/test_runner/data/nexus_industries_100q.json; do
+    if [ -f "$f" ]; then
+        QUESTIONS_FILE="$f"
+        break
+    fi
+done
+
+if [ -z "$QUESTIONS_FILE" ]; then
+    echo "ERROR: Cannot find questions file. Listing data dirs:"
+    ls data/ 2>/dev/null || true
+    ls data/test-runner/ 2>/dev/null || true
+    ls src/test_runner/data/ 2>/dev/null || true
+    exit 1
+fi
+
+echo "Questions file: $QUESTIONS_FILE"
+
+python scripts/run_qonly_http_parity.py \
+  --vault-id "$TENANT_ID" \
+  --questions-file "$QUESTIONS_FILE" \
+  --out-dir test_results/stage3a \
+  --corpus-name stage3a_property \
+  --qids "$PROPERTY_QIDS" \
+  --batch 35 \
+  --per-q-timeout 60 \
+  --enable-fallback true
 
 echo ""
 echo "=== DONE ==="
-echo "Results saved to:"
-echo "  test_results/stage3a_property_inventory.json (step 1)"
-echo "  test_results/stage3a_property_subset_results.json (step 2)"
+echo "Results saved to test_results/stage3a/"

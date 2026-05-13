@@ -134,6 +134,20 @@ def _route_post_agent_processing(
         except Exception:
             pass
 
+    # Stage 3A: Property Plane hook (before DocEv, mirrors web_app.py L4452)
+    try:
+        from src.context_foundry.retrieval.property_plane import (
+            apply_to_agent_result as _apply_prop_plane,
+        )
+        _apply_prop_plane(
+            agent_result,
+            session=db_session,
+            tenant_id=tenant_id,
+            query=resolved_query,
+        )
+    except Exception:
+        pass
+
     # Stage 2E-1 hook
     apply_to_agent_result(
         agent_result,
@@ -212,8 +226,9 @@ def main():
         # Final summary
         recs = [json.loads(l) for l in jsonl.open()]
         passed = sum(1 for r in recs if r.get("passed"))
+        pp = sum(1 for r in recs if r.get("prop_plane_hit"))
         de = sum(1 for r in recs if r.get("answer_source") == ANSWER_SOURCE_DOCUMENT_EVIDENCE)
-        print(f"[http_parity] ALL DONE — passed={passed}/{total} DOCUMENT_EVIDENCE={de}", flush=True)
+        print(f"[http_parity] ALL DONE — passed={passed}/{total} PROPERTY_PLANE={pp} DOCUMENT_EVIDENCE={de}", flush=True)
         return
 
     # Build session + agent + grab vault_context like web_app.py does
@@ -263,13 +278,15 @@ def main():
 
         ans = (agent_result or {}).get("answer", "") if not err else ""
         diag = (agent_result or {}).get("document_evidence_diagnostics") or {}
+        pp_diag = (agent_result or {}).get("property_plane_diagnostics") or {}
         answer_source = (agent_result or {}).get("answer_source") or "semantic"
         # Translate plain semantic back to TRUSTED_GRAPH_FACT vs GAP for reporting
-        if answer_source not in (ANSWER_SOURCE_DOCUMENT_EVIDENCE,):
+        # Preserve property plane sources as-is
+        if answer_source in ("TRUSTED_PROPERTY", "STAGING_PROPERTY", ANSWER_SOURCE_DOCUMENT_EVIDENCE):
+            answer_source_report = answer_source
+        else:
             kg_src = classify_agent_kg_source(agent_result, (agent_result or {}).get("qa_verdict"))
             answer_source_report = kg_src
-        else:
-            answer_source_report = ANSWER_SOURCE_DOCUMENT_EVIDENCE
 
         if err:
             passed = False; mt = "error"; fr = err; fc = "ERROR"
@@ -288,6 +305,8 @@ def main():
             "answer_source": answer_source_report,
             "qa_replacement_applied": (agent_result or {}).get("_qa_replacement_applied"),
             "qa_verdict_status": ((agent_result or {}).get("qa_verdict") or {}).get("status"),
+            "prop_plane_diagnostics": pp_diag,
+            "prop_plane_hit": pp_diag.get("hit", False),
             "doc_ev_diagnostics": diag,
             "doc_ev_citations": (agent_result or {}).get("document_evidence", [])[:5],
             "error_type": err,
@@ -299,9 +318,10 @@ def main():
             f.write(json.dumps(rec, default=str) + "\n")
         processed += 1
         marker = "PASS" if passed else f"FAIL({mt})"
+        pp_tag = " [PP]" if pp_diag.get("hit") else ""
         de_tag = " [DE]" if answer_source_report == ANSWER_SOURCE_DOCUMENT_EVIDENCE else ""
         gate = f" gate={diag.get('gate_block_reason')}" if diag.get("flag_enabled") and not diag.get("fallback_used") else ""
-        print(f"[http_parity] Q{qid:>3}: {marker:<22} src={answer_source_report:<22}{de_tag}{gate}  t={dt:.1f}s", flush=True)
+        print(f"[http_parity] Q{qid:>3}: {marker:<22} src={answer_source_report:<22}{pp_tag}{de_tag}{gate}  t={dt:.1f}s", flush=True)
 
     elapsed = time.time() - t_batch
     after = already_done(jsonl)
