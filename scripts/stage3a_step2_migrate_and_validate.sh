@@ -13,11 +13,15 @@ echo "=== 2b: Adapter dry-run (no writes) ==="
 python scripts/run_property_adapter.py --tenant-id "$TENANT_ID" --dry-run
 
 echo ""
-echo "=== 2c: Adapter real run (writes to property_facts) ==="
+echo "=== 2c: Clean slate — delete old property_facts ==="
+psql "$DATABASE_URL" -c "DELETE FROM property_facts WHERE tenant_id = '${TENANT_ID}'::uuid;"
+
+echo ""
+echo "=== 2d: Adapter real run (writes to property_facts) ==="
 python scripts/run_property_adapter.py --tenant-id "$TENANT_ID"
 
 echo ""
-echo "=== 2d: Row counts ==="
+echo "=== 2e: Row counts ==="
 psql "$DATABASE_URL" -c "
 SELECT entity_type, lifecycle_state, COUNT(*) as fact_count
 FROM property_facts
@@ -31,7 +35,11 @@ WHERE tenant_id = '${TENANT_ID}'::uuid;
 "
 
 echo ""
-echo "=== 2e: PROPERTY subset validation (35 questions) ==="
+echo "=== 2f: Clear old validation results ==="
+rm -f test_results/stage3a/stage3a_property_*.jsonl
+
+echo ""
+echo "=== 2g: PROPERTY subset validation (35 questions) ==="
 echo "Using run_qonly_http_parity.py with --qids for PROPERTY-35 subset"
 echo "This uses the in-process harness (same code path as /api/vault/chat)"
 

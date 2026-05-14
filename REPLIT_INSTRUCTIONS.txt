@@ -1,19 +1,30 @@
-STAGE 3A — REPLIT INSTRUCTIONS
-================================
+STAGE 3A — REPLIT INSTRUCTIONS (updated after defect fixes)
+=============================================================
+
+Three adapter defects have been fixed:
+  1. Value-shaped entity names filtered out (e.g. "71 billion USD")
+  2. Entity disambiguation tightened (exact match preferred)
+  3. Superlative/comparison queries rejected from property plane
 
 On Replit, click the Shell tab (bottom panel).
 Ignore the git sync screen. Type this ONE line:
 
 git fetch origin && git reset --hard origin/stage3a-property-plane-mvp
 
-That's it. It force-syncs to the branch, no merge,
-no conflict, no sync screen. Everything gets overwritten
-to match the remote branch exactly.
-
-After that finishes, type:
-
-bash scripts/stage3a_step1_inventory.sh
-
-Then if coverage is 12/16 or higher:
+After that finishes, re-run the adapter and validation:
 
 bash scripts/stage3a_step2_migrate_and_validate.sh
+
+This will:
+  2a. Apply migration (idempotent, safe to re-run)
+  2b. Adapter dry-run (shows how many facts per entity type)
+  2c. Adapter real run (writes to property_facts — re-upserts, safe)
+  2d. Row count check
+  2e. Run PROPERTY-35 subset validation via in-process harness
+
+The adapter will now skip value-shaped entity names during upsert,
+and the property plane will filter them during query time too.
+The plane will also reject superlative/comparison queries and
+prefer exact entity name matches over loose LIKE hits.
+
+Expected: pass rate should improve from 13/35 (37%) toward 20+/35.
