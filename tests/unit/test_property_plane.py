@@ -22,6 +22,7 @@ from src.context_foundry.retrieval.property_plane import (
     attempt_property_lookup,
     extract_query_parameters,
     format_property_answer,
+    is_superlative_or_comparison,
 )
 
 
@@ -394,3 +395,90 @@ def test_property_plane_wiring_in_web_app():
     assert "property_plane" in body, "web_app.py must reference property_plane module"
     assert "_apply_prop_plane" in body, "web_app.py must invoke property plane helper"
     assert "STAGE 3A" in body, "web_app.py wiring must be tagged STAGE 3A"
+
+
+# ---------------------------------------------------------------------------
+# Tests: superlative / comparison rejection (Fix 3)
+# ---------------------------------------------------------------------------
+
+def test_superlative_highest_rejected():
+    assert is_superlative_or_comparison("Which project has the highest budget?") is True
+
+
+def test_superlative_largest_rejected():
+    assert is_superlative_or_comparison("What is the largest contract value?") is True
+
+
+def test_comparison_vs_rejected():
+    assert is_superlative_or_comparison("Boeing vs Airbus — which has more revenue?") is True
+
+
+def test_variance_rejected():
+    assert is_superlative_or_comparison("What is the variance between Q3 and Q4 revenue?") is True
+
+
+def test_combined_aggregate_rejected():
+    assert is_superlative_or_comparison("What is the total revenue across all divisions?") is True
+
+
+def test_simple_attribute_not_rejected():
+    assert is_superlative_or_comparison("What is Nexus Industries' revenue?") is False
+
+
+def test_superlative_query_returns_none_from_lookup():
+    """Superlative queries must return None even if facts exist."""
+    session = _stub_session([_fact_row()])
+    result = attempt_property_lookup(
+        session, "t-1", "Which project has the highest budget?"
+    )
+    assert result is None
+
+
+# ---------------------------------------------------------------------------
+# Tests: value-shaped entity name filtering (Fix 1)
+# ---------------------------------------------------------------------------
+
+def test_value_shaped_entity_filtered_from_results():
+    """Property facts with value-shaped entity names must be filtered out."""
+    rows = [
+        _fact_row(entity_name="71 billion USD", attribute_value="71 billion USD"),
+        _fact_row(entity_name="Nexus Industries", attribute_value="$8.45 billion"),
+    ]
+    session = _stub_session(rows)
+    result = attempt_property_lookup(
+        session, "t-1", "What is Nexus Industries' revenue?"
+    )
+    assert result is not None
+    assert result.entity_name == "Nexus Industries"
+
+
+def test_all_value_shaped_entities_filtered_returns_none():
+    """If ALL results have value-shaped entity names, return None."""
+    rows = [
+        _fact_row(entity_name="71 billion USD", attribute_value="71 billion USD"),
+        _fact_row(entity_name="$8.45 billion", attribute_value="$8.45 billion"),
+    ]
+    session = _stub_session(rows)
+    result = attempt_property_lookup(
+        session, "t-1", "What is Nexus Industries' revenue?"
+    )
+    assert result is None
+
+
+# ---------------------------------------------------------------------------
+# Tests: entity disambiguation (Fix 2)
+# ---------------------------------------------------------------------------
+
+def test_exact_entity_match_preferred():
+    """When multiple entities match, prefer the exact match."""
+    rows = [
+        _fact_row(entity_name="Nexus Industries Subsidiary", attribute_value="$2 billion"),
+        _fact_row(entity_name="Nexus Industries", attribute_value="$8.45 billion"),
+    ]
+    session = _stub_session(rows)
+    result = attempt_property_lookup(
+        session, "t-1", "What is Nexus Industries' revenue?"
+    )
+    assert result is not None
+    assert result.entity_name == "Nexus Industries"
+    assert "8.45 billion" in result.answer

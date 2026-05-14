@@ -150,6 +150,38 @@ def detect_unit(value_str: str, key: str = "") -> Optional[str]:
 # Entity type parsers
 # ---------------------------------------------------------------------------
 
+_VALUE_SHAPED_NAME = re.compile(
+    r"^[\d\$\€\£,.\s]+"                         # starts with numbers/currency
+    r"|^\d+[\d,.]*\s*(?:billion|million|thousand|USD|EUR|GBP|MW|GW|kW|kg|%)"  # "71 billion USD"
+    r"|^(?:Total|Net|Gross)\s+(?:Revenue|Headcount|Budget|Backlog|EBITDA|Income|Profit)"  # "Total Headcount FY2026"
+    r"|^(?:Revenue|Headcount|Budget|Backlog|EBITDA|Income|Profit)\s+(?:FY|Q[1-4]|20\d{2})"  # "Revenue FY2026"
+    r"|^FY\d{4}\b"                               # "FY2026"
+    r"|^Q[1-4]\s+\d{4}$"                         # "Q3 2025"
+    , re.IGNORECASE,
+)
+
+
+def is_value_shaped_name(name: str) -> bool:
+    """Return True if an entity name looks like a value/metric label, not a real entity.
+
+    Examples that should be rejected:
+        "71 billion USD", "$8.45 billion", "Total Headcount FY2026",
+        "Revenue FY2026", "FY2025", "Q3 2025", "100 MW"
+    Examples that should pass:
+        "Nexus Industries", "Quantum Shield", "Austin Manufacturing",
+        "100 MW electrolyzer facility"
+    """
+    if not name or len(name.strip()) < 3:
+        return True
+    s = name.strip()
+    if _VALUE_SHAPED_NAME.match(s):
+        return True
+    # Pure numeric (with optional currency/unit suffix)
+    if re.match(r"^[\$\€\£]?\s*[\d,]+(?:\.\d+)?\s*(?:billion|million|thousand|USD|%|MW|GW)?$", s, re.IGNORECASE):
+        return True
+    return False
+
+
 def _base_fact(entity: Dict, attribute_name: str, attribute_value: str) -> Dict[str, Any]:
     """Construct a base fact dict from an entity and attribute."""
     return {
@@ -170,6 +202,8 @@ def _base_fact(entity: Dict, attribute_name: str, attribute_value: str) -> Dict[
 
 def parse_financial_metric(entity: Dict) -> List[Dict[str, Any]]:
     """Parse FINANCIAL_METRIC entity properties into fact rows."""
+    if is_value_shaped_name(entity.get("name", "")):
+        return []
     props = entity.get("properties") or {}
     facts = []
 
@@ -201,6 +235,8 @@ def parse_financial_metric(entity: Dict) -> List[Dict[str, Any]]:
 
 def parse_project(entity: Dict) -> List[Dict[str, Any]]:
     """Parse PROJECT entity properties into fact rows."""
+    if is_value_shaped_name(entity.get("name", "")):
+        return []
     props = entity.get("properties") or {}
     facts = []
 
@@ -236,6 +272,8 @@ def parse_project(entity: Dict) -> List[Dict[str, Any]]:
 
 def parse_product(entity: Dict) -> List[Dict[str, Any]]:
     """Parse PRODUCT entity properties into fact rows."""
+    if is_value_shaped_name(entity.get("name", "")):
+        return []
     props = entity.get("properties") or {}
     facts = []
 
@@ -252,6 +290,8 @@ def parse_product(entity: Dict) -> List[Dict[str, Any]]:
 
 def parse_customer(entity: Dict) -> List[Dict[str, Any]]:
     """Parse CUSTOMER entity properties into fact rows."""
+    if is_value_shaped_name(entity.get("name", "")):
+        return []
     props = entity.get("properties") or {}
     facts = []
 
@@ -267,6 +307,8 @@ def parse_customer(entity: Dict) -> List[Dict[str, Any]]:
 
 def parse_facility(entity: Dict) -> List[Dict[str, Any]]:
     """Parse FACILITY entity properties into fact rows."""
+    if is_value_shaped_name(entity.get("name", "")):
+        return []
     props = entity.get("properties") or {}
     facts = []
 

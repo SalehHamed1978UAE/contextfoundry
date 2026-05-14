@@ -17,6 +17,7 @@ from src.context_foundry.adapters.property_adapter import (
     PropertyAdapter,
     detect_unit,
     detect_value_type,
+    is_value_shaped_name,
     parse_customer,
     parse_facility,
     parse_financial_metric,
@@ -48,6 +49,66 @@ def _entity(
         "source_document_id": source_document_id,
         "confidence": confidence,
     }
+
+
+# ---------------------------------------------------------------------------
+# Tests: is_value_shaped_name (Fix 1)
+# ---------------------------------------------------------------------------
+
+def test_value_shaped_name_rejects_currency():
+    assert is_value_shaped_name("71 billion USD") is True
+    assert is_value_shaped_name("$8.45 billion") is True
+    assert is_value_shaped_name("$145 million") is True
+
+
+def test_value_shaped_name_rejects_fiscal_tokens():
+    assert is_value_shaped_name("FY2025") is True
+    assert is_value_shaped_name("Q3 2025") is True
+
+
+def test_value_shaped_name_rejects_metric_labels():
+    assert is_value_shaped_name("Total Headcount FY2026") is True
+    assert is_value_shaped_name("Revenue FY2026") is True
+    assert is_value_shaped_name("Net Revenue") is True
+    assert is_value_shaped_name("Gross Profit") is True
+
+
+def test_value_shaped_name_rejects_pure_number():
+    assert is_value_shaped_name("100 MW") is True
+    assert is_value_shaped_name("12,500") is True
+    assert is_value_shaped_name("23.5%") is True
+
+
+def test_value_shaped_name_accepts_real_entities():
+    assert is_value_shaped_name("Nexus Industries") is False
+    assert is_value_shaped_name("Quantum Shield") is False
+    assert is_value_shaped_name("Austin Manufacturing") is False
+    assert is_value_shaped_name("DOD Partnership") is False
+    assert is_value_shaped_name("Quantum Computing Platform") is False
+
+
+def test_value_shaped_name_rejects_short_or_empty():
+    assert is_value_shaped_name("") is True
+    assert is_value_shaped_name("  ") is True
+    assert is_value_shaped_name("AB") is True
+
+
+def test_parser_skips_value_shaped_entities():
+    """Parsers must return [] for entities with value-shaped names."""
+    for name in ("71 billion USD", "$8.45 billion", "FY2025", "Total Headcount FY2026"):
+        ent = _entity(
+            name=name,
+            entity_type="FINANCIAL_METRIC",
+            properties={"metric_name": "Revenue", "value": "$1 billion"},
+        )
+        assert parse_financial_metric(ent) == [], f"Should skip value-shaped name: {name}"
+
+    ent = _entity(
+        name="100 MW",
+        entity_type="FACILITY",
+        properties={"capacity": "100 MW"},
+    )
+    assert parse_facility(ent) == []
 
 
 # ---------------------------------------------------------------------------
@@ -157,7 +218,7 @@ def test_detect_unit_qubits():
 
 def test_parse_financial_metric_basic():
     ent = _entity(
-        name="Total Revenue",
+        name="Nexus Industries Revenue",
         entity_type="FINANCIAL_METRIC",
         properties={
             "metric_name": "Total Revenue",

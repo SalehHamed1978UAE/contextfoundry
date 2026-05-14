@@ -26,6 +26,8 @@ from typing import Any, Dict, List, Optional
 
 from sqlalchemy import text
 
+from src.context_foundry.adapters.property_adapter import is_value_shaped_name
+
 logger = logging.getLogger(__name__)
 
 # Answer source constants
@@ -141,6 +143,38 @@ _ATTRIBUTE_PATTERNS: Dict[str, List[re.Pattern]] = {
 _FISCAL_YEAR_PATTERN = re.compile(
     r"(?:FY|fiscal\s+year\s*|in\s+)(\d{4})", re.IGNORECASE
 )
+
+
+# ---------------------------------------------------------------------------
+# Superlative / comparison / variance rejection (Fix 3)
+# ---------------------------------------------------------------------------
+
+_SUPERLATIVE_PATTERNS = [
+    re.compile(r"\bwhich\b.*\b(?:highest|lowest|largest|smallest|biggest|most|least|top|best|worst)\b", re.IGNORECASE),
+    re.compile(r"\b(?:highest|lowest|largest|smallest|biggest)\b.*\b(?:revenue|budget|backlog|capacity|headcount|contract|market share)\b", re.IGNORECASE),
+    re.compile(r"\brank\b|\branking\b|\bcompare\b|\bcomparison\b", re.IGNORECASE),
+    re.compile(r"\bvariance\b|\bdifference between\b|\bgap between\b", re.IGNORECASE),
+    re.compile(r"\b(?:more|less|greater|fewer)\s+than\b", re.IGNORECASE),
+    re.compile(r"\bvs\.?\b|\bversus\b|\bor\b.*\bwhich\b", re.IGNORECASE),
+    re.compile(r"\bhow (?:much|many) (?:more|less|higher|lower)\b", re.IGNORECASE),
+    re.compile(r"\b(?:total|combined|aggregate|sum)\b.*\b(?:across|of all|for all)\b", re.IGNORECASE),
+]
+
+
+def is_superlative_or_comparison(query: str) -> bool:
+    """Return True if the query is a superlative, comparison, or variance question.
+
+    These cannot be answered from a single property fact row.
+    Examples:
+        "Which project has the highest budget?" → True
+        "What is the variance between Q3 and Q4 revenue?" → True
+        "Boeing or Airbus — which has more revenue?" → True
+        "What is Nexus Industries' revenue?" → False
+    """
+    for pat in _SUPERLATIVE_PATTERNS:
+        if pat.search(query):
+            return True
+    return False
 
 
 def extract_query_parameters(query: str, category: str) -> Dict[str, Optional[str]]:
@@ -265,6 +299,41 @@ def _try_broader_lookup(
 
 
 # ---------------------------------------------------------------------------
+# Entity disambiguation (Fix 2)
+# ---------------------------------------------------------------------------
+
+def _disambiguate_entity(rows: list, query_entity: str) -> list:
+    """Prefer rows whose entity_name closely matches the query entity.
+
+    Matching tiers (highest to lowest):
+      1. Case-insensitive exact match
+      2. Query entity is a substring of the row entity_name (or vice versa),
+         sorted by closeness (prefer shorter entity names that still contain
+         the query entity, i.e. closest to exact match)
+      3. All remaining rows (loose LIKE match from SQL)
+
+    Returns the rows from the highest non-empty tier.
+    """
+    qe = query_entity.lower().strip()
+
+    exact = [r for r in rows if r.entity_name.lower().strip() == qe]
+    if exact:
+        return exact
+
+    substring = [
+        r for r in rows
+        if qe in r.entity_name.lower() or r.entity_name.lower() in qe
+    ]
+    if substring:
+        # Sort by name length difference from query entity (closest first)
+        substring.sort(key=lambda r: abs(len(r.entity_name) - len(query_entity)))
+        return substring
+
+    # Fallback: return all rows (already filtered by LIKE in SQL)
+    return rows
+
+
+# ---------------------------------------------------------------------------
 # Answer formatting (template-based, no LLM)
 # ---------------------------------------------------------------------------
 
@@ -331,6 +400,11 @@ def attempt_property_lookup(
     if not category:
         return None
 
+    # 1b. Reject superlative/comparison/variance queries (Fix 3)
+    if is_superlative_or_comparison(query):
+        logger.debug(f"[PROP_PLANE] Rejected superlative/comparison query: {query[:60]}")
+        return None
+
     # 2. Extract query parameters
     params = extract_query_parameters(query, category)
     attr_name = params.get("attribute_name")
@@ -348,6 +422,19 @@ def attempt_property_lookup(
     if not rows:
         rows = _try_broader_lookup(session, tenant_id, attr_name, params)
 
+    if not rows:
+        return None
+
+    # 3b. Filter out value-shaped entity names from results (Fix 1)
+    rows = [r for r in rows if not is_value_shaped_name(r.entity_name)]
+    if not rows:
+        return None
+
+    # 3c. Entity disambiguation (Fix 2): if the query names a specific entity,
+    # prefer exact/close matches over loose LIKE hits
+    query_entity = params.get("entity_name")
+    if query_entity:
+        rows = _disambiguate_entity(rows, query_entity)
     if not rows:
         return None
 
