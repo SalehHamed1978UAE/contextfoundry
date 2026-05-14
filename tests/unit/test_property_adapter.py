@@ -74,6 +74,9 @@ def test_value_shaped_name_rejects_metric_labels():
     assert is_value_shaped_name("Revenue FY2026") is True
     assert is_value_shaped_name("Net Revenue") is True
     assert is_value_shaped_name("Gross Profit") is True
+    assert is_value_shaped_name("Revenue Target 2026") is True
+    assert is_value_shaped_name("Revenue Growth 2025") is True
+    assert is_value_shaped_name("Budget Forecast FY2027") is True
 
 
 def test_value_shaped_name_rejects_pure_number():

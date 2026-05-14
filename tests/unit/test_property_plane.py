@@ -331,6 +331,16 @@ def test_extract_fiscal_year():
     assert params["fiscal_year"] == "2025"
 
 
+def test_extract_what_was_entity():
+    """'What was' must extract entity name just like 'What is'."""
+    params = extract_query_parameters(
+        "What was Nexus Industries' revenue in FY2025?", "money"
+    )
+    assert params["entity_name"] == "Nexus Industries"
+    assert params["attribute_name"] == "revenue"
+    assert params["fiscal_year"] == "2025"
+
+
 # ---------------------------------------------------------------------------
 # Tests: answer_source correctness
 # ---------------------------------------------------------------------------
@@ -506,5 +516,15 @@ def test_q4_fy2025_revenue_filtered():
     session = _stub_session(rows)
     result = attempt_property_lookup(
         session, "t-1", "What is Nexus Industries' revenue in FY2025?"
+    )
+    assert result is None
+
+
+def test_revenue_target_2026_filtered():
+    """Entity name 'Revenue Target 2026' is value-shaped and must be filtered."""
+    rows = [_fact_row(entity_name="Revenue Target 2026", attribute_value="$9.5-9.8 billion")]
+    session = _stub_session(rows)
+    result = attempt_property_lookup(
+        session, "t-1", "What was Nexus Industries' revenue in FY2025?"
     )
     assert result is None

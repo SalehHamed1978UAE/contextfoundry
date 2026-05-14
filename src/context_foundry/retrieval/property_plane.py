@@ -65,8 +65,8 @@ from src.context_foundry.retrieval.document_evidence_fallback import (
 
 # Entity name patterns commonly found in Nexus 100Q
 _ENTITY_PATTERNS = [
-    # "What is Nexus Industries' revenue" → "Nexus Industries"
-    re.compile(r"(?:what is|what's|what are)\s+(.+?)(?:'s|')\s+", re.IGNORECASE),
+    # "What is/was/are Nexus Industries' revenue" → "Nexus Industries"
+    re.compile(r"(?:what (?:is|was|are|were)|what's)\s+(.+?)(?:'s|')\s+", re.IGNORECASE),
     # "revenue of Nexus Industries" → "Nexus Industries"
     re.compile(r"(?:revenue|budget|backlog|capacity|cost|value|headcount|market share|ebitda|margin)\s+(?:of|for)\s+(.+?)(?:\s+in\s+|\s*\?|$)", re.IGNORECASE),
     # "the <entity> <attribute>" → "<entity>"
@@ -194,7 +194,13 @@ def extract_query_parameters(query: str, category: str) -> Dict[str, Optional[st
     for pat in _ENTITY_PATTERNS:
         m = pat.search(query)
         if m:
-            name = m.group(1).strip().rstrip("'s").strip()
+            name = m.group(1).strip()
+            # Remove possessive suffix properly (not rstrip which strips chars)
+            if name.endswith("'s"):
+                name = name[:-2]
+            elif name.endswith("'"):
+                name = name[:-1]
+            name = name.strip()
             if len(name) > 2 and name.lower() not in ("the", "what", "how", "total"):
                 params["entity_name"] = name
                 break
