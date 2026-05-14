@@ -156,7 +156,7 @@ _VALUE_SHAPED_NAME = re.compile(
     r"|^(?:Total|Net|Gross)\s+(?:Revenue|Headcount|Budget|Backlog|EBITDA|Income|Profit)"  # "Total Headcount FY2026"
     r"|^(?:Revenue|Headcount|Budget|Backlog|EBITDA|Income|Profit)\s+(?:FY|Q[1-4]|20\d{2})"  # "Revenue FY2026"
     r"|^FY\d{4}\b"                               # "FY2026"
-    r"|^Q[1-4]\s+\d{4}$"                         # "Q3 2025"
+    r"|^Q[1-4]\s+(?:FY)?\d{4}\b"                 # "Q3 2025", "Q4 FY2025", "Q4 FY2025 Revenue"
     , re.IGNORECASE,
 )
 

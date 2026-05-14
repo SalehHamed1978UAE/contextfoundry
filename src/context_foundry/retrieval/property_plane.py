@@ -127,6 +127,8 @@ _ATTRIBUTE_PATTERNS: Dict[str, List[re.Pattern]] = {
     ],
     "rd_percentage": [
         re.compile(r"\br&d\b.*\bspend", re.IGNORECASE),
+        re.compile(r"\br&d\b.*\bpercentage\b", re.IGNORECASE),
+        re.compile(r"\br&d\b.*\binvestment\b", re.IGNORECASE),
         re.compile(r"\bresearch and development\b", re.IGNORECASE),
     ],
     "start_date": [
@@ -273,9 +275,12 @@ def _try_broader_lookup(
 ) -> list:
     """Progressively relax filters if the strict lookup returned nothing.
 
-    Order: drop fiscal_year → drop entity_name → give up.
+    Only relaxes fiscal_year. Never drops entity_name — returning a random
+    entity's data is worse than returning nothing. If the query names an
+    entity and we can't find it, we should fall through to KG/DocEv rather
+    than answer with the wrong entity.
     """
-    # Try without fiscal_year
+    # Try without fiscal_year (but keep entity_name)
     if params.get("fiscal_year"):
         rows = _lookup_property_facts(
             session, tenant_id, attribute_name,
@@ -284,18 +289,13 @@ def _try_broader_lookup(
         if rows:
             return rows
 
-    # Try without entity_name
-    if params.get("entity_name"):
-        rows = _lookup_property_facts(
-            session, tenant_id, attribute_name,
-            fiscal_year=params.get("fiscal_year"),
-        )
-        if rows:
-            return rows
+    # If no entity was specified in the query, try attribute-only lookup
+    if not params.get("entity_name"):
+        rows = _lookup_property_facts(session, tenant_id, attribute_name)
+        return rows
 
-    # Try with nothing
-    rows = _lookup_property_facts(session, tenant_id, attribute_name)
-    return rows
+    # Entity was specified but not found — return empty rather than wrong entity
+    return []
 
 
 # ---------------------------------------------------------------------------

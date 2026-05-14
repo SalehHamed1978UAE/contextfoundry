@@ -482,3 +482,29 @@ def test_exact_entity_match_preferred():
     assert result is not None
     assert result.entity_name == "Nexus Industries"
     assert "8.45 billion" in result.answer
+
+
+# ---------------------------------------------------------------------------
+# Tests: broader lookup never returns wrong entity (Fix A)
+# ---------------------------------------------------------------------------
+
+def test_broader_lookup_does_not_drop_entity():
+    """When query names an entity that doesn't exist, return None — not a random entity."""
+    # First call (strict) returns empty, second call (broader) also returns empty
+    # because broader lookup should NOT drop entity_name
+    session = _stub_session([])  # no matches at all
+    result = attempt_property_lookup(
+        session, "t-1", "What is the Falcon X budget?"
+    )
+    # Should be None rather than returning some random entity's budget
+    assert result is None
+
+
+def test_q4_fy2025_revenue_filtered():
+    """Entity name 'Q4 FY2025 Revenue' is value-shaped and must be filtered."""
+    rows = [_fact_row(entity_name="Q4 FY2025 Revenue", attribute_value="$8.45B")]
+    session = _stub_session(rows)
+    result = attempt_property_lookup(
+        session, "t-1", "What is Nexus Industries' revenue in FY2025?"
+    )
+    assert result is None

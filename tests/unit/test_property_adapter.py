@@ -64,6 +64,9 @@ def test_value_shaped_name_rejects_currency():
 def test_value_shaped_name_rejects_fiscal_tokens():
     assert is_value_shaped_name("FY2025") is True
     assert is_value_shaped_name("Q3 2025") is True
+    assert is_value_shaped_name("Q4 FY2025 Revenue") is True
+    assert is_value_shaped_name("Q4 FY2025") is True
+    assert is_value_shaped_name("Q1 2026 Backlog") is True
 
 
 def test_value_shaped_name_rejects_metric_labels():
