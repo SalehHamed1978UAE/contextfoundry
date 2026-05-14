@@ -48,7 +48,8 @@ PROPERTY_QIDS="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25
 
 # Find the questions file
 QUESTIONS_FILE=""
-for f in data/nexus_industries_100q.json \
+for f in test_questions/nexus_100q.json \
+         data/nexus_industries_100q.json \
          data/test-runner/nexus_industries_100q.json \
          src/test_runner/data/nexus_industries_100q.json; do
     if [ -f "$f" ]; then
