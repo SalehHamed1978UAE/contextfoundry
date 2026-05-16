@@ -105,11 +105,13 @@ def detect_value_type(value_str: str, key: str = "") -> str:
     ):
         return "CURRENCY"
     if k in ("revenue", "budget", "cost", "contract_value", "backlog", "ebitda",
-             "capex", "funding", "valuation", "salary", "spend"):
+             "capex", "funding", "valuation", "salary", "spend",
+             "offtake_value", "m_and_a_budget"):
         return "CURRENCY"
     if re.match(r"^\d{4}[-/]\d{2}[-/]\d{2}", s) or k.endswith("_date"):
         return "DATE"
-    if k in ("headcount", "employees", "count", "qubits", "qubit_count"):
+    if k in ("headcount", "employees", "count", "qubits", "qubit_count",
+             "employee_count"):
         return "COUNT"
     return "SPEC"
 
@@ -137,6 +139,12 @@ def detect_unit(value_str: str, key: str = "") -> Optional[str]:
         return "MW"
     if "qubit" in s.lower() or k in ("qubits", "qubit_count"):
         return "qubits"
+
+    # Key-based fallbacks for common attribute names
+    if k == "energy_density" and not any(u in s.lower() for u in ("wh/kg", "kwh", "mw")):
+        return "Wh/kg"
+    if k == "production_rate" and "kg/hr" not in s.lower():
+        return "kg/hr"
 
     # Check for trailing unit after number
     m = re.search(r"\d\s+([a-zA-Z/]+)$", s)

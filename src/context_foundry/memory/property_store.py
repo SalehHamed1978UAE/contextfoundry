@@ -230,3 +230,15 @@ class PropertyStore:
             except Exception as e:
                 logger.warning(f"[PROP_STORE] Failed to upsert fact: {e}")
         return count
+
+    def delete_tenant_facts(self) -> int:
+        """Delete all property_facts for current tenant. Used before re-extraction."""
+        sql = """
+            DELETE FROM property_facts
+            WHERE tenant_id = :tid
+        """
+        result = self.session.execute(text(sql), {"tid": self.tenant_id})
+        self.session.commit()
+        count = result.rowcount
+        logger.info(f"[PROP_STORE] Deleted {count} facts for tenant {self.tenant_id}")
+        return count

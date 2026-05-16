@@ -1,0 +1,16 @@
+git fetch origin && git reset --hard origin/stage3a-property-plane-mvp
+
+# Stage 3B: Extract property facts from document chunks
+python scripts/run_property_extractor.py \
+  --tenant-id ecd2f1c2-e1f3-4f5c-8e82-961a84a88eda \
+  --clean
+
+# Then run validation:
+python scripts/run_qonly_http_parity.py \
+  --vault-id "ecd2f1c2-e1f3-4f5c-8e82-961a84a88eda" \
+  --questions-file test_questions/nexus_100q.json \
+  --out-dir test_results/stage3b \
+  --corpus-name stage3b_full100q \
+  --batch 100 \
+  --per-q-timeout 60 \
+  --enable-fallback true
