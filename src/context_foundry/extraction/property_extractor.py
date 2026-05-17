@@ -142,7 +142,16 @@ class PropertyExtractor:
             if is_value_shaped_name(entity["name"]):
                 continue
 
-            facts = self.extract_for_entity(entity)
+            try:
+                facts = self.extract_for_entity(entity)
+            except Exception as e:
+                logger.warning(f"[PROP_EX] Entity extraction failed for {entity['name']}: {e}")
+                try:
+                    self.session.rollback()
+                except Exception:
+                    pass
+                continue
+
             total_extracted += len(facts)
 
             etype = entity["entity_type"]
@@ -154,6 +163,10 @@ class PropertyExtractor:
                         written += 1
                     except Exception as e:
                         logger.warning(f"[PROP_EX] Upsert failed for {entity['name']}: {e}")
+                        try:
+                            self.session.rollback()
+                        except Exception:
+                            pass
                 else:
                     written += 1  # count as "would write" in dry_run
 
