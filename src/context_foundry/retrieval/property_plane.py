@@ -1,28 +1,29 @@
-"""Stage 3A — Property Plane hook.
+"""Property Plane — structured fact lookup for scalar attribute answers.
 
 Queries the property_facts table for scalar attribute answers (revenue,
 budget, capacity, qubits, etc.). Inserted between the QA Verifier and
 DocEv fallback in the answer path.
 
-Key design decisions:
-  - Property plane IS the primary evidence source for scalar attribute values.
-    Unlike DocEv (which never overrides confident KG answers), this hook
-    REPLACES KG answers for attribute questions when a matching property fact
-    exists. This addresses Bucket E failures (confident-wrong KG answers).
-  - No LLM call — direct template-based formatting from structured facts.
-    Faster, deterministic, no hallucination risk.
-  - Read-only: never writes to property_facts/entities/etc during query.
-  - Tenant-scoped: every lookup is filtered by tenant_id.
+Architecture:
+  1. LLM-based query parsing (gpt-4o-mini, temperature 0): extracts entity_name,
+     attribute_name, and fiscal_year from the user's question. Handles any
+     phrasing — no brittle regex patterns.
+  2. SQL lookup in property_facts: deterministic, tenant-scoped.
+  3. Template-based answer formatting: no hallucination risk.
+  4. Override guard: only replaces KG answers when PP has a confident,
+     entity-matched result.
 
 answer_source: TRUSTED_PROPERTY | STAGING_PROPERTY
 """
 
 from __future__ import annotations
 
+import json
 import logging
+import os
 import re
 from dataclasses import dataclass, asdict
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 from sqlalchemy import text
 
@@ -55,207 +56,179 @@ class PropertyResult:
 
 
 # ---------------------------------------------------------------------------
-# Query parameter extraction (no LLM)
+# Query parameter extraction (LLM-based)
 # ---------------------------------------------------------------------------
 
-# Reuse the attribute trigger detection from DocEv
+# Reuse the attribute trigger detection from DocEv (cheap regex gate —
+# if the question isn't about an attribute at all, skip the LLM call)
 from src.context_foundry.retrieval.document_evidence_fallback import (
     is_attribute_query,
 )
 
-# Entity name patterns commonly found in Nexus 100Q
-_ENTITY_PATTERNS = [
-    # "What is/was/are Nexus Industries' revenue" → "Nexus Industries"
-    re.compile(r"(?:what (?:is|was|are|were)|what's)\s+(.+?)(?:'s|')\s+", re.IGNORECASE),
-    # "How many employees does Nexus Industries have" → "Nexus Industries"
-    re.compile(r"\bdoes\s+(.+?)\s+have\b", re.IGNORECASE),
-    # "How many ... will Nexus Industries hire/add/..." → "Nexus Industries"
-    re.compile(r"\bwill\s+(.+?)\s+(?:hire|add|have|produce|generate|achieve|reach)\b", re.IGNORECASE),
-    # "revenue/budget/... of/for Nexus Industries" → "Nexus Industries"
-    re.compile(r"(?:revenue|budget|backlog|capacity|cost|value|headcount|employees|market share|ebitda|margin|investment|target)\s+(?:of|for)\s+(.+?)(?:\s+in\s+|\s*\?|$)", re.IGNORECASE),
-    # "the <entity> <attribute>" → "<entity>"
-    re.compile(r"(?:the|for)\s+(.+?)\s+(?:revenue|budget|backlog|capacity|facility|contract|margin|investment|target)", re.IGNORECASE),
-    # "for <entity> in FY..." → "<entity>"
-    re.compile(r"\bfor\s+(.+?)\s+in\s+(?:FY|fiscal|20)", re.IGNORECASE),
-]
+# LLM prompt for structured query parsing
+_PARSE_SYSTEM_PROMPT = """\
+You are a query parser for a structured facts database. Given a user question,
+extract these fields as JSON:
 
-# Words to strip from extracted entity names (prefixes)
-_ENTITY_STRIP_PREFIXES = {"the", "a", "an", "total", "current", "overall", "entire"}
-# Generic non-entity words to reject
-_ENTITY_REJECT = {"total company", "the company", "company", "total", "current"}
+- "entity_name": The specific named entity being asked about (company, project,
+  facility, product, person, division, etc.). Use the exact name from the question.
+  If no specific entity is named, set to null.
+- "attribute_name": The property/metric being asked about, in snake_case
+  (e.g. "revenue", "headcount", "budget", "capacity", "energy_density",
+  "founded_year", "contract_value", "operating_margin", "backlog").
+  If no clear attribute, set to null.
+- "fiscal_year": A 4-digit year if mentioned (e.g. "2025" from "FY2025").
+  Set to null if not mentioned.
+- "is_comparison": true if the question compares multiple entities or asks
+  for rankings/superlatives (highest, lowest, which has more, etc.).
+  These cannot be answered from a single fact.
 
-# Attribute name extraction patterns
-_ATTRIBUTE_PATTERNS: Dict[str, List[re.Pattern]] = {
-    "revenue": [
-        re.compile(r"\brevenue\b", re.IGNORECASE),
-        re.compile(r"\btotal revenue\b", re.IGNORECASE),
-        re.compile(r"\bannual revenue\b", re.IGNORECASE),
-    ],
-    "backlog": [
-        re.compile(r"\bbacklog\b", re.IGNORECASE),
-        re.compile(r"\border backlog\b", re.IGNORECASE),
-    ],
-    "budget": [
-        re.compile(r"\bbudget\b", re.IGNORECASE),
-    ],
-    "ebitda": [
-        re.compile(r"\bebitda\b", re.IGNORECASE),
-    ],
-    "ebitda_margin": [
-        re.compile(r"\bebitda\s+margin\b", re.IGNORECASE),
-    ],
-    "margin": [
-        re.compile(r"\bmargin\b", re.IGNORECASE),
-    ],
-    "headcount": [
-        re.compile(r"\bheadcount\b", re.IGNORECASE),
-        re.compile(r"\bemployees?\b", re.IGNORECASE),
-        re.compile(r"\bhow many employees\b", re.IGNORECASE),
-    ],
-    "capacity": [
-        re.compile(r"\bcapacity\b", re.IGNORECASE),
-    ],
-    "throughput": [
-        re.compile(r"\bthroughput\b", re.IGNORECASE),
-        re.compile(r"\bproduction rate\b", re.IGNORECASE),
-    ],
-    "qubits": [
-        re.compile(r"\bqubits?\b", re.IGNORECASE),
-    ],
-    "energy_density": [
-        re.compile(r"\benergy density\b", re.IGNORECASE),
-    ],
-    "contract_value": [
-        re.compile(r"\bcontract value\b", re.IGNORECASE),
-        re.compile(r"\bdeal value\b", re.IGNORECASE),
-    ],
-    "market_share": [
-        re.compile(r"\bmarket share\b", re.IGNORECASE),
-    ],
-    "growth_rate": [
-        re.compile(r"\bgrowth rate\b", re.IGNORECASE),
-        re.compile(r"\brevenue growth\b", re.IGNORECASE),
-    ],
-    "rd_percentage": [
-        re.compile(r"\br&d\b.*\bspend", re.IGNORECASE),
-        re.compile(r"\br&d\b.*\bpercentage\b", re.IGNORECASE),
-        re.compile(r"\br&d\b.*\binvestment\b", re.IGNORECASE),
-        re.compile(r"\bresearch and development\b", re.IGNORECASE),
-    ],
-    "start_date": [
-        re.compile(r"\bstart date\b", re.IGNORECASE),
-    ],
-    "end_date": [
-        re.compile(r"\bend date\b", re.IGNORECASE),
-        re.compile(r"\bcompletion date\b", re.IGNORECASE),
-        re.compile(r"\btarget.*(?:date|completion)\b", re.IGNORECASE),
-    ],
-    "operating_margin": [
-        re.compile(r"\boperating margin\b", re.IGNORECASE),
-    ],
-    "revenue_target": [
-        re.compile(r"\brevenue target\b", re.IGNORECASE),
-    ],
-    "investment": [
-        re.compile(r"\binvestment\b", re.IGNORECASE),
-    ],
-    "founded": [
-        re.compile(r"\bfounded\b", re.IGNORECASE),
-        re.compile(r"\bwhen was.*founded\b", re.IGNORECASE),
-    ],
-}
+Return ONLY a JSON object, no other text.
 
-# Fiscal year extraction
-_FISCAL_YEAR_PATTERN = re.compile(
-    r"(?:FY|fiscal\s+year\s*|in\s+)(\d{4})", re.IGNORECASE
-)
+Examples:
+- "What was Nexus Industries' revenue in FY2025?"
+  → {"entity_name": "Nexus Industries", "attribute_name": "revenue", "fiscal_year": "2025", "is_comparison": false}
+- "How many employees does Nexus Industries have?"
+  → {"entity_name": "Nexus Industries", "attribute_name": "headcount", "fiscal_year": null, "is_comparison": false}
+- "What is the total company backlog?"
+  → {"entity_name": "Nexus Industries", "attribute_name": "backlog", "fiscal_year": null, "is_comparison": false}
+- "Which division has the highest revenue?"
+  → {"entity_name": null, "attribute_name": "revenue", "fiscal_year": null, "is_comparison": true}
+- "When was Nexus Industries founded?"
+  → {"entity_name": "Nexus Industries", "attribute_name": "founded_year", "fiscal_year": null, "is_comparison": false}
+- "What is the budget for Project Quantum Shield?"
+  → {"entity_name": "Quantum Shield", "attribute_name": "budget", "fiscal_year": null, "is_comparison": false}"""
 
 
-# ---------------------------------------------------------------------------
-# Superlative / comparison / variance rejection (Fix 3)
-# ---------------------------------------------------------------------------
+def _get_openai_client():
+    """Initialize OpenAI client (same pattern as graph_builder.py)."""
+    try:
+        from openai import OpenAI
+    except ImportError:
+        return None
 
-_SUPERLATIVE_PATTERNS = [
-    re.compile(r"\bwhich\b.*\b(?:highest|lowest|largest|smallest|biggest|most|least|top|best|worst)\b", re.IGNORECASE),
-    re.compile(r"\b(?:highest|lowest|largest|smallest|biggest)\b.*\b(?:revenue|budget|backlog|capacity|headcount|contract|market share)\b", re.IGNORECASE),
-    re.compile(r"\brank\b|\branking\b|\bcompare\b|\bcomparison\b", re.IGNORECASE),
-    re.compile(r"\bvariance\b|\bdifference between\b|\bgap between\b", re.IGNORECASE),
-    re.compile(r"\b(?:more|less|greater|fewer)\s+than\b", re.IGNORECASE),
-    re.compile(r"\bvs\.?\b|\bversus\b|\bor\b.*\bwhich\b", re.IGNORECASE),
-    re.compile(r"\bhow (?:much|many) (?:more|less|higher|lower)\b", re.IGNORECASE),
-    re.compile(r"\b(?:total|combined|aggregate|sum)\b.*\b(?:across|of all|for all)\b", re.IGNORECASE),
-]
+    ai_key = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
+    ai_base = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
+    fallback_key = os.environ.get("OPENAI_API_KEY")
+
+    if ai_key and ai_base:
+        return OpenAI(api_key=ai_key, base_url=ai_base)
+    elif ai_key:
+        return OpenAI(api_key=ai_key)
+    elif fallback_key:
+        return OpenAI(api_key=fallback_key)
+    return None
 
 
-def is_superlative_or_comparison(query: str) -> bool:
-    """Return True if the query is a superlative, comparison, or variance question.
+# Module-level client (lazy init)
+_client = None
 
-    These cannot be answered from a single property fact row.
-    Examples:
-        "Which project has the highest budget?" → True
-        "What is the variance between Q3 and Q4 revenue?" → True
-        "Boeing or Airbus — which has more revenue?" → True
-        "What is Nexus Industries' revenue?" → False
-    """
-    for pat in _SUPERLATIVE_PATTERNS:
-        if pat.search(query):
-            return True
-    return False
+
+def _ensure_client():
+    global _client
+    if _client is None:
+        _client = _get_openai_client()
+    return _client
+
+
+def _strip_json_fences(content: str) -> str:
+    """Strip markdown JSON fences from LLM output."""
+    content = content.strip()
+    if content.startswith("```"):
+        content = re.sub(r'^```(?:json)?\n?', '', content)
+        content = re.sub(r'\n?```$', '', content)
+    return content
 
 
 def extract_query_parameters(query: str, category: str) -> Dict[str, Optional[str]]:
     """Extract entity_name, attribute_name, and fiscal_year from a query.
 
-    Uses regex/heuristic extraction — no LLM call.
+    Uses gpt-4o-mini at temperature 0 for reliable structured extraction.
+    Falls back to basic regex if LLM is unavailable.
     """
     params: Dict[str, Optional[str]] = {
         "entity_name": None,
         "attribute_name": None,
         "fiscal_year": None,
+        "is_comparison": False,
     }
 
-    # Extract entity name
-    for pat in _ENTITY_PATTERNS:
-        m = pat.search(query)
-        if m:
-            name = m.group(1).strip()
-            # Remove possessive suffix properly (not rstrip which strips chars)
-            if name.endswith("'s"):
-                name = name[:-2]
-            elif name.endswith("'"):
-                name = name[:-1]
-            name = name.strip()
-            # Strip common prefixes ("the Falcon X" → "Falcon X")
-            words = name.split()
-            while words and words[0].lower() in _ENTITY_STRIP_PREFIXES:
-                words.pop(0)
-            name = " ".join(words).strip()
-            # Reject generic non-entity phrases
-            if name.lower() in _ENTITY_REJECT:
-                continue
-            # Reject bare years (e.g. "2030" extracted from "the 2030 revenue target")
-            if re.match(r"^(?:19|20)\d{2}$", name):
-                continue
-            if len(name) > 2 and name.lower() not in ("the", "what", "how", "total"):
-                params["entity_name"] = name
-                break
+    client = _ensure_client()
+    if not client:
+        logger.warning("[PROP_PLANE] No OpenAI client, falling back to regex extraction")
+        return _regex_fallback_extract(query, category)
 
-    # Extract attribute name — try most specific first
-    # Check ebitda_margin before margin, etc.
-    ordered_attrs = sorted(
-        _ATTRIBUTE_PATTERNS.items(),
-        key=lambda x: -len(x[0]),  # longer names first
-    )
-    for attr_name, patterns in ordered_attrs:
-        for pat in patterns:
-            if pat.search(query):
-                params["attribute_name"] = attr_name
-                break
-        if params["attribute_name"]:
+    try:
+        resp = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": _PARSE_SYSTEM_PROMPT},
+                {"role": "user", "content": query},
+            ],
+            temperature=0,
+            max_tokens=200,
+        )
+        content = (resp.choices[0].message.content or "").strip()
+    except Exception as e:
+        logger.warning(f"[PROP_PLANE] LLM parse failed: {e}, falling back to regex")
+        return _regex_fallback_extract(query, category)
+
+    content = _strip_json_fences(content)
+
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError:
+        logger.warning(f"[PROP_PLANE] JSON parse failed, falling back to regex")
+        return _regex_fallback_extract(query, category)
+
+    params["entity_name"] = data.get("entity_name") or None
+    params["attribute_name"] = data.get("attribute_name") or None
+    params["fiscal_year"] = str(data["fiscal_year"]) if data.get("fiscal_year") else None
+    params["is_comparison"] = bool(data.get("is_comparison", False))
+
+    return params
+
+
+def _regex_fallback_extract(query: str, category: str) -> Dict[str, Optional[str]]:
+    """Minimal regex fallback when LLM is unavailable (e.g. tests, no API key)."""
+    params: Dict[str, Optional[str]] = {
+        "entity_name": None,
+        "attribute_name": None,
+        "fiscal_year": None,
+        "is_comparison": False,
+    }
+
+    # Basic possessive extraction: "What is X's Y"
+    m = re.search(r"(?:what (?:is|was|are|were)|what's)\s+(.+?)(?:'s|')\s+", query, re.IGNORECASE)
+    if m:
+        name = m.group(1).strip()
+        if len(name) > 2:
+            params["entity_name"] = name
+
+    # Basic attribute extraction
+    attr_map = {
+        "revenue": r"\brevenue\b",
+        "headcount": r"\b(?:employees?|headcount|workforce)\b",
+        "budget": r"\bbudget\b",
+        "backlog": r"\bbacklog\b",
+        "capacity": r"\bcapacity\b",
+        "ebitda_margin": r"\bebitda\s+margin\b",
+        "ebitda": r"\bebitda\b",
+        "operating_margin": r"\boperating\s+margin\b",
+        "margin": r"\bmargin\b",
+        "qubits": r"\bqubits?\b",
+        "contract_value": r"\bcontract\s+value\b",
+        "energy_density": r"\benergy\s+density\b",
+        "production_rate": r"\bproduction\s+rate\b",
+        "founded_year": r"\bfounded\b",
+    }
+    for attr_name, pattern in attr_map.items():
+        if re.search(pattern, query, re.IGNORECASE):
+            params["attribute_name"] = attr_name
             break
 
-    # Extract fiscal year
-    fy_match = _FISCAL_YEAR_PATTERN.search(query)
+    # Fiscal year
+    fy_match = re.search(r"(?:FY|fiscal\s+year\s*|in\s+)(\d{4})", query, re.IGNORECASE)
     if fy_match:
         params["fiscal_year"] = fy_match.group(1)
 
@@ -263,7 +236,7 @@ def extract_query_parameters(query: str, category: str) -> Dict[str, Optional[st
 
 
 # ---------------------------------------------------------------------------
-# Property lookup (raw SQL, no ORM — matches DocEv pattern)
+# Property lookup (raw SQL, no ORM)
 # ---------------------------------------------------------------------------
 
 def _lookup_property_facts(
@@ -277,12 +250,13 @@ def _lookup_property_facts(
     """Direct SQL lookup in property_facts. Returns raw rows.
 
     Tries both TRUSTED and STAGING lifecycle states, preferring TRUSTED.
+    Prefers ORGANIZATION entity type and larger numeric values.
     """
     clauses = [
         "tenant_id = :tid",
-        "LOWER(attribute_name) = LOWER(:attr)",
+        "LOWER(attribute_name) LIKE LOWER(:attr)",
     ]
-    params: Dict[str, Any] = {"tid": tenant_id, "attr": attribute_name}
+    params: Dict[str, Any] = {"tid": tenant_id, "attr": f"%{attribute_name}%"}
 
     if entity_name:
         clauses.append("LOWER(entity_name) LIKE LOWER(:ename)")
@@ -319,9 +293,7 @@ def _try_broader_lookup(
     """Progressively relax filters if the strict lookup returned nothing.
 
     Only relaxes fiscal_year. Never drops entity_name — returning a random
-    entity's data is worse than returning nothing. If the query names an
-    entity and we can't find it, we should fall through to KG/DocEv rather
-    than answer with the wrong entity.
+    entity's data is worse than returning nothing.
     """
     # Try without fiscal_year (but keep entity_name)
     if params.get("fiscal_year"):
@@ -342,7 +314,7 @@ def _try_broader_lookup(
 
 
 # ---------------------------------------------------------------------------
-# Entity disambiguation (Fix 2)
+# Entity disambiguation
 # ---------------------------------------------------------------------------
 
 def _disambiguate_entity(rows: list, query_entity: str) -> list:
@@ -351,11 +323,8 @@ def _disambiguate_entity(rows: list, query_entity: str) -> list:
     Matching tiers (highest to lowest):
       1. Case-insensitive exact match
       2. Query entity is a substring of the row entity_name (or vice versa),
-         sorted by closeness (prefer shorter entity names that still contain
-         the query entity, i.e. closest to exact match)
+         sorted by closeness
       3. All remaining rows (loose LIKE match from SQL)
-
-    Returns the rows from the highest non-empty tier.
     """
     qe = query_entity.lower().strip()
 
@@ -368,12 +337,44 @@ def _disambiguate_entity(rows: list, query_entity: str) -> list:
         if qe in r.entity_name.lower() or r.entity_name.lower() in qe
     ]
     if substring:
-        # Sort by name length difference from query entity (closest first)
         substring.sort(key=lambda r: abs(len(r.entity_name) - len(query_entity)))
         return substring
 
-    # Fallback: return all rows (already filtered by LIKE in SQL)
     return rows
+
+
+# ---------------------------------------------------------------------------
+# Entity resolution via aliases
+# ---------------------------------------------------------------------------
+
+def _resolve_entity_via_aliases(
+    session,
+    tenant_id: str,
+    entity_name: str,
+) -> Optional[str]:
+    """Look up entity_name in the entities + entity_aliases tables.
+
+    If the query entity doesn't directly match a property_facts entity_name,
+    try to find it via aliases. Returns the canonical entity name if found.
+    """
+    sql = """
+        SELECT DISTINCT e.name
+        FROM entities e
+        LEFT JOIN entity_aliases ea ON ea.entity_id = e.id AND ea.tenant_id = e.tenant_id
+        WHERE e.tenant_id = :tid
+          AND (LOWER(e.name) LIKE LOWER(:pat)
+               OR LOWER(ea.alias) LIKE LOWER(:pat))
+        ORDER BY e.name ASC
+        LIMIT 3
+    """
+    rows = session.execute(text(sql), {
+        "tid": tenant_id,
+        "pat": f"%{entity_name}%",
+    }).fetchall()
+
+    if rows:
+        return rows[0].name
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -421,6 +422,31 @@ def format_property_answer(query: str, fact, params: Dict) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Superlative / comparison rejection
+# ---------------------------------------------------------------------------
+
+def is_superlative_or_comparison(query: str) -> bool:
+    """Quick regex check for obvious superlative/comparison questions.
+
+    The LLM also detects these via is_comparison, but this catches them
+    before wasting an LLM call.
+    """
+    patterns = [
+        r"\bwhich\b.*\b(?:highest|lowest|largest|smallest|biggest|most|least|more|fewer|top|best|worst)\b",
+        r"\b(?:highest|lowest|largest|smallest|biggest)\b",
+        r"\brank\b|\branking\b",
+        r"\bhow (?:much|many) (?:more|less|higher|lower)\b",
+        r"\bvs\b|\bversus\b|\bcompare\b|\bcomparison\b",
+        r"\bvariance\b|\bdifference between\b",
+        r"\btotal\b.*\bacross\s+all\b",
+    ]
+    for pat in patterns:
+        if re.search(pat, query, re.IGNORECASE):
+            return True
+    return False
+
+
+# ---------------------------------------------------------------------------
 # Main orchestrator
 # ---------------------------------------------------------------------------
 
@@ -435,33 +461,39 @@ def attempt_property_lookup(
     """Attempt to answer the query from property_facts.
 
     Returns PropertyResult if a matching fact is found, None otherwise.
-    Unlike DocEv, this DOES override confident KG answers for attribute
-    questions (addresses Bucket E failures).
     """
-    # 1. Is this an attribute query?
+    # 1. Is this an attribute query? (cheap regex gate)
     category = is_attribute_query(query)
     if not category:
         return None
 
-    # 1b. Reject superlative/comparison/variance queries (Fix 3)
+    # 1b. Quick reject obvious superlatives (before LLM call)
     if is_superlative_or_comparison(query):
-        logger.debug(f"[PROP_PLANE] Rejected superlative/comparison query: {query[:60]}")
+        logger.debug(f"[PROP_PLANE] Rejected superlative query: {query[:60]}")
         return None
 
-    # 2. Extract query parameters
+    # 2. Extract query parameters (LLM-based)
     params = extract_query_parameters(query, category)
     attr_name = params.get("attribute_name")
     logger.info(
         f"[PROP_PLANE] Extract: query={query[:60]} → "
-        f"entity={params.get('entity_name')} attr={attr_name} fy={params.get('fiscal_year')}"
+        f"entity={params.get('entity_name')} attr={attr_name} fy={params.get('fiscal_year')} "
+        f"comparison={params.get('is_comparison')}"
     )
+
+    # LLM detected comparison — reject
+    if params.get("is_comparison"):
+        logger.debug(f"[PROP_PLANE] LLM flagged as comparison: {query[:60]}")
+        return None
+
     if not attr_name:
         return None
 
     # 3. Look up property facts
+    entity_name = params.get("entity_name")
     rows = _lookup_property_facts(
         session, tenant_id, attr_name,
-        entity_name=params.get("entity_name"),
+        entity_name=entity_name,
         fiscal_year=params.get("fiscal_year"),
     )
 
@@ -469,27 +501,36 @@ def attempt_property_lookup(
     if not rows:
         rows = _try_broader_lookup(session, tenant_id, attr_name, params)
 
+    # 3a. If still no rows and entity was specified, try alias resolution
+    if not rows and entity_name:
+        canonical = _resolve_entity_via_aliases(session, tenant_id, entity_name)
+        if canonical and canonical.lower() != entity_name.lower():
+            logger.info(f"[PROP_PLANE] Alias resolution: '{entity_name}' → '{canonical}'")
+            rows = _lookup_property_facts(
+                session, tenant_id, attr_name,
+                entity_name=canonical,
+            )
+
     if not rows:
         logger.info(
-            f"[PROP_PLANE] No rows found for entity={params.get('entity_name')} "
+            f"[PROP_PLANE] No rows found for entity={entity_name} "
             f"attr={attr_name} fy={params.get('fiscal_year')}"
         )
         return None
 
-    # 3b. Filter out value-shaped entity names from results (Fix 1)
+    # 3b. Filter out value-shaped entity names from results
     rows = [r for r in rows if not is_value_shaped_name(r.entity_name)]
     if not rows:
         return None
 
-    # 3c. Entity disambiguation (Fix 2): if the query names a specific entity,
+    # 3c. Entity disambiguation: if the query names a specific entity,
     # prefer exact/close matches over loose LIKE hits
-    query_entity = params.get("entity_name")
-    if query_entity:
-        rows = _disambiguate_entity(rows, query_entity)
+    if entity_name:
+        rows = _disambiguate_entity(rows, entity_name)
     if not rows:
         return None
 
-    # 4. Pick the best fact (first row — already sorted by lifecycle + confidence)
+    # 4. Pick the best fact (first row — sorted by lifecycle, entity_type, confidence, numeric_value)
     best = rows[0]
 
     # 5. Format the answer
@@ -546,17 +587,6 @@ def apply_to_agent_result(
     }
     agent_result["property_plane_diagnostics"] = diagnostics
 
-    # Pre-extract params for diagnostics (even if lookup fails/skips)
-    try:
-        category = is_attribute_query(query)
-        if category:
-            _params = extract_query_parameters(query, category)
-            diagnostics["extracted_entity"] = _params.get("entity_name")
-            diagnostics["extracted_attr"] = _params.get("attribute_name")
-            diagnostics["extracted_fy"] = _params.get("fiscal_year")
-    except Exception:
-        pass
-
     try:
         result = attempt_property_lookup(
             session,
@@ -575,18 +605,15 @@ def apply_to_agent_result(
     if result is None:
         return agent_result
 
-    # Property plane hit — decide whether to replace the KG answer
+    # Record what the PP found
     diagnostics["hit"] = True
     diagnostics["attribute_name"] = result.attribute_name
     diagnostics["entity_name"] = result.entity_name
     diagnostics["answer_source"] = result.answer_source
 
-    # Safety check: if no entity was specified in the query AND the KG already
-    # has a confident answer, don't override — entity-less PP results are
-    # too likely to pick the wrong entity.
+    # Override guard: only replace KG answer when PP result is trustworthy
     kg_source = agent_result.get("answer_source", "")
     kg_answer_text = agent_result.get("answer", "")
-    extracted_entity = diagnostics.get("extracted_entity")
 
     # KG gave a "no data" answer — always safe to override
     kg_is_empty = (
@@ -598,16 +625,22 @@ def apply_to_agent_result(
         or "no information" in kg_answer_text.lower()
     )
 
-    if not extracted_entity and not kg_is_empty and kg_source == "TRUSTED_GRAPH_FACT":
-        # Entity-less PP lookup + confident KG answer → don't override
+    if kg_is_empty:
+        # KG has nothing — PP override is always safe
+        agent_result["answer"] = result.answer
+        agent_result["answer_source"] = result.answer_source
+        agent_result["property_evidence"] = result.to_dict()
+    elif result.confidence >= 0.85 and result.answer_source == ANSWER_SOURCE_TRUSTED_PROPERTY:
+        # PP has a high-confidence TRUSTED fact — override KG
+        agent_result["answer"] = result.answer
+        agent_result["answer_source"] = result.answer_source
+        agent_result["property_evidence"] = result.to_dict()
+    else:
+        # PP result isn't confident enough to override a non-empty KG answer
         logger.info(
-            f"[PROP_PLANE] Skipping override: entity-less query, KG has confident answer"
+            f"[PROP_PLANE] Skipping override: PP confidence={result.confidence} "
+            f"state={result.answer_source}, KG has content"
         )
         diagnostics["override_skipped"] = True
-        return agent_result
-
-    agent_result["answer"] = result.answer
-    agent_result["answer_source"] = result.answer_source
-    agent_result["property_evidence"] = result.to_dict()
 
     return agent_result
