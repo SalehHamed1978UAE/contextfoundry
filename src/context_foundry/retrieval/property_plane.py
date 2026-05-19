@@ -67,11 +67,22 @@ from src.context_foundry.retrieval.document_evidence_fallback import (
 _ENTITY_PATTERNS = [
     # "What is/was/are Nexus Industries' revenue" → "Nexus Industries"
     re.compile(r"(?:what (?:is|was|are|were)|what's)\s+(.+?)(?:'s|')\s+", re.IGNORECASE),
-    # "revenue of Nexus Industries" → "Nexus Industries"
-    re.compile(r"(?:revenue|budget|backlog|capacity|cost|value|headcount|market share|ebitda|margin)\s+(?:of|for)\s+(.+?)(?:\s+in\s+|\s*\?|$)", re.IGNORECASE),
+    # "How many employees does Nexus Industries have" → "Nexus Industries"
+    re.compile(r"\bdoes\s+(.+?)\s+have\b", re.IGNORECASE),
+    # "How many ... will Nexus Industries hire/add/..." → "Nexus Industries"
+    re.compile(r"\bwill\s+(.+?)\s+(?:hire|add|have|produce|generate|achieve|reach)\b", re.IGNORECASE),
+    # "revenue/budget/... of/for Nexus Industries" → "Nexus Industries"
+    re.compile(r"(?:revenue|budget|backlog|capacity|cost|value|headcount|employees|market share|ebitda|margin|investment|target)\s+(?:of|for)\s+(.+?)(?:\s+in\s+|\s*\?|$)", re.IGNORECASE),
     # "the <entity> <attribute>" → "<entity>"
-    re.compile(r"(?:the|for)\s+(.+?)\s+(?:revenue|budget|backlog|capacity|facility|contract)", re.IGNORECASE),
+    re.compile(r"(?:the|for)\s+(.+?)\s+(?:revenue|budget|backlog|capacity|facility|contract|margin|investment|target)", re.IGNORECASE),
+    # "for <entity> in FY..." → "<entity>"
+    re.compile(r"\bfor\s+(.+?)\s+in\s+(?:FY|fiscal|20)", re.IGNORECASE),
 ]
+
+# Words to strip from extracted entity names (prefixes)
+_ENTITY_STRIP_PREFIXES = {"the", "a", "an", "total", "current", "overall", "entire"}
+# Generic non-entity words to reject
+_ENTITY_REJECT = {"total company", "the company", "company", "total", "current"}
 
 # Attribute name extraction patterns
 _ATTRIBUTE_PATTERNS: Dict[str, List[re.Pattern]] = {
@@ -139,6 +150,19 @@ _ATTRIBUTE_PATTERNS: Dict[str, List[re.Pattern]] = {
         re.compile(r"\bcompletion date\b", re.IGNORECASE),
         re.compile(r"\btarget.*(?:date|completion)\b", re.IGNORECASE),
     ],
+    "operating_margin": [
+        re.compile(r"\boperating margin\b", re.IGNORECASE),
+    ],
+    "revenue_target": [
+        re.compile(r"\brevenue target\b", re.IGNORECASE),
+    ],
+    "investment": [
+        re.compile(r"\binvestment\b", re.IGNORECASE),
+    ],
+    "founded": [
+        re.compile(r"\bfounded\b", re.IGNORECASE),
+        re.compile(r"\bwhen was.*founded\b", re.IGNORECASE),
+    ],
 }
 
 # Fiscal year extraction
@@ -201,6 +225,17 @@ def extract_query_parameters(query: str, category: str) -> Dict[str, Optional[st
             elif name.endswith("'"):
                 name = name[:-1]
             name = name.strip()
+            # Strip common prefixes ("the Falcon X" → "Falcon X")
+            words = name.split()
+            while words and words[0].lower() in _ENTITY_STRIP_PREFIXES:
+                words.pop(0)
+            name = " ".join(words).strip()
+            # Reject generic non-entity phrases
+            if name.lower() in _ENTITY_REJECT:
+                continue
+            # Reject bare years (e.g. "2030" extracted from "the 2030 revenue target")
+            if re.match(r"^(?:19|20)\d{2}$", name):
+                continue
             if len(name) > 2 and name.lower() not in ("the", "what", "how", "total"):
                 params["entity_name"] = name
                 break
@@ -414,6 +449,10 @@ def attempt_property_lookup(
     # 2. Extract query parameters
     params = extract_query_parameters(query, category)
     attr_name = params.get("attribute_name")
+    logger.info(
+        f"[PROP_PLANE] Extract: query={query[:60]} → "
+        f"entity={params.get('entity_name')} attr={attr_name} fy={params.get('fiscal_year')}"
+    )
     if not attr_name:
         return None
 
@@ -429,6 +468,10 @@ def attempt_property_lookup(
         rows = _try_broader_lookup(session, tenant_id, attr_name, params)
 
     if not rows:
+        logger.info(
+            f"[PROP_PLANE] No rows found for entity={params.get('entity_name')} "
+            f"attr={attr_name} fy={params.get('fiscal_year')}"
+        )
         return None
 
     # 3b. Filter out value-shaped entity names from results (Fix 1)
@@ -495,8 +538,22 @@ def apply_to_agent_result(
         "attribute_name": None,
         "entity_name": None,
         "answer_source": None,
+        "extracted_entity": None,
+        "extracted_attr": None,
+        "extracted_fy": None,
     }
     agent_result["property_plane_diagnostics"] = diagnostics
+
+    # Pre-extract params for diagnostics (even if lookup fails/skips)
+    try:
+        category = is_attribute_query(query)
+        if category:
+            _params = extract_query_parameters(query, category)
+            diagnostics["extracted_entity"] = _params.get("entity_name")
+            diagnostics["extracted_attr"] = _params.get("attribute_name")
+            diagnostics["extracted_fy"] = _params.get("fiscal_year")
+    except Exception:
+        pass
 
     try:
         result = attempt_property_lookup(
