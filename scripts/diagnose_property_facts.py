@@ -163,6 +163,66 @@ def main():
                     val_match = " <-- VALUE MATCH"
                 print(f"      entity={r.entity_name:30s} attr={r.attribute_name:25s} val={str(r.attribute_value):25s} state={r.lifecycle_state}{val_match}")
 
+    # --- Entity table check ---
+    print("\n" + "=" * 70)
+    print("ENTITY TABLE CHECK — do key entities exist?")
+    print("=" * 70)
+
+    key_entities = [
+        "Nexus Industries", "Quantum Shield", "Defense Systems",
+        "Austin", "BatteryTech", "DOD", "Falcon X",
+    ]
+    for name in key_entities:
+        rows = session.execute(text("""
+            SELECT e.id::text, e.name, e.entity_type, e.lifecycle_state,
+                   COALESCE(
+                       array_agg(DISTINCT ea.alias) FILTER (WHERE ea.alias IS NOT NULL),
+                       ARRAY[]::text[]
+                   ) AS aliases
+            FROM entities e
+            LEFT JOIN entity_aliases ea ON ea.entity_id = e.id AND ea.tenant_id = e.tenant_id
+            WHERE e.tenant_id = :tid AND LOWER(e.name) LIKE :pat
+            GROUP BY e.id, e.name, e.entity_type, e.lifecycle_state
+            ORDER BY e.name ASC
+            LIMIT 10
+        """), {"tid": tid, "pat": f"%{name.lower()}%"}).fetchall()
+
+        print(f"\n  '{name}':")
+        if rows:
+            for r in rows:
+                aliases = list(r.aliases) if r.aliases else []
+                print(f"    id={r.id[:12]}... name={r.name:40s} type={r.entity_type:20s} state={r.lifecycle_state}")
+                if aliases:
+                    print(f"      aliases: {aliases[:5]}")
+        else:
+            print(f"    NOT FOUND in entities table")
+
+    # --- Chunk check: do chunks mention "Nexus Industries" with revenue? ---
+    print("\n" + "=" * 70)
+    print("CHUNK CHECK — chunks mentioning key terms")
+    print("=" * 70)
+
+    chunk_searches = [
+        ("Nexus Industries + $8.45", "nexus industries", "8.45"),
+        ("Nexus Industries + 12,500", "nexus industries", "12,500"),
+        ("Quantum Shield + $2.3", "quantum shield", "2.3"),
+        ("Nexus Industries + backlog", "nexus industries", "backlog"),
+        ("Nexus Industries + EBITDA", "nexus industries", "ebitda"),
+    ]
+    for label, term1, term2 in chunk_searches:
+        rows = session.execute(text("""
+            SELECT dc.id::text AS chunk_id, LEFT(dc.text, 200) AS snippet
+            FROM document_chunks dc
+            WHERE dc.tenant_id = :tid
+              AND dc.text ILIKE :t1
+              AND dc.text ILIKE :t2
+            LIMIT 3
+        """), {"tid": tid, "t1": f"%{term1}%", "t2": f"%{term2}%"}).fetchall()
+
+        print(f"\n  '{label}': {len(rows)} chunks found")
+        for r in rows:
+            print(f"    chunk={r.chunk_id[:12]}... snippet={r.snippet[:120]}...")
+
     session.close()
     print("\n" + "=" * 70)
     print("DONE")
