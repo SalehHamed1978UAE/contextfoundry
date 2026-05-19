@@ -239,6 +239,17 @@ def _regex_fallback_extract(query: str, category: str) -> Dict[str, Optional[str
 # Property lookup (raw SQL, no ORM)
 # ---------------------------------------------------------------------------
 
+_FACT_ORDER_BY = """
+        ORDER BY
+            CASE lifecycle_state WHEN 'TRUSTED' THEN 0 ELSE 1 END,
+            CASE entity_type WHEN 'ORGANIZATION' THEN 0 ELSE 1 END,
+            confidence DESC,
+            numeric_value DESC NULLS LAST,
+            entity_name ASC
+        LIMIT 5
+"""
+
+
 def _lookup_property_facts(
     session,
     tenant_id: str,
@@ -246,22 +257,30 @@ def _lookup_property_facts(
     *,
     entity_name: Optional[str] = None,
     fiscal_year: Optional[str] = None,
+    use_like: bool = False,
 ) -> list:
     """Direct SQL lookup in property_facts. Returns raw rows.
 
-    Tries both TRUSTED and STAGING lifecycle states, preferring TRUSTED.
-    Prefers ORGANIZATION entity type and larger numeric values.
+    Exact matching by default. Set use_like=True for broader LIKE matching.
+    Prefers TRUSTED lifecycle, ORGANIZATION entity type, and larger values.
     """
-    clauses = [
-        "tenant_id = :tid",
-        "LOWER(attribute_name) LIKE LOWER(:attr)",
-    ]
-    params: Dict[str, Any] = {"tid": tenant_id, "attr": f"%{attribute_name}%"}
+    clauses = ["tenant_id = :tid"]
+    params: Dict[str, Any] = {"tid": tenant_id}
+
+    if use_like:
+        clauses.append("LOWER(attribute_name) LIKE LOWER(:attr)")
+        params["attr"] = f"%{attribute_name}%"
+    else:
+        clauses.append("LOWER(attribute_name) = LOWER(:attr)")
+        params["attr"] = attribute_name
 
     if entity_name:
-        clauses.append("LOWER(entity_name) LIKE LOWER(:ename)")
-        params["ename"] = f"%{entity_name}%"
-
+        if use_like:
+            clauses.append("LOWER(entity_name) LIKE LOWER(:ename)")
+            params["ename"] = f"%{entity_name}%"
+        else:
+            clauses.append("LOWER(entity_name) = LOWER(:ename)")
+            params["ename"] = entity_name
     if fiscal_year:
         clauses.append("fiscal_year = :fy")
         params["fy"] = fiscal_year
@@ -273,13 +292,7 @@ def _lookup_property_facts(
                value_type, period, fiscal_year, confidence
         FROM property_facts
         WHERE {where}
-        ORDER BY
-            CASE lifecycle_state WHEN 'TRUSTED' THEN 0 ELSE 1 END,
-            CASE entity_type WHEN 'ORGANIZATION' THEN 0 ELSE 1 END,
-            confidence DESC,
-            numeric_value DESC NULLS LAST,
-            entity_name ASC
-        LIMIT 5
+        {_FACT_ORDER_BY}
     """
     return session.execute(text(sql), params).fetchall()
 
@@ -290,23 +303,54 @@ def _try_broader_lookup(
     attribute_name: str,
     params: Dict[str, Optional[str]],
 ) -> list:
-    """Progressively relax filters if the strict lookup returned nothing.
+    """Progressively relax filters if the exact lookup returned nothing.
 
-    Only relaxes fiscal_year. Never drops entity_name — returning a random
-    entity's data is worse than returning nothing.
+    Relaxation order:
+      1. Exact attr + exact entity, drop fiscal_year
+      2. LIKE attr + exact entity (+ fiscal_year if present)
+      3. LIKE attr + exact entity, drop fiscal_year
+      4. LIKE attr + LIKE entity (+ fiscal_year if present)
+      5. LIKE attr + LIKE entity, drop fiscal_year
+    Never drops entity_name entirely — returning a random entity's data is
+    worse than returning nothing.
     """
-    # Try without fiscal_year (but keep entity_name)
-    if params.get("fiscal_year"):
+    entity_name = params.get("entity_name")
+    fiscal_year = params.get("fiscal_year")
+
+    # Step 1: exact attr + exact entity, drop fiscal_year
+    if fiscal_year:
         rows = _lookup_property_facts(
             session, tenant_id, attribute_name,
-            entity_name=params.get("entity_name"),
+            entity_name=entity_name,
         )
         if rows:
             return rows
 
-    # If no entity was specified in the query, try attribute-only lookup
-    if not params.get("entity_name"):
-        rows = _lookup_property_facts(session, tenant_id, attribute_name)
+    # Step 2: LIKE attr + exact entity (with fiscal_year)
+    rows = _lookup_property_facts(
+        session, tenant_id, attribute_name,
+        entity_name=entity_name,
+        fiscal_year=fiscal_year,
+        use_like=True,
+    )
+    if rows:
+        return rows
+
+    # Step 3: LIKE attr + exact entity, drop fiscal_year
+    if fiscal_year:
+        rows = _lookup_property_facts(
+            session, tenant_id, attribute_name,
+            entity_name=entity_name,
+            use_like=True,
+        )
+        if rows:
+            return rows
+
+    # If no entity was specified, try attribute-only (LIKE)
+    if not entity_name:
+        rows = _lookup_property_facts(
+            session, tenant_id, attribute_name, use_like=True,
+        )
         return rows
 
     # Entity was specified but not found — return empty rather than wrong entity
@@ -506,10 +550,17 @@ def attempt_property_lookup(
         canonical = _resolve_entity_via_aliases(session, tenant_id, entity_name)
         if canonical and canonical.lower() != entity_name.lower():
             logger.info(f"[PROP_PLANE] Alias resolution: '{entity_name}' → '{canonical}'")
+            # Try exact attr match with resolved entity first, then LIKE attr
             rows = _lookup_property_facts(
                 session, tenant_id, attr_name,
                 entity_name=canonical,
             )
+            if not rows:
+                rows = _lookup_property_facts(
+                    session, tenant_id, attr_name,
+                    entity_name=canonical,
+                    use_like=True,
+                )
 
     if not rows:
         logger.info(
