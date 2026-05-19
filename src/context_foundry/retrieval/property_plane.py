@@ -358,67 +358,289 @@ def _try_broader_lookup(
 
 
 # ---------------------------------------------------------------------------
-# Entity disambiguation
+# Entity disambiguation (hierarchy-aware)
 # ---------------------------------------------------------------------------
 
-def _disambiguate_entity(rows: list, query_entity: str) -> list:
-    """Prefer rows whose entity_name closely matches the query entity.
+# Relationship types that form parent-child hierarchies.
+# Convention: source_id = child, target_id = parent (MANY_TO_ONE).
+_HIERARCHY_REL_TYPES = ("DIVISION_OF", "SUBSIDIARY_OF", "PART_OF")
 
-    Matching tiers (highest to lowest):
-      1. Case-insensitive exact match
-      2. Query entity is a substring of the row entity_name (or vice versa),
-         sorted by closeness
-      3. All remaining rows (loose LIKE match from SQL)
+# Attribute names that correlate with specific entity types.
+# Used to prefer the right entity when multiple candidates match.
+_ATTR_TYPE_AFFINITY: Dict[str, List[str]] = {
+    "revenue": ["ORGANIZATION", "BUSINESS_UNIT"],
+    "budget": ["ORGANIZATION", "PROJECT", "BUSINESS_UNIT"],
+    "headcount": ["ORGANIZATION", "BUSINESS_UNIT"],
+    "employees": ["ORGANIZATION", "BUSINESS_UNIT"],
+    "operating_margin": ["ORGANIZATION", "BUSINESS_UNIT"],
+    "ebitda": ["ORGANIZATION", "BUSINESS_UNIT"],
+    "ebitda_margin": ["ORGANIZATION", "BUSINESS_UNIT"],
+    "backlog": ["ORGANIZATION", "BUSINESS_UNIT"],
+    "contract_value": ["PROJECT", "CUSTOMER"],
+    "capacity": ["FACILITY", "PRODUCT"],
+    "production_rate": ["FACILITY"],
+    "qubits": ["PRODUCT", "TECHNOLOGY"],
+    "endurance": ["PRODUCT"],
+    "energy_density": ["PRODUCT", "TECHNOLOGY"],
+    "founded_year": ["ORGANIZATION"],
+    "certification_status": ["ORGANIZATION", "PRODUCT", "SERVICE"],
+}
+
+
+def _disambiguate_entity(
+    rows: list,
+    query_entity: str,
+    session=None,
+    tenant_id: Optional[str] = None,
+    attribute_name: Optional[str] = None,
+) -> list:
+    """Prefer rows whose entity best matches the query using name, hierarchy, and type.
+
+    Disambiguation signals (highest to lowest priority):
+      1. Exact name match
+      2. Hierarchy position: root/parent entities preferred for unqualified names
+      3. Entity type affinity with the attribute being asked about
+      4. Name closeness (substring distance)
+
+    This works for any hierarchical domain: conglomerate divisions, geographic
+    entities, organizational units, product families, etc.
     """
+    if not rows:
+        return rows
+
     qe = query_entity.lower().strip()
 
+    # --- Tier 1: Exact name match always wins ---
     exact = [r for r in rows if r.entity_name.lower().strip() == qe]
     if exact:
         return exact
 
-    substring = [
-        r for r in rows
-        if qe in r.entity_name.lower() or r.entity_name.lower() in qe
-    ]
-    if substring:
-        substring.sort(key=lambda r: abs(len(r.entity_name) - len(query_entity)))
-        return substring
+    # If we only have one candidate, no disambiguation needed
+    if len(rows) == 1:
+        return rows
+
+    # --- Tier 2: Graph-aware scoring ---
+    # Look up hierarchy info for each candidate entity
+    hierarchy_info = {}
+    if session and tenant_id:
+        hierarchy_info = _get_hierarchy_info(
+            session, tenant_id,
+            [r.entity_name for r in rows],
+        )
+
+    # Determine preferred entity types from attribute
+    preferred_types: Set[str] = set()
+    if attribute_name:
+        attr_key = attribute_name.lower().replace(" ", "_")
+        preferred_types = set(_ATTR_TYPE_AFFINITY.get(attr_key, []))
+
+    scored = []
+    for r in rows:
+        rn = r.entity_name.lower().strip()
+        score = 0.0
+
+        # Name similarity
+        if qe in rn:
+            # Query is a prefix/substring of entity name
+            score += 0.5 - (len(rn) - len(qe)) * 0.01
+        elif rn in qe:
+            score += 0.4
+
+        # Hierarchy bonus
+        info = hierarchy_info.get(r.entity_name, {})
+        if info.get("is_root"):
+            # Root entities (have children, no parent) preferred for short names
+            score += 0.3
+        elif info.get("parent_name"):
+            # Child entities — only prefer if query specifically names them
+            if rn == qe:
+                score += 0.2  # exact child match
+            else:
+                score -= 0.1  # penalize non-exact child matches
+
+        # Entity type affinity with the attribute
+        if preferred_types and hasattr(r, "entity_type"):
+            if r.entity_type in preferred_types:
+                score += 0.2
+
+        scored.append((score, r))
+
+    scored.sort(key=lambda x: x[0], reverse=True)
+
+    if scored:
+        best_score = scored[0][0]
+        # Return all candidates within 0.05 of the best (near-ties)
+        return [r for s, r in scored if s >= best_score - 0.05]
 
     return rows
 
 
+def _get_hierarchy_info(
+    session,
+    tenant_id: str,
+    entity_names: List[str],
+) -> Dict[str, Dict[str, Any]]:
+    """Look up hierarchy position for entities using the relationships table.
+
+    Queries DIVISION_OF, SUBSIDIARY_OF, PART_OF edges to determine:
+    - Whether an entity is a root (has children, no parent)
+    - What its parent entity is (if any)
+    - How many children it has
+
+    Returns: {entity_name: {"parent_name": ..., "is_root": bool, "child_count": int}}
+    """
+    if not entity_names:
+        return {}
+
+    # Build LOWER(e.name) IN (...) clause
+    placeholders = ", ".join(f":n{i}" for i in range(len(entity_names)))
+    params: Dict[str, Any] = {"tid": tenant_id}
+    for i, name in enumerate(entity_names):
+        params[f"n{i}"] = name.lower()
+
+    rel_types = ", ".join(f"'{rt}'" for rt in _HIERARCHY_REL_TYPES)
+
+    # Query 1: Find parents (entity is a child → source in relationship)
+    parent_sql = f"""
+        SELECT e_child.name AS child_name,
+               e_parent.name AS parent_name
+        FROM relationships r
+        JOIN entities e_child ON e_child.id = r.source_id AND e_child.tenant_id = r.tenant_id
+        JOIN entities e_parent ON e_parent.id = r.target_id AND e_parent.tenant_id = r.tenant_id
+        WHERE r.tenant_id = :tid
+          AND LOWER(e_child.name) IN ({placeholders})
+          AND r.relationship_type IN ({rel_types})
+          AND r.lifecycle_state IN ('TRUSTED', 'STAGING')
+    """
+    parent_rows = session.execute(text(parent_sql), params).fetchall()
+    parents = {r.child_name: r.parent_name for r in parent_rows}
+
+    # Query 2: Count children (entity is a parent → target in relationship)
+    child_sql = f"""
+        SELECT e_parent.name AS parent_name,
+               COUNT(*) AS child_count
+        FROM relationships r
+        JOIN entities e_parent ON e_parent.id = r.target_id AND e_parent.tenant_id = r.tenant_id
+        WHERE r.tenant_id = :tid
+          AND LOWER(e_parent.name) IN ({placeholders})
+          AND r.relationship_type IN ({rel_types})
+          AND r.lifecycle_state IN ('TRUSTED', 'STAGING')
+        GROUP BY e_parent.name
+    """
+    child_rows = session.execute(text(child_sql), params).fetchall()
+    child_counts = {r.parent_name: r.child_count for r in child_rows}
+
+    result = {}
+    for name in entity_names:
+        parent_name = parents.get(name)
+        cc = child_counts.get(name, 0)
+        result[name] = {
+            "parent_name": parent_name,
+            "child_count": cc,
+            "is_root": (cc > 0 and parent_name is None),
+        }
+    return result
+
+
 # ---------------------------------------------------------------------------
-# Entity resolution via aliases
+# Entity resolution via aliases + hierarchy
 # ---------------------------------------------------------------------------
 
 def _resolve_entity_via_aliases(
     session,
     tenant_id: str,
     entity_name: str,
+    attribute_name: Optional[str] = None,
 ) -> Optional[str]:
-    """Look up entity_name in the entities + entity_aliases tables.
+    """Resolve an entity name using aliases and graph hierarchy.
 
-    If the query entity doesn't directly match a property_facts entity_name,
-    try to find it via aliases. Returns the canonical entity name if found.
+    When multiple entities match, uses hierarchy position and attribute-type
+    affinity to pick the right one. A short name like "Nexus" resolves to
+    the parent company if it has DIVISION_OF children, not to "Nexus Digital".
+
+    Works for any hierarchical domain — conglomerates, geography, org charts,
+    product families, etc.
     """
     sql = """
-        SELECT DISTINCT e.name
+        SELECT DISTINCT e.name, e.entity_type
         FROM entities e
         LEFT JOIN entity_aliases ea ON ea.entity_id = e.id AND ea.tenant_id = e.tenant_id
         WHERE e.tenant_id = :tid
+          AND e.lifecycle_state IN ('TRUSTED', 'STAGING')
           AND (LOWER(e.name) LIKE LOWER(:pat)
                OR LOWER(ea.alias) LIKE LOWER(:pat))
-        ORDER BY e.name ASC
-        LIMIT 3
+        ORDER BY
+            CASE WHEN LOWER(e.name) = LOWER(:exact) THEN 0
+                 WHEN LOWER(e.name) LIKE LOWER(:prefix) THEN 1
+                 ELSE 2
+            END,
+            e.name ASC
+        LIMIT 10
     """
     rows = session.execute(text(sql), {
         "tid": tenant_id,
         "pat": f"%{entity_name}%",
+        "exact": entity_name,
+        "prefix": f"{entity_name}%",
     }).fetchall()
 
-    if rows:
+    if not rows:
+        return None
+
+    # Single match — no disambiguation needed
+    if len(rows) == 1:
         return rows[0].name
-    return None
+
+    # Multiple matches — use hierarchy to pick the best one
+    hierarchy_info = _get_hierarchy_info(
+        session, tenant_id, [r.name for r in rows],
+    )
+
+    # Determine preferred entity types from attribute
+    preferred_types: Set[str] = set()
+    if attribute_name:
+        attr_key = attribute_name.lower().replace(" ", "_")
+        preferred_types = set(_ATTR_TYPE_AFFINITY.get(attr_key, []))
+
+    en_lower = entity_name.lower().strip()
+    best_name = rows[0].name
+    best_score = -1.0
+
+    for r in rows:
+        score = 0.0
+        rn_lower = r.name.lower().strip()
+        info = hierarchy_info.get(r.name, {})
+
+        # Name match quality
+        if rn_lower == en_lower:
+            score += 1.0
+        elif rn_lower.startswith(en_lower):
+            score += 0.7 - (len(rn_lower) - len(en_lower)) * 0.01
+        elif en_lower in rn_lower:
+            score += 0.4
+        else:
+            score += 0.2
+
+        # Hierarchy: root entities preferred for short/ambiguous names
+        if info.get("is_root"):
+            score += 0.3
+        elif info.get("parent_name"):
+            if rn_lower != en_lower:
+                score -= 0.1  # penalize non-exact child
+
+        # Attribute-type affinity
+        if preferred_types and r.entity_type in preferred_types:
+            score += 0.2
+
+        if score > best_score:
+            best_score = score
+            best_name = r.name
+
+    logger.info(
+        f"[PROP_PLANE] Entity resolution: '{entity_name}' → '{best_name}' "
+        f"(from {len(rows)} candidates, score={best_score:.2f})"
+    )
+    return best_name
 
 
 # ---------------------------------------------------------------------------
@@ -545,9 +767,11 @@ def attempt_property_lookup(
     if not rows:
         rows = _try_broader_lookup(session, tenant_id, attr_name, params)
 
-    # 3a. If still no rows and entity was specified, try alias resolution
+    # 3a. If still no rows and entity was specified, try alias + hierarchy resolution
     if not rows and entity_name:
-        canonical = _resolve_entity_via_aliases(session, tenant_id, entity_name)
+        canonical = _resolve_entity_via_aliases(
+            session, tenant_id, entity_name, attribute_name=attr_name,
+        )
         if canonical and canonical.lower() != entity_name.lower():
             logger.info(f"[PROP_PLANE] Alias resolution: '{entity_name}' → '{canonical}'")
             # Try exact attr match with resolved entity first, then LIKE attr
@@ -574,10 +798,14 @@ def attempt_property_lookup(
     if not rows:
         return None
 
-    # 3c. Entity disambiguation: if the query names a specific entity,
-    # prefer exact/close matches over loose LIKE hits
+    # 3c. Entity disambiguation: use graph hierarchy + attribute-type affinity
     if entity_name:
-        rows = _disambiguate_entity(rows, entity_name)
+        rows = _disambiguate_entity(
+            rows, entity_name,
+            session=session,
+            tenant_id=tenant_id,
+            attribute_name=attr_name,
+        )
     if not rows:
         return None
 
