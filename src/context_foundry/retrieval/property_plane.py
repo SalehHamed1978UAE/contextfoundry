@@ -301,7 +301,9 @@ def _lookup_property_facts(
         WHERE {where}
         ORDER BY
             CASE lifecycle_state WHEN 'TRUSTED' THEN 0 ELSE 1 END,
+            CASE entity_type WHEN 'ORGANIZATION' THEN 0 ELSE 1 END,
             confidence DESC,
+            numeric_value DESC NULLS LAST,
             entity_name ASC
         LIMIT 5
     """
@@ -573,11 +575,36 @@ def apply_to_agent_result(
     if result is None:
         return agent_result
 
-    # Property plane hit — replace the answer
+    # Property plane hit — decide whether to replace the KG answer
     diagnostics["hit"] = True
     diagnostics["attribute_name"] = result.attribute_name
     diagnostics["entity_name"] = result.entity_name
     diagnostics["answer_source"] = result.answer_source
+
+    # Safety check: if no entity was specified in the query AND the KG already
+    # has a confident answer, don't override — entity-less PP results are
+    # too likely to pick the wrong entity.
+    kg_source = agent_result.get("answer_source", "")
+    kg_answer_text = agent_result.get("answer", "")
+    extracted_entity = diagnostics.get("extracted_entity")
+
+    # KG gave a "no data" answer — always safe to override
+    kg_is_empty = (
+        not kg_answer_text
+        or "does not" in kg_answer_text.lower()
+        or "not specified" in kg_answer_text.lower()
+        or "not explicitly" in kg_answer_text.lower()
+        or "unable to" in kg_answer_text.lower()
+        or "no information" in kg_answer_text.lower()
+    )
+
+    if not extracted_entity and not kg_is_empty and kg_source == "TRUSTED_GRAPH_FACT":
+        # Entity-less PP lookup + confident KG answer → don't override
+        logger.info(
+            f"[PROP_PLANE] Skipping override: entity-less query, KG has confident answer"
+        )
+        diagnostics["override_skipped"] = True
+        return agent_result
 
     agent_result["answer"] = result.answer
     agent_result["answer_source"] = result.answer_source
