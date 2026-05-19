@@ -120,8 +120,13 @@ class PropertyExtractor:
             logger.warning("[PROP_EX] No OpenAI API key available")
             self.client = None
 
-    def extract_all(self, batch_size: int = 50) -> Dict[str, int]:
+    def extract_all(self, batch_size: int = 50, entity_filter: Optional[Set[str]] = None) -> Dict[str, int]:
         """Extract property facts for all entities in the tenant.
+
+        Args:
+            batch_size: Log progress every N entities.
+            entity_filter: If set, only process entities whose name is in this set
+                          (case-insensitive match).
 
         Returns a summary dict: {entity_type: facts_written_count, ...}
         plus "_total_entities", "_total_facts_extracted", "_total_facts_written".
@@ -132,20 +137,30 @@ class PropertyExtractor:
         entities = self._load_entities()
         logger.info(f"[PROP_EX] Loaded {len(entities)} entities for tenant {self.tenant_id}")
 
+        # Apply entity filter if provided
+        if entity_filter:
+            filter_lower = {n.lower() for n in entity_filter}
+            entities = [e for e in entities if e["name"].lower() in filter_lower]
+            logger.info(f"[PROP_EX] After filter: {len(entities)} entities to process")
+
         store = PropertyStore(self.session, self.tenant_id) if not self.dry_run else None
 
         report: Dict[str, int] = {}
         total_extracted = 0
         total_written = 0
+        total_failed = 0
+        total_skipped = 0
 
         for i, entity in enumerate(entities):
             if is_value_shaped_name(entity["name"]):
+                total_skipped += 1
                 continue
 
             try:
                 facts = self.extract_for_entity(entity)
             except Exception as e:
-                logger.warning(f"[PROP_EX] Entity extraction failed for {entity['name']}: {e}")
+                logger.warning(f"[PROP_EX] Entity extraction FAILED for '{entity['name']}': {e}")
+                total_failed += 1
                 try:
                     self.session.rollback()
                 except Exception:
@@ -153,6 +168,8 @@ class PropertyExtractor:
                 continue
 
             total_extracted += len(facts)
+            logger.info(f"[PROP_EX] Entity '{entity['name']}' ({entity['entity_type']}): "
+                        f"extracted={len(facts)} facts")
 
             etype = entity["entity_type"]
             written = 0
@@ -170,15 +187,21 @@ class PropertyExtractor:
                 else:
                     written += 1  # count as "would write" in dry_run
 
+            if written > 0:
+                logger.info(f"[PROP_EX]   -> wrote {written} facts for '{entity['name']}'")
+
             report[etype] = report.get(etype, 0) + written
             total_written += written
 
             if (i + 1) % batch_size == 0:
-                logger.info(f"[PROP_EX] Progress: {i + 1}/{len(entities)} entities processed")
+                logger.info(f"[PROP_EX] Progress: {i + 1}/{len(entities)} entities processed, "
+                            f"{total_written} facts written so far")
 
         report["_total_entities"] = len(entities)
         report["_total_facts_extracted"] = total_extracted
         report["_total_facts_written"] = total_written
+        report["_total_entities_failed"] = total_failed
+        report["_total_entities_skipped"] = total_skipped
         return report
 
     def extract_for_entity(self, entity: Dict[str, Any]) -> List[Dict]:
