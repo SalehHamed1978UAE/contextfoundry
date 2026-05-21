@@ -137,16 +137,19 @@ Your task is to answer questions based ONLY on the provided context from three m
 2. Episodic Memory (similar documents and incidents)
 3. Symbolic Memory (rules and policies)
 
-IMPORTANT INSTRUCTIONS:
+CRITICAL INSTRUCTIONS:
 - Only use information from the provided context
+- Be EXHAUSTIVE: list ALL relevant items found in the context, not just a summary or subset
+- When asked about affected services, include EVERY item from the "Services Affected" table in incident reports — this means the root cause service, all downstream services, AND infrastructure components like databases and caches
+- When asked about team members, list every person mentioned
+- When asked about escalation paths, give the full chain in order
+- When asked about dependencies, list every dependency mentioned in the documents
 - If context is insufficient, say so explicitly
-- Surface uncertainty and provide caveats
-- Build evidence chains linking answer to source documents
 - Assess your confidence honestly
 
 Response format (JSON):
 {
-  "answer": "Direct answer to the question",
+  "answer": "Direct, complete answer to the question",
   "confidence": 0.0-1.0 (your confidence in this answer),
   "evidence": ["fact 1 from context", "fact 2 from context"],
   "uncertain_facts": ["facts you're uncertain about"],
@@ -159,10 +162,9 @@ Response format (JSON):
 
         prompt_parts = []
 
-        # Add query
         prompt_parts.append(f"QUESTION: {bundle.query_text}\n")
 
-        # Add session context for multi-turn conversations
+        # Session context for multi-turn conversations
         if bundle.session_context:
             prompt_parts.append("CONVERSATION HISTORY:")
             for turn in bundle.session_context:
@@ -170,41 +172,41 @@ Response format (JSON):
                 prompt_parts.append(f"  Assistant: {turn.get('response', '')}")
             prompt_parts.append("")
 
-        # Add semantic memory context - include entity names and source text
+        # ALL semantic entities with full context
         if bundle.semantic_entities:
             prompt_parts.append("KNOWLEDGE GRAPH ENTITIES:")
-            for entity in bundle.semantic_entities[:10]:
+            for entity in bundle.semantic_entities:
                 name = entity.get('canonical_name') or entity.get('source_sentence') or 'unknown'
                 prompt_parts.append(
-                    f"  - {entity.get('entity_type')}: {name} "
-                    f"(confidence={entity.get('confidence', 0):.2f})"
+                    f"  - [{entity.get('entity_type')}] {name}"
                 )
                 if entity.get('source_sentence'):
-                    prompt_parts.append(f"    Source: {entity['source_sentence'][:200]}")
+                    prompt_parts.append(f"    Context: {entity['source_sentence']}")
 
+        # ALL relationships
         if bundle.semantic_relationships:
             prompt_parts.append(f"\nKNOWLEDGE GRAPH RELATIONSHIPS:")
-            for rel in bundle.semantic_relationships[:15]:
+            for rel in bundle.semantic_relationships:
                 source = rel.get('source_name') or rel.get('source_type')
                 target = rel.get('target_name') or rel.get('target_type')
                 prompt_parts.append(
                     f"  - {source} --[{rel.get('relationship_type')}]--> {target}"
                 )
 
-        # Add episodic memory context - include MORE text from documents
+        # ALL retrieved documents with FULL text
         if bundle.episodic_documents:
             prompt_parts.append("\nRELEVANT DOCUMENTS:")
-            for doc in bundle.episodic_documents[:5]:  # Top 5 instead of 3
-                prompt_parts.append(f"\n--- {doc.get('title', 'Untitled')} (similarity={doc.get('similarity', 0):.2f}) ---")
-                prompt_parts.append(doc.get('text', '')[:1500])  # 1500 chars instead of 500
+            for doc in bundle.episodic_documents:
+                prompt_parts.append(f"\n--- {doc.get('title', 'Untitled')} ---")
+                prompt_parts.append(doc.get('text', ''))
 
-        # Add symbolic rules
+        # Symbolic rules
         if bundle.symbolic_rules_applied:
             prompt_parts.append("\nAPPLICABLE RULES:")
-            for rule in bundle.symbolic_rules_applied[:5]:
+            for rule in bundle.symbolic_rules_applied:
                 prompt_parts.append(f"  - {rule.get('rule_name')}: {rule.get('description')}")
 
-        prompt_parts.append("\nAnswer the question using ONLY the context above. Respond in JSON format as specified.")
+        prompt_parts.append("\nAnswer the question using ONLY the context above. Be thorough and complete — list ALL relevant items, not just a few. Respond in JSON format as specified.")
 
         return "\n".join(prompt_parts)
 

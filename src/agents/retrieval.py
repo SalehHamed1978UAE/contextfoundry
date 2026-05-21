@@ -111,7 +111,7 @@ class RetrievalAgent:
     async def _query_graph_entities(
         self,
         keywords: List[str],
-        limit: int = 10
+        limit: int = 30
     ) -> List[Dict[str, Any]]:
         """
         Query graph for entities matching keywords
@@ -181,7 +181,7 @@ class RetrievalAgent:
     async def _query_graph_relationships(
         self,
         keywords: List[str],
-        limit: int = 20
+        limit: int = 40
     ) -> List[Dict[str, Any]]:
         """
         Query graph for relationships involving keyword-matching entities

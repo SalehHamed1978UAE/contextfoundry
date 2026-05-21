@@ -312,7 +312,7 @@ class DocumentEmbedder:
                     LIMIT $2
                 """, query_embedding_str, top_k)
 
-        return [
+        initial_results = [
             {
                 "document_id": row["document_id"],
                 "document_type": row["document_type"],
@@ -323,3 +323,50 @@ class DocumentEmbedder:
             }
             for row in results
         ]
+
+        # Context expansion: for the top-scoring document, fetch ALL its chunks
+        # so the LLM sees the complete document, not just fragments
+        if initial_results:
+            top_doc_id = initial_results[0]["document_id"]
+            top_doc_title = initial_results[0]["title"]
+            top_sim = initial_results[0]["similarity"]
+
+            # Get existing chunk indices for this doc
+            existing_chunks = {
+                r["chunk_index"] for r in initial_results
+                if r["document_id"] == top_doc_id
+            }
+
+            # Fetch missing chunks from the top document
+            async with self.db.get_postgres_connection() as conn:
+                missing = await conn.fetch("""
+                    SELECT document_id, document_type, document_title,
+                           chunk_text, chunk_index
+                    FROM document_embeddings
+                    WHERE document_id = $1
+                    ORDER BY chunk_index
+                """, top_doc_id)
+
+                for row in missing:
+                    if row["chunk_index"] not in existing_chunks:
+                        initial_results.append({
+                            "document_id": row["document_id"],
+                            "document_type": row["document_type"],
+                            "title": row["document_title"],
+                            "text": row["chunk_text"],
+                            "chunk_index": row["chunk_index"],
+                            "similarity": top_sim * 0.9  # slightly below top match
+                        })
+
+            # Sort: top document chunks in order first, then rest by similarity
+            top_doc_chunks = sorted(
+                [r for r in initial_results if r["document_id"] == top_doc_id],
+                key=lambda x: x["chunk_index"]
+            )
+            other_chunks = sorted(
+                [r for r in initial_results if r["document_id"] != top_doc_id],
+                key=lambda x: -x["similarity"]
+            )
+            initial_results = top_doc_chunks + other_chunks
+
+        return initial_results
