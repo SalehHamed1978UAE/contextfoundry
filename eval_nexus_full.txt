@@ -1,0 +1,181 @@
+
+======================================================================
+EVALUATION REPORT: Nexus Industries
+======================================================================
+  Date:          2026-05-22 01:37:48
+  Total:         100
+  Passed:        50 (50.0%)
+  Failed:        50 (50.0%)
+  Avg Score:     0.549
+  Avg Latency:   2.1s
+
+  By Category:
+    comparison                    : 2/8 (25%)
+    date_extraction               : 6/11 (55%)
+    entity_extraction             : 6/12 (50%)
+    hierarchy_reasoning           : 2/5 (40%)
+    multi_hop_reasoning           : 5/13 (38%)
+    numeric_extraction            : 13/19 (68%)
+    property_extraction           : 10/18 (56%)
+    relationship_extraction       : 6/14 (43%)
+
+  By Difficulty:
+    EASY                          : 4/10 (40%)
+    EASY                          : 4/10 (40%)
+    MEDIUM                        : 26/46 (57%)
+    MEDIUM                        : 26/46 (57%)
+    HARD                          : 20/44 (45%)
+    HARD                          : 20/44 (45%)
+
+  Failed Questions (50):
+    Q1: Who is the CEO of Nexus Industries?
+      Expected: Dr. Victoria Chen
+      Got:      The context does not provide information about the CEO of Nexus Industries.
+      Score: 0.00, Reason: no_info_found
+
+    Q2: What is the name of the CFO?
+      Expected: Michael Chang
+      Got:      Jochen Schmitz
+      Score: 0.44, Reason: no_match_0.44
+
+    Q6: What was Nexus Industries' revenue in FY2025?
+      Expected: $8.45 billion
+      Got:      The context does not provide information about Nexus Industries' revenue in FY20
+      Score: 0.00, Reason: no_info_found
+
+    Q11: When is the first flight of the Falcon X UAV expected?
+      Expected: May 2026 (or Q2 2026)
+      Got:      The first flight of the Falcon X UAV is expected in Q2 2026.
+      Score: 0.25, Reason: no_match_0.25
+
+    Q12: When did the GreenHydrogen facility produce its first hydrogen?
+      Expected: March 20, 2026
+      Got:      The context does not provide information about when the GreenHydrogen facility p
+      Score: 0.00, Reason: no_info_found
+
+    Q15: Who does Michael Chang report to?
+      Expected: Dr. Victoria Chen (CEO)
+      Got:      The context does not provide information on who Michael Chang reports to.
+      Score: 0.00, Reason: no_info_found
+
+    Q16: What company is Nexus partnering with for solid-state batteries?
+      Expected: Toyota Motor Corporation
+      Got:      Nexus is partnering with Toyota for solid-state batteries.
+      Score: 0.34, Reason: no_match_0.34
+
+    Q18: Which company has a green hydrogen offtake agreement with Nexus?
+      Expected: Shell
+      Got:      The context does not provide information about a company having a green hydrogen
+      Score: 0.00, Reason: no_info_found
+
+    Q20: Which supplier is rated Red and at risk?
+      Expected: General Atomics
+      Got:      The context does not provide information about any supplier being rated Red and 
+      Score: 0.00, Reason: no_info_found
+
+    Q22: What is the capacity of the Desert Sun Solar Farm?
+      Expected: 450 MW (full buildout)
+      Got:      The capacity of the Desert Sun Solar Farm is 450 MW DC / 380 MW AC.
+      Score: 0.18, Reason: no_match_0.18
+
+    Q24: What is the hydrogen production capacity of the GreenHydrogen facility
+      Expected: 425 kg/hour (Phase 1) or 10,200 kg/day
+      Got:      The hydrogen production capacity of the GreenHydrogen facility is 10,200 kg of g
+      Score: 0.27, Reason: no_match_0.27
+
+    Q25: What is the target energy density for the solid-state battery?
+      Expected: 400 Wh/kg
+      Got:      The target energy density for the solid-state battery is 500 Wh/kg.
+      Score: 0.21, Reason: no_match_0.21
+
+    Q26: How many business divisions does Nexus Industries have?
+      Expected: 4 (Aerospace, Energy, Digital, Materials)
+      Got:      The context does not provide information on the number of business divisions Nex
+      Score: 0.00, Reason: no_info_found
+
+    Q27: Which division has the most employees?
+      Expected: Nexus Digital Solutions (3,500 employees)
+      Got:      The context does not provide information about which division has the most emplo
+      Score: 0.00, Reason: no_info_found
+
+    Q30: What is the R&D investment as a percentage of revenue for FY2026?
+      Expected: 11.4% ($966 million of ~$9.5-9.8 billion)
+      Got:      The R&D investment as a percentage of revenue for FY2026 is 11.2%.
+      Score: 0.17, Reason: no_match_0.17
+
+    Q31: What is Nexus's ownership percentage in the Toyota battery joint ventu
+      Expected: 51%
+      Got:      The context does not provide information on Nexus's ownership percentage in the 
+      Score: 0.00, Reason: no_info_found
+
+    Q33: How much hydrogen will Shell purchase annually under the offtake agree
+      Expected: Minimum 300,000 kg/year initially, ramping to 2.5M kg/year by Year 3
+      Got:      Shell will purchase 5,475 tonnes of hydrogen annually under the offtake agreemen
+      Score: 0.20, Reason: no_match_0.20
+
+    Q35: Which division had the highest revenue growth in FY2025?
+      Expected: Nexus Energy Systems (22.1% growth)
+      Got:      Nexus Digital Solutions had the highest revenue growth in FY2025 with a growth r
+      Score: 0.30, Reason: no_match_0.30
+
+    Q36: Which division has the highest safety incident rate (TRIR)?
+      Expected: Nexus Advanced Materials (1.24 TRIR)
+      Got:      The context provided does not contain information about the division with the hi
+      Score: 0.28, Reason: no_match_0.28
+
+    Q38: Who is the CISO of Nexus Industries?
+      Expected: Jennifer Walsh (appointed January 2026, formerly Robert Kim)
+      Got:      The context does not provide information about the CISO of Nexus Industries.
+      Score: 0.00, Reason: no_info_found
+
+    Q39: What is the annual dividend per share?
+      Expected: $1.80
+      Got:      The context does not provide information about the annual dividend per share.
+      Score: 0.00, Reason: no_info_found
+
+    Q44: When is the Toyota JV expected to close?
+      Expected: March 1, 2026
+      Got:      The context does not provide information on when the Toyota JV is expected to cl
+      Score: 0.00, Reason: no_info_found
+
+    Q45: When was Dr. Victoria Chen appointed CEO?
+      Expected: 2019
+      Got:      Dr. Victoria Chen was appointed CEO in March 2018.
+      Score: 0.11, Reason: no_match_0.11
+
+    Q46: Who supplies solar panels for the Desert Sun project?
+      Expected: First Solar
+      Got:      The context does not provide information on who supplies solar panels for the De
+      Score: 0.00, Reason: no_info_found
+
+    Q47: Which university is a research partner for quantum computing?
+      Expected: MIT
+      Got:      The context does not specify any particular university as a research partner for
+      Score: 0.04, Reason: no_match_0.04
+
+    Q49: What is the endurance of the Falcon X UAV?
+      Expected: 28 hours
+      Got:      The endurance of the Falcon X UAV is 6 weeks.
+      Score: 0.15, Reason: no_match_0.15
+
+    Q50: What is the service ceiling of the Falcon X?
+      Expected: 45,000 feet
+      Got:      The service ceiling of the Falcon X is not specified in the provided context.
+      Score: 0.07, Reason: no_match_0.07
+
+    Q54: How much is Nexus investing in cash in the Toyota JV?
+      Expected: $80 million (plus $79 million in IP)
+      Got:      Nexus is investing $80M in cash in the Toyota joint venture.
+      Score: 0.25, Reason: no_match_0.25
+
+    Q55: What is the total cost savings from the cybersecurity incident avoidan
+      Expected: Avoided $5-10M ransom, $2-5M/day downtime, up to $10M fines
+      Got:      The context does not provide information about the total cost savings from the c
+      Score: 0.00, Reason: no_info_found
+
+    Q56: Which Boeing or Airbus has the larger contract value with Nexus?
+      Expected: Boeing ($730 million vs Airbus $565 million)
+      Got:      Airbus has the larger contract value with Nexus.
+      Score: 0.24, Reason: no_match_0.24
+
+======================================================================

@@ -65,6 +65,9 @@ def load_documents(docs_dir: str) -> list:
         sys.exit(1)
 
     for md_file in sorted(docs_path.glob("**/*.md")):
+        # Skip "All docs" folder (contains duplicates of subfolder docs)
+        if "All docs" in str(md_file):
+            continue
         content = md_file.read_text(encoding="utf-8", errors="replace")
         doc_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, md_file.name))
         docs.append({
