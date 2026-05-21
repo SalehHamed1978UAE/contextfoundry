@@ -1,0 +1,167 @@
+"""
+LLM utilities for Context Foundry
+
+Integrates with Ollama for local LLM inference
+"""
+
+import httpx
+import json
+from typing import Dict, Any, Optional, List
+from tenacity import retry, stop_after_attempt, wait_exponential
+
+from src.config import settings
+
+
+class OllamaClient:
+    """Client for Ollama API"""
+
+    def __init__(self):
+        self.base_url = settings.ollama_url
+        self.model = settings.ollama_model
+        self.timeout = settings.llm_timeout
+
+    @retry(
+        stop=stop_after_attempt(2),
+        wait=wait_exponential(multiplier=1, min=2, max=10)
+    )
+    async def generate(
+        self,
+        prompt: str,
+        system: Optional[str] = None,
+        temperature: float = 0.7,
+        format: Optional[str] = None,
+        max_tokens: Optional[int] = None
+    ) -> Dict[str, Any]:
+        """
+        Generate completion from Ollama
+
+        Args:
+            prompt: User prompt
+            system: System prompt
+            temperature: Sampling temperature
+            format: Output format (e.g., 'json')
+            max_tokens: Maximum tokens to generate (num_predict)
+
+        Returns:
+            Dictionary with response and metadata
+        """
+
+        async with httpx.AsyncClient(timeout=httpx.Timeout(connect=60.0, read=self.timeout, write=30.0, pool=30.0)) as client:
+            options = {
+                    "temperature": temperature
+                }
+            if max_tokens:
+                options["num_predict"] = max_tokens
+
+            payload = {
+                "model": self.model,
+                "prompt": prompt,
+                "stream": False,
+                "options": options
+            }
+
+            if system:
+                payload["system"] = system
+
+            if format:
+                payload["format"] = format
+
+            try:
+                response = await client.post(
+                    f"{self.base_url}/api/generate",
+                    json=payload
+                )
+                response.raise_for_status()
+                result = response.json()
+
+                return {
+                    "text": result.get("response", ""),
+                    "model": result.get("model"),
+                    "total_duration": result.get("total_duration"),
+                    "prompt_eval_count": result.get("prompt_eval_count"),
+                    "eval_count": result.get("eval_count")
+                }
+
+            except httpx.TimeoutException as e:
+                print(f"LLM Timeout: {e}")
+                return {
+                    "error": f"LLM timeout: {str(e)}",
+                    "text": "",
+                    "fallback": True
+                }
+
+            except httpx.HTTPError as e:
+                print(f"LLM HTTP Error: {e}")
+                return {
+                    "error": f"LLM HTTP error: {str(e)}",
+                    "text": "",
+                    "fallback": True
+                }
+
+            except Exception as e:
+                print(f"LLM Unexpected Error: {e}")
+                return {
+                    "error": f"LLM error: {str(e)}",
+                    "text": "",
+                    "fallback": True
+                }
+
+    async def chat(
+        self,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.7
+    ) -> Dict[str, Any]:
+        """
+        Chat completion from Ollama
+
+        Args:
+            messages: List of message dicts with 'role' and 'content'
+            temperature: Sampling temperature
+
+        Returns:
+            Dictionary with response and metadata
+        """
+
+        async with httpx.AsyncClient(timeout=httpx.Timeout(connect=60.0, read=self.timeout, write=30.0, pool=30.0)) as client:
+            payload = {
+                "model": self.model,
+                "messages": messages,
+                "stream": False,
+                "options": {
+                    "temperature": temperature
+                }
+            }
+
+            try:
+                response = await client.post(
+                    f"{self.base_url}/api/chat",
+                    json=payload
+                )
+                response.raise_for_status()
+                result = response.json()
+
+                message = result.get("message", {})
+
+                return {
+                    "text": message.get("content", ""),
+                    "role": message.get("role"),
+                    "model": result.get("model"),
+                    "total_duration": result.get("total_duration")
+                }
+
+            except (httpx.TimeoutException, httpx.HTTPError) as e:
+                return {
+                    "error": str(e),
+                    "text": "",
+                    "fallback": True
+                }
+
+    async def health_check(self) -> bool:
+        """Check if Ollama is accessible"""
+
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                response = await client.get(f"{self.base_url}/api/tags")
+                return response.status_code == 200
+        except:
+            return False
