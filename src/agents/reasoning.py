@@ -18,7 +18,7 @@ from src.models.schemas import (
     AlternativeInterpretation,
     ConfidenceLevel
 )
-from src.utils.llm import OllamaClient
+from src.utils.llm import LLMClient
 
 
 class ReasoningAgent:
@@ -26,7 +26,7 @@ class ReasoningAgent:
 
     def __init__(self, db_manager):
         self.db = db_manager
-        self.llm = OllamaClient()
+        self.llm = LLMClient()
 
     async def reason(
         self,
@@ -80,6 +80,11 @@ class ReasoningAgent:
         print(f"Raw LLM answer text: '{answer_text}'")
         try:
             parsed = self._parse_llm_response(answer_text)
+            # Normalize answer field - LLM sometimes returns a list instead of string
+            if isinstance(parsed.get("answer"), list):
+                parsed["answer"] = " ".join(str(item) for item in parsed["answer"])
+            if not isinstance(parsed.get("answer"), str):
+                parsed["answer"] = str(parsed.get("answer", ""))
             print(f"Parsed successfully: {parsed.get('answer', '')[:100]}")
         except Exception as e:
             print(f"JSON parse failed: {e}. Using fallback with raw text.")
@@ -157,57 +162,49 @@ Response format (JSON):
         # Add query
         prompt_parts.append(f"QUESTION: {bundle.query_text}\n")
 
-        # Add semantic memory context
-        if bundle.semantic_entities:
-            prompt_parts.append("\nSEMANTIC MEMORY (Knowledge Graph):")
-            prompt_parts.append(f"Found {len(bundle.semantic_entities)} entities:\n")
+        # Add session context for multi-turn conversations
+        if bundle.session_context:
+            prompt_parts.append("CONVERSATION HISTORY:")
+            for turn in bundle.session_context:
+                prompt_parts.append(f"  User: {turn.get('query', '')}")
+                prompt_parts.append(f"  Assistant: {turn.get('response', '')}")
+            prompt_parts.append("")
 
-            for entity in bundle.semantic_entities[:5]:  # Top 5
+        # Add semantic memory context - include entity names and source text
+        if bundle.semantic_entities:
+            prompt_parts.append("KNOWLEDGE GRAPH ENTITIES:")
+            for entity in bundle.semantic_entities[:10]:
+                name = entity.get('canonical_name') or entity.get('source_sentence') or 'unknown'
                 prompt_parts.append(
-                    f"  - {entity.get('entity_type')}: "
-                    f"confidence={entity.get('confidence', 0):.2f}"
+                    f"  - {entity.get('entity_type')}: {name} "
+                    f"(confidence={entity.get('confidence', 0):.2f})"
                 )
+                if entity.get('source_sentence'):
+                    prompt_parts.append(f"    Source: {entity['source_sentence'][:200]}")
 
         if bundle.semantic_relationships:
-            prompt_parts.append(f"\nFound {len(bundle.semantic_relationships)} relationships:")
-
-            for rel in bundle.semantic_relationships[:10]:  # Top 10
-                # Use entity names for better context (e.g., "payments-team OWNS user-service")
+            prompt_parts.append(f"\nKNOWLEDGE GRAPH RELATIONSHIPS:")
+            for rel in bundle.semantic_relationships[:15]:
                 source = rel.get('source_name') or rel.get('source_type')
                 target = rel.get('target_name') or rel.get('target_type')
                 prompt_parts.append(
-                    f"  - {source} {rel.get('relationship_type')} "
-                    f"{target} (confidence={rel.get('confidence', 0):.2f})"
+                    f"  - {source} --[{rel.get('relationship_type')}]--> {target}"
                 )
 
-        # Add episodic memory context
+        # Add episodic memory context - include MORE text from documents
         if bundle.episodic_documents:
-            prompt_parts.append("\nEPISODIC MEMORY (Similar Documents):")
-
-            for doc in bundle.episodic_documents[:3]:  # Top 3
-                prompt_parts.append(f"\nDocument: {doc.get('title', 'Untitled')}")
-                prompt_parts.append(f"Type: {doc.get('document_type')}")
-                prompt_parts.append(f"Similarity: {doc.get('similarity', 0):.2f}")
-                prompt_parts.append(f"Content: {doc.get('text', '')[:500]}...")
+            prompt_parts.append("\nRELEVANT DOCUMENTS:")
+            for doc in bundle.episodic_documents[:5]:  # Top 5 instead of 3
+                prompt_parts.append(f"\n--- {doc.get('title', 'Untitled')} (similarity={doc.get('similarity', 0):.2f}) ---")
+                prompt_parts.append(doc.get('text', '')[:1500])  # 1500 chars instead of 500
 
         # Add symbolic rules
         if bundle.symbolic_rules_applied:
-            prompt_parts.append("\nSYMBOLIC MEMORY (Applicable Rules):")
-
+            prompt_parts.append("\nAPPLICABLE RULES:")
             for rule in bundle.symbolic_rules_applied[:5]:
                 prompt_parts.append(f"  - {rule.get('rule_name')}: {rule.get('description')}")
 
-        # Add uncertainty information
-        prompt_parts.append(f"\nUNCERTAINTY ASSESSMENT:")
-        prompt_parts.append(f"Overall Confidence: {bundle.uncertainty.overall_confidence:.2f}")
-        prompt_parts.append(f"Recommendation: {bundle.uncertainty.recommendation.value}")
-
-        if bundle.uncertainty.uncertainty_reasons:
-            prompt_parts.append("\nUncertainty Reasons:")
-            for reason in bundle.uncertainty.uncertainty_reasons:
-                prompt_parts.append(f"  - {reason}")
-
-        prompt_parts.append("\nPlease provide your answer in JSON format as specified.")
+        prompt_parts.append("\nAnswer the question using ONLY the context above. Respond in JSON format as specified.")
 
         return "\n".join(prompt_parts)
 

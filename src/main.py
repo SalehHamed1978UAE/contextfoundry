@@ -10,7 +10,7 @@ from src.agents.retrieval import RetrievalAgent
 from src.agents.reasoning import ReasoningAgent
 from src.agents.validation import ValidationAgent
 from src.utils.embeddings import EmbeddingService, DocumentEmbedder
-from src.utils.llm import OllamaClient
+from src.utils.llm import LLMClient
 
 
 # Global agents (initialized on startup)
@@ -80,7 +80,7 @@ async def health():
     """Detailed health check"""
 
     # Check LLM
-    llm_client = OllamaClient()
+    llm_client = LLMClient()
     ollama_status = "connected" if await llm_client.health_check() else "disconnected"
 
     return {
