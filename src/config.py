@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     confidence_threshold_floor: float = 0.40
 
     # Retrieval settings
-    vector_search_top_k: int = 15
+    vector_search_top_k: int = 20
     graph_max_hops: int = 2
 
     # Query timeouts (seconds)

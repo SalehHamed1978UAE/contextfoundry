@@ -1,0 +1,146 @@
+
+======================================================================
+EVALUATION REPORT: Nexus Industries
+======================================================================
+  Date:          2026-05-22 01:53:34
+  Total:         100
+  Passed:        77 (77.0%)
+  Failed:        23 (23.0%)
+  Avg Score:     0.796
+  Avg Latency:   2.4s
+
+  By Category:
+    comparison                    : 6/8 (75%)
+    date_extraction               : 9/11 (82%)
+    entity_extraction             : 8/12 (67%)
+    hierarchy_reasoning           : 3/5 (60%)
+    multi_hop_reasoning           : 6/13 (46%)
+    numeric_extraction            : 18/19 (95%)
+    property_extraction           : 15/18 (83%)
+    relationship_extraction       : 12/14 (86%)
+
+  By Difficulty:
+    EASY                          : 9/10 (90%)
+    EASY                          : 9/10 (90%)
+    MEDIUM                        : 36/46 (78%)
+    MEDIUM                        : 36/46 (78%)
+    HARD                          : 32/44 (73%)
+    HARD                          : 32/44 (73%)
+
+  Failed Questions (23):
+    Q2: What is the name of the CFO?
+      Expected: Michael Chang
+      Got:      The name of the CFO is Robert Martinez.
+      Score: 0.23, Reason: no_match_0.23
+
+    Q10: What is the value of the Shell hydrogen offtake agreement?
+      Expected: $450 million over 10 years
+      Got:      The total contract value of the Shell hydrogen offtake agreement is approximatel
+      Score: 0.20, Reason: no_match_0.20
+
+    Q20: Which supplier is rated Red and at risk?
+      Expected: General Atomics
+      Got:      First Solar, Inc. is rated Red and at risk.
+      Score: 0.28, Reason: no_match_0.28
+
+    Q24: What is the hydrogen production capacity of the GreenHydrogen facility
+      Expected: 425 kg/hour (Phase 1) or 10,200 kg/day
+      Got:      The hydrogen production capacity of the GreenHydrogen facility is 850 kg/hr at f
+      Score: 0.20, Reason: no_match_0.20
+
+    Q27: Which division has the most employees?
+      Expected: Nexus Digital Solutions (3,500 employees)
+      Got:      The division with the most employees is the Manufacturing Operations department 
+      Score: 0.32, Reason: no_match_0.32
+
+    Q30: What is the R&D investment as a percentage of revenue for FY2026?
+      Expected: 11.4% ($966 million of ~$9.5-9.8 billion)
+      Got:      The context does not provide the R&D investment as a percentage of revenue for F
+      Score: 0.00, Reason: no_info_found
+
+    Q33: How much hydrogen will Shell purchase annually under the offtake agree
+      Expected: Minimum 300,000 kg/year initially, ramping to 2.5M kg/year by Year 3
+      Got:      Shell will purchase 5,475 tonnes of hydrogen annually under the offtake agreemen
+      Score: 0.20, Reason: no_match_0.20
+
+    Q35: Which division had the highest revenue growth in FY2025?
+      Expected: Nexus Energy Systems (22.1% growth)
+      Got:      The context does not provide specific information about revenue growth for any d
+      Score: 0.00, Reason: no_info_found
+
+    Q37: Who is the Project Director for the GreenHydrogen Initiative?
+      Expected: Jennifer Walsh
+      Got:      The Project Director for the GreenHydrogen Initiative is not explicitly mentione
+      Score: 0.12, Reason: no_match_0.12
+
+    Q38: Who is the CISO of Nexus Industries?
+      Expected: Jennifer Walsh (appointed January 2026, formerly Robert Kim)
+      Got:      Robert Kim is the Chief Information Security Officer (CISO) of Nexus Industries.
+      Score: 0.16, Reason: no_match_0.16
+
+    Q45: When was Dr. Victoria Chen appointed CEO?
+      Expected: 2019
+      Got:      Dr. Victoria Chen was appointed CEO in March 2018.
+      Score: 0.11, Reason: no_match_0.11
+
+    Q54: How much is Nexus investing in cash in the Toyota JV?
+      Expected: $80 million (plus $79 million in IP)
+      Got:      Nexus is investing $35M in cash in the Toyota JV.
+      Score: 0.28, Reason: no_match_0.28
+
+    Q55: What is the total cost savings from the cybersecurity incident avoidan
+      Expected: Avoided $5-10M ransom, $2-5M/day downtime, up to $10M fines
+      Got:      The total cost savings from the cybersecurity incident avoidance are estimated t
+      Score: 0.20, Reason: no_match_0.20
+
+    Q60: When was the phishing incident detected?
+      Expected: December 12, 2025 at 02:47 UTC
+      Got:      The phishing incident was detected on December 12, 2025.
+      Score: 0.40, Reason: no_match_0.40
+
+    Q63: Which executive has a PhD from MIT?
+      Expected: Dr. Victoria Chen
+      Got:      Dr. Michael Foster, Director (MIT Professor), has a PhD from MIT.
+      Score: 0.32, Reason: no_match_0.32
+
+    Q73: How many new employees will Nexus hire in FY2026?
+      Expected: 1,200 net new positions
+      Got:      Nexus Industries plans to hire 450 new employees in FY2026.
+      Score: 0.32, Reason: no_match_0.32
+
+    Q77: What is the location of the BatteryTech JV facility?
+      Expected: San Antonio, Texas
+      Got:      The context does not provide the location of the BatteryTech JV facility.
+      Score: 0.00, Reason: no_info_found
+
+    Q83: Who is the primary customer for the SmartGrid Controller?
+      Expected: Pacific Power (pilot customer)
+      Got:      The primary customer for the SmartGrid Controller is the Utilities market, speci
+      Score: 0.17, Reason: no_match_0.17
+
+    Q91: Who is the VP Trade Compliance?
+      Expected: Owns the Export Control Policy (per POL-009)
+      Got:      The context does not provide information about the VP Trade Compliance.
+      Score: 0.00, Reason: no_info_found
+
+    Q96: What is the APAC revenue target for 2030?
+      Expected: $3.5 billion
+      Got:      The context does not provide information about the APAC revenue target for 2030.
+      Score: 0.00, Reason: no_info_found
+
+    Q98: What is the renewable energy achievement percentage?
+      Expected: 65% achieved toward 100% by 2028
+      Got:      The renewable energy achievement percentage for FY2025 is 65%.
+      Score: 0.32, Reason: no_match_0.32
+
+    Q99: How does Nexus's operating margin compare to target?
+      Expected: 11.2% actual vs 11.5-12.0% target for FY2026
+      Got:      Nexus's operating margin for FY2025 was 12.3%, and the target for FY2030 is 16.0
+      Score: 0.40, Reason: no_match_0.40
+
+    Q100: What is the total value of top 3 customer relationships?
+      Expected: Boeing ($730M) + DoD ($680M) + Airbus ($565M) = $1.975 billion
+      Got:      The total value of the top 3 customer relationships is not explicitly provided i
+      Score: 0.15, Reason: no_match_0.15
+
+======================================================================

@@ -324,49 +324,132 @@ class DocumentEmbedder:
             for row in results
         ]
 
-        # Context expansion: for the top-scoring document, fetch ALL its chunks
-        # so the LLM sees the complete document, not just fragments
+        # Context expansion: for the top 3 scoring documents, fetch ALL their chunks
+        # so the LLM sees complete documents, not just fragments
         if initial_results:
-            top_doc_id = initial_results[0]["document_id"]
-            top_doc_title = initial_results[0]["title"]
-            top_sim = initial_results[0]["similarity"]
+            # Identify unique top documents (up to 3)
+            seen_doc_ids = []
+            for r in initial_results:
+                if r["document_id"] not in seen_doc_ids:
+                    seen_doc_ids.append(r["document_id"])
+                if len(seen_doc_ids) >= 3:
+                    break
 
-            # Get existing chunk indices for this doc
-            existing_chunks = {
-                r["chunk_index"] for r in initial_results
-                if r["document_id"] == top_doc_id
-            }
+            expanded_results = list(initial_results)
 
-            # Fetch missing chunks from the top document
             async with self.db.get_postgres_connection() as conn:
-                missing = await conn.fetch("""
+                for doc_id in seen_doc_ids:
+                    doc_sim = next(
+                        (r["similarity"] for r in initial_results if r["document_id"] == doc_id),
+                        0.5
+                    )
+                    existing_chunks = {
+                        r["chunk_index"] for r in expanded_results
+                        if r["document_id"] == doc_id
+                    }
+
+                    missing = await conn.fetch("""
+                        SELECT document_id, document_type, document_title,
+                               chunk_text, chunk_index
+                        FROM document_embeddings
+                        WHERE document_id = $1
+                        ORDER BY chunk_index
+                    """, doc_id)
+
+                    for row in missing:
+                        if row["chunk_index"] not in existing_chunks:
+                            expanded_results.append({
+                                "document_id": row["document_id"],
+                                "document_type": row["document_type"],
+                                "title": row["document_title"],
+                                "text": row["chunk_text"],
+                                "chunk_index": row["chunk_index"],
+                                "similarity": doc_sim * 0.9
+                            })
+
+            # Sort: expanded documents in chunk order first, then rest by similarity
+            expanded_doc_chunks = []
+            for doc_id in seen_doc_ids:
+                doc_chunks = sorted(
+                    [r for r in expanded_results if r["document_id"] == doc_id],
+                    key=lambda x: x["chunk_index"]
+                )
+                expanded_doc_chunks.extend(doc_chunks)
+
+            other_chunks = sorted(
+                [r for r in expanded_results if r["document_id"] not in seen_doc_ids],
+                key=lambda x: -x["similarity"]
+            )
+            initial_results = expanded_doc_chunks + other_chunks
+
+        # Hybrid search: supplement with keyword-matched documents
+        keyword_results = await self._keyword_search(query, top_k=5)
+        existing_doc_chunk_keys = {
+            (r["document_id"], r["chunk_index"]) for r in initial_results
+        }
+        for kr in keyword_results:
+            key = (kr["document_id"], kr["chunk_index"])
+            if key not in existing_doc_chunk_keys:
+                initial_results.append(kr)
+                existing_doc_chunk_keys.add(key)
+
+        return initial_results
+
+    async def _keyword_search(
+        self,
+        query: str,
+        top_k: int = 5
+    ) -> List[Dict[str, Any]]:
+        """
+        Keyword-based search using PostgreSQL full-text or ILIKE.
+        Supplements vector search for cases where exact terms matter.
+        """
+        # Extract significant keywords from query
+        stop_words = {
+            'what', 'which', 'who', 'where', 'when', 'how', 'is', 'are', 'does',
+            'the', 'a', 'an', 'do', 'did', 'has', 'have', 'had', 'for', 'to',
+            'from', 'on', 'with', 'by', 'in', 'of', 'at', 'be', 'was', 'were',
+            'been', 'being', 'will', 'would', 'could', 'should', 'can', 'may',
+            'this', 'that', 'these', 'those', 'it', 'its', 'their', 'and', 'or',
+            'but', 'not', 'than', 'about', 'between', 'many', 'much', 'most',
+            'name', 'total', 'expected', 'company', 'value'
+        }
+
+        words = query.lower().split()
+        keywords = [w.strip('?.,!()"\'-') for w in words if w.lower().strip('?.,!()"\'-') not in stop_words and len(w.strip('?.,!()"\'-')) > 2]
+
+        if not keywords:
+            return []
+
+        results = []
+        async with self.db.get_postgres_connection() as conn:
+            for keyword in keywords[:4]:  # Limit to top 4 keywords
+                rows = await conn.fetch("""
                     SELECT document_id, document_type, document_title,
                            chunk_text, chunk_index
                     FROM document_embeddings
-                    WHERE document_id = $1
+                    WHERE chunk_text ILIKE $1
                     ORDER BY chunk_index
-                """, top_doc_id)
+                    LIMIT $2
+                """, f'%{keyword}%', top_k)
 
-                for row in missing:
-                    if row["chunk_index"] not in existing_chunks:
-                        initial_results.append({
-                            "document_id": row["document_id"],
-                            "document_type": row["document_type"],
-                            "title": row["document_title"],
-                            "text": row["chunk_text"],
-                            "chunk_index": row["chunk_index"],
-                            "similarity": top_sim * 0.9  # slightly below top match
-                        })
+                for row in rows:
+                    results.append({
+                        "document_id": row["document_id"],
+                        "document_type": row["document_type"],
+                        "title": row["document_title"],
+                        "text": row["chunk_text"],
+                        "chunk_index": row["chunk_index"],
+                        "similarity": 0.6  # Keyword match baseline similarity
+                    })
 
-            # Sort: top document chunks in order first, then rest by similarity
-            top_doc_chunks = sorted(
-                [r for r in initial_results if r["document_id"] == top_doc_id],
-                key=lambda x: x["chunk_index"]
-            )
-            other_chunks = sorted(
-                [r for r in initial_results if r["document_id"] != top_doc_id],
-                key=lambda x: -x["similarity"]
-            )
-            initial_results = top_doc_chunks + other_chunks
+        # Deduplicate by (document_id, chunk_index)
+        seen = set()
+        unique = []
+        for r in results:
+            key = (r["document_id"], r["chunk_index"])
+            if key not in seen:
+                seen.add(key)
+                unique.append(r)
 
-        return initial_results
+        return unique[:top_k * 2]

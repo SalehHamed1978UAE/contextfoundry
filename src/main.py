@@ -35,7 +35,7 @@ async def lifespan(app: FastAPI):
 
         # Initialize agents
         print("Initializing agents...")
-        embedding_service = EmbeddingService(use_ollama=True)
+        embedding_service = EmbeddingService(use_ollama=False)
         document_embedder = DocumentEmbedder(db_manager, embedding_service)
         retrieval_agent = RetrievalAgent(db_manager, document_embedder)
         reasoning_agent = ReasoningAgent(db_manager)
@@ -383,6 +383,168 @@ async def get_stats():
             "queries_processed": query_count,
             "feedback_records": feedback_count
         }
+
+
+@app.post("/admin/reset")
+async def admin_reset():
+    """
+    Reset all data tables for fresh corpus ingestion.
+    WARNING: Destructive operation - clears everything.
+    """
+    async with db_manager.get_postgres_connection() as conn:
+        await conn.execute("TRUNCATE TABLE feedback_records CASCADE")
+        await conn.execute("TRUNCATE TABLE query_responses CASCADE")
+        await conn.execute("TRUNCATE TABLE context_bundles CASCADE")
+        await conn.execute("TRUNCATE TABLE session_memory CASCADE")
+        await conn.execute("TRUNCATE TABLE document_embeddings CASCADE")
+        await conn.execute("TRUNCATE TABLE relationship_metadata CASCADE")
+        await conn.execute("TRUNCATE TABLE graph_lifecycle CASCADE")
+        await conn.execute("TRUNCATE TABLE symbolic_rules CASCADE")
+
+        # Fix embedding column dimension for local model (384-dim BGE)
+        try:
+            await conn.execute("ALTER TABLE document_embeddings ALTER COLUMN embedding TYPE vector(384)")
+        except Exception:
+            pass  # Column may already be correct
+
+        # Drop and recreate AGE graph
+        await conn.execute("LOAD 'age'")
+        await conn.execute("SET search_path = ag_catalog, '$user', public")
+        try:
+            await conn.execute("SELECT drop_graph('cf_knowledge', true)")
+        except Exception:
+            pass
+        await conn.execute("SELECT create_graph('cf_knowledge')")
+
+    return {"status": "reset_complete", "message": "All data tables cleared"}
+
+
+@app.post("/admin/ingest")
+async def admin_ingest(payload: dict):
+    """
+    Bulk ingest documents for embedding.
+
+    Expected payload:
+    {
+        "documents": [
+            {"id": "unique-id", "title": "Doc Title", "type": "report", "content": "full text..."},
+            ...
+        ]
+    }
+    """
+    documents = payload.get("documents", [])
+    if not documents:
+        raise HTTPException(status_code=400, detail="No documents provided")
+
+    if document_embedder is None:
+        raise HTTPException(status_code=503, detail="Embedding service not initialized")
+
+    total_chunks = 0
+    total_embeddings = 0
+    errors = []
+
+    for doc in documents:
+        try:
+            result = await document_embedder.embed_document(
+                doc_id=doc["id"],
+                doc_type=doc.get("type", "document"),
+                title=doc.get("title", "Untitled"),
+                content=doc["content"],
+                chunk_size=512,
+                chunk_overlap=50
+            )
+            total_chunks += result["chunks_created"]
+            total_embeddings += result["embeddings_stored"]
+        except Exception as e:
+            errors.append({"doc_id": doc.get("id"), "error": str(e)})
+
+    return {
+        "status": "ingestion_complete",
+        "documents_processed": len(documents) - len(errors),
+        "total_chunks": total_chunks,
+        "total_embeddings": total_embeddings,
+        "errors": errors[:10]
+    }
+
+
+@app.post("/admin/extract")
+async def admin_extract(payload: dict):
+    """
+    Run entity extraction on ingested documents.
+
+    Expected payload:
+    {
+        "documents": [
+            {"id": "unique-id", "type": "report", "content": "full text..."},
+            ...
+        ]
+    }
+    """
+    from src.agents.extraction import ExtractionAgent
+    from src.agents.gardener import GardenerAgent
+
+    documents = payload.get("documents", [])
+    if not documents:
+        raise HTTPException(status_code=400, detail="No documents provided")
+
+    extractor = ExtractionAgent(db_manager)
+    gardener = GardenerAgent(db_manager)
+
+    total_entities = 0
+    total_relationships = 0
+    errors = []
+
+    for doc in documents:
+        try:
+            # Chunk the document
+            chunks = _simple_chunk(doc["content"], 1000, 100)
+
+            for idx, chunk in enumerate(chunks):
+                result = await extractor.extract_from_chunk(
+                    chunk_text=chunk,
+                    document_id=doc["id"],
+                    document_type=doc.get("type", "document"),
+                    chunk_index=idx
+                )
+                total_entities += result.get("entities_extracted", 0)
+                total_relationships += result.get("relationships_extracted", 0)
+
+        except Exception as e:
+            errors.append({"doc_id": doc.get("id"), "error": str(e)})
+
+    # Promote all to TRUSTED
+    try:
+        promote_result = await gardener.promote_all_staging()
+    except Exception:
+        promote_result = {"promoted_count": 0}
+
+    return {
+        "status": "extraction_complete",
+        "documents_processed": len(documents) - len(errors),
+        "total_entities": total_entities,
+        "total_relationships": total_relationships,
+        "promoted": promote_result.get("promoted_count", 0),
+        "errors": errors[:10]
+    }
+
+
+def _simple_chunk(text: str, chunk_size: int, overlap: int) -> list:
+    """Simple text chunking for extraction"""
+    chunks = []
+    start = 0
+    while start < len(text):
+        end = start + chunk_size
+        chunk = text[start:end]
+        if end < len(text):
+            last_period = chunk.rfind('. ')
+            last_newline = chunk.rfind('\n')
+            break_point = max(last_period, last_newline)
+            if break_point > chunk_size * 0.5:
+                chunk = chunk[:break_point + 1]
+                end = start + len(chunk)
+        chunks.append(chunk.strip())
+        start = end - overlap
+    return [c for c in chunks if c]
 
 
 if __name__ == "__main__":
