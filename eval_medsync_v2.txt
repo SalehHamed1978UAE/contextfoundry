@@ -1,0 +1,164 @@
+
+======================================================================
+EVALUATION REPORT: MedSync Health
+======================================================================
+  Date:          2026-05-23 22:16:04
+  Total:         215
+  Passed:        188 (87.4%)
+  Failed:        27 (12.6%)
+  Avg Score:     0.825
+  Avg Latency:   3.4s
+
+  By Category:
+    COMPARISON                    : 21/25 (84%)
+    METRIC                        : 60/62 (97%)
+    MULTI                         : 15/20 (75%)
+    POLICY                        : 29/35 (83%)
+    SIMPLE                        : 38/43 (88%)
+    TEMPORAL                      : 25/30 (83%)
+
+  By Difficulty:
+    EASY                          : 129/138 (93%)
+    EASY                          : 129/138 (93%)
+    MEDIUM                        : 38/49 (78%)
+    MEDIUM                        : 38/49 (78%)
+    HARD                          : 10/13 (77%)
+    HARD                          : 10/13 (77%)
+
+  Failed Questions (27):
+    Q6: What is the name of the CTO?
+      Expected: Priya Patel
+      Got:      The context provided does not contain the name of the CTO.
+      Score: 0.00, Reason: no_info_found
+
+    Q29: When was MedSync Analytics launched?
+      Expected: September 2020
+      Got:      The context does not provide a specific launch date for MedSync Analytics.
+      Score: 0.00, Reason: no_info_found
+
+    Q34: When did MedSync Health partner with Epic Systems?
+      Expected: January 2023
+      Got:      The context does not provide information about when MedSync Health partnered wit
+      Score: 0.00, Reason: no_info_found
+
+    Q96: How many employees did MedSync Health have at the end of Q4 2023?
+      Expected: 1,100 employees
+      Got:      The context does not provide specific information about the number of employees 
+      Score: 0.00, Reason: no_info_found
+
+    Q102: What was the revenue in Q4 2023?
+      Expected: AED 102,900,000
+      Got:      The revenue in Q4 2023 is not explicitly mentioned in the provided context.
+      Score: 0.00, Reason: no_info_found
+
+    Q103: What was the revenue in Q1 2023?
+      Expected: AED 80,850,000
+      Got:      The context does not provide specific revenue figures for Q1 2023.
+      Score: 0.00, Reason: no_info_found
+
+    Q116: What was the H1 2024 revenue (first half)?
+      Expected: AED 227,850,000 (Q1 + Q2)
+      Got:      The context does not provide specific information about the H1 2024 revenue.
+      Score: 0.00, Reason: no_info_found
+
+    Q118: How much did revenue grow from H1 2024 to H2 2024?
+      Expected: AED 29,400,000 increase, 12.9% growth
+      Got:      Revenue grew from AED 227,850,000 in H1 2024 to AED 257,250,000 in H2 2024.
+      Score: 0.29, Reason: no_match_0.29
+
+    Q124: Which product generates the least revenue?
+      Expected: MedSync Compliance Suite with AED 71,347,500 in FY 2024
+      Got:      The context does not provide specific revenue figures for individual products, s
+      Score: 0.00, Reason: no_info_found
+
+    Q139: Which department has the largest budget in FY 2024?
+      Expected: Engineering with AED 139,680,000
+      Got:      The context does not provide information about which department has the largest 
+      Score: 0.00, Reason: no_info_found
+
+    Q144: Which half of 2024 had higher revenue, H1 or H2?
+      Expected: H2 with AED 257,250,000 vs H1 with AED 227,850,000
+      Got:      The context does not provide specific revenue figures for H1 and H2 of 2024, so 
+      Score: 0.00, Reason: no_info_found
+
+    Q145: Which expense category is largest: R&D, Sales & Marketing, or G&A?
+      Expected: R&D with AED 174,636,000
+      Got:      The largest expense category is R&D, which accounts for 36.0% of revenue.
+      Score: 0.27, Reason: no_match_0.27
+
+    Q156: What is the minimum tenure required for promotion to Director?
+      Expected: [Answer depends on document content]
+      Got:      The context does not provide specific information about the minimum tenure requi
+      Score: 0.00, Reason: policy_no_answer
+
+    Q157: How often are performance reviews conducted?
+      Expected: [Answer depends on document content]
+      Got:      The context does not provide specific information on how often performance revie
+      Score: 0.00, Reason: policy_no_answer
+
+    Q162: What is the password complexity requirement?
+      Expected: [Answer depends on document content]
+      Got:      The context does not provide specific details on the password complexity require
+      Score: 0.00, Reason: policy_no_answer
+
+    Q163: How often must passwords be changed?
+      Expected: [Answer depends on document content]
+      Got:      The frequency for changing passwords is not explicitly stated in the provided co
+      Score: 0.00, Reason: policy_no_answer
+
+    Q170: What is the liability cap in the Master Service Agreement?
+      Expected: [Answer depends on document content]
+      Got:      The context does not provide information about the liability cap in the Master S
+      Score: 0.00, Reason: policy_no_answer
+
+    Q179: What is the equipment budget for new hires?
+      Expected: [Answer depends on document content]
+      Got:      The context does not provide specific information about the equipment budget for
+      Score: 0.00, Reason: policy_no_answer
+
+    Q188: What percentage of employees work in the Boston HQ?
+      Expected: 54.2% (650 / 1,200)
+      Got:      The context does not provide information on the percentage of employees working 
+      Score: 0.00, Reason: no_info_found
+
+    Q189: What percentage of employees are in Engineering and Product combined?
+      Expected: 39.6% (475 / 1,200)
+      Got:      The percentage of employees in Engineering and Product combined is 40.25%.
+      Score: 0.09, Reason: no_match_0.09
+
+    Q194: What percentage of employees are in go-to-market functions (Sales + Ma
+      Expected: 40.4% (485 / 1,200)
+      Got:      The percentage of employees in go-to-market functions (Sales + Marketing + Custo
+      Score: 0.07, Reason: no_match_0.07
+
+    Q195: What is the R&D spending as a percentage of revenue?
+      Expected: 36.0% (AED 174,636,000 / AED 485,100,000)
+      Got:      The R&D spending as a percentage of revenue is less than 36%, with a stretch goa
+      Score: 0.10, Reason: no_match_0.10
+
+    Q196: What is the Sales & Marketing spending as a percentage of revenue?
+      Expected: 28.1% (AED 136,143,000 / AED 485,100,000)
+      Got:      The Sales & Marketing spending as a percentage of revenue is 28.0%.
+      Score: 0.07, Reason: no_match_0.07
+
+    Q201: What is the company's target IPO date?
+      Expected: [NOT IN DOCUMENTS]
+      Got:      The company's target IPO date is within the next 18-24 months from June 2024.
+      Score: 0.00, Reason: trick_hallucinated
+
+    Q202: Who are the members of the Board of Directors?
+      Expected: [NOT IN DOCUMENTS]
+      Got:      The members of the Board of Directors are Dr. Sarah Chen, Michael Rodriguez, Pri
+      Score: 0.00, Reason: trick_hallucinated
+
+    Q208: What is the average time to close for enterprise deals?
+      Expected: [NOT IN DOCUMENTS - only average sales cycle is provided]
+      Got:      The average time to close for enterprise deals, specifically for hospitals, is 8
+      Score: 0.00, Reason: trick_hallucinated
+
+    Q213: What is the average time to implement for new customers?
+      Expected: [NOT IN DOCUMENTS]
+      Got:      The average time to implement for new customers is targeted to be less than 20 d
+      Score: 0.00, Reason: trick_hallucinated
+
+======================================================================

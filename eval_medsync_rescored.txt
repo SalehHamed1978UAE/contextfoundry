@@ -1,0 +1,179 @@
+
+======================================================================
+EVALUATION REPORT: MedSync Health
+======================================================================
+  Date:          2026-05-23 21:44:34
+  Total:         215
+  Passed:        182 (84.7%)
+  Failed:        33 (15.3%)
+  Avg Score:     0.796
+  Avg Latency:   2.7s
+
+  By Category:
+    COMPARISON                    : 21/25 (84%)
+    METRIC                        : 50/62 (81%)
+    MULTI                         : 17/20 (85%)
+    POLICY                        : 29/35 (83%)
+    SIMPLE                        : 42/43 (98%)
+    TEMPORAL                      : 23/30 (77%)
+
+  By Difficulty:
+    EASY                          : 123/138 (89%)
+    EASY                          : 123/138 (89%)
+    MEDIUM                        : 36/49 (73%)
+    MEDIUM                        : 36/49 (73%)
+    HARD                          : 11/13 (85%)
+    HARD                          : 11/13 (85%)
+
+  Failed Questions (33):
+    Q46: What was Q2 2024 revenue?
+      Expected: AED 117,600,000
+      Got:      The Q2 2024 revenue is not explicitly mentioned in the provided context.
+      Score: 0.00, Reason: no_info_found
+
+    Q61: What is the Customer Retention Rate for FY 2024?
+      Expected: 91%
+      Got:      The Customer Retention Rate for FY 2024 is reflected in the Net Revenue Retentio
+      Score: 0.04, Reason: no_match_0.04
+
+    Q62: What is the Gross Revenue Retention (GRR) for FY 2024?
+      Expected: 94%
+      Got:      The Gross Revenue Retention (GRR) for FY 2024 is not explicitly mentioned in the
+      Score: 0.00, Reason: no_info_found
+
+    Q67: What is the ARR for MedSync Connect in FY 2024?
+      Expected: AED 183,500,000
+      Got:      The ARR for MedSync Connect in FY 2024 is not explicitly stated in the provided 
+      Score: 0.00, Reason: no_info_found
+
+    Q72: What were the total operating expenses for FY 2024?
+      Expected: AED 383,544,000
+      Got:      The context does not provide the total operating expenses for FY 2024.
+      Score: 0.00, Reason: no_info_found
+
+    Q73: What was the R&D spending for FY 2024?
+      Expected: AED 174,636,000
+      Got:      The context does not provide specific information about the R&D spending for FY 
+      Score: 0.00, Reason: no_info_found
+
+    Q74: What was the Sales & Marketing spending for FY 2024?
+      Expected: AED 136,143,000
+      Got:      The context does not provide specific information about the Sales & Marketing sp
+      Score: 0.00, Reason: no_info_found
+
+    Q78: What is the total attrition rate for FY 2024?
+      Expected: 15.7%
+      Got:      The voluntary attrition rate for FY 2024 is 12.5%.
+      Score: 0.11, Reason: no_match_0.11
+
+    Q83: What was the operating income for FY 2024?
+      Expected: -AED 19,719,000 (loss)
+      Got:      The context does not provide the operating income for FY 2024.
+      Score: 0.00, Reason: no_info_found
+
+    Q85: What is the operating margin for FY 2024?
+      Expected: -4.1%
+      Got:      The operating margin for FY 2024 is 6.1%.
+      Score: 0.17, Reason: no_match_0.17
+
+    Q107: How long after founding did MedSync Health launch its first product?
+      Expected: 14 months (founded January 2019, MedSync Connect launched March 2020)
+      Got:      The context does not provide specific information about when MedSync Health laun
+      Score: 0.00, Reason: no_info_found
+
+    Q112: When was the Series A funding round completed?
+      Expected: August 2019
+      Got:      The context does not provide information on when the Series A funding round was 
+      Score: 0.00, Reason: no_info_found
+
+    Q116: What was the H1 2024 revenue (first half)?
+      Expected: AED 227,850,000 (Q1 + Q2)
+      Got:      The context does not provide specific information about the H1 2024 revenue.
+      Score: 0.00, Reason: no_info_found
+
+    Q117: What was the H2 2024 revenue (second half)?
+      Expected: AED 257,250,000 (Q3 + Q4)
+      Got:      The context does not provide specific information about the H2 2024 revenue.
+      Score: 0.00, Reason: no_info_found
+
+    Q118: How much did revenue grow from H1 2024 to H2 2024?
+      Expected: AED 29,400,000 increase, 12.9% growth
+      Got:      Revenue grew from AED 367,500,000 in H1 2024 to AED 485,100,000 in H2 2024.
+      Score: 0.29, Reason: no_match_0.29
+
+    Q119: What was the average quarterly revenue in FY 2024?
+      Expected: AED 121,275,000 per quarter
+      Got:      The context does not provide specific quarterly revenue figures for Q1 and Q4 of
+      Score: 0.00, Reason: no_info_found
+
+    Q120: How many years after founding did MedSync Health reach Series D?
+      Expected: 5.5 years (January 2019 to June 2024)
+      Got:      MedSync Health reached Series D 5 years after its founding.
+      Score: 0.27, Reason: no_match_0.27
+
+    Q130: Which region generates the least revenue?
+      Expected: APAC with AED 48,510,000 (10% of total)
+      Got:      The context does not provide specific information about which region generates t
+      Score: 0.00, Reason: no_info_found
+
+    Q139: Which department has the largest budget in FY 2024?
+      Expected: Engineering with AED 139,680,000
+      Got:      The context does not provide information about which department has the largest 
+      Score: 0.00, Reason: no_info_found
+
+    Q144: Which half of 2024 had higher revenue, H1 or H2?
+      Expected: H2 with AED 257,250,000 vs H1 with AED 227,850,000
+      Got:      The context does not provide specific revenue figures for H1 and H2 of 2024, onl
+      Score: 0.00, Reason: no_info_found
+
+    Q145: Which expense category is largest: R&D, Sales & Marketing, or G&A?
+      Expected: R&D with AED 174,636,000
+      Got:      The largest expense category is not explicitly stated in the provided context.
+      Score: 0.00, Reason: no_info_found
+
+    Q157: How often are performance reviews conducted?
+      Expected: [Answer depends on document content]
+      Got:      The context does not provide specific information on how often performance revie
+      Score: 0.00, Reason: policy_no_answer
+
+    Q162: What is the password complexity requirement?
+      Expected: [Answer depends on document content]
+      Got:      The password complexity requirement is not explicitly detailed in the provided c
+      Score: 0.00, Reason: policy_no_answer
+
+    Q163: How often must passwords be changed?
+      Expected: [Answer depends on document content]
+      Got:      The context does not provide specific information about how often passwords must
+      Score: 0.00, Reason: policy_no_answer
+
+    Q169: What is the notice period for contract termination?
+      Expected: [Answer depends on document content]
+      Got:      The context does not provide specific information about the notice period for co
+      Score: 0.00, Reason: policy_no_answer
+
+    Q170: What is the liability cap in the Master Service Agreement?
+      Expected: [Answer depends on document content]
+      Got:      The context does not provide information about the liability cap in the Master S
+      Score: 0.00, Reason: policy_no_answer
+
+    Q176: What health insurance benefits are provided?
+      Expected: [Answer depends on document content]
+      Got:      The context does not provide specific information about health insurance benefit
+      Score: 0.00, Reason: policy_no_answer
+
+    Q189: What percentage of employees are in Engineering and Product combined?
+      Expected: 39.6% (475 / 1,200)
+      Got:      The percentage of employees in Engineering and Product combined is not explicitl
+      Score: 0.00, Reason: no_info_found
+
+    Q195: What is the R&D spending as a percentage of revenue?
+      Expected: 36.0% (AED 174,636,000 / AED 485,100,000)
+      Got:      The R&D spending as a percentage of revenue for FY 2025 is 34.0%.
+      Score: 0.08, Reason: no_match_0.08
+
+    Q196: What is the Sales & Marketing spending as a percentage of revenue?
+      Expected: 28.1% (AED 136,143,000 / AED 485,100,000)
+      Got:      The Sales & Marketing spending as a percentage of revenue is 28.0%.
+      Score: 0.07, Reason: no_match_0.07
+
+======================================================================

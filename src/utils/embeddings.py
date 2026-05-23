@@ -112,8 +112,8 @@ class DocumentEmbedder:
         doc_type: str,
         title: str,
         content: str,
-        chunk_size: int = 512,
-        chunk_overlap: int = 50
+        chunk_size: int = 800,
+        chunk_overlap: int = 100
     ) -> Dict[str, Any]:
         """
         Chunk and embed a document, storing in database
@@ -133,8 +133,12 @@ class DocumentEmbedder:
         # Chunk the document
         chunks = self._chunk_text(content, chunk_size, chunk_overlap)
 
-        # Generate embeddings
-        embeddings = await self.embedding_service.embed_batch(chunks)
+        # Prepend document title to each chunk for embedding
+        # This ensures the embedding captures which document the chunk belongs to
+        chunks_for_embedding = [f"{title}: {chunk}" for chunk in chunks]
+
+        # Generate embeddings (with title prefix for better retrieval)
+        embeddings = await self.embedding_service.embed_batch(chunks_for_embedding)
 
         # Store in database
         async with self.db.get_postgres_connection() as conn:
@@ -332,7 +336,7 @@ class DocumentEmbedder:
             for r in initial_results:
                 if r["document_id"] not in seen_doc_ids:
                     seen_doc_ids.append(r["document_id"])
-                if len(seen_doc_ids) >= 3:
+                if len(seen_doc_ids) >= 5:
                     break
 
             expanded_results = list(initial_results)
@@ -398,13 +402,12 @@ class DocumentEmbedder:
     async def _keyword_search(
         self,
         query: str,
-        top_k: int = 5
+        top_k: int = 10
     ) -> List[Dict[str, Any]]:
         """
-        Keyword-based search using PostgreSQL full-text or ILIKE.
-        Supplements vector search for cases where exact terms matter.
+        Keyword-based search using PostgreSQL ILIKE with phrase matching
+        and multi-keyword scoring. Supplements vector search.
         """
-        # Extract significant keywords from query
         stop_words = {
             'what', 'which', 'who', 'where', 'when', 'how', 'is', 'are', 'does',
             'the', 'a', 'an', 'do', 'did', 'has', 'have', 'had', 'for', 'to',
@@ -412,44 +415,114 @@ class DocumentEmbedder:
             'been', 'being', 'will', 'would', 'could', 'should', 'can', 'may',
             'this', 'that', 'these', 'those', 'it', 'its', 'their', 'and', 'or',
             'but', 'not', 'than', 'about', 'between', 'many', 'much', 'most',
-            'name', 'total', 'expected', 'company', 'value'
+            'name', 'total', 'expected', 'company', 'value', 'one', 'listed'
         }
 
         words = query.lower().split()
-        keywords = [w.strip('?.,!()"\'-') for w in words if w.lower().strip('?.,!()"\'-') not in stop_words and len(w.strip('?.,!()"\'-')) > 2]
+        keywords = [w.strip('?.,!()"\'-') for w in words
+                     if w.lower().strip('?.,!()"\'-') not in stop_words
+                     and len(w.strip('?.,!()"\'-')) > 2]
 
         if not keywords:
             return []
 
-        results = []
+        # Build multi-word phrases from adjacent non-stop words for better matching
+        phrases = []
+        # Extract quoted phrases or capitalized multi-word names from original query
+        import re as _re
+        # Find capitalized phrases (proper nouns): "Falcon X", "Michael Chang", etc.
+        cap_phrases = _re.findall(r'[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)+', query)
+        for cp in cap_phrases:
+            phrases.append(cp.lower())
+
+        # Also try adjacent keyword pairs
+        for i in range(len(keywords) - 1):
+            phrases.append(f"{keywords[i]} {keywords[i+1]}")
+
+        # Score chunks by how many keywords they match
+        chunk_scores = {}  # (doc_id, chunk_index) -> {data, score}
+
         async with self.db.get_postgres_connection() as conn:
-            for keyword in keywords[:4]:  # Limit to top 4 keywords
+            # Phase 1: Search for multi-word phrases first (highest value)
+            for phrase in phrases[:5]:
                 rows = await conn.fetch("""
                     SELECT document_id, document_type, document_title,
                            chunk_text, chunk_index
                     FROM document_embeddings
                     WHERE chunk_text ILIKE $1
-                    ORDER BY chunk_index
-                    LIMIT $2
-                """, f'%{keyword}%', top_k)
-
+                    LIMIT 10
+                """, f'%{phrase}%')
                 for row in rows:
-                    results.append({
-                        "document_id": row["document_id"],
-                        "document_type": row["document_type"],
-                        "title": row["document_title"],
-                        "text": row["chunk_text"],
-                        "chunk_index": row["chunk_index"],
-                        "similarity": 0.6  # Keyword match baseline similarity
-                    })
+                    key = (row["document_id"], row["chunk_index"])
+                    if key not in chunk_scores:
+                        chunk_scores[key] = {
+                            "document_id": row["document_id"],
+                            "document_type": row["document_type"],
+                            "title": row["document_title"],
+                            "text": row["chunk_text"],
+                            "chunk_index": row["chunk_index"],
+                            "keyword_hits": 0,
+                        }
+                    chunk_scores[key]["keyword_hits"] += 3  # Phrase match is worth 3x
 
-        # Deduplicate by (document_id, chunk_index)
-        seen = set()
-        unique = []
-        for r in results:
-            key = (r["document_id"], r["chunk_index"])
-            if key not in seen:
-                seen.add(key)
-                unique.append(r)
+            # Phase 2: Search for individual keywords
+            for keyword in keywords[:6]:
+                rows = await conn.fetch("""
+                    SELECT document_id, document_type, document_title,
+                           chunk_text, chunk_index
+                    FROM document_embeddings
+                    WHERE chunk_text ILIKE $1
+                    LIMIT 15
+                """, f'%{keyword}%')
+                for row in rows:
+                    key = (row["document_id"], row["chunk_index"])
+                    if key not in chunk_scores:
+                        chunk_scores[key] = {
+                            "document_id": row["document_id"],
+                            "document_type": row["document_type"],
+                            "title": row["document_title"],
+                            "text": row["chunk_text"],
+                            "chunk_index": row["chunk_index"],
+                            "keyword_hits": 0,
+                        }
+                    chunk_scores[key]["keyword_hits"] += 1
 
-        return unique[:top_k * 2]
+            # Phase 3: Also search document titles
+            for keyword in keywords[:4]:
+                rows = await conn.fetch("""
+                    SELECT document_id, document_type, document_title,
+                           chunk_text, chunk_index
+                    FROM document_embeddings
+                    WHERE document_title ILIKE $1
+                    LIMIT 10
+                """, f'%{keyword}%')
+                for row in rows:
+                    key = (row["document_id"], row["chunk_index"])
+                    if key not in chunk_scores:
+                        chunk_scores[key] = {
+                            "document_id": row["document_id"],
+                            "document_type": row["document_type"],
+                            "title": row["document_title"],
+                            "text": row["chunk_text"],
+                            "chunk_index": row["chunk_index"],
+                            "keyword_hits": 0,
+                        }
+                    chunk_scores[key]["keyword_hits"] += 2  # Title match is worth 2x
+
+        # Sort by keyword hit score and return top results
+        scored = sorted(chunk_scores.values(), key=lambda x: -x["keyword_hits"])
+
+        results = []
+        for item in scored[:top_k]:
+            max_hits = scored[0]["keyword_hits"] if scored else 1
+            sim = 0.5 + 0.4 * (item["keyword_hits"] / max(max_hits, 1))
+            results.append({
+                "document_id": item["document_id"],
+                "document_type": item["document_type"],
+                "title": item["title"],
+                "text": item["text"],
+                "chunk_index": item["chunk_index"],
+                "similarity": min(sim, 0.85),
+            })
+
+        return results
