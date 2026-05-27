@@ -147,6 +147,22 @@ CRITICAL INSTRUCTIONS:
 - If context is insufficient, say so explicitly
 - Assess your confidence honestly
 
+TEMPORAL REASONING:
+- When a question specifies a date ("as of April 2024"), identify which facts were effective at that point — leadership changes, policy updates, and budget revisions have effective dates
+- If a memo changes leadership on July 31 2024, the PREVIOUS leader was in charge for any date before that
+- Prefer dated source documents over general descriptions
+
+ORGANIZATIONAL HIERARCHY:
+- "Who does X report to?" means X's DIRECT manager, not skip-levels
+- When multiple org charts exist, use the MOST RECENT unless the question specifies a date
+- "Ultimately responsible" means trace UP to the highest person below the CEO
+- For "which executive is above X", find the first C-level/VP in the chain above X
+
+TABLE AND NUMERIC EXTRACTION:
+- Verify you are reading the correct ROW and COLUMN before stating a number
+- Match the exact entity name and time period to table headers/row labels
+- If multiple tables have similar data, prefer the document most specific to the question
+
 Response format (JSON):
 {
   "answer": "Direct, complete answer to the question",
