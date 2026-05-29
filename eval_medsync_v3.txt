@@ -1,0 +1,154 @@
+
+======================================================================
+EVALUATION REPORT: MedSync Health
+======================================================================
+  Date:          2026-05-29 21:39:54
+  Total:         215
+  Passed:        190 (88.4%)
+  Failed:        25 (11.6%)
+  Avg Score:     0.836
+  Avg Latency:   3.6s
+
+  By Category:
+    COMPARISON                    : 20/25 (80%)
+    METRIC                        : 58/62 (94%)
+    MULTI                         : 14/20 (70%)
+    POLICY                        : 31/35 (89%)
+    SIMPLE                        : 40/43 (93%)
+    TEMPORAL                      : 27/30 (90%)
+
+  By Difficulty:
+    EASY                          : 132/138 (96%)
+    EASY                          : 132/138 (96%)
+    MEDIUM                        : 38/49 (78%)
+    MEDIUM                        : 38/49 (78%)
+    HARD                          : 11/13 (85%)
+    HARD                          : 11/13 (85%)
+
+  Failed Questions (25):
+    Q5: How many offices does MedSync Health have?
+      Expected: 4 offices (Boston, London, Berlin, Singapore)
+      Got:      MedSync Health has four primary offices.
+      Score: 0.19, Reason: no_match_0.19
+
+    Q108: What is the time gap between MedSync Connect and MedSync Analytics lau
+      Expected: 6 months (March 2020 to September 2020)
+      Got:      The time gap between the launches of MedSync Connect and MedSync Analytics is ap
+      Score: 0.11, Reason: no_match_0.11
+
+    Q109: What is the time gap between Series C and Series D funding rounds?
+      Expected: 19 months (November 2022 to June 2024)
+      Got:      The time gap between Series C and Series D funding rounds is approximately 1 yea
+      Score: 0.12, Reason: no_match_0.12
+
+    Q113: When was the Series B funding round completed?
+      Expected: March 2021
+      Got:      The Series B funding round completion date is not specified in the provided cont
+      Score: 0.00, Reason: no_info_found
+
+    Q123: Which product generates the most revenue?
+      Expected: MedSync Connect with AED 186,690,000 in FY 2024
+      Got:      The MedSync Compliance Suite generates the most revenue.
+      Score: 0.39, Reason: no_match_0.39
+
+    Q124: Which product generates the least revenue?
+      Expected: MedSync Compliance Suite with AED 71,347,500 in FY 2024
+      Got:      MedSync Patient Portal generates the least revenue.
+      Score: 0.38, Reason: no_match_0.38
+
+    Q125: Which department has the most employees?
+      Expected: Engineering with 380 employees
+      Got:      The context does not provide specific information on which department has the mo
+      Score: 0.00, Reason: no_info_found
+
+    Q130: Which region generates the least revenue?
+      Expected: APAC with AED 48,510,000 (10% of total)
+      Got:      The context does not provide specific information about which region generates t
+      Score: 0.00, Reason: no_info_found
+
+    Q144: Which half of 2024 had higher revenue, H1 or H2?
+      Expected: H2 with AED 257,250,000 vs H1 with AED 227,850,000
+      Got:      H2 2024 had higher revenue than H1 2024.
+      Score: 0.33, Reason: no_match_0.33
+
+    Q154: What is the maximum expense approval limit for directors?
+      Expected: [Answer depends on document content]
+      Got:      The context does not provide specific information about the maximum expense appr
+      Score: 0.00, Reason: policy_no_answer
+
+    Q156: What is the minimum tenure required for promotion to Director?
+      Expected: [Answer depends on document content]
+      Got:      The context does not provide specific information about the minimum tenure requi
+      Score: 0.00, Reason: policy_no_answer
+
+    Q163: How often must passwords be changed?
+      Expected: [Answer depends on document content]
+      Got:      The context does not provide specific information on how often passwords must be
+      Score: 0.00, Reason: policy_no_answer
+
+    Q170: What is the liability cap in the Master Service Agreement?
+      Expected: [Answer depends on document content]
+      Got:      The context does not provide information about the liability cap in the Master S
+      Score: 0.00, Reason: policy_no_answer
+
+    Q188: What percentage of employees work in the Boston HQ?
+      Expected: 54.2% (650 / 1,200)
+      Got:      The context does not provide the specific percentage of employees working in the
+      Score: 0.00, Reason: no_info_found
+
+    Q189: What percentage of employees are in Engineering and Product combined?
+      Expected: 39.6% (475 / 1,200)
+      Got:      The percentage of employees in Engineering and Product combined is 31.67%.
+      Score: 0.09, Reason: no_match_0.09
+
+    Q194: What percentage of employees are in go-to-market functions (Sales + Ma
+      Expected: 40.4% (485 / 1,200)
+      Got:      The percentage of employees in go-to-market functions (Sales + Marketing + Custo
+      Score: 0.08, Reason: no_match_0.08
+
+    Q195: What is the R&D spending as a percentage of revenue?
+      Expected: 36.0% (AED 174,636,000 / AED 485,100,000)
+      Got:      The R&D spending as a percentage of revenue for FY 2024 is less than 36%.
+      Score: 0.12, Reason: no_match_0.12
+
+    Q196: What is the Sales & Marketing spending as a percentage of revenue?
+      Expected: 28.1% (AED 136,143,000 / AED 485,100,000)
+      Got:      The Sales & Marketing spending as a percentage of revenue is 28.0%.
+      Score: 0.07, Reason: no_match_0.07
+
+    Q199: What is the employee growth rate from Q4 2023 to Q4 2024?
+      Expected: 9.1% (100 new employees / 1,100 base)
+      Got:      The employee growth rate from Q4 2023 to Q4 2024 is 9.09%.
+      Score: 0.27, Reason: no_match_0.27
+
+    Q201: What is the company's target IPO date?
+      Expected: [NOT IN DOCUMENTS]
+      Got:      The company's target IPO date is within the next 18-24 months from June 2024.
+      Score: 0.00, Reason: trick_hallucinated
+
+    Q202: Who are the members of the Board of Directors?
+      Expected: [NOT IN DOCUMENTS]
+      Got:      The members of the Board of Directors are Dr. Sarah Chen, Michael Rodriguez, Pri
+      Score: 0.00, Reason: trick_hallucinated
+
+    Q204: What is the customer satisfaction score (CSAT)?
+      Expected: [NOT IN DOCUMENTS - only NPS is provided]
+      Got:      The customer satisfaction score, measured by the Net Promoter Score (NPS), for M
+      Score: 0.00, Reason: trick_hallucinated
+
+    Q206: What is the employee satisfaction score (eNPS)?
+      Expected: [NOT IN DOCUMENTS]
+      Got:      The overall Net Promoter Score (NPS) for the company in Q4 2024 was 71.
+      Score: 0.00, Reason: trick_hallucinated
+
+    Q208: What is the average time to close for enterprise deals?
+      Expected: [NOT IN DOCUMENTS - only average sales cycle is provided]
+      Got:      The average time to close for enterprise deals, specifically for hospitals, is 8
+      Score: 0.00, Reason: trick_hallucinated
+
+    Q213: What is the average time to implement for new customers?
+      Expected: [NOT IN DOCUMENTS]
+      Got:      The average time-to-value for new customer onboarding is targeted to be less tha
+      Score: 0.00, Reason: trick_hallucinated
+
+======================================================================

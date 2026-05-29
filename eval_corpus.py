@@ -522,88 +522,124 @@ def run_extraction(client: httpx.Client, documents: list, batch_size: int = 5):
 def run_evaluation(client: httpx.Client, questions: list) -> list:
     """Run all evaluation questions and collect results"""
     results = []
+    QUERY_DELAY = 1.5  # seconds between queries to avoid OpenAI rate limits
+    MAX_RETRIES = 3    # retry on 429 with exponential backoff
 
     for i, q in enumerate(questions):
         q_id = q["id"]
         question = q["question"]
         expected = q["expected_answer"]
 
+        # Throttle to stay within rate limits
+        if i > 0:
+            time.sleep(QUERY_DELAY)
+
         print(f"  [{i + 1}/{len(questions)}] Q{q_id}: {question[:80]}...")
 
-        try:
-            start = time.time()
-            resp = client.post(
-                f"{API_BASE}/query",
-                json={"query": question},
-                timeout=TIMEOUT
-            )
-            elapsed = time.time() - start
+        for attempt in range(MAX_RETRIES):
+            try:
+                start = time.time()
+                resp = client.post(
+                    f"{API_BASE}/query",
+                    json={"query": question},
+                    timeout=TIMEOUT
+                )
+                elapsed = time.time() - start
 
-            if resp.status_code == 200:
-                data = resp.json()
-                if data.get("success") and data.get("response"):
-                    actual_answer = data["response"]["answer"]
-                    confidence = data["response"]["confidence"]
+                if resp.status_code == 200:
+                    data = resp.json()
+                    if data.get("success") and data.get("response"):
+                        actual_answer = data["response"]["answer"]
+                        confidence = data["response"]["confidence"]
 
-                    # Score
-                    score_result = score_answer(actual_answer, expected, question)
+                        # Detect 429 passed through in the answer text
+                        if "429" in actual_answer and "Too Many Requests" in actual_answer:
+                            if attempt < MAX_RETRIES - 1:
+                                wait = 5 * (2 ** attempt)  # 5s, 10s, 20s
+                                print(f"    Rate limited, retrying in {wait}s (attempt {attempt + 1}/{MAX_RETRIES})...")
+                                time.sleep(wait)
+                                continue
 
-                    status = "PASS" if score_result["pass"] else "FAIL"
-                    print(f"    {status} (score={score_result['score']:.2f}, "
-                          f"conf={confidence:.2f}, {elapsed:.1f}s) "
-                          f"[{score_result['reason']}]")
+                        # Score
+                        score_result = score_answer(actual_answer, expected, question)
 
-                    if not score_result["pass"]:
-                        print(f"    Expected: {expected}")
-                        print(f"    Got:      {actual_answer[:200]}")
+                        status = "PASS" if score_result["pass"] else "FAIL"
+                        print(f"    {status} (score={score_result['score']:.2f}, "
+                              f"conf={confidence:.2f}, {elapsed:.1f}s) "
+                              f"[{score_result['reason']}]")
 
-                    results.append({
-                        "q_id": q_id,
-                        "question": question,
-                        "expected": expected,
-                        "actual": actual_answer,
-                        "confidence": confidence,
-                        "pass": score_result["pass"],
-                        "score": score_result["score"],
-                        "reason": score_result["reason"],
-                        "latency_s": elapsed,
-                        "category": q.get("category", ""),
-                        "difficulty": q.get("difficulty", ""),
-                    })
-                else:
-                    error = data.get("error", {}).get("message", "Unknown error")
-                    print(f"    ERROR: {error}")
+                        if not score_result["pass"]:
+                            print(f"    Expected: {expected}")
+                            print(f"    Got:      {actual_answer[:200]}")
+
+                        results.append({
+                            "q_id": q_id,
+                            "question": question,
+                            "expected": expected,
+                            "actual": actual_answer,
+                            "confidence": confidence,
+                            "pass": score_result["pass"],
+                            "score": score_result["score"],
+                            "reason": score_result["reason"],
+                            "latency_s": elapsed,
+                            "category": q.get("category", ""),
+                            "difficulty": q.get("difficulty", ""),
+                        })
+                    else:
+                        error = data.get("error", {}).get("message", "Unknown error")
+                        if "429" in str(error) and attempt < MAX_RETRIES - 1:
+                            wait = 5 * (2 ** attempt)
+                            print(f"    Rate limited, retrying in {wait}s (attempt {attempt + 1}/{MAX_RETRIES})...")
+                            time.sleep(wait)
+                            continue
+                        print(f"    ERROR: {error}")
+                        results.append({
+                            "q_id": q_id, "question": question, "expected": expected,
+                            "actual": f"ERROR: {error}", "confidence": 0, "pass": False,
+                            "score": 0, "reason": "api_error", "latency_s": elapsed,
+                            "category": q.get("category", ""), "difficulty": q.get("difficulty", ""),
+                        })
+                elif resp.status_code == 429:
+                    if attempt < MAX_RETRIES - 1:
+                        wait = 5 * (2 ** attempt)
+                        print(f"    Rate limited (HTTP 429), retrying in {wait}s...")
+                        time.sleep(wait)
+                        continue
+                    print(f"    HTTP ERROR: 429 (exhausted retries)")
                     results.append({
                         "q_id": q_id, "question": question, "expected": expected,
-                        "actual": f"ERROR: {error}", "confidence": 0, "pass": False,
-                        "score": 0, "reason": "api_error", "latency_s": elapsed,
+                        "actual": "HTTP 429 Too Many Requests", "confidence": 0, "pass": False,
+                        "score": 0, "reason": "rate_limited", "latency_s": 0,
                         "category": q.get("category", ""), "difficulty": q.get("difficulty", ""),
                     })
-            else:
-                print(f"    HTTP ERROR: {resp.status_code}")
+                else:
+                    print(f"    HTTP ERROR: {resp.status_code}")
+                    results.append({
+                        "q_id": q_id, "question": question, "expected": expected,
+                        "actual": f"HTTP {resp.status_code}", "confidence": 0, "pass": False,
+                        "score": 0, "reason": f"http_{resp.status_code}", "latency_s": 0,
+                        "category": q.get("category", ""), "difficulty": q.get("difficulty", ""),
+                    })
+                break  # Success or non-retryable error
+
+            except httpx.TimeoutException:
+                print(f"    TIMEOUT after {TIMEOUT}s")
                 results.append({
                     "q_id": q_id, "question": question, "expected": expected,
-                    "actual": f"HTTP {resp.status_code}", "confidence": 0, "pass": False,
-                    "score": 0, "reason": f"http_{resp.status_code}", "latency_s": 0,
+                    "actual": "TIMEOUT", "confidence": 0, "pass": False,
+                    "score": 0, "reason": "timeout", "latency_s": TIMEOUT,
                     "category": q.get("category", ""), "difficulty": q.get("difficulty", ""),
                 })
-
-        except httpx.TimeoutException:
-            print(f"    TIMEOUT after {TIMEOUT}s")
-            results.append({
-                "q_id": q_id, "question": question, "expected": expected,
-                "actual": "TIMEOUT", "confidence": 0, "pass": False,
-                "score": 0, "reason": "timeout", "latency_s": TIMEOUT,
-                "category": q.get("category", ""), "difficulty": q.get("difficulty", ""),
-            })
-        except Exception as e:
-            print(f"    EXCEPTION: {e}")
-            results.append({
-                "q_id": q_id, "question": question, "expected": expected,
-                "actual": f"EXCEPTION: {e}", "confidence": 0, "pass": False,
-                "score": 0, "reason": "exception", "latency_s": 0,
-                "category": q.get("category", ""), "difficulty": q.get("difficulty", ""),
-            })
+                break
+            except Exception as e:
+                print(f"    EXCEPTION: {e}")
+                results.append({
+                    "q_id": q_id, "question": question, "expected": expected,
+                    "actual": f"EXCEPTION: {e}", "confidence": 0, "pass": False,
+                    "score": 0, "reason": "exception", "latency_s": 0,
+                    "category": q.get("category", ""), "difficulty": q.get("difficulty", ""),
+                })
+                break
 
     return results
 

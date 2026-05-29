@@ -1,0 +1,111 @@
+
+======================================================================
+EVALUATION REPORT: Nexus Industries
+======================================================================
+  Date:          2026-05-29 20:55:42
+  Total:         100
+  Passed:        84 (84.0%)
+  Failed:        16 (16.0%)
+  Avg Score:     0.817
+  Avg Latency:   3.0s
+
+  By Category:
+    comparison                    : 6/8 (75%)
+    date_extraction               : 10/11 (91%)
+    entity_extraction             : 10/12 (83%)
+    hierarchy_reasoning           : 5/5 (100%)
+    multi_hop_reasoning           : 10/13 (77%)
+    numeric_extraction            : 17/19 (89%)
+    property_extraction           : 15/18 (83%)
+    relationship_extraction       : 11/14 (79%)
+
+  By Difficulty:
+    EASY                          : 9/10 (90%)
+    EASY                          : 9/10 (90%)
+    MEDIUM                        : 37/46 (80%)
+    MEDIUM                        : 37/46 (80%)
+    HARD                          : 38/44 (86%)
+    HARD                          : 38/44 (86%)
+
+  Failed Questions (16):
+    Q15: Who does Michael Chang report to?
+      Expected: Dr. Victoria Chen (CEO)
+      Got:      The context does not provide information on who Michael Chang reports to.
+      Score: 0.00, Reason: no_info_found
+
+    Q22: What is the capacity of the Desert Sun Solar Farm?
+      Expected: 450 MW (full buildout)
+      Got:      The Desert Sun Solar Farm has a generating capacity of 350 MW.
+      Score: 0.12, Reason: no_match_0.12
+
+    Q24: What is the hydrogen production capacity of the GreenHydrogen facility
+      Expected: 425 kg/hour (Phase 1) or 10,200 kg/day
+      Got:      The hydrogen production capacity of the GreenHydrogen facility is 45 tonnes per 
+      Score: 0.16, Reason: no_match_0.16
+
+    Q33: How much hydrogen will Shell purchase annually under the offtake agree
+      Expected: Minimum 300,000 kg/year initially, ramping to 2.5M kg/year by Year 3
+      Got:      Shell will purchase 5,475 tonnes of hydrogen annually under the offtake agreemen
+      Score: 0.20, Reason: no_match_0.20
+
+    Q35: Which division had the highest revenue growth in FY2025?
+      Expected: Nexus Energy Systems (22.1% growth)
+      Got:      The Digital Solutions division had the highest revenue growth in FY2025 with a g
+      Score: 0.23, Reason: no_match_0.23
+
+    Q38: Who is the CISO of Nexus Industries?
+      Expected: Jennifer Walsh (appointed January 2026, formerly Robert Kim)
+      Got:      The context provided does not contain information about the CISO of Nexus Indust
+      Score: 0.00, Reason: no_info_found
+
+    Q44: When is the Toyota JV expected to close?
+      Expected: March 1, 2026
+      Got:      The Toyota JV is expected to close when the final terms are approved and announc
+      Score: 0.06, Reason: no_match_0.06
+
+    Q71: Who is the mining automation partner?
+      Expected: Caterpillar
+      Got:      The mining automation partner is Komatsu.
+      Score: 0.19, Reason: no_match_0.19
+
+    Q80: What is the operating margin for FY2025?
+      Expected: 11.2%
+      Got:      The operating margin for FY2025 is 20.0%.
+      Score: 0.09, Reason: no_match_0.09
+
+    Q83: Who is the primary customer for the SmartGrid Controller?
+      Expected: Pacific Power (pilot customer)
+      Got:      The primary customer for the SmartGrid Controller is utility companies.
+      Score: 0.26, Reason: no_match_0.26
+
+    Q89: What is the FY2026 total benefits investment?
+      Expected: $6.0 million
+      Got:      $71M
+      Score: 0.25, Reason: no_match_0.25
+
+    Q91: Who is the VP Trade Compliance?
+      Expected: Owns the Export Control Policy (per POL-009)
+      Got:      The VP Trade Compliance is not explicitly named in the provided context.
+      Score: 0.00, Reason: no_info_found
+
+    Q93: What electrolyte material is used in the solid-state battery?
+      Expected: LLZO (Li7La3Zr2O12, Al-doped)
+      Got:      The solid-state battery uses a solid ceramic electrolyte material.
+      Score: 0.19, Reason: no_match_0.19
+
+    Q96: What is the APAC revenue target for 2030?
+      Expected: $3.5 billion
+      Got:      The APAC revenue target for 2030 is not explicitly stated in the provided docume
+      Score: 0.00, Reason: no_info_found
+
+    Q99: How does Nexus's operating margin compare to target?
+      Expected: 11.2% actual vs 11.5-12.0% target for FY2026
+      Got:      Nexus's operating margin is 21.0% for FY2026, which is higher than the previous 
+      Score: 0.26, Reason: no_match_0.26
+
+    Q100: What is the total value of top 3 customer relationships?
+      Expected: Boeing ($730M) + DoD ($680M) + Airbus ($565M) = $1.975 billion
+      Got:      The total value of the top 3 customer relationships is $622 million. This includ
+      Score: 0.10, Reason: no_match_0.10
+
+======================================================================

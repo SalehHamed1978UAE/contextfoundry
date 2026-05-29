@@ -1,0 +1,93 @@
+
+======================================================================
+EVALUATION REPORT: Asterion Robotics (ChatGPT Stress-Test)
+======================================================================
+  Date:          2026-05-27 23:29:04
+  Total:         250
+  Passed:        238 (95.2%)
+  Failed:        12 (4.8%)
+  Avg Score:     0.896
+  Avg Latency:   4.2s
+
+  By Category:
+    computation                   : 25/25 (100%)
+    cross_document                : 33/35 (94%)
+    direct_lookup                 : 48/50 (96%)
+    entity_disambiguation         : 19/20 (95%)
+    implicit_inference            : 17/17 (100%)
+    multi_hop                     : 17/20 (85%)
+    negation                      : 18/18 (100%)
+    table_extraction              : 23/25 (92%)
+    temporal_reasoning            : 28/30 (93%)
+    trick_question                : 10/10 (100%)
+
+  By Difficulty:
+    EASY                          : 71/75 (95%)
+    EASY                          : 71/75 (95%)
+    MEDIUM                        : 110/113 (97%)
+    MEDIUM                        : 110/113 (97%)
+    HARD                          : 57/62 (92%)
+    HARD                          : 57/62 (92%)
+
+  Failed Questions (12):
+    Q24: Which Asterion sites are excluded from the servo-housing ocean-freight
+      Expected: Detroit, Austin, Munich, Toronto, and Chicago.
+      Got:      The context provided does not contain information about which Asterion sites are
+      Score: 0.00, Reason: no_info_found
+
+    Q40: What review cadence is required for the TB-17 USB exception?
+      Expected: Quarterly access review.
+      Got:      The context does not provide specific information about the review cadence requi
+      Score: 0.00, Reason: no_info_found
+
+    Q82: Which project links the supplier-risk savings tracker to the supplier 
+      Expected: Project Meridian.
+      Got:      The context does not provide any information about a project that links the supp
+      Score: 0.00, Reason: no_info_found
+
+    Q83: Which current policy document should be used for remote work rather th
+      Expected: Policy Update Remote Work V3 dated 2024-09-03.
+      Got:      The context does not provide information about a current policy document for rem
+      Score: 0.00, Reason: no_info_found
+
+    Q89: As of April 2024, who led Project Atlas?
+      Expected: Daniel Okafor.
+      Got:      As of April 2024, Priya Raman led Project Atlas.
+      Score: 0.19, Reason: no_match_0.19
+
+    Q100: How many times was the Project Helios launch date updated after the or
+      Expected: Twice: first to 2024-10-01 and then to 2024-11-12.
+      Got:      The Project Helios launch date was updated two times after the original charter.
+      Score: 0.29, Reason: no_match_0.29
+
+    Q123: Which person named Chen is CTO?
+      Expected: Ethan Chen.
+      Got:      The context does not provide information about a person named Chen being the CTO
+      Score: 0.00, Reason: no_info_found
+
+    Q184: What was the Supply Chain & Quality FY2025 budget?
+      Expected: $175M.
+      Got:      The Supply Chain & Quality FY2025 budget was $24 million.
+      Score: 0.10, Reason: no_match_0.10
+
+    Q202: How many direct reports are listed under Priya Raman in the November o
+      Expected: Five: Mateo Silva, Nia Wallace, Jon Bell, Carmen Ruiz, and Iris Koh.
+      Got:      Priya Raman has five direct reports listed in the November org chart.
+      Score: 0.25, Reason: no_match_0.25
+
+    Q204: Who does the current lead of Project Atlas report to?
+      Expected: Casey O'Neill.
+      Got:      As of the CEO Memo dated July 31, 2024, Priya Raman is the current lead of Proje
+      Score: 0.10, Reason: no_match_0.10
+
+    Q218: Which executive oversees the team that manages Kestrel Motors second-s
+      Expected: Victor Mensah.
+      Got:      The executive overseeing the team that manages Kestrel Motors second-source acti
+      Score: 0.15, Reason: no_match_0.15
+
+    Q223: Which executive is above Avery Atlas in the November reporting chain?
+      Expected: Victor Mensah.
+      Got:      Casey O'Neill
+      Score: 0.15, Reason: no_match_0.15
+
+======================================================================
