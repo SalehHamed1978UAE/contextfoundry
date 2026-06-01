@@ -25,12 +25,57 @@ reasoning_agent = None
 validation_agent = None
 document_embedder = None
 semantic_cache = None
+scheduler = None
+
+
+async def _scheduled_maintenance():
+    """Run gardener maintenance tasks."""
+    from src.agents.gardener import GardenerAgent
+    from src.agents.extraction import ExtractionAgent
+
+    gardener = GardenerAgent(db_manager)
+    extractor = ExtractionAgent(db_manager)
+
+    try:
+        conflicts = await gardener.detect_conflicts()
+    except Exception:
+        conflicts = []
+
+    try:
+        stale = await gardener.get_stale_entities(days_threshold=90)
+    except Exception:
+        stale = []
+
+    evolution = await extractor.rule_evolver()
+
+    # Also run cache and working-memory cleanup
+    if semantic_cache:
+        await semantic_cache.cleanup_expired()
+
+    try:
+        from src.memory.working_memory import WorkingMemory
+        wm = WorkingMemory(db_manager)
+        await wm.cleanup_expired()
+    except Exception:
+        pass
+
+    print(
+        f"[maintenance] conflicts={len(conflicts)} stale={len(stale)} "
+        f"rules_disabled={len(evolution['disabled'])} "
+        f"rules_promoted={len(evolution['promoted'])} "
+        f"rules_demoted={len(evolution['demoted'])}"
+    )
+    return {
+        "conflicts": conflicts,
+        "stale": stale,
+        "rule_evolution": evolution,
+    }
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup and shutdown events"""
-    global retrieval_agent, reasoning_agent, validation_agent, document_embedder, semantic_cache
+    global retrieval_agent, reasoning_agent, validation_agent, document_embedder, semantic_cache, scheduler
 
     # Startup
     print("\n" + "="*50)
@@ -55,6 +100,15 @@ async def lifespan(app: FastAPI):
         await semantic_cache.ensure_table()
         print("✓ Semantic cache initialized")
 
+        # Initialize scheduler
+        from apscheduler.schedulers.asyncio import AsyncIOScheduler
+        scheduler = AsyncIOScheduler()
+        scheduler.add_job(
+            _scheduled_maintenance, "interval", hours=6, id="maintenance"
+        )
+        scheduler.start()
+        print("✓ Scheduler initialized (maintenance every 6h)")
+
         print("✓ All agents initialized")
         print("\n✓ All systems operational\n")
     except Exception as e:
@@ -67,6 +121,8 @@ async def lifespan(app: FastAPI):
     print("\n" + "="*50)
     print("Shutting down Context Foundry")
     print("="*50 + "\n")
+    if scheduler:
+        scheduler.shutdown(wait=False)
     await close_databases()
 
 
@@ -166,6 +222,14 @@ async def query(request: QueryRequest):
                 request.query,
                 response.answer
             )
+
+        # Step 5.5: Knowledge file-back
+        try:
+            from src.agents.knowledge_fileback import KnowledgeFileBack
+            fileback = KnowledgeFileBack(db_manager)
+            await fileback.process(request.query, response, bundle)
+        except Exception:
+            pass  # File-back failure must not block query response
 
         # Step 6: Cache the response
         if semantic_cache:
@@ -683,6 +747,21 @@ async def admin_reset():
         await conn.execute("SELECT create_graph('cf_knowledge')")
 
     return {"status": "reset_complete", "message": "All data tables cleared"}
+
+
+@app.post("/admin/maintenance")
+async def admin_maintenance():
+    """Trigger scheduled maintenance on demand."""
+    try:
+        result = await _scheduled_maintenance()
+        return {
+            "status": "maintenance_complete",
+            "conflicts": len(result["conflicts"]),
+            "stale_entities": len(result["stale"]),
+            "rule_evolution": result["rule_evolution"],
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/admin/ingest")

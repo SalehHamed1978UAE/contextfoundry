@@ -536,6 +536,55 @@ Return format: {{"relationships": [{{"source_name": "entity1", "relationship_typ
             "errors": errors
         }
 
+    async def rule_evolver(self) -> Dict[str, Any]:
+        """
+        Adjust rule priorities and enabled status based on application history.
+
+        1. Disable rules with times_applied >= 50 AND violation_rate > 80%
+        2. Increase priority by 1 for rules with times_applied >= 20 AND 0 violations
+        3. Decrease priority by 1 for rules with times_applied >= 20
+           AND violation_rate between 40%-80%
+        """
+        disabled = []
+        promoted = []
+        demoted = []
+
+        async with self.db.get_postgres_connection() as conn:
+            # Step 1: Disable broken rules
+            rows = await conn.fetch("""
+                UPDATE symbolic_rules
+                SET enabled = false, updated_at = NOW()
+                WHERE times_applied >= 50
+                  AND times_violated::float / GREATEST(times_applied, 1) > 0.8
+                  AND enabled = true
+                RETURNING rule_name
+            """)
+            disabled = [r["rule_name"] for r in rows]
+
+            # Step 2: Promote clean rules
+            rows = await conn.fetch("""
+                UPDATE symbolic_rules
+                SET priority = priority + 1, updated_at = NOW()
+                WHERE times_applied >= 20
+                  AND times_violated = 0
+                  AND enabled = true
+                RETURNING rule_name
+            """)
+            promoted = [r["rule_name"] for r in rows]
+
+            # Step 3: Demote noisy rules
+            rows = await conn.fetch("""
+                UPDATE symbolic_rules
+                SET priority = GREATEST(priority - 1, 0), updated_at = NOW()
+                WHERE times_applied >= 20
+                  AND times_violated::float / GREATEST(times_applied, 1) BETWEEN 0.4 AND 0.8
+                  AND enabled = true
+                RETURNING rule_name
+            """)
+            demoted = [r["rule_name"] for r in rows]
+
+        return {"disabled": disabled, "promoted": promoted, "demoted": demoted}
+
     async def _find_entity_id_by_name(self, conn, name: str) -> Optional[str]:
         """Find entity ID by canonical name in STAGING or TRUSTED"""
 
