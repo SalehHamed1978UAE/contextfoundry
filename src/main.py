@@ -5,7 +5,13 @@ import uuid
 
 from src.config import settings
 from src.db.connection import init_databases, close_databases, db_manager
-from src.models.schemas import QueryRequest, QueryResponse
+from src.models.schemas import (
+    QueryRequest, QueryResponse,
+    EntityResponse, EntityDetailResponse, EntityListResponse,
+    RelationshipResponse, RelationshipListResponse,
+    DocumentChunkResponse, DocumentListResponse,
+    SimilarDocumentResponse, DocumentSearchResponse,
+)
 from src.agents.retrieval import RetrievalAgent
 from src.agents.reasoning import ReasoningAgent
 from src.agents.validation import ValidationAgent
@@ -18,12 +24,13 @@ retrieval_agent = None
 reasoning_agent = None
 validation_agent = None
 document_embedder = None
+semantic_cache = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup and shutdown events"""
-    global retrieval_agent, reasoning_agent, validation_agent, document_embedder
+    global retrieval_agent, reasoning_agent, validation_agent, document_embedder, semantic_cache
 
     # Startup
     print("\n" + "="*50)
@@ -40,6 +47,13 @@ async def lifespan(app: FastAPI):
         retrieval_agent = RetrievalAgent(db_manager, document_embedder)
         reasoning_agent = ReasoningAgent(db_manager)
         validation_agent = ValidationAgent(db_manager)
+
+        # Initialize cache
+        from src.utils.cache import SemanticCache
+        redis_client = await db_manager.get_redis_client()
+        semantic_cache = SemanticCache(db_manager, embedding_service, redis_client)
+        await semantic_cache.ensure_table()
+        print("✓ Semantic cache initialized")
 
         print("✓ All agents initialized")
         print("\n✓ All systems operational\n")
@@ -116,6 +130,17 @@ async def query(request: QueryRequest):
         )
 
     try:
+        # Check cache first
+        if semantic_cache:
+            cached = await semantic_cache.get(request.query)
+            if cached:
+                from src.models.schemas import ReasoningResponse as RR
+                return QueryResponse(
+                    success=True,
+                    response=RR(**cached),
+                    error=None,
+                )
+
         # Step 1: Build context bundle
         bundle = await retrieval_agent.build_context_bundle(
             query=request.query,
@@ -140,6 +165,14 @@ async def query(request: QueryRequest):
                 str(request.session_id),
                 request.query,
                 response.answer
+            )
+
+        # Step 6: Cache the response
+        if semantic_cache:
+            await semantic_cache.put(
+                request.query,
+                response.model_dump(mode="json"),
+                response.confidence,
             )
 
         return QueryResponse(
@@ -383,6 +416,239 @@ async def get_stats():
             "queries_processed": query_count,
             "feedback_records": feedback_count
         }
+
+
+# ============================================
+# STRUCTURED QUERY ENDPOINTS
+# ============================================
+
+@app.get("/entities", response_model=EntityListResponse)
+async def list_entities(
+    type: str = None,
+    name: str = None,
+    state: str = "TRUSTED",
+    min_confidence: float = 0.0,
+    limit: int = 50,
+    offset: int = 0,
+):
+    """Search entities in the knowledge graph."""
+    conditions = ["lifecycle_state = $1", "confidence >= $2"]
+    params = [state, min_confidence]
+    idx = 3
+
+    if type:
+        conditions.append(f"entity_type = ${idx}")
+        params.append(type)
+        idx += 1
+    if name:
+        conditions.append(f"extracted_text ILIKE ${idx}")
+        params.append(f"%{name}%")
+        idx += 1
+
+    where = " AND ".join(conditions)
+
+    async with db_manager.get_postgres_connection() as conn:
+        total = await conn.fetchval(
+            f"SELECT COUNT(*) FROM graph_lifecycle WHERE {where}", *params
+        )
+        rows = await conn.fetch(
+            f"""SELECT entity_id, entity_type, lifecycle_state,
+                       confidence, extracted_text, source_document_id,
+                       created_at, updated_at
+                FROM graph_lifecycle
+                WHERE {where}
+                ORDER BY confidence DESC
+                LIMIT ${idx} OFFSET ${idx + 1}""",
+            *params, limit, offset,
+        )
+
+    return EntityListResponse(
+        entities=[EntityResponse(**dict(r)) for r in rows],
+        total=total or 0,
+        limit=limit,
+        offset=offset,
+    )
+
+
+@app.get("/entities/{entity_id}", response_model=EntityDetailResponse)
+async def get_entity(entity_id: uuid.UUID):
+    """Get a single entity with its relationships."""
+    async with db_manager.get_postgres_connection() as conn:
+        row = await conn.fetchrow(
+            """SELECT entity_id, entity_type, lifecycle_state,
+                      confidence, extracted_text, source_document_id,
+                      created_at, updated_at
+               FROM graph_lifecycle WHERE entity_id = $1""",
+            entity_id,
+        )
+        if not row:
+            raise HTTPException(status_code=404, detail="Entity not found")
+
+        rels = await conn.fetch(
+            """SELECT rm.relationship_id, rm.source_entity_id, rm.target_entity_id,
+                      rm.relationship_type, rm.confidence, rm.lifecycle_state,
+                      src.extracted_text AS source_entity_name,
+                      src.entity_type AS source_entity_type,
+                      tgt.extracted_text AS target_entity_name,
+                      tgt.entity_type AS target_entity_type
+               FROM relationship_metadata rm
+               JOIN graph_lifecycle src ON rm.source_entity_id = src.entity_id
+               JOIN graph_lifecycle tgt ON rm.target_entity_id = tgt.entity_id
+               WHERE rm.source_entity_id = $1 OR rm.target_entity_id = $1""",
+            entity_id,
+        )
+
+    entity_data = dict(row)
+    entity_data["relationships"] = [dict(r) for r in rels]
+    return EntityDetailResponse(**entity_data)
+
+
+@app.get("/relationships", response_model=RelationshipListResponse)
+async def list_relationships(
+    source_type: str = None,
+    target_type: str = None,
+    relationship_type: str = None,
+    min_confidence: float = 0.0,
+    limit: int = 50,
+    offset: int = 0,
+):
+    """Search relationships in the knowledge graph."""
+    conditions = ["rm.confidence >= $1"]
+    params = [min_confidence]
+    idx = 2
+
+    if source_type:
+        conditions.append(f"src.entity_type = ${idx}")
+        params.append(source_type)
+        idx += 1
+    if target_type:
+        conditions.append(f"tgt.entity_type = ${idx}")
+        params.append(target_type)
+        idx += 1
+    if relationship_type:
+        conditions.append(f"rm.relationship_type = ${idx}")
+        params.append(relationship_type)
+        idx += 1
+
+    where = " AND ".join(conditions)
+
+    async with db_manager.get_postgres_connection() as conn:
+        total = await conn.fetchval(
+            f"""SELECT COUNT(*) FROM relationship_metadata rm
+                JOIN graph_lifecycle src ON rm.source_entity_id = src.entity_id
+                JOIN graph_lifecycle tgt ON rm.target_entity_id = tgt.entity_id
+                WHERE {where}""",
+            *params,
+        )
+        rows = await conn.fetch(
+            f"""SELECT rm.relationship_id, rm.source_entity_id, rm.target_entity_id,
+                       rm.relationship_type, rm.confidence, rm.lifecycle_state,
+                       src.extracted_text AS source_entity_name,
+                       src.entity_type AS source_entity_type,
+                       tgt.extracted_text AS target_entity_name,
+                       tgt.entity_type AS target_entity_type
+                FROM relationship_metadata rm
+                JOIN graph_lifecycle src ON rm.source_entity_id = src.entity_id
+                JOIN graph_lifecycle tgt ON rm.target_entity_id = tgt.entity_id
+                WHERE {where}
+                ORDER BY rm.confidence DESC
+                LIMIT ${idx} OFFSET ${idx + 1}""",
+            *params, limit, offset,
+        )
+
+    return RelationshipListResponse(
+        relationships=[RelationshipResponse(**dict(r)) for r in rows],
+        total=total or 0,
+        limit=limit,
+        offset=offset,
+    )
+
+
+@app.get("/documents", response_model=DocumentListResponse)
+async def list_documents(
+    query: str = None,
+    title: str = None,
+    doc_type: str = None,
+    limit: int = 50,
+    offset: int = 0,
+):
+    """Search document chunks by keyword."""
+    conditions = []
+    params = []
+    idx = 1
+
+    if query:
+        conditions.append(f"(chunk_text ILIKE ${idx} OR document_title ILIKE ${idx})")
+        params.append(f"%{query}%")
+        idx += 1
+    if title:
+        conditions.append(f"document_title ILIKE ${idx}")
+        params.append(f"%{title}%")
+        idx += 1
+    if doc_type:
+        conditions.append(f"document_type = ${idx}")
+        params.append(doc_type)
+        idx += 1
+
+    where = " WHERE " + " AND ".join(conditions) if conditions else ""
+
+    async with db_manager.get_postgres_connection() as conn:
+        total = await conn.fetchval(
+            f"SELECT COUNT(*) FROM document_embeddings{where}", *params
+        )
+        rows = await conn.fetch(
+            f"""SELECT id, document_id, document_type, document_title,
+                       chunk_text, chunk_index, created_at
+                FROM document_embeddings{where}
+                ORDER BY document_id, chunk_index
+                LIMIT ${idx} OFFSET ${idx + 1}""",
+            *params, limit, offset,
+        )
+
+    return DocumentListResponse(
+        documents=[DocumentChunkResponse(**dict(r)) for r in rows],
+        total=total or 0,
+        limit=limit,
+        offset=offset,
+    )
+
+
+@app.get("/documents/search", response_model=DocumentSearchResponse)
+async def search_documents_vector(query: str, top_k: int = 10):
+    """Vector similarity search across documents."""
+    if document_embedder is None:
+        raise HTTPException(status_code=503, detail="Embedding service not initialized")
+
+    results = await document_embedder.search_similar(query=query, top_k=top_k)
+    return DocumentSearchResponse(
+        results=[SimilarDocumentResponse(**r) for r in results],
+        query=query,
+        top_k=top_k,
+    )
+
+
+@app.get("/documents/{document_id}", response_model=DocumentListResponse)
+async def get_document(document_id: str):
+    """Get all chunks for a specific document."""
+    async with db_manager.get_postgres_connection() as conn:
+        rows = await conn.fetch(
+            """SELECT id, document_id, document_type, document_title,
+                      chunk_text, chunk_index, created_at
+               FROM document_embeddings
+               WHERE document_id = $1
+               ORDER BY chunk_index""",
+            document_id,
+        )
+
+    if not rows:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    return DocumentListResponse(
+        documents=[DocumentChunkResponse(**dict(r)) for r in rows],
+        total=len(rows),
+        limit=len(rows),
+        offset=0,
+    )
 
 
 @app.post("/admin/reset")

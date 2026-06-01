@@ -47,9 +47,15 @@ class Settings(BaseSettings):
     # Session settings
     session_ttl_seconds: int = 3600  # 1 hour
 
+    # Cache settings
+    cache_enabled: bool = True
+    cache_ttl_seconds: int = 3600
+    cache_similarity_threshold: float = 0.95
+
     class Config:
         env_file = ".env"
         case_sensitive = False
+        extra = "ignore"
 
 
 settings = Settings()

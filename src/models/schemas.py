@@ -217,3 +217,81 @@ class QueryResponse(BaseModel):
     success: bool
     response: Optional[ReasoningResponse] = None
     error: Optional[Dict[str, Any]] = None
+
+
+# ============================================
+# STRUCTURED ENDPOINT RESPONSE MODELS
+# ============================================
+
+class EntityResponse(BaseModel):
+    entity_id: UUID
+    entity_type: str
+    lifecycle_state: str
+    confidence: float
+    extracted_text: Optional[str] = None
+    source_document_id: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+
+class EntityDetailResponse(EntityResponse):
+    relationships: List[Dict[str, Any]] = Field(default_factory=list)
+
+
+class EntityListResponse(BaseModel):
+    entities: List[EntityResponse]
+    total: int
+    limit: int
+    offset: int
+
+
+class RelationshipResponse(BaseModel):
+    relationship_id: UUID
+    source_entity_id: UUID
+    target_entity_id: UUID
+    relationship_type: str
+    confidence: float
+    lifecycle_state: str
+    source_entity_name: Optional[str] = None  # from extracted_text
+    source_entity_type: Optional[str] = None
+    target_entity_name: Optional[str] = None  # from extracted_text
+    target_entity_type: Optional[str] = None
+
+
+class RelationshipListResponse(BaseModel):
+    relationships: List[RelationshipResponse]
+    total: int
+    limit: int
+    offset: int
+
+
+class DocumentChunkResponse(BaseModel):
+    id: UUID
+    document_id: str
+    document_type: Optional[str] = None
+    document_title: Optional[str] = None
+    chunk_text: str
+    chunk_index: int
+    created_at: Optional[datetime] = None
+
+
+class DocumentListResponse(BaseModel):
+    documents: List[DocumentChunkResponse]
+    total: int
+    limit: int
+    offset: int
+
+
+class SimilarDocumentResponse(BaseModel):
+    document_id: str
+    document_type: Optional[str] = None
+    title: Optional[str] = None
+    text: str
+    chunk_index: int
+    similarity: float
+
+
+class DocumentSearchResponse(BaseModel):
+    results: List[SimilarDocumentResponse]
+    query: str
+    top_k: int
